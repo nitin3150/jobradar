@@ -18,6 +18,11 @@ dependencies = [
     "pydantic-settings>=2.7",
     "python-slugify>=8.0",
     "lxml>=5.0",
+    "litellm>=1.40",
+    "google-auth>=2.29",
+    "google-auth-oauthlib>=1.2",
+    "google-api-python-client>=2.127",
+    "rapidfuzz>=3.9",
 ]
 
 [project.optional-dependencies]

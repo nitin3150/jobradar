@@ -13,6 +13,45 @@ Add aiapply-style automation to jobradar:
 2. Queue matched jobs for review, auto-submit after review window expires
 3. Track application statuses, updated automatically via Gmail
 
+All LLM calls routed through **LiteLLM** — swap providers via env var, no code changes required.
+
+---
+
+## LLM Strategy
+
+All AI calls (fit scoring, Q&A matching, Gmail classification) go through LiteLLM as a unified gateway.
+
+```python
+# Single call pattern used everywhere
+from litellm import completion
+
+response = completion(
+    model=settings.llm_model,  # e.g. "groq/llama-3.3-70b-versatile"
+    messages=[...]
+)
+```
+
+**Config (env vars):**
+```
+LLM_MODEL=groq/llama-3.3-70b-versatile   # default — free tier
+LLM_API_KEY=<key for chosen provider>
+LLM_API_BASE=                              # optional — for self-hosted or Nvidia NIM
+```
+
+**Supported providers (LiteLLM handles routing):**
+| Provider | Example model string |
+|---|---|
+| Groq (free) | `groq/llama-3.3-70b-versatile` |
+| Nvidia NIM (free) | `nvidia_nim/meta/llama-3.3-70b-instruct` |
+| Anthropic | `claude-sonnet-4-6` |
+| OpenAI | `gpt-4o-mini` |
+| Ollama (local) | `ollama/llama3.3` |
+
+**LLM touch points:**
+1. **Fit scoring** — rate JD against profile, return score + reasoning
+2. **Q&A pass-2 matching** — semantic similarity between form field label and bank entries
+3. **Gmail classification** — classify reply as interview / rejection / other
+
 ---
 
 ## Architecture
@@ -133,7 +172,7 @@ else:
 
 **Q&A Matching — two-pass:**
 1. Exact/keyword match on `question_pattern` (no API call)
-2. Claude similarity check if pass 1 fails — score threshold: 0.75 (configurable via `QA_MATCH_THRESHOLD` env var)
+2. LiteLLM similarity check if pass 1 fails — score threshold: 0.75 (configurable via `QA_MATCH_THRESHOLD` env var)
 
 Unknown questions saved to bank with `answer=null`. User fills them in Q&A manager UI once — auto-answered in all future applications.
 
@@ -148,7 +187,7 @@ Unknown questions saved to bank with `answer=null`. User fills them in Q&A manag
 fetch Gmail threads matching label "job-applications" or subject pattern
 for each new thread:
   find Application by gmail_thread_id or subject/sender match
-  classify reply via Claude (interview / rejection / other) — 1 call per new thread
+  classify reply via LiteLLM (interview / rejection / other) — 1 call per new thread
   update Application.status
   set Application.gmail_thread_id, last_email_at
 ```
@@ -219,6 +258,8 @@ Triggered hourly via APScheduler.
 jobradar/
   backend/
     app/
+      llm/
+        client.py       # new — LiteLLM wrapper, reads LLM_MODEL from config
       scrapers/
         jobs/
           ashby.py        # new

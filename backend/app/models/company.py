@@ -68,3 +68,4 @@ class Company(Base):
     outreach_messages = relationship(
         "OutreachMessage", back_populates="company", cascade="all, delete-orphan"
     )
+    jobs = relationship("Job", back_populates="company", cascade="all, delete-orphan")

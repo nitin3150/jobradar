@@ -26,6 +26,24 @@ class Settings(BaseSettings):
     openrouter_api_key: str = ""
     apify_api_key: str = ""
 
+    # LiteLLM unified key (used when provider needs single key)
+    llm_api_key: str = ""
+    llm_api_base: str = ""  # override base URL (e.g. Nvidia NIM endpoint)
+
+    # Job scraper + review window
+    review_window_hours: int = 2
+    review_deadline_action: str = "reject"  # "reject" or "approve"
+    qa_match_threshold: float = 0.75
+
+    # Gmail connector
+    gmail_credentials_path: str = "gmail_credentials.json"
+    gmail_token_path: str = "gmail_token.json"
+    gmail_label: str = "job-applications"
+
+    # Apply worker
+    apply_worker_screenshot_dir: str = "screenshots"
+    scraper_jobs_enabled: bool = True
+
     # LLM Provider: "groq", "ollama", "gemini", "anthropic", "openrouter"
     llm_provider: str = "groq"
     llm_model: str = "llama-3.3-70b-versatile"

@@ -25,11 +25,15 @@ def _build_model_string() -> str:
     model = settings.llm_model
     provider = settings.llm_provider
 
-    # If model already contains provider prefix (e.g. "groq/llama-3.3-70b"), use as-is
-    if "/" in model:
+    # If model already starts with the provider prefix, use as-is
+    if model.startswith(f"{provider}/"):
         return model
 
-    # Otherwise prefix with provider
+    # Also accept fully-qualified strings from other providers (e.g. "groq/llama-3.3-70b")
+    known_providers = {"groq", "anthropic", "gemini", "openrouter", "nvidia_nim", "ollama", "openai"}
+    if "/" in model and model.split("/")[0] in known_providers:
+        return model
+
     return f"{provider}/{model}"
 
 

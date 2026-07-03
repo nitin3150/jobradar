@@ -16,6 +16,7 @@ def _provider_key() -> str:
         "anthropic": settings.anthropic_api_key,
         "gemini": settings.google_api_key,
         "openrouter": settings.openrouter_api_key,
+        "nvidia_nim": settings.nvidia_api_key,
     }.get(provider, "")
 
 

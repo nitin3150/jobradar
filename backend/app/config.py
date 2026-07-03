@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     google_api_key: str = ""
     groq_api_key: str = ""
     openrouter_api_key: str = ""
+    nvidia_api_key: str = ""
     apify_api_key: str = ""
 
     # LiteLLM unified key (used when provider needs single key)
@@ -44,7 +45,7 @@ class Settings(BaseSettings):
     apply_worker_screenshot_dir: str = "screenshots"
     scraper_jobs_enabled: bool = True
 
-    # LLM Provider: "groq", "ollama", "gemini", "anthropic", "openrouter"
+    # LLM Provider: "groq", "ollama", "gemini", "anthropic", "openrouter", "nvidia_nim"
     llm_provider: str = "groq"
     llm_model: str = "llama-3.3-70b-versatile"
     # Base URL (only needed for Ollama)

@@ -8,6 +8,17 @@ from litellm import completion
 from app.config import settings
 
 
+def _provider_key() -> str:
+    """Return the provider-specific API key from settings."""
+    provider = settings.llm_provider.lower()
+    return {
+        "groq": settings.groq_api_key,
+        "anthropic": settings.anthropic_api_key,
+        "gemini": settings.google_api_key,
+        "openrouter": settings.openrouter_api_key,
+    }.get(provider, "")
+
+
 def _build_model_string() -> str:
     """Build the model string for LiteLLM routing."""
     model = settings.llm_model
@@ -45,8 +56,10 @@ def llm_complete(
         "max_tokens": max_tokens,
     }
 
-    if settings.llm_api_key:
-        kwargs["api_key"] = settings.llm_api_key
+    # Prefer explicit LLM_API_KEY; fall back to provider-specific key from settings
+    api_key = settings.llm_api_key or _provider_key()
+    if api_key:
+        kwargs["api_key"] = api_key
     if settings.llm_api_base:
         kwargs["api_base"] = settings.llm_api_base
 

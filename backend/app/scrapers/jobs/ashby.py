@@ -21,12 +21,12 @@ async def fetch_ashby_jobs(client: httpx.AsyncClient, slug: str) -> list[dict]:
         resp.raise_for_status()
         data = resp.json()
         jobs = []
-        for posting in data.get("jobPostings", []):
+        for posting in data.get("jobs", []):
             html = posting.get("descriptionHtml", "") or ""
             jd_text = BeautifulSoup(html, "lxml").get_text(separator="\n", strip=True)
             jobs.append({
                 "title": posting.get("title", ""),
-                "url": posting.get("jobPostingUrl", ""),
+                "url": posting.get("jobUrl", ""),
                 "jd_text": jd_text,
                 "ats_type": "ashby",
             })

@@ -34,6 +34,20 @@ class PipelineStatusResponse(BaseModel):
     total_errors: int = 0
 
 
+# Allowed job-fetch intervals surfaced to the frontend dropdown (hours).
+SCHEDULE_OPTIONS = [1, 2, 4, 6, 12, 24]
+
+
+class ScheduleResponse(BaseModel):
+    interval_hours: int
+    options: list[int] = SCHEDULE_OPTIONS
+    next_run: datetime | None = None
+
+
+class ScheduleUpdate(BaseModel):
+    interval_hours: int
+
+
 @router.post("/run", response_model=PipelineRunResponse)
 async def trigger_pipeline(request: Request):
     """Manually trigger the full LangGraph pipeline."""
@@ -72,6 +86,40 @@ async def trigger_pipeline(request: Request):
         return PipelineRunResponse(status="failed", errors=[str(e)])
     finally:
         _is_running = False
+
+
+@router.get("/schedule", response_model=ScheduleResponse)
+async def get_schedule(request: Request):
+    """Current job-fetch interval + available options + next run time."""
+    from app.scheduler import JOB_FETCH_ID, get_fetch_interval
+
+    interval = await get_fetch_interval(request.app.state.redis)
+    next_run = None
+    scheduler = getattr(request.app.state, "scheduler", None)
+    if scheduler:
+        job = scheduler.get_job(JOB_FETCH_ID)
+        next_run = getattr(job, "next_run_time", None) if job else None
+    return ScheduleResponse(interval_hours=interval, next_run=next_run)
+
+
+@router.put("/schedule", response_model=ScheduleResponse)
+async def update_schedule(payload: ScheduleUpdate, request: Request):
+    """Set how often the job-fetch loop runs. Persists + reschedules live."""
+    from fastapi import HTTPException
+
+    from app.scheduler import JOB_FETCH_ID, set_fetch_interval
+
+    if payload.interval_hours not in SCHEDULE_OPTIONS:
+        raise HTTPException(
+            status_code=422,
+            detail=f"interval_hours must be one of {SCHEDULE_OPTIONS}",
+        )
+    await set_fetch_interval(request.app, payload.interval_hours)
+
+    scheduler = getattr(request.app.state, "scheduler", None)
+    job = scheduler.get_job(JOB_FETCH_ID) if scheduler else None
+    next_run = getattr(job, "next_run_time", None) if job else None
+    return ScheduleResponse(interval_hours=payload.interval_hours, next_run=next_run)
 
 
 @router.get("/status", response_model=PipelineStatusResponse)

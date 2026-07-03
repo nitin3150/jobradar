@@ -36,6 +36,32 @@ class Settings(BaseSettings):
     review_deadline_action: str = "reject"  # "reject" or "approve"
     qa_match_threshold: float = 0.75
 
+    # Noise gate: only save jobs at/above this fit score (0.0 disables gate)
+    job_fit_threshold: float = 0.6
+    # Target roles (used for discovery search queries + title prefilter)
+    target_roles: list[str] = [
+        "AI Engineer",
+        "Machine Learning Engineer",
+        "LLM Engineer",
+        "Software Engineer",
+    ]
+
+    # ATS board discovery (finds new company slugs via site: search)
+    discovery_enabled: bool = True
+    discovery_boards: list[str] = ["ashby", "greenhouse", "lever"]
+    # Search backend: "playwright" | "serper" | "apify"
+    discovery_search_backend: str = "playwright"
+    # Freshness window for search recency filter (Google tbs=qdr:h{N})
+    discovery_freshness_hours: int = 24
+    # How often discovery runs (isolated from the hourly fetch loop)
+    discovery_interval_hours: int = 24
+    # Max result links to parse per (role x board) query
+    discovery_max_results: int = 30
+    serper_api_key: str = ""
+
+    # Job fetch loop interval (hours). Runtime-overridable via /pipeline/schedule.
+    job_fetch_interval_hours: int = 1
+
     # Gmail connector
     gmail_credentials_path: str = "gmail_credentials.json"
     gmail_token_path: str = "gmail_token.json"

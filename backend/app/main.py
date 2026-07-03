@@ -41,10 +41,11 @@ async def lifespan(app: FastAPI):
         app.state.playwright = None
         app.state.browser = None
 
-    # Start scheduler
-    from app.scheduler import start_scheduler
+    # Start scheduler (read persisted fetch interval from redis)
+    from app.scheduler import get_fetch_interval, start_scheduler
 
-    start_scheduler(app)
+    fetch_interval = await get_fetch_interval(app.state.redis)
+    start_scheduler(app, fetch_interval_hours=fetch_interval)
 
     yield
 

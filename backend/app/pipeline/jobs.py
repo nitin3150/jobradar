@@ -52,6 +52,9 @@ async def run_job_scrape_pipeline(
     logger.info(f"Scraping jobs for {len(companies)} ATS-enabled companies")
 
     new_count = 0
+    skipped_noise = 0
+    threshold = settings.job_fit_threshold
+    role_terms = [r.lower() for r in settings.target_roles]
     deadline = datetime.now(timezone.utc) + timedelta(hours=settings.review_window_hours)
 
     for company in companies:
@@ -70,7 +73,19 @@ async def run_job_scrape_pipeline(
             if existing.scalar_one_or_none():
                 continue
 
+            # Cheap title prefilter: skip obvious non-matches before spending an LLM call.
+            title_lower = raw["title"].lower()
+            title_match = any(term in title_lower for term in role_terms)
+            if not title_match and threshold > 0:
+                skipped_noise += 1
+                continue
+
             score, reasoning = score_job(raw["title"], raw.get("jd_text", ""))
+
+            # Noise gate: drop low-fit roles instead of flooding the review queue.
+            if score < threshold:
+                skipped_noise += 1
+                continue
 
             job = Job(
                 company_id=company.id,
@@ -87,5 +102,8 @@ async def run_job_scrape_pipeline(
             new_count += 1
 
     await db.commit()
-    logger.info(f"Job pipeline saved {new_count} new jobs")
+    logger.info(
+        f"Job pipeline saved {new_count} new jobs "
+        f"(skipped {skipped_noise} below fit threshold {threshold})"
+    )
     return new_count

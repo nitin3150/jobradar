@@ -57,6 +57,24 @@ async def run_job_scraper(app: FastAPI):
         logger.error(f"[Scheduled] Job scrape failed: {e}")
 
 
+async def run_ats_discovery(app: FastAPI):
+    """Daily: discover new ATS company slugs via site: search, then attach them."""
+    from app.database import async_session
+    from app.pipeline.discovery import run_discovery_pipeline
+
+    logger.info(f"[Scheduled] Starting ATS discovery at {datetime.now(timezone.utc)}")
+    try:
+        async with async_session() as session:
+            found = await run_discovery_pipeline(
+                session,
+                app.state.http_client,
+                browser=getattr(app.state, "browser", None),
+            )
+        logger.info(f"[Scheduled] ATS discovery attached {found} new company slugs")
+    except Exception as e:
+        logger.error(f"[Scheduled] ATS discovery failed: {e}")
+
+
 async def run_review_deadline_check(app: FastAPI):
     """Every 15 min: expire jobs past review deadline."""
     from app.database import async_session
@@ -110,7 +128,36 @@ async def run_gmail_poll(app: FastAPI):
         logger.error(f"[Scheduled] Gmail poll failed: {e}")
 
 
-def start_scheduler(app: FastAPI):
+# Redis key for the runtime-configurable job-fetch interval + scheduler job id.
+SCHEDULE_KEY = "config:job_fetch_interval_hours"
+JOB_FETCH_ID = "hourly_job_scraper"
+
+
+async def get_fetch_interval(redis) -> int:
+    """Read persisted fetch interval (hours) from redis, falling back to config."""
+    try:
+        raw = await redis.get(SCHEDULE_KEY)
+        if raw is not None:
+            hours = int(raw)
+            if hours > 0:
+                return hours
+    except Exception as e:
+        logger.warning(f"Failed to read fetch interval from redis: {e}")
+    return settings.job_fetch_interval_hours
+
+
+async def set_fetch_interval(app: FastAPI, hours: int) -> None:
+    """Persist the fetch interval and reschedule the running job-fetch job."""
+    if hours <= 0:
+        raise ValueError("interval hours must be positive")
+    await app.state.redis.set(SCHEDULE_KEY, hours)
+    app.state.scheduler.reschedule_job(
+        JOB_FETCH_ID, trigger=IntervalTrigger(hours=hours)
+    )
+    logger.info(f"Rescheduled job fetch loop to every {hours} hour(s)")
+
+
+def start_scheduler(app: FastAPI, fetch_interval_hours: int = 1):
     """Initialize and start APScheduler with configured jobs."""
     scheduler = AsyncIOScheduler()
 
@@ -144,14 +191,28 @@ def start_scheduler(app: FastAPI):
             f"Scheduled Twitter refresh every {settings.twitter_refresh_hours} hours"
         )
 
-    # Hourly job scraper
+    # Job scraper on a runtime-configurable interval (default from redis/config)
     scheduler.add_job(
         run_job_scraper,
-        IntervalTrigger(hours=1),
+        IntervalTrigger(hours=fetch_interval_hours),
         kwargs={"app": app},
-        id="hourly_job_scraper",
+        id=JOB_FETCH_ID,
         replace_existing=True,
     )
+    logger.info(f"Scheduled job fetch loop every {fetch_interval_hours} hour(s)")
+
+    # ATS slug discovery — isolated daily loop (grows the company set)
+    if settings.discovery_enabled:
+        scheduler.add_job(
+            run_ats_discovery,
+            IntervalTrigger(hours=settings.discovery_interval_hours),
+            kwargs={"app": app},
+            id="ats_discovery",
+            replace_existing=True,
+        )
+        logger.info(
+            f"Scheduled ATS discovery every {settings.discovery_interval_hours} hour(s)"
+        )
 
     # Review deadline check every 15 min
     scheduler.add_job(

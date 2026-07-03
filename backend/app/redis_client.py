@@ -32,6 +32,17 @@ def get_redis() -> aioredis.Redis:
     return redis_pool
 
 
+_redis_instance = None
+
+
+async def get_redis_async() -> aioredis.Redis:
+    """Async lazy-init accessor — awaitable alternative to get_redis()."""
+    global _redis_instance
+    if _redis_instance is None:
+        _redis_instance = await init_redis()
+    return _redis_instance
+
+
 async def is_duplicate(name_slug: str, funding_date: str) -> bool:
     r = get_redis()
     key = f"company:{name_slug}:{funding_date}"

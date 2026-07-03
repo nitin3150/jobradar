@@ -55,6 +55,8 @@ class Company(Base):
     category: Mapped[str] = mapped_column(
         String(32), default="startup", index=True
     )
+    ats_type: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    ats_slug: Mapped[str | None] = mapped_column(String(256), nullable=True)
     status: Mapped[str] = mapped_column(
         String(32), default=CompanyStatus.NEW.value
     )

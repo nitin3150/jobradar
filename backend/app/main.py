@@ -60,8 +60,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="FundingRadar",
-    description="Startup funding intelligence dashboard",
+    title="JobRadar",
+    description="Job tracker",
     version="0.1.0",
     lifespan=lifespan,
 )

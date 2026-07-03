@@ -50,7 +50,9 @@ async def trigger_pipeline(request: Request):
             settings=settings,
             browser=getattr(request.app.state, "browser", None),
         )
-
+        print("============")
+        print("pipeline: ", result)
+        print("============")
         _last_run = {
             "timestamp": datetime.now(timezone.utc),
             "stats": result.get("stats", {}),

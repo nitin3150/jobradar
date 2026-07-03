@@ -96,6 +96,20 @@ async def run_review_deadline_check(app: FastAPI):
         logger.error(f"[Scheduled] Review deadline check failed: {e}")
 
 
+async def run_gmail_poll(app: FastAPI):
+    """Poll Gmail for application replies every 15 min."""
+    from app.database import async_session
+    from app.gmail.connector import poll_gmail_replies
+
+    logger.info(f"[Scheduled] Gmail poll at {datetime.now(timezone.utc)}")
+    try:
+        async with async_session() as session:
+            count = await poll_gmail_replies(session)
+        logger.info(f"[Scheduled] Gmail poll updated {count} applications")
+    except Exception as e:
+        logger.error(f"[Scheduled] Gmail poll failed: {e}")
+
+
 def start_scheduler(app: FastAPI):
     """Initialize and start APScheduler with configured jobs."""
     scheduler = AsyncIOScheduler()
@@ -145,6 +159,14 @@ def start_scheduler(app: FastAPI):
         IntervalTrigger(minutes=15),
         kwargs={"app": app},
         id="review_deadline_check",
+        replace_existing=True,
+    )
+
+    scheduler.add_job(
+        run_gmail_poll,
+        IntervalTrigger(minutes=15),
+        kwargs={"app": app},
+        id="gmail_poll",
         replace_existing=True,
     )
 

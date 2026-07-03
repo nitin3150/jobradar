@@ -77,9 +77,11 @@ async def fill_field(page: Page, field: dict, answer: str) -> None:
 
 
 async def take_screenshot(page: Page, job_id: str) -> str:
-    """Save screenshot and return file path."""
+    """Save screenshot and return relative URL path (e.g. screenshots/{job_id}.png)."""
     screenshot_dir = Path(settings.apply_worker_screenshot_dir)
     screenshot_dir.mkdir(exist_ok=True)
-    path = screenshot_dir / f"{job_id}.png"
+    filename = f"{job_id}.png"
+    path = screenshot_dir / filename
     await page.screenshot(path=str(path), full_page=True)
-    return str(path)
+    # Return relative URL path so StaticFiles can serve it
+    return f"screenshots/{filename}"

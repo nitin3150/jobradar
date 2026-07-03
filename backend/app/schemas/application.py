@@ -2,6 +2,8 @@ from datetime import datetime
 from uuid import UUID
 from pydantic import BaseModel
 
+from app.models.application import ApplicationStatus
+
 
 class ApplicationResponse(BaseModel):
     id: UUID
@@ -27,5 +29,5 @@ class ApplicationListResponse(BaseModel):
 
 
 class ApplicationStatusUpdate(BaseModel):
-    status: str
+    status: ApplicationStatus
     notes: str | None = None

@@ -1,9 +1,12 @@
 import logging
+import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
 from app.redis_client import close_redis, init_redis
@@ -47,6 +50,7 @@ async def lifespan(app: FastAPI):
 
     # Shutdown
     logger.info("Shutting down FundingRadar...")
+    app.state.scheduler.shutdown(wait=False)
     await app.state.http_client.aclose()
     await close_redis()
     if app.state.browser:
@@ -69,6 +73,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+_screenshots_dir = Path(settings.apply_worker_screenshot_dir)
+_screenshots_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/screenshots", StaticFiles(directory=str(_screenshots_dir)), name="screenshots")
 
 # Register API routes
 from app.api.router import api_router  # noqa: E402

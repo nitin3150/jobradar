@@ -2,6 +2,8 @@ from datetime import datetime
 from uuid import UUID
 from pydantic import BaseModel
 
+from app.models.job import JobStatus
+
 
 class JobResponse(BaseModel):
     id: UUID
@@ -29,4 +31,4 @@ class JobListResponse(BaseModel):
 
 
 class JobStatusUpdate(BaseModel):
-    status: str
+    status: JobStatus

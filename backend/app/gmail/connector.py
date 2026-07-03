@@ -1,6 +1,7 @@
 """Gmail connector — polls for replies to job applications, updates Application status."""
 import logging
 import os
+import sys
 from datetime import datetime, timezone
 
 from google.auth.transport.requests import Request
@@ -9,6 +10,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.config import settings
 from app.gmail.classifier import classify_reply
@@ -38,8 +40,18 @@ def _get_gmail_service():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
+            # Guard against hanging in headless/Docker environments
+            if not sys.stdin.isatty():
+                logger.warning("Gmail: No TTY available. Skipping OAuth flow.")
+                return None
             flow = InstalledAppFlow.from_client_secrets_file(creds_path, SCOPES)
-            creds = flow.run_local_server(port=0)
+            try:
+                creds = flow.run_local_server(port=0)
+            except Exception as e:
+                logger.error(
+                    f"Gmail OAuth requires interactive setup. Run locally first: {e}"
+                )
+                return None
         with open(token_path, "w") as f:
             f.write(creds.to_json())
 
@@ -59,6 +71,9 @@ async def poll_gmail_replies(db: AsyncSession) -> int:
         service = _get_gmail_service()
     except Exception as e:
         logger.error(f"Gmail auth failed: {e}")
+        return 0
+
+    if service is None:
         return 0
 
     label = settings.gmail_label
@@ -106,17 +121,45 @@ async def poll_gmail_replies(db: AsyncSession) -> int:
             if not new_status:
                 continue
 
+            # Load unlinked applications with their job and company eagerly
             unlinked_result = await db.execute(
-                select(Application).where(Application.gmail_thread_id.is_(None))
+                select(Application)
+                .where(Application.gmail_thread_id.is_(None))
+                .options(
+                    selectinload(Application.job).selectinload(
+                        Application.job.property.mapper.class_.company
+                    )
+                )
             )
             unlinked_apps = unlinked_result.scalars().all()
 
-            if unlinked_apps:
-                target_app = unlinked_apps[0]
-                target_app.gmail_thread_id = thread_id
-                target_app.status = new_status
-                target_app.last_email_at = datetime.now(timezone.utc)
-                updated += 1
+            subject_lower = subject.lower()
+            target_app = None
+            for candidate in unlinked_apps:
+                job = candidate.job
+                if job is None:
+                    continue
+                company = job.company
+                company_name = company.name if company else ""
+                job_title = job.title or ""
+                if (
+                    company_name and company_name.lower() in subject_lower
+                ) or (
+                    job_title and job_title.lower() in subject_lower
+                ):
+                    target_app = candidate
+                    break
+
+            if target_app is None:
+                logger.warning(
+                    f"Could not match Gmail thread {thread_id} to any application"
+                )
+                continue
+
+            target_app.gmail_thread_id = thread_id
+            target_app.status = new_status
+            target_app.last_email_at = datetime.now(timezone.utc)
+            updated += 1
 
         await db.commit()
         logger.info(f"Gmail poll complete. Updated {updated} applications.")

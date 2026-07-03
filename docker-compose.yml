@@ -39,6 +39,26 @@ services:
     volumes:
       - ./backend/app:/app/app
 
+  apply-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: python apply_worker/main.py
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - LLM_PROVIDER=${LLM_PROVIDER:-groq}
+      - LLM_MODEL=${LLM_MODEL:-llama-3.3-70b-versatile}
+      - LLM_API_KEY=${LLM_API_KEY}
+      - QA_MATCH_THRESHOLD=${QA_MATCH_THRESHOLD:-0.75}
+      - APPLY_WORKER_SCREENSHOT_DIR=/app/screenshots
+    volumes:
+      - screenshots:/app/screenshots
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
   frontend:
     build: ./frontend
     ports:
@@ -52,3 +72,4 @@ services:
 
 volumes:
   pgdata:
+  screenshots:

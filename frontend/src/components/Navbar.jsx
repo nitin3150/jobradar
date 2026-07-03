@@ -1,6 +1,33 @@
 import { useMutation } from '@tanstack/react-query';
 import { triggerPipeline, fetchPipelineStatus } from '../api/client';
 import { useQuery } from '@tanstack/react-query';
+import { Link, useLocation } from 'react-router-dom';
+import { usePendingCount } from '../hooks/useJobs';
+
+function NavLink({ path, label, showBadge }) {
+  const location = useLocation();
+  const { data: countData } = usePendingCount();
+  const isActive = location.pathname === path;
+  const count = countData?.count || 0;
+
+  return (
+    <Link
+      to={path}
+      className={`relative px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+        isActive
+          ? 'bg-indigo-50 text-indigo-600'
+          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+      }`}
+    >
+      {label}
+      {showBadge && count > 0 && (
+        <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+          {count > 9 ? '9+' : count}
+        </span>
+      )}
+    </Link>
+  );
+}
 
 export default function Navbar({ category, onCategoryChange }) {
   const { data: status } = useQuery({
@@ -31,7 +58,7 @@ export default function Navbar({ category, onCategoryChange }) {
           {tabs.map((tab) => (
             <button
               key={tab.key}
-              onClick={() => onCategoryChange(tab.key)}
+              onClick={() => onCategoryChange?.(tab.key)}
               className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
                 category === tab.key
                   ? 'bg-white text-indigo-600 shadow-sm'
@@ -41,6 +68,13 @@ export default function Navbar({ category, onCategoryChange }) {
               {tab.label}
             </button>
           ))}
+        </div>
+
+        {/* Auto-Apply Nav Links */}
+        <div className="flex items-center gap-1">
+          <NavLink path="/jobs" label="Review" showBadge={true} />
+          <NavLink path="/applications" label="Applications" showBadge={false} />
+          <NavLink path="/qa-bank" label="Q&A Bank" showBadge={false} />
         </div>
       </div>
 

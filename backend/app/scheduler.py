@@ -43,6 +43,59 @@ async def run_twitter_refresh(app: FastAPI):
         logger.error(f"[Scheduled] Twitter refresh failed: {e}")
 
 
+async def run_job_scraper(app: FastAPI):
+    """Hourly job: scrape Ashby/Lever/Greenhouse for new postings."""
+    from app.database import async_session
+    from app.pipeline.jobs import run_job_scrape_pipeline
+
+    logger.info(f"[Scheduled] Starting job scrape at {datetime.now(timezone.utc)}")
+    try:
+        async with async_session() as session:
+            count = await run_job_scrape_pipeline(session, app.state.http_client)
+        logger.info(f"[Scheduled] Job scrape complete. {count} new jobs.")
+    except Exception as e:
+        logger.error(f"[Scheduled] Job scrape failed: {e}")
+
+
+async def run_review_deadline_check(app: FastAPI):
+    """Every 15 min: expire jobs past review deadline."""
+    from app.database import async_session
+    from app.models.job import Job, JobStatus
+    from sqlalchemy import update
+
+    logger.info(f"[Scheduled] Checking review deadlines at {datetime.now(timezone.utc)}")
+    try:
+        async with async_session() as session:
+            expired_action = settings.review_deadline_action
+            new_status = (
+                JobStatus.APPROVED.value
+                if expired_action == "approve"
+                else JobStatus.REJECTED.value
+            )
+            result = await session.execute(
+                update(Job)
+                .where(
+                    Job.status == JobStatus.IN_REVIEW.value,
+                    Job.review_deadline < datetime.now(timezone.utc),
+                )
+                .values(status=new_status)
+                .returning(Job.id)
+            )
+            expired = result.fetchall()
+            await session.commit()
+            logger.info(f"[Scheduled] Expired {len(expired)} jobs -> {new_status}")
+
+            # Enqueue approved jobs to Redis apply_queue
+            if new_status == JobStatus.APPROVED.value and expired:
+                import json
+                for (job_id,) in expired:
+                    await app.state.redis.rpush(
+                        "apply_queue", json.dumps({"job_id": str(job_id)})
+                    )
+    except Exception as e:
+        logger.error(f"[Scheduled] Review deadline check failed: {e}")
+
+
 def start_scheduler(app: FastAPI):
     """Initialize and start APScheduler with configured jobs."""
     scheduler = AsyncIOScheduler()
@@ -76,6 +129,24 @@ def start_scheduler(app: FastAPI):
         logger.info(
             f"Scheduled Twitter refresh every {settings.twitter_refresh_hours} hours"
         )
+
+    # Hourly job scraper
+    scheduler.add_job(
+        run_job_scraper,
+        IntervalTrigger(hours=1),
+        kwargs={"app": app},
+        id="hourly_job_scraper",
+        replace_existing=True,
+    )
+
+    # Review deadline check every 15 min
+    scheduler.add_job(
+        run_review_deadline_check,
+        IntervalTrigger(minutes=15),
+        kwargs={"app": app},
+        id="review_deadline_check",
+        replace_existing=True,
+    )
 
     scheduler.start()
     app.state.scheduler = scheduler

@@ -4,11 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'react-router-dom';
 import { usePendingCount } from '../hooks/useJobs';
 
-function NavLink({ path, label, showBadge }) {
+function NavLink({ path, label, showBadge, count = 0 }) {
   const location = useLocation();
-  const { data: countData } = usePendingCount();
   const isActive = location.pathname === path;
-  const count = countData?.count || 0;
 
   return (
     <Link
@@ -37,6 +35,8 @@ export default function Navbar({ category, onCategoryChange }) {
   });
 
   const runPipeline = useMutation({ mutationFn: triggerPipeline });
+  const { data: countData } = usePendingCount();
+  const pendingCount = countData?.count || 0;
 
   const tabs = [
     { key: 'startup', label: 'Startups' },
@@ -54,25 +54,27 @@ export default function Navbar({ category, onCategoryChange }) {
         </div>
 
         {/* Category Tabs */}
-        <div className="flex items-center bg-gray-100 rounded-lg p-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => onCategoryChange?.(tab.key)}
-              className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                category === tab.key
-                  ? 'bg-white text-indigo-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        {category !== undefined && (
+          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => onCategoryChange?.(tab.key)}
+                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  category === tab.key
+                    ? 'bg-white text-indigo-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Auto-Apply Nav Links */}
         <div className="flex items-center gap-1">
-          <NavLink path="/jobs" label="Review" showBadge={true} />
+          <NavLink path="/jobs" label="Review" showBadge={true} count={pendingCount} />
           <NavLink path="/applications" label="Applications" showBadge={false} />
           <NavLink path="/qa-bank" label="Q&A Bank" showBadge={false} />
         </div>

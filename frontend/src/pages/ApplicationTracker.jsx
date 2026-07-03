@@ -139,7 +139,7 @@ export default function ApplicationTracker() {
                 </button>
               </div>
               <img
-                src={`/screenshots/${selectedApp.id}.png`}
+                src={selectedApp.submission_screenshot_path}
                 alt="Application screenshot"
                 className="w-full rounded-lg border"
               />

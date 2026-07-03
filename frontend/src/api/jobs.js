@@ -5,9 +5,6 @@ export const fetchJobs = (params) => api.get('/jobs', { params }).then((r) => r.
 export const fetchPendingCount = () => api.get('/jobs/pending-count').then((r) => r.data);
 export const approveJob = (id) => api.post(`/jobs/${id}/approve`).then((r) => r.data);
 export const rejectJob = (id) => api.post(`/jobs/${id}/reject`).then((r) => r.data);
-export const updateJobStatus = (id, status) =>
-  api.patch(`/jobs/${id}/status`, { status }).then((r) => r.data);
-
 // Applications
 export const fetchApplications = (params) =>
   api.get('/applications', { params }).then((r) => r.data);

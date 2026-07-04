@@ -19,8 +19,14 @@ from app.database import async_session
 from app.models.application import Application, ApplicationStatus
 from app.models.job import Job, JobStatus
 from app.models.qa_bank import QABankEntry
-from apply_worker.form_filler import extract_form_fields, fill_field, take_screenshot
+from apply_worker.form_filler import (
+    attach_resume,
+    extract_form_fields,
+    fill_field,
+    take_screenshot,
+)
 from apply_worker.qa_matcher import find_match
+from apply_worker.resume_selector import pick_resume_for_job
 
 logging.basicConfig(
     level=logging.INFO,
@@ -50,6 +56,17 @@ async def process_job(job_id: str, page) -> None:
         )
         bank_entries = bank_result.scalars().all()
 
+        # Pick the best-matching resume (may be None if user uploaded none).
+        try:
+            resume_path = await pick_resume_for_job(db, job)
+            if resume_path:
+                logger.info(f"Resume selected: {resume_path}")
+            else:
+                logger.info("No resume on file; skipping file attachment")
+        except Exception as e:
+            logger.warning(f"Resume selection failed for job {job_id}: {e}")
+            resume_path = None
+
         logger.info(f"Processing job {job_id}: {job.title} @ {job.url}")
         await page.goto(job.url, wait_until="networkidle", timeout=30000)
 
@@ -60,6 +77,13 @@ async def process_job(job_id: str, page) -> None:
         if apply_btn:
             await apply_btn.click()
             await page.wait_for_load_state("networkidle")
+
+        # Attach resume file to the form (best-effort).
+        if resume_path:
+            try:
+                await attach_resume(page, resume_path)
+            except Exception as e:
+                logger.warning(f"attach_resume failed for job {job_id}: {e}")
 
         fields = await extract_form_fields(page)
         unknown_fields = []
@@ -103,13 +127,16 @@ async def process_job(job_id: str, page) -> None:
 
         await db.commit()
 
-        # Submit form
-        submit_btn = await page.query_selector(
-            "button[type=submit], input[type=submit], button:has-text('Submit')"
-        )
-        if submit_btn:
-            await submit_btn.click()
-            await page.wait_for_load_state("networkidle")
+        # Submit form (skipped entirely in dry-run mode).
+        if settings.apply_dry_run:
+            logger.info(f"[DRY RUN] Job {job_id}: skipping submit + APPLIED status")
+        else:
+            submit_btn = await page.query_selector(
+                "button[type=submit], input[type=submit], button:has-text('Submit')"
+            )
+            if submit_btn:
+                await submit_btn.click()
+                await page.wait_for_load_state("networkidle")
 
         screenshot_path = await take_screenshot(page, job_id)
 
@@ -117,11 +144,17 @@ async def process_job(job_id: str, page) -> None:
             job_id=UUID(job_id),
             submission_screenshot_path=screenshot_path,
             status=ApplicationStatus.SUBMITTED.value,
+            notes="dry_run" if settings.apply_dry_run else None,
         )
         db.add(application)
-        job.status = JobStatus.APPLIED.value
+        # In dry-run leave job.status = APPROVED so it is never marked as truly
+        # applied; production advances it to APPLIED.
+        if not settings.apply_dry_run:
+            job.status = JobStatus.APPLIED.value
         await db.commit()
-        logger.info(f"Job {job_id} submitted successfully")
+        logger.info(
+            f"Job {job_id} {'dry-run recorded' if settings.apply_dry_run else 'submitted successfully'}"
+        )
 
 
 async def main() -> None:

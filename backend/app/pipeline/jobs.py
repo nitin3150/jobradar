@@ -78,7 +78,13 @@ async def run_job_scrape_pipeline(
     deadline = datetime.now(timezone.utc) + timedelta(hours=review_window_hours)
 
     # Build the candidate profile once per run (resume text + target roles).
-    profile = await build_candidate_profile(db)
+    # Guarded: a profile-build failure must not abort the whole run — fall back
+    # to an empty profile so score_job uses its default.
+    try:
+        profile = await build_candidate_profile(db, prefs=prefs)
+    except Exception as e:
+        logger.warning(f"Candidate profile build failed, using default: {e}")
+        profile = ""
 
     # Phase 1: fetch every board concurrently (network-bound, safe to parallelize).
     # DB writes stay sequential below — a single AsyncSession is not concurrency-safe.

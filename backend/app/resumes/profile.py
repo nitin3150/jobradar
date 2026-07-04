@@ -26,13 +26,18 @@ def compose_profile(resume_text: str | None, target_roles: list[str]) -> str:
     return "\n\n".join(parts)
 
 
-async def build_candidate_profile(db: AsyncSession) -> str:
-    """Fetch the default resume text + preference roles, compose the profile."""
+async def build_candidate_profile(db: AsyncSession, prefs: Preferences | None = None) -> str:
+    """Fetch the default resume text + preference roles, compose the profile.
+
+    `prefs` may be passed in by callers that already loaded the Preferences row
+    (avoids a redundant fetch); when None it is loaded here.
+    """
     res = await db.execute(select(Resume).where(Resume.is_default.is_(True)))
     resume = res.scalar_one_or_none()
     resume_text = resume.extracted_text if resume else None
 
-    prefs = await db.get(Preferences, Preferences.SINGLETON_ID)
+    if prefs is None:
+        prefs = await db.get(Preferences, Preferences.SINGLETON_ID)
     roles = list(prefs.target_roles) if prefs and prefs.target_roles else []
 
     return compose_profile(resume_text, roles)

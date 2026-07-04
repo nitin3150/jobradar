@@ -14,8 +14,8 @@ async def test_fetch_ashby_jobs_returns_list():
         return_value=httpx.Response(
             200,
             json={
-                "jobPostings": [
-                    {"id": "123", "title": "AI Engineer", "jobPostingUrl": "https://jobs.ashbyhq.com/acme/123", "descriptionHtml": "<p>We need AI.</p>"}
+                "jobs": [
+                    {"id": "123", "title": "AI Engineer", "jobUrl": "https://jobs.ashbyhq.com/acme/123", "descriptionHtml": "<p>We need AI.</p>"}
                 ]
             },
         )

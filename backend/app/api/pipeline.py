@@ -4,11 +4,10 @@ import logging
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Request
-from pydantic import BaseModel
 
 from app.config import settings
 from app.pipeline.graph import run_pipeline
-
+from app.models.pipeline import PipelineRunResponse, PipelineStatusResponse, ScheduleResponse, ScheduleUpdate, SCHEDULE_OPTIONS
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/pipeline", tags=["pipeline"])
@@ -16,37 +15,6 @@ router = APIRouter(prefix="/pipeline", tags=["pipeline"])
 # In-memory pipeline run state (simple approach for single-instance deployment)
 _last_run: dict | None = None
 _is_running: bool = False
-
-
-class PipelineRunResponse(BaseModel):
-    status: str
-    companies_found: int = 0
-    companies_saved: int = 0
-    errors: list[str] = []
-    stats: dict = {}
-
-
-class PipelineStatusResponse(BaseModel):
-    is_running: bool
-    last_run_at: datetime | None = None
-    last_run_stats: dict | None = None
-    next_scheduled: str | None = None
-    total_errors: int = 0
-
-
-# Allowed job-fetch intervals surfaced to the frontend dropdown (hours).
-SCHEDULE_OPTIONS = [1, 2, 4, 6, 12, 24]
-
-
-class ScheduleResponse(BaseModel):
-    interval_hours: int
-    options: list[int] = SCHEDULE_OPTIONS
-    next_run: datetime | None = None
-
-
-class ScheduleUpdate(BaseModel):
-    interval_hours: int
-
 
 @router.post("/run", response_model=PipelineRunResponse)
 async def trigger_pipeline(request: Request):
@@ -64,9 +32,7 @@ async def trigger_pipeline(request: Request):
             settings=settings,
             browser=getattr(request.app.state, "browser", None),
         )
-        print("============")
-        print("pipeline: ", result)
-        print("============")
+
         _last_run = {
             "timestamp": datetime.now(timezone.utc),
             "stats": result.get("stats", {}),
@@ -86,6 +52,25 @@ async def trigger_pipeline(request: Request):
         return PipelineRunResponse(status="failed", errors=[str(e)])
     finally:
         _is_running = False
+
+
+@router.post("/discover")
+async def trigger_discovery(request: Request):
+    """Manually run ATS slug discovery (find + attach new company boards)."""
+    from app.database import async_session
+    from app.pipeline.discovery import run_discovery_pipeline
+
+    try:
+        async with async_session() as session:
+            attached = await run_discovery_pipeline(
+                session,
+                request.app.state.http_client,
+                browser=getattr(request.app.state, "browser", None),
+            )
+        return {"status": "completed", "companies_attached": attached}
+    except Exception as e:
+        logger.error(f"Discovery run failed: {e}")
+        return {"status": "failed", "error": str(e)}
 
 
 @router.get("/schedule", response_model=ScheduleResponse)

@@ -45,11 +45,12 @@ class HackerNewsScraper(BaseScraper):
         """Find the latest 'Ask HN: Who is hiring?' thread."""
         resp = await self.http.get(
             HN_SEARCH_URL,
+            # NOTE: Algolia dropped num_comments from numericAttributesForFiltering,
+            # so filtering on it server-side now 400s. Filter comment count client-side.
             params={
                 "query": "Ask HN: Who is hiring?",
                 "tags": "story,ask_hn",
-                "numericFilters": "num_comments>100",
-                "hitsPerPage": 3,
+                "hitsPerPage": 10,
             },
             headers={"User-Agent": "FundingRadar/1.0"},
         )
@@ -58,7 +59,11 @@ class HackerNewsScraper(BaseScraper):
 
         for hit in data.get("hits", []):
             title = hit.get("title", "").lower()
-            if "who is hiring" in title and "freelancer" not in title:
+            if (
+                "who is hiring" in title
+                and "freelancer" not in title
+                and hit.get("num_comments", 0) > 100
+            ):
                 return hit.get("objectID")
 
         return None

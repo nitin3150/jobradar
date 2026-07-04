@@ -1,19 +1,21 @@
 """ReliefWeb Jobs API scraper.
 
-Scrapes tech jobs from international/humanitarian organizations
-using the free ReliefWeb Jobs API (no auth needed).
-Docs: https://apidoc.rwlabs.org/
+Scrapes tech jobs from international/humanitarian organizations using the
+ReliefWeb Jobs API v2. v1 was retired (410 Gone). v2 requires an *approved*
+appname — register at https://apidoc.reliefweb.int/parameters#appname and set
+settings.reliefweb_appname, else the API returns 403.
 """
 
 import logging
 
+from app.config import settings
 from app.scrapers.base import BaseScraper
 from app.utils.backoff import with_backoff
 from app.utils.slug import make_slug
 
 logger = logging.getLogger(__name__)
 
-RELIEFWEB_API = "https://api.reliefweb.int/v1/jobs"
+RELIEFWEB_API = "https://api.reliefweb.int/v2/jobs"
 
 # Tech-related job categories in ReliefWeb taxonomy
 TECH_SEARCH_TERMS = [
@@ -50,12 +52,12 @@ class ReliefWebScraper(BaseScraper):
     async def _search_jobs(self, query: str) -> list[dict]:
         resp = await self.http.post(
             RELIEFWEB_API,
+            params={"appname": settings.reliefweb_appname},
             headers={
                 "User-Agent": "FundingRadar/1.0",
                 "Content-Type": "application/json",
             },
             json={
-                "appname": "fundingradar",
                 "query": {"value": query},
                 "filter": {
                     "field": "status",

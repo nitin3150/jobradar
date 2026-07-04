@@ -4,7 +4,6 @@ Pipeline flow: funding_detector → enrichment → scorer → save
 """
 
 import logging
-from functools import partial
 
 import httpx
 import redis.asyncio as aioredis

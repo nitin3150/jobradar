@@ -101,16 +101,18 @@ class Settings(BaseSettings):
     # Max result links to parse per (role x board) query
     discovery_max_results: int = 30
 
-    # --- External API keys referenced in code but previously undefined ---
+    # --- External API keys / paths (kept Optional-or-defaulted so their code
+    #     paths degrade gracefully instead of crashing) ---
     # serper.dev SERP API (app/scrapers/jobs/search.py discovery path)
     serper_api_key: str | None = None
     # Apify actor key (enrichment.py Twitter signals, twitter_scraper.py)
     apify_api_key: str | None = None
 
-    # Gmail poll (app/gmail/connector.py) — readonly poll only
-    gmail_token_path: str | None = None
-    gmail_credentials_path: str | None = None
-    gmail_label: str | None = None
+    # Gmail poll (app/gmail/connector.py) — readonly poll only.
+    # String defaults so os.path.exists()/label query never see None.
+    gmail_token_path: str = "gmail_token.json"
+    gmail_credentials_path: str = "gmail_credentials.json"
+    gmail_label: str = "job-applications"
 
     # Apply worker dry-run: fill + attach + screenshot, but never click submit
     apply_dry_run: bool = False

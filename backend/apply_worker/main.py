@@ -143,7 +143,11 @@ async def process_job(job_id: str, page) -> None:
         application = Application(
             job_id=UUID(job_id),
             submission_screenshot_path=screenshot_path,
-            status=ApplicationStatus.SUBMITTED.value,
+            status=(
+                ApplicationStatus.DRY_RUN.value
+                if settings.apply_dry_run
+                else ApplicationStatus.SUBMITTED.value
+            ),
             notes="dry_run" if settings.apply_dry_run else None,
         )
         db.add(application)

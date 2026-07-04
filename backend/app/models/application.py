@@ -11,6 +11,10 @@ from app.database import Base
 
 class ApplicationStatus(str, enum.Enum):
     SUBMITTED = "submitted"
+    # Recorded by the apply worker in dry-run mode: the form was filled and
+    # screenshotted but never actually submitted. Kept distinct from SUBMITTED
+    # so status queries never count dry-runs as real applications.
+    DRY_RUN = "dry_run"
     INTERVIEW = "interview"
     REJECTED = "rejected"
     OFFER = "offer"

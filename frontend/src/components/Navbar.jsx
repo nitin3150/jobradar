@@ -1,8 +1,8 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { triggerPipeline, fetchPipelineStatus } from '../api/client';
-import { useQuery } from '@tanstack/react-query';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { usePendingCount } from '../hooks/useJobs';
+import ProfileMenu from './ProfileMenu';
 
 function NavLink({ path, label, showBadge, count = 0 }) {
   const location = useLocation();
@@ -28,6 +28,9 @@ function NavLink({ path, label, showBadge, count = 0 }) {
 }
 
 export default function Navbar({ category, onCategoryChange }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const { data: status } = useQuery({
     queryKey: ['pipelineStatus'],
     queryFn: fetchPipelineStatus,
@@ -46,37 +49,39 @@ export default function Navbar({ category, onCategoryChange }) {
   return (
     <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-50">
       <div className="flex items-center gap-6">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+        <Link to="/" className="flex items-center gap-3 group">
+          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-700 transition-colors">
             <span className="text-white font-bold text-sm">FR</span>
           </div>
           <h1 className="text-xl font-bold text-gray-900">FundingRadar</h1>
+        </Link>
+
+        {/* Category Tabs — always visible so they're not lost when navigating away from the dashboard. */}
+        <div className="flex items-center bg-gray-100 rounded-lg p-1" role="tablist" aria-label="Company source">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              role="tab"
+              aria-selected={category === tab.key}
+              onClick={() => {
+                onCategoryChange(tab.key);
+                if (location.pathname !== '/') navigate('/');
+              }}
+              className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                category === tab.key
+                  ? 'bg-white text-indigo-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        {/* Category Tabs */}
-        {category !== undefined && (
-          <div className="flex items-center bg-gray-100 rounded-lg p-1">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => onCategoryChange?.(tab.key)}
-                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  category === tab.key
-                    ? 'bg-white text-indigo-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Auto-Apply Nav Links */}
+        {/* Auto-Apply Nav Links (Q&A Bank moved into ProfileMenu) */}
         <div className="flex items-center gap-1">
-          <NavLink path="/jobs" label="Review" showBadge={true} count={pendingCount} />
-          <NavLink path="/applications" label="Applications" showBadge={false} />
-          <NavLink path="/qa-bank" label="Q&A Bank" showBadge={false} />
+          <NavLink path="/jobs" label="Review" showBadge count={pendingCount} />
+          <NavLink path="/applications" label="Applications" />
         </div>
       </div>
 
@@ -88,7 +93,7 @@ export default function Navbar({ category, onCategoryChange }) {
           </span>
         )}
         {status?.last_run_at && !status?.is_running && (
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-gray-500 hidden sm:block">
             Last run: {new Date(status.last_run_at).toLocaleString()}
           </span>
         )}
@@ -99,6 +104,7 @@ export default function Navbar({ category, onCategoryChange }) {
         >
           {runPipeline.isPending ? 'Running...' : 'Run Pipeline'}
         </button>
+        <ProfileMenu />
       </div>
     </nav>
   );

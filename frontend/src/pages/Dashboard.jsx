@@ -1,13 +1,20 @@
 import { useState } from 'react';
 import { useCompanies, useCompanyStats } from '../hooks/useCompanies';
-import Navbar from '../components/Navbar';
+import { useCategory } from '../contexts/CategoryContext';
 import StatusTracker from '../components/StatusTracker';
 import FilterBar from '../components/FilterBar';
 import CompanyFeed from '../components/CompanyFeed';
 import OutreachPanel from '../components/OutreachPanel';
 
 export default function Dashboard() {
-  const [category, setCategory] = useState('startup');
+  // Category is owned by <CategoryProvider>; re-mounting contents on change
+  // naturally resets local pagination/selection state without a side-effecting
+  // setState (and keeps the navbar chip + data filter in sync).
+  const { category } = useCategory();
+  return <DashboardContents key={category} category={category} />;
+}
+
+function DashboardContents({ category }) {
   const [filters, setFilters] = useState({ page: 1, page_size: 20 });
   const [selectedCompany, setSelectedCompany] = useState(null);
 
@@ -18,17 +25,10 @@ export default function Dashboard() {
     setFilters((prev) => ({ ...prev, page: newPage }));
   };
 
-  const handleCategoryChange = (newCategory) => {
-    setCategory(newCategory);
-    setFilters({ page: 1, page_size: 20 });
-  };
-
   return (
-    <>
-      <Navbar category={category} onCategoryChange={handleCategoryChange} />
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <StatusTracker stats={stats} />
-        <FilterBar filters={filters} setFilters={setFilters} category={category} />
+    <div className="max-w-6xl mx-auto px-4 py-6">
+      <StatusTracker stats={stats} />
+      <FilterBar filters={filters} setFilters={setFilters} category={category} />
 
       <CompanyFeed
         companies={data?.companies}
@@ -72,7 +72,6 @@ export default function Dashboard() {
           />
         </>
       )}
-      </div>
-    </>
+    </div>
   );
 }

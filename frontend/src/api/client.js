@@ -22,5 +22,13 @@ export const fetchOutreachMessages = (companyId) =>
 // Pipeline
 export const triggerPipeline = () => api.post('/pipeline/run').then((r) => r.data);
 export const fetchPipelineStatus = () => api.get('/pipeline/status').then((r) => r.data);
+export const triggerDiscovery = () => api.post('/pipeline/discover').then((r) => r.data);
+export const fetchSchedule = () => api.get('/pipeline/schedule').then((r) => r.data);
+export const updateSchedule = (intervalHours) =>
+  api.put('/pipeline/schedule', { interval_hours: intervalHours }).then((r) => r.data);
+
+// Settings (user preferences — server-side singleton, multi-device sync)
+export const fetchPreferences = () => api.get('/settings').then((r) => r.data);
+export const updatePreferences = (patch) => api.patch('/settings', patch).then((r) => r.data);
 
 export default api;

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Navbar from '../components/Navbar';
 import { useApplications, useUpdateApplicationStatus } from '../hooks/useApplications';
 
 const STATUS_COLORS = {
@@ -22,9 +21,7 @@ export default function ApplicationTracker() {
   const updateStatus = useUpdateApplicationStatus();
 
   return (
-    <>
-      <Navbar />
-      <div className="max-w-5xl mx-auto px-4 py-6">
+    <div className="max-w-5xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Application Tracker</h1>
           <div className="flex gap-2">
@@ -146,7 +143,6 @@ export default function ApplicationTracker() {
             </div>
           </div>
         )}
-      </div>
-    </>
+    </div>
   );
 }

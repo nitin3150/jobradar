@@ -24,9 +24,15 @@ export default function OutreachPanel({ company, onClose }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(userContext));
   }, [userContext]);
 
-  useEffect(() => {
+  // Reset the previously generated message when the active company changes.
+  // Done during render (not in an Effect) per the React docs pattern for
+  // "adjusting state when a prop changes" — avoids the cascading-render lint.
+  const [lastCompanyId, setLastCompanyId] = useState(company?.id ?? null);
+  const currentCompanyId = company?.id ?? null;
+  if (currentCompanyId !== lastCompanyId) {
+    setLastCompanyId(currentCompanyId);
     setGeneratedMessage('');
-  }, [company?.id]);
+  }
 
   const handleGenerate = async () => {
     const skills = userContext.skills

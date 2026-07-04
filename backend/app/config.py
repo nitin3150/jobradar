@@ -2,34 +2,76 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Look for .env in backend/ first, then project root
 _backend_env = Path(__file__).resolve().parent.parent / ".env"
 _root_env = Path(__file__).resolve().parent.parent.parent / ".env"
-_env_file = str(_backend_env) if _backend_env.exists() else str(_root_env)
+
+_env_file = str(_backend_env if _backend_env.exists() else _root_env)
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=_env_file, env_file_encoding="utf-8", extra="ignore"
+        env_file=_env_file,
+        env_file_encoding="utf-8",
+        extra="ignore",
     )
 
     # Database
-    database_url: str = "postgresql+asyncpg://fundingradar:secret@localhost:5432/fundingradar"
+    database_url: str
 
-    # Redis
-    redis_url: str = "redis://localhost:6379/0"
+    redis_url: str
 
-    # API Keys
-    anthropic_api_key: str = ""
-    google_api_key: str = ""
-    groq_api_key: str = ""
-    openrouter_api_key: str = ""
+    # Primary provider
+    llm_provider: str = "nvidia"
+
+    # Fallback provider
+    llm_fallback_provider: str = "groq"
+
+    # NVIDIA
     nvidia_api_key: str = ""
-    apify_api_key: str = ""
+    nvidia_model: str = "openai/z-ai/glm-5.2"
+    nvidia_base_url: str = "https://integrate.api.nvidia.com/v1"
 
-    # LiteLLM unified key (used when provider needs single key)
-    llm_api_key: str = ""
-    llm_api_base: str = ""  # override base URL (e.g. Nvidia NIM endpoint)
+    # Groq
+    groq_api_key: str = ""
+    groq_model: str = "llama-3.3-70b-versatile"
+
+    # CORS
+    cors_origins: list[str] = ["http://localhost:3000", "http://localhost:5173"]
+
+    # Apply worker
+    apply_worker_screenshot_dir: str = "screenshots"
+    resume_storage_dir: str = "resumes"
+    scraper_jobs_enabled: bool = True
+
+    # Scraper toggles
+    scraper_sec_edgar_enabled: bool = True
+    scraper_yc_enabled: bool = True
+    scraper_vc_portfolio_enabled: bool = True
+    scraper_twitter_enabled: bool = False
+    scraper_crunchbase_enabled: bool = False
+
+    # Additional startup scrapers
+    scraper_hackernews_enabled: bool = True
+    scraper_techcrunch_enabled: bool = True
+    scraper_producthunt_enabled: bool = True
+
+    # NGO/Nonprofit scrapers
+    scraper_idealist_enabled: bool = True
+    # unjobs.org is Cloudflare bot-walled over httpx (403) — off by default.
+    scraper_unjobs_enabled: bool = False
+    scraper_techjobsforgood_enabled: bool = True
+    # ReliefWeb API v2 requires an approved appname (register at
+    # https://apidoc.reliefweb.int/parameters#appname). Off until you set one.
+    scraper_reliefweb_enabled: bool = False
+    reliefweb_appname: str = "jobradar"
+
+    # Scheduler
+    pipeline_schedule_hour: int = 8
+    pipeline_schedule_timezone: str = "America/New_York"
+    twitter_refresh_hours: int = 6
+
+
+    job_fetch_interval_hours: int = 1
 
     # Job scraper + review window
     review_window_hours: int = 2
@@ -49,59 +91,29 @@ class Settings(BaseSettings):
     # ATS board discovery (finds new company slugs via site: search)
     discovery_enabled: bool = True
     discovery_boards: list[str] = ["ashby", "greenhouse", "lever"]
-    # Search backend: "playwright" | "serper" | "apify"
-    discovery_search_backend: str = "playwright"
+    # Search backend: "auto" | "playwright" | "serper" | "apify".
+    # "auto" picks serper when SERPER_API_KEY is set, else playwright.
+    discovery_search_backend: str = "auto"
     # Freshness window for search recency filter (Google tbs=qdr:h{N})
     discovery_freshness_hours: int = 24
     # How often discovery runs (isolated from the hourly fetch loop)
     discovery_interval_hours: int = 24
     # Max result links to parse per (role x board) query
     discovery_max_results: int = 30
-    serper_api_key: str = ""
 
-    # Job fetch loop interval (hours). Runtime-overridable via /pipeline/schedule.
-    job_fetch_interval_hours: int = 1
+    # --- External API keys referenced in code but previously undefined ---
+    # serper.dev SERP API (app/scrapers/jobs/search.py discovery path)
+    serper_api_key: str | None = None
+    # Apify actor key (enrichment.py Twitter signals, twitter_scraper.py)
+    apify_api_key: str | None = None
 
-    # Gmail connector
-    gmail_credentials_path: str = "gmail_credentials.json"
-    gmail_token_path: str = "gmail_token.json"
-    gmail_label: str = "job-applications"
+    # Gmail poll (app/gmail/connector.py) — readonly poll only
+    gmail_token_path: str | None = None
+    gmail_credentials_path: str | None = None
+    gmail_label: str | None = None
 
-    # Apply worker
-    apply_worker_screenshot_dir: str = "screenshots"
-    scraper_jobs_enabled: bool = True
-
-    # LLM Provider: "groq", "ollama", "gemini", "anthropic", "openrouter", "nvidia_nim"
-    llm_provider: str = "groq"
-    llm_model: str = "llama-3.3-70b-versatile"
-    # Base URL (only needed for Ollama)
-    llm_base_url: str = "http://localhost:11434/v1"
-
-    # Scraper toggles
-    scraper_sec_edgar_enabled: bool = True
-    scraper_yc_enabled: bool = True
-    scraper_vc_portfolio_enabled: bool = True
-    scraper_twitter_enabled: bool = False
-    scraper_crunchbase_enabled: bool = False
-
-    # Additional startup scrapers
-    scraper_hackernews_enabled: bool = True
-    scraper_techcrunch_enabled: bool = True
-    scraper_producthunt_enabled: bool = True
-
-    # NGO/Nonprofit scrapers
-    scraper_idealist_enabled: bool = True
-    scraper_unjobs_enabled: bool = True
-    scraper_techjobsforgood_enabled: bool = True
-    scraper_reliefweb_enabled: bool = True
-
-    # Scheduler
-    pipeline_schedule_hour: int = 8
-    pipeline_schedule_timezone: str = "America/New_York"
-    twitter_refresh_hours: int = 6
-
-    # CORS
-    cors_origins: list[str] = ["http://localhost:3000", "http://localhost:5173"]
+    # Apply worker dry-run: fill + attach + screenshot, but never click submit
+    apply_dry_run: bool = False
 
 
 settings = Settings()

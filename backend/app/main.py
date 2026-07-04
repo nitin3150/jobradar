@@ -13,7 +13,6 @@ from app.redis_client import close_redis, init_redis
 
 logger = logging.getLogger(__name__)
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
@@ -50,7 +49,7 @@ async def lifespan(app: FastAPI):
     yield
 
     # Shutdown
-    logger.info("Shutting down FundingRadar...")
+    logger.info("Shutting down JobRadar...")
     app.state.scheduler.shutdown(wait=False)
     await app.state.http_client.aclose()
     await close_redis()
@@ -79,7 +78,10 @@ _screenshots_dir = Path(settings.apply_worker_screenshot_dir)
 _screenshots_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/screenshots", StaticFiles(directory=str(_screenshots_dir)), name="screenshots")
 
+# Resumes are intentionally NOT mounted as StaticFiles — downloads go through
+# the /api/resumes/{id}/download endpoint with Content-Disposition: attachment.
+
 # Register API routes
-from app.api.router import api_router  # noqa: E402
+from app.api.router import api_router
 
 app.include_router(api_router, prefix="/api")

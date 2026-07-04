@@ -6,7 +6,7 @@ from app.llm.client import llm_complete
 
 logger = logging.getLogger(__name__)
 
-CANDIDATE_PROFILE = """
+_DEFAULT_PROFILE = """
 Name: Nitin | MS AI, Northeastern | Based in Boston
 Target: AI Engineer / LLM Engineer / ML Engineer at Series A-C startups
 Stack: LangGraph, LangChain, FastAPI, Python, React Native, AWS, Docker, MongoDB
@@ -29,13 +29,13 @@ Respond ONLY with valid JSON in this exact format:
 """
 
 
-def score_job(title: str, jd_text: str) -> tuple[float, str]:
-    """Score a job posting against candidate profile.
+def score_job(title: str, jd_text: str, profile: str | None = None) -> tuple[float, str]:
+    """Score a job posting against a candidate profile.
 
     Returns (score: float 0-1, reasoning: str).
     """
     prompt = SCORE_PROMPT.format(
-        profile=CANDIDATE_PROFILE,
+        profile=profile or _DEFAULT_PROFILE,
         title=title,
         jd_text=jd_text[:3000],
     )

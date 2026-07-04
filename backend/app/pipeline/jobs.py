@@ -1,4 +1,5 @@
 """Job scraping pipeline — fetches jobs for all ATS-enabled companies, scores, saves."""
+import asyncio
 import logging
 from datetime import datetime, timedelta, timezone
 
@@ -9,6 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.models.company import Company
 from app.models.job import Job, JobStatus
+from app.models.preferences import Preferences
+from app.resumes.profile import build_candidate_profile
 from app.scrapers.jobs.ashby import fetch_ashby_jobs
 from app.scrapers.jobs.greenhouse import fetch_greenhouse_jobs
 from app.scrapers.jobs.lever import fetch_lever_jobs
@@ -18,6 +21,22 @@ logger = logging.getLogger(__name__)
 
 # Map ATS type strings to module-level names so patches work in tests
 _ATS_TYPES = ("ashby", "lever", "greenhouse")
+
+# Cap concurrent board fetches so we don't hammer the ATS APIs / open too many sockets.
+_FETCH_CONCURRENCY = 10
+
+
+def resolve_prefs(prefs, defaults) -> tuple[list[str], float, float]:
+    """Resolve effective (target_roles, job_fit_threshold, review_window_hours).
+
+    Uses the DB Preferences row when present; falls back to `defaults` (the env
+    `settings`). Empty DB target_roles fall back to defaults so the title
+    prefilter is never blanked out.
+    """
+    if prefs is not None:
+        roles = list(prefs.target_roles) or list(defaults.target_roles)
+        return roles, prefs.job_fit_threshold, prefs.review_window_hours
+    return list(defaults.target_roles), defaults.job_fit_threshold, defaults.review_window_hours
 
 
 def _get_fetcher(ats_type: str):
@@ -53,17 +72,33 @@ async def run_job_scrape_pipeline(
 
     new_count = 0
     skipped_noise = 0
-    threshold = settings.job_fit_threshold
-    role_terms = [r.lower() for r in settings.target_roles]
-    deadline = datetime.now(timezone.utc) + timedelta(hours=settings.review_window_hours)
+    prefs = await db.get(Preferences, Preferences.SINGLETON_ID)
+    role_names, threshold, review_window_hours = resolve_prefs(prefs, settings)
+    role_terms = [r.lower() for r in role_names]
+    deadline = datetime.now(timezone.utc) + timedelta(hours=review_window_hours)
 
-    for company in companies:
+    # Build the candidate profile once per run (resume text + target roles).
+    profile = await build_candidate_profile(db)
+
+    # Phase 1: fetch every board concurrently (network-bound, safe to parallelize).
+    # DB writes stay sequential below — a single AsyncSession is not concurrency-safe.
+    sem = asyncio.Semaphore(_FETCH_CONCURRENCY)
+
+    async def _fetch(company):
         fetcher = _get_fetcher(company.ats_type)
         if not fetcher:
-            continue
+            return company, []
+        async with sem:
+            try:
+                return company, await fetcher(http_client, company.ats_slug)
+            except Exception as e:
+                logger.error(f"Fetch failed for {company.ats_type}:{company.ats_slug}: {e}")
+                return company, []
 
-        raw_jobs = await fetcher(http_client, company.ats_slug)
+    fetched = await asyncio.gather(*[_fetch(c) for c in companies])
 
+    # Phase 2: dedup + score + save (sequential — shared DB session + blocking LLM call).
+    for company, raw_jobs in fetched:
         for raw in raw_jobs:
             if not raw.get("url"):
                 continue
@@ -80,7 +115,7 @@ async def run_job_scrape_pipeline(
                 skipped_noise += 1
                 continue
 
-            score, reasoning = score_job(raw["title"], raw.get("jd_text", ""))
+            score, reasoning = score_job(raw["title"], raw.get("jd_text", ""), profile)
 
             # Noise gate: drop low-fit roles instead of flooding the review queue.
             if score < threshold:

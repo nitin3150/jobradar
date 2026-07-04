@@ -22,15 +22,21 @@ async def test_run_job_scrape_pipeline_creates_jobs():
     mock_session.execute = AsyncMock(return_value=mock_result)
     mock_session.add = MagicMock()
     mock_session.commit = AsyncMock()
+    # No DB Preferences row -> resolve_prefs/build_candidate_profile fall back
+    # to env settings / no resume, preserving the pipeline's pre-existing behavior.
+    mock_session.get = AsyncMock(return_value=None)
 
     with patch("app.pipeline.jobs.fetch_ashby_jobs", return_value=[
         {"title": "AI Engineer", "url": "https://jobs.ashbyhq.com/acme/1", "jd_text": "We build AI.", "ats_type": "ashby"}
     ]):
         with patch("app.pipeline.jobs.score_job", return_value=(0.9, "Great fit")):
-            # Need to patch the dedup check too — second execute call (dedup) returns no existing job
+            # execute() is called 3x: company query, Resume lookup (inside
+            # build_candidate_profile), then the per-job dedup check.
+            resume_result = MagicMock()
+            resume_result.scalar_one_or_none.return_value = None
             dedup_result = MagicMock()
             dedup_result.scalar_one_or_none.return_value = None
-            mock_session.execute = AsyncMock(side_effect=[mock_result, dedup_result])
+            mock_session.execute = AsyncMock(side_effect=[mock_result, resume_result, dedup_result])
             count = await run_job_scrape_pipeline(mock_session, mock_http)
 
     mock_session.add.assert_called_once()

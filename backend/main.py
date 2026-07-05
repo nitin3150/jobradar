@@ -1,20 +1,19 @@
-import os
-
 import uvicorn
+from fastapi import FastAPI
+
+from routes.dashboard import router as dashboard_router
+from routes.scanner import router as scanner
+
+app = FastAPI(title="JobRadar")
+
+app.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard"])
+app.include_router(scanner, prefix="/scan", tags=["Scan jobs"])
 
 
-def main() -> None:
-    host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("PORT", "8000"))
-    reload = os.getenv("RELOAD", "true").lower() in ("1", "true", "yes")
-
-    uvicorn.run(
-        "app.main:app",
-        host=host,
-        port=port,
-        reload=reload,
-    )
+@app.get("/health")
+def root() -> dict[str, str]:
+    return {"Message": "Server is running!!"}
 
 
 if __name__ == "__main__":
-    main()
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -35,3 +35,6 @@ playwright-report/
 # Worktrees
 .worktrees/
 .gstack/
+
+docs
+backend_1

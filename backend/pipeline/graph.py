@@ -15,13 +15,9 @@ graph.add_node("startups", scan_startups)
 graph.add_node("merge", merge_results)
 
 graph.add_edge(START, "NGOs")
-graph.add_edge(START, "jobs")
-graph.add_edge(START, "startups")
-
-graph.add_edge("NGOs", "merge")
-graph.add_edge("jobs", "merge")
+graph.add_edge("NGOs", "jobs")
+graph.add_edge("jobs", "startups")
 graph.add_edge("startups", "merge")
-
 graph.add_edge("merge", END)
 
 scan_pipeline = graph.compile()

@@ -15,6 +15,7 @@ from pipeline.nodes.jobs_boards.ashby import fetch as ashby_fetch
 from pipeline.nodes.jobs_boards.greenhouse import fetch as greenhouse_fetch
 from pipeline.nodes.jobs_boards.lever import fetch as lever_fetch
 from utils.filters import filter_roles
+from utils.http import build_client
 from utils.seen import load_file, save_seen
 from utils.time_check import parse_published_at
 
@@ -25,12 +26,28 @@ ORG_INDEX = {
     "lever": (DATA_DIR / "lever_companies.json", lever_fetch),
 }
 
+# An active org must fail this many consecutive runs before being benched, so a
+# transient 404 (maintenance / rate limit) doesn't permanently drop coverage.
+MISSING_THRESHOLD = 3
+MAX_WORKERS = 8
+
+
+class UnknownBoardError(ValueError):
+    pass
+
 
 def compute_since_cutoff(now=None, delta_hours=1, last_run=None):
     now = now or datetime.now(timezone.utc)
     if last_run is not None:
         return max(last_run, now - timedelta(hours=delta_hours))
     return now - timedelta(hours=delta_hours)
+
+
+def validate_boards(boards):
+    unknown = [b for b in boards if b not in ORG_INDEX]
+    if unknown:
+        raise UnknownBoardError(f"unknown board(s): {unknown}; valid: {list(ORG_INDEX)}")
+    return boards
 
 
 def load_orgs(board_name):
@@ -60,84 +77,116 @@ def save_last_run_state(state, path=None):
         json.dump(state, handle, indent=2)
 
 
-def update_missing_orgs(board_name, slug, missing_orgs):
-    missing_orgs.setdefault(board_name, []).append(slug)
-
-
-def execute_fetch(fetcher, board_name, slug, since, seen_jobs, org_last_posted, missing_orgs):
+def load_failure_counts(path=None):
+    path = path or DATA_DIR / "missing_failures.json"
+    if not path.exists():
+        return {}
     try:
-        return fetcher(slug, since=since, seen_jobs=seen_jobs, org_last_posted=org_last_posted)
+        with open(path, "r") as handle:
+            return json.load(handle)
+    except Exception:
+        return {}
+
+
+def save_failure_counts(counts, path=None):
+    path = path or DATA_DIR / "missing_failures.json"
+    with open(path, "w") as handle:
+        json.dump(counts, handle, indent=2)
+
+
+def execute_fetch(fetcher, board_name, slug, since, seen_ids, client):
+    """Run one org fetch and classify the outcome. Never mutates shared state."""
+    try:
+        result = fetcher(slug, client=client, since=since, seen_ids=seen_ids)
+        return {"board": board_name, "slug": slug, "outcome": "ok", **result}
     except httpx.HTTPStatusError as exc:
         status_code = exc.response.status_code if exc.response is not None else None
-        if status_code in {404, 410}:
-            update_missing_orgs(board_name, slug, missing_orgs)
-            return []
-        print(f"HTTP error while scraping {board_name}/{slug}: {exc}")
-        return []
+        outcome = "missing" if status_code in {404, 410} else "error"
+        if outcome == "error":
+            print(f"HTTP error while scraping {board_name}/{slug}: {exc}")
+        return {"board": board_name, "slug": slug, "outcome": outcome, "jobs": [], "new_ids": {}, "latest": None}
     except httpx.TimeoutException:
         print(f"Request timed out while scraping {board_name}/{slug}")
-        return []
+        return {"board": board_name, "slug": slug, "outcome": "error", "jobs": [], "new_ids": {}, "latest": None}
     except Exception as exc:
         print(f"Scraper error for {board_name}/{slug}: {exc}")
-        return []
+        return {"board": board_name, "slug": slug, "outcome": "error", "jobs": [], "new_ids": {}, "latest": None}
+
+
+def _write_missing_lists(boards, newly_missing, recovered):
+    """Bench orgs over the failure threshold, un-bench any that recovered."""
+    for board_name in boards:
+        missing_path = DATA_DIR / f"{board_name}_missing_orgs.json"
+        previous = set()
+        if missing_path.exists():
+            with open(missing_path, "r") as handle:
+                previous = set(json.load(handle))
+        combined = (previous | newly_missing.get(board_name, set())) - recovered.get(board_name, set())
+        with open(missing_path, "w") as handle:
+            json.dump(sorted(combined), handle, indent=2)
 
 
 def run_all(delta_hours=1, boards=None, limit=None):
-    boards = boards or list(ORG_INDEX.keys())
-    seen_jobs = load_file()
+    boards = validate_boards(boards or list(ORG_INDEX.keys()))
+    seen = load_file()
+    seen_ids = frozenset(seen.keys())  # read-only snapshot for worker threads
+    failure_counts = load_failure_counts()
+
     last_run_state = load_last_run_state()
     last_run_timestamp = None
     if last_run_state.get("last_run"):
         last_run_timestamp = parse_published_at(last_run_state["last_run"])
-
     since = compute_since_cutoff(delta_hours=delta_hours, last_run=last_run_timestamp)
 
     results = []
     org_last_posted = {}
-    missing_orgs = {}
+    newly_missing = {board: set() for board in boards}
+    recovered = {board: set() for board in boards}
 
-    with ThreadPoolExecutor(max_workers=min(8, len(boards) * 3)) as executor:
-        futures = []
-        for board_name in boards:
-            orgs = load_orgs(board_name)
-            if limit is not None:
-                orgs = orgs[:limit]
-            fetcher = ORG_INDEX[board_name][1]
-            for slug in orgs:
-                futures.append(
-                    executor.submit(
-                        execute_fetch,
-                        fetcher,
-                        board_name,
-                        slug,
-                        since,
-                        seen_jobs,
-                        org_last_posted,
-                        missing_orgs,
+    client = build_client()
+    try:
+        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            futures = []
+            for board_name in boards:
+                orgs = load_orgs(board_name)
+                if limit is not None:
+                    orgs = orgs[:limit]
+                fetcher = ORG_INDEX[board_name][1]
+                for slug in orgs:
+                    futures.append(
+                        executor.submit(execute_fetch, fetcher, board_name, slug, since, seen_ids, client)
                     )
-                )
 
-        for future in as_completed(futures):
-            results.extend(future.result())
+            # Merge in the main thread only -> no concurrent mutation of shared state.
+            for future in as_completed(futures):
+                r = future.result()
+                board_name, slug, outcome = r["board"], r["slug"], r["outcome"]
+                board_failures = failure_counts.setdefault(board_name, {})
 
-    for board_name, slugs in missing_orgs.items():
-        missing_path = DATA_DIR / f"{board_name}_missing_orgs.json"
-        previous = []
-        if missing_path.exists():
-            with open(missing_path, "r") as handle:
-                previous = json.load(handle)
-        combined = sorted(set(previous) | set(slugs))
-        with open(missing_path, "w") as handle:
-            json.dump(combined, handle, indent=2)
+                if outcome == "ok":
+                    results.extend(r["jobs"])
+                    for job_id, stamp in r["new_ids"].items():
+                        seen[job_id] = stamp
+                    if r.get("latest"):
+                        org_last_posted[slug] = r["latest"]
+                    board_failures.pop(slug, None)  # reset failure streak
+                    recovered[board_name].add(slug)
+                elif outcome == "missing":
+                    board_failures[slug] = board_failures.get(slug, 0) + 1
+                    if board_failures[slug] >= MISSING_THRESHOLD:
+                        newly_missing[board_name].add(slug)
+                # "error" -> transient; leave failure count untouched, don't bench
+    finally:
+        client.close()
 
-    filtered_results = filter_roles(results)
-
-    save_seen(seen_jobs)
+    _write_missing_lists(boards, newly_missing, recovered)
+    save_failure_counts(failure_counts)
+    save_seen(seen)
     save_last_run_state({
         "last_run": datetime.now(timezone.utc).isoformat(),
         "org_last_posted": org_last_posted,
     })
-    return filtered_results
+    return filter_roles(results)
 
 
 def main():

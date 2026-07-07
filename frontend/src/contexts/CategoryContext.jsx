@@ -1,14 +1,21 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { CATEGORIES, DEFAULT_CATEGORY } from './categories';
 
 const STORAGE_KEY = 'jobradar:category';
+
+// Re-export so existing imports keep working; the authoritative list lives
+// in `./categories` to keep this file a pure component module (fast-refresh safe).
+export { CATEGORIES, DEFAULT_CATEGORY };
+
 const CategoryContext = createContext(null);
 
 export function CategoryProvider({ children }) {
   const [category, setCategory] = useState(() => {
     try {
-      return window.localStorage.getItem(STORAGE_KEY) || 'startup';
+      const stored = window.localStorage.getItem(STORAGE_KEY);
+      return CATEGORIES.includes(stored) ? stored : DEFAULT_CATEGORY;
     } catch {
-      return 'startup';
+      return DEFAULT_CATEGORY;
     }
   });
 

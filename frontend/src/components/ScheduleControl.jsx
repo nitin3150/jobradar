@@ -35,7 +35,15 @@ export default function ScheduleControl() {
           ? `Attached ${res.companies_attached} new companies`
           : `Failed: ${res.error || 'unknown error'}`
       ),
-    onError: (e) => setDiscoverMsg(`Failed: ${e.message}`),
+    onError: (e) => {
+      // 409 Conflict — the pipeline is already running. Surface a friendly
+      // copy instead of the raw axios "Request failed with status code 409".
+      if (e?.response?.status === 409) {
+        setDiscoverMsg('Pipeline already running — try again in a moment.');
+        return;
+      }
+      setDiscoverMsg(`Failed: ${e.message}`);
+    },
   });
 
   const options = data?.options || [1, 2, 4, 6, 12, 24];

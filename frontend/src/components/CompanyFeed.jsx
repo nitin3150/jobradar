@@ -1,6 +1,6 @@
 import CompanyCard from './CompanyCard';
 
-export default function CompanyFeed({ companies, isLoading, onGenerateOutreach }) {
+export default function CompanyFeed({ opportunities, isLoading, onGenerateOutreach }) {
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -15,21 +15,23 @@ export default function CompanyFeed({ companies, isLoading, onGenerateOutreach }
     );
   }
 
-  if (!companies?.length) {
+  if (!opportunities?.length) {
     return (
       <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
-        <p className="text-gray-500 text-lg">No companies found</p>
-        <p className="text-gray-400 text-sm mt-1">Try adjusting your filters or run the pipeline</p>
+        <p className="text-gray-500 text-lg">No opportunities in this window</p>
+        <p className="text-gray-400 text-sm mt-1">
+          Try widening the filter or running the pipeline from the navbar.
+        </p>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      {companies.map((company) => (
+      {opportunities.map((opportunity) => (
         <CompanyCard
-          key={company.id}
-          company={company}
+          key={opportunity.id}
+          opportunity={opportunity}
           onGenerateOutreach={onGenerateOutreach}
         />
       ))}

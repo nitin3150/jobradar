@@ -1,74 +1,74 @@
-import { useState } from 'react';
-import { useCompanies, useCompanyStats } from '../hooks/useCompanies';
+import { useMemo, useState } from 'react';
 import { useCategory } from '../contexts/CategoryContext';
-import StatusTracker from '../components/StatusTracker';
+import { useScannerOpportunities } from '../hooks/useScanner';
 import FilterBar from '../components/FilterBar';
 import CompanyFeed from '../components/CompanyFeed';
 import OutreachPanel from '../components/OutreachPanel';
 
+const CATEGORY_INTROS = {
+  funding: 'Startups and products making headlines in the last 24 hours, with founder / contact links for outreach.',
+  ngos: 'Job openings posted by NGOs in the last 3 days — humanitarian, policy, advocacy roles.',
+  remote: 'Remote-friendly roles updated across HN, Remotive, and RemoteOK in the last 24 hours.',
+  boards: 'Engineering roles pulled from Ashby, Greenhouse, and Lever boards in the last hour.',
+  oss: 'Trending open source repos — pick one where you can ship a PR and pitch the maintainer.',
+};
+
 export default function Dashboard() {
-  // Category is owned by <CategoryProvider>; re-mounting contents on change
-  // naturally resets local pagination/selection state without a side-effecting
-  // setState (and keeps the navbar chip + data filter in sync).
   const { category } = useCategory();
+  // Re-mount on category change so local filter / pagination state resets cleanly.
   return <DashboardContents key={category} category={category} />;
 }
 
 function DashboardContents({ category }) {
-  const [filters, setFilters] = useState({ page: 1, page_size: 20 });
-  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [filters, setFilters] = useState({});
+  const [selectedOpportunity, setSelectedOpportunity] = useState(null);
 
-  const { data, isLoading } = useCompanies({ ...filters, category });
-  const { data: stats } = useCompanyStats();
+  const queryParams = useMemo(() => {
+    const out = { delta_hours: filters.delta_hours, limit: 50 };
+    if (filters.min_score != null) out.limit = Math.max(out.limit, filters.min_score);
+    return out;
+  }, [filters.delta_hours, filters.min_score]);
 
-  const handlePageChange = (newPage) => {
-    setFilters((prev) => ({ ...prev, page: newPage }));
-  };
+  const { data, isLoading } = useScannerOpportunities(category, queryParams);
+
+  const opportunities = useMemo(() => {
+    const list = data?.opportunities || [];
+    if (!filters.q) return list;
+    const needle = filters.q.toLowerCase();
+    return list.filter((opp) =>
+      (opp.title || '').toLowerCase().includes(needle) ||
+      (opp.organization || '').toLowerCase().includes(needle) ||
+      (opp.description || '').toLowerCase().includes(needle)
+    );
+  }, [data, filters.q]);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
-      <StatusTracker stats={stats} />
+      <p className="text-sm text-gray-500 mb-4">{CATEGORY_INTROS[category]}</p>
+      <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 mb-4 text-sm text-gray-600 flex items-center justify-between">
+        <span>
+          <span className="font-semibold text-gray-900">{data?.count ?? 0}</span>{' '}
+          {data?.opportunities ? 'matches' : 'opportunities'} in the last {data?.delta_hours ?? '—'}h
+        </span>
+        <span className="text-xs text-gray-400">{category.toUpperCase()} domain</span>
+      </div>
       <FilterBar filters={filters} setFilters={setFilters} category={category} />
 
       <CompanyFeed
-        companies={data?.companies}
+        opportunities={opportunities}
         isLoading={isLoading}
-        onGenerateOutreach={(company) => setSelectedCompany(company)}
+        onGenerateOutreach={(opp) => setSelectedOpportunity(opp)}
       />
 
-      {/* Pagination */}
-      {data && data.total_pages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-6">
-          <button
-            onClick={() => handlePageChange(data.page - 1)}
-            disabled={data.page <= 1}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50"
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-600">
-            Page {data.page} of {data.total_pages}
-          </span>
-          <button
-            onClick={() => handlePageChange(data.page + 1)}
-            disabled={data.page >= data.total_pages}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50"
-          >
-            Next
-          </button>
-        </div>
-      )}
-
-      {/* Outreach Panel Overlay */}
-      {selectedCompany && (
+      {selectedOpportunity && (
         <>
           <div
             className="fixed inset-0 bg-black/20 z-40"
-            onClick={() => setSelectedCompany(null)}
+            onClick={() => setSelectedOpportunity(null)}
           />
           <OutreachPanel
-            company={selectedCompany}
-            onClose={() => setSelectedCompany(null)}
+            company={selectedOpportunity}
+            onClose={() => setSelectedOpportunity(null)}
           />
         </>
       )}

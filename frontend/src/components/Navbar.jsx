@@ -27,6 +27,16 @@ function NavLink({ path, label, showBadge, count = 0 }) {
   );
 }
 
+// Five scanner categories — one per backend domain. `key` is the value
+// CategoryContext stores; `label` is the navbar text.
+const TABS = [
+  { key: 'funding', label: 'Funding News' },
+  { key: 'ngos', label: 'NGO Jobs' },
+  { key: 'remote', label: 'Remote' },
+  { key: 'boards', label: 'Job Boards' },
+  { key: 'oss', label: 'Open Source' },
+];
+
 export default function Navbar({ category, onCategoryChange }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -41,14 +51,9 @@ export default function Navbar({ category, onCategoryChange }) {
   const { data: countData } = usePendingCount();
   const pendingCount = countData?.count || 0;
 
-  const tabs = [
-    { key: 'startup', label: 'Startups' },
-    { key: 'ngo', label: 'NGO Jobs' },
-  ];
-
   return (
     <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-50">
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-3">
         <Link to="/" className="flex items-center gap-3 group">
           <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-700 transition-colors">
             <span className="text-white font-bold text-sm">FR</span>
@@ -56,9 +61,9 @@ export default function Navbar({ category, onCategoryChange }) {
           <h1 className="text-xl font-bold text-gray-900">FundingRadar</h1>
         </Link>
 
-        {/* Category Tabs — always visible so they're not lost when navigating away from the dashboard. */}
-        <div className="flex items-center bg-gray-100 rounded-lg p-1" role="tablist" aria-label="Company source">
-          {tabs.map((tab) => (
+        {/* Five Scanner category tabs — each maps to a backend domain. */}
+        <div className="flex items-center bg-gray-100 rounded-lg p-1 ml-2" role="tablist" aria-label="Scanner category">
+          {TABS.map((tab) => (
             <button
               key={tab.key}
               role="tab"
@@ -67,7 +72,7 @@ export default function Navbar({ category, onCategoryChange }) {
                 onCategoryChange(tab.key);
                 if (location.pathname !== '/') navigate('/');
               }}
-              className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                 category === tab.key
                   ? 'bg-white text-indigo-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
@@ -79,7 +84,7 @@ export default function Navbar({ category, onCategoryChange }) {
         </div>
 
         {/* Auto-Apply Nav Links (Q&A Bank moved into ProfileMenu) */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 ml-3">
           <NavLink path="/jobs" label="Review" showBadge count={pendingCount} />
           <NavLink path="/applications" label="Applications" />
         </div>

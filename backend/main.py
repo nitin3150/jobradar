@@ -61,17 +61,25 @@ def _load_env_files(
 # up the loaded values.
 _BACKEND_ENV, _ROOT_ENV = _load_env_files()
 
+import logging  # noqa: E402  (intentionally after _load_env_files)
 import uvicorn  # noqa: E402  (intentionally after _load_env_files)
-from fastapi import FastAPI  # noqa: E402
+from fastapi import FastAPI, Request  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from fastapi.responses import JSONResponse  # noqa: E402
 
 from routes.dashboard import router as dashboard_router  # noqa: E402
 from routes.scanner import router as scanner  # noqa: E402
 from routes.outreach import router as outreach_router  # noqa: E402
 from routes.companies import router as companies_router  # noqa: E402
 from routes.pipeline import router as pipeline_router  # noqa: E402
+from utils.logging import RequestLoggingMiddleware, jobradar_lifespan, new_request_id  # noqa: E402
 
-app = FastAPI(title="JobRadar")
+# Wire the logging lifespan into the FastAPI app so every test (which
+# constructs a TestClient) and every uvicorn boot runs ``setup_logging``
+# + ``dump_routes`` *before* the first request lands. ``lifespan`` is
+# the modern replacement for ``@app.on_event("startup")`` and is what
+# FastAPI's TestClient exercises on construction.
+app = FastAPI(title="JobRadar", lifespan=jobradar_lifespan)
 
 # Permissive CORS for the local Vite dev server on port 3000 (frontend/src/api/client.js
 # defaults to ``import.meta.env.VITE_API_URL`` which is ``http://localhost:8000/api`` in dev).
@@ -88,6 +96,45 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# Request logging is added LAST so it wraps every other middleware as the
+# outermost layer — every response, including preflight rejections and
+# downstream 4xx, is recorded once with a single X-Request-ID.
+app.add_middleware(RequestLoggingMiddleware)
+
+
+# ---------------------------------------------------------------------------
+# Catch-all 500 handler. FastAPI's HTTPException (4xx) is *not* caught here;
+# those are intentional client-visible errors and pass through untouched so
+# OpenAPI docs stay accurate. Only uncaught exceptions raised inside a route
+# body end up here — we log the full stack trace and return a minimal 500
+# with the request_id so operators can grep their logs by that ID.
+# ---------------------------------------------------------------------------
+@app.exception_handler(Exception)
+async def _unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    # Pull request_id from ``request.state`` (set by RequestLoggingMiddleware)
+    # and fall back to a fresh one in case the middleware never ran (e.g.
+    # an exception fired from a startup hook). We attach the same id to the
+    # response header here because ``BaseHTTPMiddleware`` does not always
+    # thread Starlette's exception-handler 500 response back through its own
+    # success path — so the middleware's ``X-Request-ID`` injection can miss
+    # 5xx bodies. Setting it on the JSONResponse directly closes that gap.
+    request_id = getattr(request.state, "request_id", None) or new_request_id()
+    request.state.request_id = request_id
+    logging.getLogger("jobradar.error").exception(
+        "UNCAUGHT req_id=%s %s %s -> %s",
+        request_id,
+        request.method,
+        request.url.path,
+        type(exc).__name__,
+    )
+    response = JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error", "request_id": request_id},
+    )
+    response.headers["X-Request-ID"] = request_id
+    return response
+
 
 # Mount the routers under ``/api/*`` so they line up with ``frontend/src/api/client.js``
 # (``baseURL = ${VITE_API_URL}/api``) and the docker-compose ``VITE_API_URL`` shape.

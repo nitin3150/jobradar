@@ -2,3 +2,4 @@ fastapi
 dotenv
 pydantic
 uvicorn
+python-multipart

@@ -72,6 +72,11 @@ from routes.scanner import router as scanner  # noqa: E402
 from routes.outreach import router as outreach_router  # noqa: E402
 from routes.companies import router as companies_router  # noqa: E402
 from routes.pipeline import router as pipeline_router  # noqa: E402
+from routes.applications import router as applications_router  # noqa: E402
+from routes.jobs import router as jobs_router  # noqa: E402
+from routes.qa_bank import router as qa_bank_router  # noqa: E402
+from routes.resumes import router as resumes_router  # noqa: E402
+from routes.settings import router as settings_router  # noqa: E402
 from utils.logging import RequestLoggingMiddleware, jobradar_lifespan, new_request_id  # noqa: E402
 
 # Wire the logging lifespan into the FastAPI app so every test (which
@@ -145,6 +150,11 @@ app.include_router(scanner, prefix="/api/scan", tags=["Scan jobs"])
 app.include_router(outreach_router, prefix="/api/outreach", tags=["Outreach"])
 app.include_router(companies_router, prefix="/api/companies", tags=["Companies"])
 app.include_router(pipeline_router, prefix="/api/pipeline", tags=["Pipeline"])
+app.include_router(applications_router, prefix="/api/applications", tags=["Applications"])
+app.include_router(jobs_router, prefix="/api/jobs", tags=["Jobs"])
+app.include_router(qa_bank_router, prefix="/api/qa-bank", tags=["QA bank"])
+app.include_router(resumes_router, prefix="/api/resumes", tags=["Resumes"])
+app.include_router(settings_router, prefix="/api/settings", tags=["Settings"])
 
 
 @app.get("/health")

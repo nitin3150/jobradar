@@ -605,6 +605,172 @@ class TestScoreRangeFilter:
 
 
 # ---------------------------------------------------------------------
+# Date-range filter: NULL-tolerance regression coverage. Before the
+# fix, setting ``?posted_from=...`` (or ``?posted_to=...``) silently
+# dropped every job whose ``posted_at`` was NULL because SQL's
+# ``NULL >= <date>`` is NULL (falsy). The fix added
+# ``OR posted_at IS NULL`` to the bounds so undated jobs (Ashby in
+# particular) survive the filter. The two tests below install one
+# dated + one NULL row and assert both come back when a bound is set.
+#
+# NOTE: these tests depend on the canonical seed fixture having all
+# ``posted_at`` values NULL. If a future seed backfill stamps real
+# dates on the seed rows, the NULL-tolerance tests will start
+# returning more rows (correct, but the test intent will read as
+# muddier). The exact-row assertions on the *new* test rows still
+# hold either way.
+# ---------------------------------------------------------------------
+class TestDateRangeFilter:
+    async def test_posted_from_keeps_null_posted_at_rows(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # Add a NULL-posted_at row alongside the seed's NULL
+        # ``posted_at`` rows so the regression is observable: a
+        # ``posted_from`` bound MUST still return it. Pre-fix,
+        # this would have returned only the 1 dated row.
+        dated_id = _seed_id_for("dated_posted_at")
+        null_id = _seed_id_for("null_posted_at_drf")
+
+        async def _add() -> None:
+            async with AsyncSessionLocal() as session:
+                session.add(
+                    db_models.Job(
+                        id=dated_id,
+                        company_name="Dated Co",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="Dated Role",
+                        url="https://example.com/dated",
+                        ai_fit_score=0.5,
+                        # A date in the recent past so the bound
+                        # ``posted_from=2026-01-01`` clearly
+                        # includes it.
+                        posted_at=datetime(2026, 6, 1, tzinfo=timezone.utc),
+                    )
+                )
+                session.add(
+                    db_models.Job(
+                        id=null_id,
+                        company_name="NullDate Co",
+                        status="approved",
+                        ats_type="ashby",
+                        title="NullDate Role",
+                        url="https://example.com/nulldate",
+                        ai_fit_score=0.5,
+                        posted_at=None,
+                    )
+                )
+                await session.commit()
+
+        await _add()
+
+        # ``posted_from=2026-01-01`` should return BOTH the dated
+        # row AND the NULL row — pre-fix the NULL row was
+        # silently dropped.
+        r = await seeded_jobs.get("/api/jobs?posted_from=2026-01-01")
+        assert r.status_code == 200, r.text
+        body = r.json()
+        ids = {j["id"] for j in body["jobs"]}
+        assert str(dated_id) in ids
+        assert str(null_id) in ids
+        # ``total`` should reflect the union too (not just the
+        # dated subset).
+        assert body["total"] >= 2
+
+    async def test_posted_to_keeps_null_posted_at_rows(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # Mirror of the above for the upper bound: a job without
+        # a ``posted_at`` must still come back when the operator
+        # sets a ``posted_to`` ceiling.
+        dated_id = _seed_id_for("dated_posted_at_to")
+        null_id = _seed_id_for("null_posted_at_to")
+
+        async def _add() -> None:
+            async with AsyncSessionLocal() as session:
+                session.add(
+                    db_models.Job(
+                        id=dated_id,
+                        company_name="Dated To Co",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="Dated To Role",
+                        url="https://example.com/dated-to",
+                        ai_fit_score=0.5,
+                        posted_at=datetime(2026, 1, 15, tzinfo=timezone.utc),
+                    )
+                )
+                session.add(
+                    db_models.Job(
+                        id=null_id,
+                        company_name="NullDate To Co",
+                        status="approved",
+                        ats_type="ashby",
+                        title="NullDate To Role",
+                        url="https://example.com/nulldate-to",
+                        ai_fit_score=0.5,
+                        posted_at=None,
+                    )
+                )
+                await session.commit()
+
+        await _add()
+
+        r = await seeded_jobs.get("/api/jobs?posted_to=2026-12-31")
+        assert r.status_code == 200, r.text
+        body = r.json()
+        ids = {j["id"] for j in body["jobs"]}
+        assert str(dated_id) in ids
+        assert str(null_id) in ids
+
+    async def test_posted_from_excludes_older_dated_rows(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # Sanity-pin the regression fix didn't over-include: a
+        # row whose ``posted_at`` is BEFORE the ``posted_from``
+        # bound must still be excluded (the NULL branch is the
+        # only thing the fix widens).
+        old_id = _seed_id_for("old_posted_at")
+        new_id = _seed_id_for("new_posted_at")
+
+        async def _add() -> None:
+            async with AsyncSessionLocal() as session:
+                session.add(
+                    db_models.Job(
+                        id=old_id,
+                        company_name="Old Co",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="Old Role",
+                        url="https://example.com/old",
+                        ai_fit_score=0.5,
+                        posted_at=datetime(2025, 1, 1, tzinfo=timezone.utc),
+                    )
+                )
+                session.add(
+                    db_models.Job(
+                        id=new_id,
+                        company_name="New Co",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="New Role",
+                        url="https://example.com/new",
+                        ai_fit_score=0.5,
+                        posted_at=datetime(2026, 6, 1, tzinfo=timezone.utc),
+                    )
+                )
+                await session.commit()
+
+        await _add()
+
+        r = await seeded_jobs.get("/api/jobs?posted_from=2026-01-01")
+        assert r.status_code == 200, r.text
+        ids = {j["id"] for j in r.json()["jobs"]}
+        assert str(old_id) not in ids
+        assert str(new_id) in ids
+
+
+# ---------------------------------------------------------------------
 # v0.5 wire-up: GET /api/jobs/{id} single-job lookup + ?company_id filter
 # on the list endpoint. The single-job route powers the React
 # ``JobDetail`` page; the company_id filter powers CompanyDetail's
@@ -811,7 +977,9 @@ class TestSortParam:
     ) -> None:
         # No ``?sort=`` → falls through to ``deadline_asc``. Two
         # in_review rows have non-null deadlines (j_1 = +2h, j_2 =
-        # +5h), the rest are NULL and sink to the bottom.
+        # +5h), the rest are NULL and sink to the bottom; among
+        # those terminal rows, the secondary ``ai_fit_score DESC``
+        # orders them best-matched first (0.91, 0.74, 0.58, 0.42).
         r = await seeded_jobs.get("/api/jobs")
         assert r.status_code == 200, r.text
         jobs = r.json()["jobs"]
@@ -819,6 +987,13 @@ class TestSortParam:
         # deadline ASC (j_1 has the earlier deadline).
         assert jobs[0]["id"] == J_1_ID
         assert jobs[1]["id"] == J_2_ID
+        # Remaining 4 rows all have NULL review_deadline and are
+        # ordered by the secondary ``ai_fit_score DESC NULLS LAST``
+        # — j_3 (0.91) → j_5 (0.74) → j_6 (0.58) → j_4 (0.42).
+        terminal_ids = [j["id"] for j in jobs[2:]]
+        assert terminal_ids == [J_3_ID, J_5_ID, J_6_ID, J_4_ID]
+        terminal_scores = [j["ai_fit_score"] for j in jobs[2:]]
+        assert terminal_scores == sorted(terminal_scores, reverse=True)
 
     async def test_sort_unknown_value_falls_back_to_default(
         self, seeded_jobs: AsyncClient,
@@ -845,3 +1020,173 @@ class TestSortParam:
         assert body["total"] == 2
         scores = [j["ai_fit_score"] for j in body["jobs"]]
         assert scores == sorted(scores, reverse=True), scores
+
+    async def test_sort_posted_desc_uses_score_desc_as_secondary(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # Two extra rows with the same ``posted_at`` but different
+        # ``ai_fit_score`` so the primary sort ties and the secondary
+        # ``ai_fit_score DESC NULLS LAST`` becomes visible. The seed
+        # rows all have NULL posted_at, so they cluster at the
+        # bottom under ``nulls_last``; the two new same-date rows
+        # dominate the top of the response.
+        same_date = datetime(2026, 7, 1, 12, 0, 0, tzinfo=timezone.utc)
+        high_id = _seed_id_for("posted_secondary_high")
+        low_id = _seed_id_for("posted_secondary_low")
+
+        async def _add() -> None:
+            async with AsyncSessionLocal() as session:
+                session.add(
+                    db_models.Job(
+                        id=low_id,
+                        company_name="SameDate LowScore",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="SameDate LowScore",
+                        url="https://example.com/samedate-lowscore",
+                        ai_fit_score=0.50,
+                        posted_at=same_date,
+                    )
+                )
+                session.add(
+                    db_models.Job(
+                        id=high_id,
+                        company_name="SameDate HighScore",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="SameDate HighScore",
+                        url="https://example.com/samedate-highscore",
+                        ai_fit_score=0.95,
+                        posted_at=same_date,
+                    )
+                )
+                await session.commit()
+
+        await _add()
+
+        r = await seeded_jobs.get("/api/jobs?sort=posted_desc")
+        assert r.status_code == 200, r.text
+        jobs = r.json()["jobs"]
+        same_date_rows = [
+            j for j in jobs
+            if j["id"] in {str(high_id), str(low_id)}
+        ]
+        assert len(same_date_rows) == 2
+        assert same_date_rows[0]["id"] == str(high_id)
+        assert same_date_rows[1]["id"] == str(low_id)
+        assert same_date_rows[0]["ai_fit_score"] > same_date_rows[1]["ai_fit_score"]
+
+    async def test_sort_posted_asc_uses_score_desc_as_secondary(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # The secondary ``ai_fit_score DESC`` is constant across
+        # sort modes: even when the primary is ``posted_asc``, ties
+        # on posted_at break by highest score first. Verifies the
+        # consistency the user asked for ("all five sort options").
+        same_date = datetime(2026, 7, 1, 12, 0, 0, tzinfo=timezone.utc)
+        high_id = _seed_id_for("posted_asc_secondary_high")
+        low_id = _seed_id_for("posted_asc_secondary_low")
+
+        async def _add() -> None:
+            async with AsyncSessionLocal() as session:
+                session.add(
+                    db_models.Job(
+                        id=low_id,
+                        company_name="AscDate LowScore",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="AscDate LowScore",
+                        url="https://example.com/ascdate-lowscore",
+                        ai_fit_score=0.50,
+                        posted_at=same_date,
+                    )
+                )
+                session.add(
+                    db_models.Job(
+                        id=high_id,
+                        company_name="AscDate HighScore",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="AscDate HighScore",
+                        url="https://example.com/ascdate-highscore",
+                        ai_fit_score=0.95,
+                        posted_at=same_date,
+                    )
+                )
+                await session.commit()
+
+        await _add()
+
+        r = await seeded_jobs.get("/api/jobs?sort=posted_asc")
+        assert r.status_code == 200, r.text
+        jobs = r.json()["jobs"]
+        # The two same-date rows are the only non-NULL posted_at
+        # rows in the corpus, so under ``posted_asc NULLS LAST``
+        # they cluster at the TOP of the list (oldest non-NULL
+        # dates come first; the 6 seed rows with NULL posted_at
+        # sink to the bottom).
+        same_date_rows = [
+            j for j in jobs
+            if j["id"] in {str(high_id), str(low_id)}
+        ]
+        assert len(same_date_rows) == 2
+        # Secondary sort kicks in within the same date even under ASC.
+        assert same_date_rows[0]["id"] == str(high_id)
+        assert same_date_rows[1]["id"] == str(low_id)
+
+    async def test_sort_score_desc_with_tied_scores_uses_secondary(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # Two extra rows with the same ``ai_fit_score`` so the
+        # primary sort ties. The secondary sort is also
+        # ``ai_fit_score DESC`` (a no-op for ties on the same
+        # column) so the tertiary ``id`` is what actually
+        # differentiates. The visible effect is that two rows with
+        # the same score come back in a deterministic order, not
+        # in a random Postgres row-order sequence.
+        tied_score = 0.77
+        a_id = _seed_id_for("tied_a")
+        b_id = _seed_id_for("tied_b")
+
+        async def _add() -> None:
+            async with AsyncSessionLocal() as session:
+                session.add(
+                    db_models.Job(
+                        id=a_id,
+                        company_name="Tied A",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="Tied A",
+                        url="https://example.com/tied-a",
+                        ai_fit_score=tied_score,
+                    )
+                )
+                session.add(
+                    db_models.Job(
+                        id=b_id,
+                        company_name="Tied B",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="Tied B",
+                        url="https://example.com/tied-b",
+                        ai_fit_score=tied_score,
+                    )
+                )
+                await session.commit()
+
+        await _add()
+
+        r = await seeded_jobs.get("/api/jobs?sort=score_desc")
+        assert r.status_code == 200, r.text
+        jobs = r.json()["jobs"]
+        tied_rows = [j for j in jobs if j["id"] in {str(a_id), str(b_id)}]
+        assert len(tied_rows) == 2
+        assert tied_rows[0]["ai_fit_score"] == pytest.approx(tied_score)
+        assert tied_rows[1]["ai_fit_score"] == pytest.approx(tied_score)
+        # Deterministic order: the row with the lexicographically
+        # smaller UUID (id-column ASC tiebreaker) comes first.
+        expected_first, expected_second = sorted(
+            [str(a_id), str(b_id)],
+        )
+        assert tied_rows[0]["id"] == expected_first
+        assert tied_rows[1]["id"] == expected_second

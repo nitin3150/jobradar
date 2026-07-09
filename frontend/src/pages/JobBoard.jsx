@@ -65,9 +65,17 @@ export default function JobBoard() {
     const out = {
       page,
       page_size: pageSize,
-      score_min: filters.score_min ?? 0,
       sort: filters.sort || 'deadline_asc',
     };
+    // ``score_min`` is only included when non-zero so the URL
+    // doesn't carry a noisy ``?score_min=0`` on every request —
+    // the backend's ``if score_min > 0.0`` guard already short-
+    // circuits a no-op filter, but emitting it makes the
+    // DevTools Network panel look like the filter is active.
+    // ``DEFAULT_FILTERS`` initialises ``score_min: 0`` and nothing
+    // in the codebase ever sets it to ``undefined``/``null``, so
+    // it's always a number — no ``?? 0`` needed.
+    if (filters.score_min > 0) out.score_min = filters.score_min;
     if (filters.q) out.q = filters.q;
     if (filters.ats_type) out.ats_type = filters.ats_type;
     if (filters.posted_from) out.posted_from = filters.posted_from;

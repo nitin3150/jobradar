@@ -42,9 +42,67 @@ dependencies = [
     "uvicorn>=0.30.0",
 ]
 
+# Test-only dependencies. Kept separate from the runtime ``dependencies``
+# block above so ``pip install -e .`` (production target) doesn't pull
+# in the pytest + httpx test stack. Listed under ``[dependency-groups]``
+# per PEP 735 so the modern ``uv add --group test`` workflow is the
+# canonical install path; the legacy ``[project.optional-dependencies]``
+# block below preserves compatibility with the older
+# ``pip install -e .[test]`` shape that some CI scripts still use.
+[dependency-groups]
+test = [
+    # ``httpx`` is the in-process ASGI client used by the test suite
+    # (httpx.AsyncClient + ASGITransport). Already a transitive
+    # dependency of FastAPI's ``TestClient`` but pinned here so a
+    # future FastAPI bump doesn't quietly swap the ASGITransport API
+    # the test fixtures rely on.
+    "httpx>=0.27",
+    "pytest>=8.0",
+    # ``pytest-asyncio`` drives the async test methods + async fixtures
+    # the suite uses after the v0.5 refactor away from
+    # ``asyncio.run()`` bridges in unittest.TestCase setUp hooks. The
+    # ``asyncio_mode = "auto"`` setting in ``[tool.pytest.ini_options]``
+    # below lets every ``async def test_*`` + ``@pytest_asyncio.fixture``
+    # be recognized without per-test ``@pytest.mark.asyncio`` decoration.
+    # ``>=0.23`` is the minimum that ships ``asyncio_default_fixture_loop_scope``
+    # so we can pin the loop scope in one place.
+    "pytest-asyncio>=0.23",
+]
+
+[project.optional-dependencies]
+test = [
+    "httpx>=0.27",
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+]
+
 [tool.uv]
 # Pin a version of uv that understands the `[asyncio]` extras spec above.
 required-version = ">=0.4.0"
+
+[tool.pytest.ini_options]
+# ``asyncio_mode = "auto"`` — every ``async def test_*`` + every
+# ``@pytest_asyncio.fixture`` is recognized without per-test
+# ``@pytest.mark.asyncio`` decoration. Cuts ceremony and matches
+# the canonical pytest-asyncio pattern for suites that have
+# already committed to async test methods.
+#
+# Why NOT the ``unittest.TestCase`` sync bridge the suite used to
+# rely on: ``setUp`` called ``asyncio.run(coro)`` to seed the DB
+# from a sync test body. With pytest-asyncio installed (the suite
+# pulls it in for any future async-test author) the session loop
+# is alive in the test thread, so the nested ``asyncio.run`` raises
+# ``RuntimeError: asyncio.run() cannot be called from a running
+# event loop``. Async fixtures + async test methods keep every
+# coroutine on the same loop the runner provides.
+asyncio_mode = "auto"
+
+# Function-scoped loop matches the per-test NullPool the test
+# engine in ``db/session.py`` already configures via
+# ``JOBRADAR_TEST_DB=1``. Each test gets a fresh loop + fresh
+# connection, so a connection bound to a previous test's closed
+# loop never re-raises ``Task ... attached to a different loop``.
+asyncio_default_fixture_loop_scope = "function"
 
 # ---------------------------------------------------------------------------
 # Build configuration.

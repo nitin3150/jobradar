@@ -25,31 +25,22 @@ Assertions:
   list still mirrors the scan output (intentional: scoring is
   invisible, the response reflects raw scan results).
 
-Run with ``JOBRADAR_TEST_DB=1`` so SQLAlchemy uses NullPool for
-the per-test event loop in ``asyncio.run`` DB peek helpers.
+The ``JOBRADAR_TEST_DB=1`` env var is set by :mod:`conftest` (once,
+at import time, before :mod:`db.session` constructs the engine) so
+the engine uses NullPool. Each test gets a fresh event loop (the
+default in ``asyncio_mode = "auto"`` with function-scoped fixtures
+in :mod:`conftest`) so asyncpg's per-loop connection binding
+behaves deterministically.
 """
 from __future__ import annotations
 
-import asyncio
-import os
-
-# IMPORTANT: this env var must be set BEFORE `main` / `db.session`
-# / `routes.scanner` are imported — SQLAlchemy constructs the engine
-# pool at module-import time. setdefault also accepts the
-# subprocess-injected form (``JOBRADAR_TEST_DB=1 python -m unittest …``).
-os.environ.setdefault("JOBRADAR_TEST_DB", "1")
-
-import unittest
 from unittest.mock import AsyncMock, patch
 
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from sqlalchemy import delete as sa_delete, select
 
 from db import models as db_models
 from db.session import AsyncSessionLocal
-from main import app
-from routes.jobs import _seed_job_rows
-from routes.settings import _PREFS_STATE, _reset_prefs
 
 
 # ---------------------------------------------------------------------
@@ -125,14 +116,12 @@ async def _score_side_effect_boards(profile, opp):
 
 
 # ---------------------------------------------------------------------
-# DB helpers. Tests stay sync (TestCase) but each DB peek opens a
-# fresh event loop via ``asyncio.run`` so NullPool binds a fresh
-# asyncpg connection to the calling loop — no cross-loop errors.
+# DB helpers. Each opens a fresh session on the calling event loop
+# so NullPool binds a fresh asyncpg connection per call — no
+# cross-loop errors. The async shape is unchanged from the
+# previous sync ``_run(coro)`` + ``asyncio.run`` bridge; only the
+# await site moved from ``_run(...)`` to ``await ...``.
 # ---------------------------------------------------------------------
-def _run(coro):
-    return asyncio.run(coro)
-
-
 async def _truncate_jobs_table() -> None:
     async with AsyncSessionLocal() as session:
         await session.execute(sa_delete(db_models.Job))
@@ -183,7 +172,7 @@ def _build_mock_opportunities():
 
 
 # ---------------------------------------------------------------------
-class TestScanFundingEndToEnd(unittest.TestCase):
+class TestScanFundingEndToEnd:
     """Verify scan → score → DB persistence for ``/api/scan/funding``.
 
     The scanning domain is funding because it is the simplest shape
@@ -193,26 +182,17 @@ class TestScanFundingEndToEnd(unittest.TestCase):
     patched scanner entry would change.
     """
 
-    def setUp(self) -> None:
-        # Reset in-memory prefs to factory defaults (threshold = 0.6
-        # so the test's 0.85 / 0.91 mock scores pass and 0.30 fails).
-        _reset_prefs()
-        self.assertEqual(_PREFS_STATE["data"]["job_fit_threshold"], 0.6)
-        # Truncate + reseed jobs DB to the canonical 6 fixtures so
-        # pre-test counts are deterministic.
-        _run(_seed_job_rows(AsyncSessionLocal()))
-        self.client = TestClient(app)
-
-    def tearDown(self) -> None:
-        # Wipe the jobs table to avoid bleed into the next test.
-        _run(_truncate_jobs_table())
-
-    def test_funding_scan_persists_winners_only_and_keeps_envelope(self) -> None:
+    async def test_funding_scan_persists_winners_only_and_keeps_envelope(
+        self,
+        seeded_jobs: AsyncClient,
+        reset_prefs: None,
+    ) -> None:
+        client = seeded_jobs
         opportunities = _build_mock_opportunities()
 
         # Pre-state: none of the mock URLs are in the jobs DB.
         for url in SCAN_URLS:
-            self.assertEqual(_run(_count_jobs_for_url(url)), 0)
+            assert await _count_jobs_for_url(url) == 0
 
         # Patch the scanner entry AND the LLM scoring entry so we
         # never hit real APIs and our scoring is deterministic.
@@ -228,55 +208,55 @@ class TestScanFundingEndToEnd(unittest.TestCase):
 
             # POST the canonical scan; defaults for delta_hours and
             # limit match ``run_funding``'s Query() defaults.
-            response = self.client.post("/api/scan/funding")
+            response = await client.post("/api/scan/funding")
 
         # ------------------------------------------------------------------
         # Response envelope is unchanged.
         # ------------------------------------------------------------------
-        self.assertEqual(response.status_code, 200, response.text)
+        assert response.status_code == 200, response.text
         body = response.json()
-        self.assertEqual(body["message"], "True")
-        self.assertEqual(body["domain"], "funding")
+        assert body["message"] == "True"
+        assert body["domain"] == "funding"
         # ``count`` reflects the raw scan output (3); scoring does
         # NOT mutate this — the user still sees their full list.
-        self.assertEqual(body["count"], 3)
-        self.assertEqual(len(body["opportunities"]), 3)
+        assert body["count"] == 3
+        assert len(body["opportunities"]) == 3
         urls_in_resp = {item.get("url") for item in body["opportunities"]}
-        self.assertEqual(urls_in_resp, set(SCAN_URLS))
+        assert urls_in_resp == set(SCAN_URLS)
 
         # ------------------------------------------------------------------
         # Scoring was called exactly once per opportunity.
         # ------------------------------------------------------------------
-        self.assertEqual(fake_client.score_opportunity.await_count, 3)
+        assert fake_client.score_opportunity.await_count == 3
         mock_scan.assert_called_once()
 
         # ------------------------------------------------------------------
         # Above-threshold winners landed in the DB.
         # ------------------------------------------------------------------
-        self.assertEqual(_run(_count_jobs_for_url("scan-201-above")), 1)
-        self.assertEqual(_run(_count_jobs_for_url("scan-202-verygood")), 1)
+        assert await _count_jobs_for_url("scan-201-above") == 1
+        assert await _count_jobs_for_url("scan-202-verygood") == 1
 
         # Inspect one winner's fields end-to-end — verifies the Job
         # schema is the same the React ``JobsReview`` page expects.
-        winner = _run(_fetch_winner("scan-201-above"))
-        self.assertIsNotNone(winner)
-        self.assertEqual(winner.status, "in_review")
-        self.assertEqual(winner.ats_type, "funding")
-        self.assertEqual(winner.title, "Funding Round — Series B for AI Infra Co")
-        self.assertEqual(winner.company_name, "Acme AI")
-        self.assertAlmostEqual(winner.ai_fit_score, 0.85, places=4)
-        self.assertEqual(winner.ai_fit_reasoning, "above threshold; solid AI-platform match")
+        winner = await _fetch_winner("scan-201-above")
+        assert winner is not None
+        assert winner.status == "in_review"
+        assert winner.ats_type == "funding"
+        assert winner.title == "Funding Round — Series B for AI Infra Co"
+        assert winner.company_name == "Acme AI"
+        assert winner.ai_fit_score == 0.85
+        assert winner.ai_fit_reasoning == "above threshold; solid AI-platform match"
         # review_deadline starts as None (scheduler populates later).
-        self.assertIsNone(winner.review_deadline)
+        assert winner.review_deadline is None
 
         # ------------------------------------------------------------------
         # Below-threshold loser was silently dropped — no DB row.
         # ------------------------------------------------------------------
-        self.assertEqual(_run(_count_jobs_for_url("scan-203-below")), 0)
+        assert await _count_jobs_for_url("scan-203-below") == 0
 
 
 # ---------------------------------------------------------------------
-class TestScanOssEndToEnd(unittest.TestCase):
+class TestScanOssEndToEnd:
     """Same flow for ``/api/scan/oss`` — exercises a different scanner
     entry to prove the wiring is not funding-specific.
 
@@ -286,15 +266,12 @@ class TestScanOssEndToEnd(unittest.TestCase):
     independent failure surface.
     """
 
-    def setUp(self) -> None:
-        _reset_prefs()
-        _run(_seed_job_rows(AsyncSessionLocal()))
-        self.client = TestClient(app)
-
-    def tearDown(self) -> None:
-        _run(_truncate_jobs_table())
-
-    def test_oss_scan_persists_winners_only(self) -> None:
+    async def test_oss_scan_persists_winners_only(
+        self,
+        seeded_jobs: AsyncClient,
+        reset_prefs: None,
+    ) -> None:
+        client = seeded_jobs
         opportunities = [
             {
                 "title": "OSS opportunity",
@@ -323,16 +300,16 @@ class TestScanOssEndToEnd(unittest.TestCase):
             )
             mock_llm.return_value = fake_client
 
-            response = self.client.post("/api/scan/oss")
+            response = await client.post("/api/scan/oss")
 
-        self.assertEqual(response.status_code, 200, response.text)
+        assert response.status_code == 200, response.text
         body = response.json()
-        self.assertEqual(body["domain"], "oss")
-        self.assertEqual(body["count"], 2)
+        assert body["domain"] == "oss"
+        assert body["count"] == 2
 
         # Exactly one winner.
-        self.assertEqual(_run(_count_jobs_for_url("scan-oss-above")), 1)
-        self.assertEqual(_run(_count_jobs_for_url("scan-oss-below")), 0)
+        assert await _count_jobs_for_url("scan-oss-above") == 1
+        assert await _count_jobs_for_url("scan-oss-below") == 0
 
 
 # ---------------------------------------------------------------------
@@ -409,7 +386,7 @@ def _boards_fetch_side_effect(fetcher, board_name, slug, since, seen_ids, client
 
 
 # ---------------------------------------------------------------------
-class TestScanBoardsEndToEnd(unittest.TestCase):
+class TestScanBoardsEndToEnd:
     """Verify the *boards-runner scoring path* end-to-end.
 
     Compared to the funding/oss tests, this one is harder: the boards
@@ -469,15 +446,12 @@ class TestScanBoardsEndToEnd(unittest.TestCase):
       — guards against the runner accidentally iterating twice.
     """
 
-    def setUp(self) -> None:
-        _reset_prefs()
-        _run(_seed_job_rows(AsyncSessionLocal()))
-        self.client = TestClient(app)
-
-    def tearDown(self) -> None:
-        _run(_truncate_jobs_table())
-
-    def test_boards_scan_persists_winners_only_and_keeps_envelope(self) -> None:
+    async def test_boards_scan_persists_winners_only_and_keeps_envelope(
+        self,
+        seeded_jobs: AsyncClient,
+        reset_prefs: None,
+    ) -> None:
+        client = seeded_jobs
         with patch(
             "pipeline.nodes.jobs_boards.runner.load_file", return_value={}
         ) as mock_seen_load, \
@@ -524,7 +498,7 @@ class TestScanBoardsEndToEnd(unittest.TestCase):
             )
             mock_llm.return_value = fake_client
 
-            response = self.client.post(
+            response = await client.post(
                 "/api/scan/boards?boards=ashby&limit=3&delta_hours=1"
             )
 
@@ -532,23 +506,23 @@ class TestScanBoardsEndToEnd(unittest.TestCase):
         # Response envelope is the boards-specific shape (different from
         # funding/oss which use ``sources`` instead of ``boards``).
         # ------------------------------------------------------------------
-        self.assertEqual(response.status_code, 200, response.text)
+        assert response.status_code == 200, response.text
         body = response.json()
-        self.assertEqual(body["message"], "True")
-        self.assertEqual(body["domain"], "boards")
-        self.assertEqual(body["delta_hours"], 1)
-        self.assertEqual(body["boards"], ["ashby"])
-        self.assertEqual(body["limit"], 3)
-        self.assertEqual(body["count"], 3)
-        self.assertEqual(len(body["opportunities"]), 3)
+        assert body["message"] == "True"
+        assert body["domain"] == "boards"
+        assert body["delta_hours"] == 1
+        assert body["boards"] == ["ashby"]
+        assert body["limit"] == 3
+        assert body["count"] == 3
+        assert len(body["opportunities"]) == 3
         urls_in_resp = {item.get("url") for item in body["opportunities"]}
-        self.assertEqual(urls_in_resp, set(SCAN_URLS_BOARDS))
+        assert urls_in_resp == set(SCAN_URLS_BOARDS)
 
         # ------------------------------------------------------------------
         # Boards-runner wiring: the right number of fetch calls in the
         # right scope, with the right filter chain at the end.
         # ------------------------------------------------------------------
-        self.assertEqual(mock_execute_fetch.call_count, 3)
+        assert mock_execute_fetch.call_count == 3
         # The boards runner calls execute_fetch positionally as
         # ``(fetcher, board_name, slug, since, seen_ids, client)``, so
         # the *slug* is at ``call.args[2]``. The earlier
@@ -558,44 +532,38 @@ class TestScanBoardsEndToEnd(unittest.TestCase):
         slugs_fetched = {
             call.args[2] for call in mock_execute_fetch.call_args_list
         }
-        self.assertEqual(slugs_fetched, {"fake-acme", "fake-beta", "fake-gamma"})
+        assert slugs_fetched == {"fake-acme", "fake-beta", "fake-gamma"}
         mock_load_orgs.assert_called_once_with("ashby")
         # Verify ``filter_roles`` was called with the merged jobs
         # list — guards a regression where the runner forgets to
         # ``results.extend(r["jobs"])`` and feeds an empty list to
         # the role filter despite the fetches having succeeded.
         filter_call_args = mock_filter_roles.call_args.args[0]
-        self.assertEqual(len(filter_call_args), 3)
-        self.assertEqual(
-            {opp["url"] for opp in filter_call_args},
-            set(SCAN_URLS_BOARDS),
-        )
+        assert len(filter_call_args) == 3
+        assert {opp["url"] for opp in filter_call_args} == set(SCAN_URLS_BOARDS)
 
         # ------------------------------------------------------------------
         # Scoring was called exactly once per opportunity.
         # ------------------------------------------------------------------
-        self.assertEqual(fake_client.score_opportunity.await_count, 3)
+        assert fake_client.score_opportunity.await_count == 3
 
         # ------------------------------------------------------------------
         # Above-threshold winners landed in DB; below-threshold loser absent.
         # ------------------------------------------------------------------
-        self.assertEqual(_run(_count_jobs_for_url("scan-board-301-above")), 1)
-        self.assertEqual(_run(_count_jobs_for_url("scan-board-302-verygood")), 1)
-        self.assertEqual(_run(_count_jobs_for_url("scan-board-303-below")), 0)
+        assert await _count_jobs_for_url("scan-board-301-above") == 1
+        assert await _count_jobs_for_url("scan-board-302-verygood") == 1
+        assert await _count_jobs_for_url("scan-board-303-below") == 0
 
-        winner = _run(_fetch_winner("scan-board-301-above"))
-        self.assertIsNotNone(winner)
+        winner = await _fetch_winner("scan-board-301-above")
+        assert winner is not None
         # ``ats_type`` must round-trip as ``"boards"`` so future ops can
         # filter winners by their source scanner.
-        self.assertEqual(winner.status, "in_review")
-        self.assertEqual(winner.ats_type, "boards")
-        self.assertEqual(winner.title, "Senior AI Engineer")
-        self.assertEqual(winner.company_name, "Acme AI")
-        self.assertAlmostEqual(winner.ai_fit_score, 0.81, places=4)
-        self.assertEqual(
-            winner.ai_fit_reasoning,
-            "above threshold; direct AI platform role",
-        )
+        assert winner.status == "in_review"
+        assert winner.ats_type == "boards"
+        assert winner.title == "Senior AI Engineer"
+        assert winner.company_name == "Acme AI"
+        assert winner.ai_fit_score == 0.81
+        assert winner.ai_fit_reasoning == "above threshold; direct AI platform role"
 
         # ------------------------------------------------------------------
         # No real ``seen.json`` was read or written. The mocks intercepted
@@ -613,11 +581,4 @@ class TestScanBoardsEndToEnd(unittest.TestCase):
         expected_seen_urls = {
             opp["url"] for opp in _BOARD_OPPS_BY_SLUG.values()
         }
-        self.assertEqual(
-            set(seen_passed_to_save.keys()),
-            expected_seen_urls,
-        )
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert set(seen_passed_to_save.keys()) == expected_seen_urls

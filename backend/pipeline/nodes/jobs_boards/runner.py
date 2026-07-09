@@ -23,6 +23,7 @@ from pipeline.nodes.jobs_boards.lever import fetch as lever_fetch
 # pull ``job_fit_threshold`` — keeps the singleton the single source of
 # truth without leaking route-layer modules into the runner.
 from routes.settings import _PREFS_STATE
+from services.profile_service import get_all_target_roles, load_profile
 from utils.filters import (
     bench_org_from_text,
     filter_roles,
@@ -133,6 +134,85 @@ class UnknownBoardError(ValueError):
 
 import logging  # noqa: E402  (kept after stdlib + third-party imports for readability)
 logger = logging.getLogger(LOGGER_NAME)
+
+
+def _build_relevant_patterns_from_roles(
+    target_roles: list[str],
+) -> list[str]:
+    """Convert a list of target role titles into case-insensitive regex
+    patterns for :func:`utils.filters.is_relevant_role`.
+
+    Each role becomes a strict substring match — ``"Senior AI Engineer"``
+    in the profile produces a pattern that matches ``"Senior AI Engineer"``
+    in a job title (and only that exact phrase). The LLM scorer handles
+    the nuance of partial matches ("AI Engineer" vs "Senior AI Engineer")
+    via the profile-aware SYSTEM_PROMPT; the regex filter is the coarse
+    prefilter that just decides "is this role family one I care about?".
+
+    Word-boundary semantics
+    -----------------------
+
+    Naive ``\\b`` boundaries fail on roles that start or end with a
+    non-word character — ``"C++ Engineer"`` would produce
+    ``"\\bC\\+\\+ Engineer\\b"`` and ``\\b`` doesn't fire between ``+``
+    and a space (both are non-word characters), so the pattern misses
+    titles like ``"Senior C++ Engineer"``. We use an explicit
+    start/end alternation ``(?:^|(?<=\\s)) ... (?:$|(?=\\s))`` instead
+    — it matches the role at the start of the string OR after a
+    space, and at the end of the string OR before a space. This
+    mimics a word boundary for plain text but correctly handles
+    special characters at the edges.
+
+    Earlier drafts used ``(?<!\\w) ... (?!\\w)`` (negative
+    lookarounds), which failed at position 0 of a string because
+    Python's regex engine can't evaluate a lookbehind that points
+    before the start of the input — the assertion never satisfied
+    and ``"AI Engineer"`` at the start of a title (e.g.
+    ``"AI Engineer at Acme"``) silently didn't match. The
+    start-anchored alternation sidesteps the issue.
+
+    ``re.escape`` handles the role body (``"C++"`` → ``"C\\+\\+"``,
+    ``"AI/ML"`` → ``"AI/ML"``) so a role with regex metacharacters
+    doesn't accidentally become a regex of its own. Spaces are
+    un-escaped after ``re.escape`` (Python 3.7+ escapes every
+    non-alphanumeric, including the space between words) so the
+    pattern string stays readable.
+
+    Returns
+    -------
+    A list of compiled-ready regex pattern strings, one per role.
+    An empty list when ``target_roles`` is empty (e.g. an operator
+    who cleared their profile) — :func:`is_relevant_role` treats an
+    empty ``extra_relevant_patterns`` as a no-op and falls back to
+    ``DEFAULT_RELEVANT_PATTERNS``.
+    """
+    patterns: list[str] = []
+    for role in target_roles:
+        # Strip whitespace defensively — the profile renderer
+        # already trims, but a hand-edited profile.yml could
+        # sneak a leading/trailing space past the loader.
+        cleaned = (role or "").strip()
+        if not cleaned:
+            continue
+        # ``re.escape`` (Python 3.7+) escapes every non-alphanumeric
+        # character, including the space between words. The escaped
+        # form ``\ `` still matches a literal space in regex, but it
+        # makes the pattern string harder to read and breaks tests
+        # that substring-check the pattern. Un-escape spaces so the
+        # output is ``"AI Engineer"`` rather than ``"AI\ Engineer"``.
+        escaped = re.escape(cleaned).replace("\\ ", " ")
+        # ``(?i)`` makes the pattern case-insensitive so a profile
+        # role like ``"AI Engineer"`` matches ``"ai engineer"`` in
+        # a job title. Job titles arrive in arbitrary case from
+        # the ATS fetchers; the lowercased-title contract in
+        # :func:`utils.filters.is_relevant_role` doesn't help here
+        # because the pattern itself is case-sensitive by default
+        # in Python's ``re`` module — we need the flag on the
+        # pattern string, not on the search call.
+        patterns.append(
+            fr"(?i)(?:^|(?<=\s)){escaped}(?:$|(?=\s))"
+        )
+    return patterns
 
 
 def _text_hits_clearance(title: str, description: str) -> bool:
@@ -430,10 +510,23 @@ def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
     # than load-bearing — a missing key would still produce None and
     # the band filter would no-op.
     prefs_data = _PREFS_STATE.get("data") or {}
+    # Load the operator's profile ONCE per scan and pass the target
+    # roles as additional positive-relevance patterns. The
+    # ``profile_service`` module-level cache makes the second access
+    # free; loading here (rather than inside :func:`filter_roles`)
+    # keeps the per-job loop allocation-free. The empty-profile case
+    # (operator cleared their YAML or only the example file is
+    # present) yields an empty list — the filter falls back to
+    # ``DEFAULT_RELEVANT_PATTERNS`` so the legacy keyword behaviour
+    # is preserved bit-for-bit.
+    profile = load_profile()
+    target_roles = get_all_target_roles(profile)
+    extra_relevant_patterns = _build_relevant_patterns_from_roles(target_roles)
     return filter_roles(
         results,
         min_seniority=prefs_data.get("min_seniority"),
         max_seniority=prefs_data.get("max_seniority"),
+        extra_relevant_patterns=extra_relevant_patterns,
     )
 
 

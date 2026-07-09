@@ -47,6 +47,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import models as db_models
+from db.audit import record_status_history
 from db.session import get_session, require_database_configured
 from services.llm_client import LLMClient
 from services.scoring_service import build_profile_summary
@@ -191,31 +192,10 @@ def _research_row_to_pydantic(row: db_models.ResearchReport) -> ResearchReport:
     )
 
 
-def record_status_history(
-    session: AsyncSession,
-    job_id: UUID,
-    from_status: str | None,
-    to_status: str,
-    source: str,
-    note: str | None,
-) -> db_models.JobStatusHistory:
-    """Append a job_status_history row in the *current* session.
-
-    The caller is responsible for ``session.commit()`` so the history
-    row and the parent ``jobs.status`` update land in the same
-    transaction. Splitting them would let a future observer see a
-    status change with no history — which is exactly the bug the
-    v0.5 audit-trail rebuild is meant to prevent.
-    """
-    history = db_models.JobStatusHistory(
-        job_id=job_id,
-        from_status=from_status,
-        to_status=to_status,
-        source=source or db_models.JOB_STATUS_SOURCE_USER,
-        note=note,
-    )
-    session.add(history)
-    return history
+# ``record_status_history`` lives in :mod:`db.audit` so multiple
+# routers (jobs + applications + any future third router) can share
+# the same audit-trail insert path. See ``backend/db/audit.py`` for
+# the rationale + the canonical source-value constants.
 
 
 # ----------------------------------------------------------------------
@@ -390,6 +370,14 @@ async def list_jobs(
     score_max: float = Query(default=1.0, ge=0.0, le=1.0),
     posted_from: str | None = Query(default=None, max_length=32),
     posted_to: str | None = Query(default=None, max_length=32),
+    company_id: UUID | None = Query(
+        default=None,
+        description=(
+            "Filter to jobs whose ``company_id`` column matches. Used by "
+            "the React ``CompanyDetail`` page to render a company's job "
+            "list. Composes with the other filter params."
+        ),
+    ),
     session: AsyncSession = Depends(get_session),
 ) -> JobListResponse:
     """List jobs with optional ``status`` filter, server-side pagination,
@@ -493,6 +481,18 @@ async def list_jobs(
                 detail=f"posted_to={posted_to!r} is not a valid ISO 8601 date",
             ) from exc
 
+    if company_id is not None:
+        # ``company_id`` is the dedupe key join with the ``companies``
+        # table; the index ``idx_companies_feed`` covers
+        # ``(category, status, published_at DESC)`` but a company_id
+        # lookup typically wants all statuses + all dates so a plain
+        # ``= ANY(?)`` predicate is the right shape. The 0001
+        # initial migration doesn't have an explicit index on
+        # ``jobs.company_id``; if CompanyDetail proves hot in
+        # production a follow-up migration can add one.
+        stmt = stmt.where(db_models.Job.company_id == company_id)
+        count_stmt = count_stmt.where(db_models.Job.company_id == company_id)
+
     # ``review_deadline ASC NULLS LAST`` keeps the in-review rows that
     # have a real deadline at the top of the list — those are the rows
     # the operator wants to clear first. Terminal-status rows have
@@ -510,6 +510,33 @@ async def list_jobs(
         page=page,
         page_size=page_size,
     )
+
+
+@router.get("/{job_id}", response_model=Job)
+async def get_job(
+    job_id: str = Path(min_length=1, max_length=64),
+    session: AsyncSession = Depends(get_session),
+) -> Job:
+    """Single-job lookup by id. Drives the React ``JobDetail`` page so
+    a deep-link /jobs/<uuid> URL renders the posting + research
+    section without an extra /api/jobs?q=<id> roundtrip.
+
+    Route-ordering note: this is declared AFTER the literal
+    ``/pending-count`` and ``/{job_id}/research`` routes so the
+    parameterised path doesn't shadow them. A malformed UUID is
+    reported as 404 (not 422) for the same reason the approve/reject
+    routes do — the "did this row exist?" check is the primary
+    failure mode we want to surface.
+    """
+    try:
+        uuid_id = UUID(job_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=f"job {job_id!r} not found") from exc
+
+    row = await session.get(db_models.Job, uuid_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"job {job_id!r} not found")
+    return _job_row_to_pydantic(row)
 
 
 @router.post("/{job_id}/approve", response_model=Job)

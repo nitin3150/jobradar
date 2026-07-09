@@ -62,6 +62,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import models as db_models
+from db.audit import record_status_history
 from db.session import get_session, require_database_configured
 
 
@@ -436,13 +437,16 @@ async def create_application_from_job(
     # observer can never see ``status='applied'`` without a
     # matching history row.
     #
-    # Lazy import: ``routes.jobs`` itself imports nothing from
-    # ``routes.applications``, but a top-level import here would
-    # force a circular chain at module-load time. Pulling the
-    # symbol inside the function body defers the import until
-    # the first POST hits; by that point both modules are
-    # fully initialised.
-    from routes.jobs import record_status_history
+    # The helper is imported at module-load from :mod:`db.audit`
+    # (alongside the matching call from :mod:`routes.jobs`), so a
+    # future third router that also writes a status transition can
+    # use the same top-level import without copy-pasting the
+    # inline ``session.add(...)`` block. There is no longer a
+    # lazy-import dance here: the original concern was a circular
+    # chain through ``routes.jobs``; routing the helper through
+    # ``db.audit`` instead breaks the cycle at its root because
+    # ``db.audit`` depends on ``db.models`` and the AsyncSession
+    # type only — no FastAPI / routes imports.
     record_status_history(
         session,
         job_row.id,

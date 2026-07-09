@@ -18,6 +18,23 @@ function fmtDate(iso) {
   return d.toLocaleString();
 }
 
+// Full date + time, same shape the JobCard uses for the inline
+// Posted/Updated/Evaluated strip. v0.5 polish: the operator asked
+// for date AND time on every card; the detail page should match
+// so the two surfaces read consistently.
+function fmtDateTime(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
 // The Research section renders the latest cached report (if one
 // exists) inline and exposes a Generate / Regenerate button that
 // fires ``useResearchMutation`` on click. Auto-firing on mount
@@ -203,19 +220,19 @@ export default function JobDetail() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
           <div>
             <p className="text-xs text-gray-500 uppercase">Posted</p>
-            <p className="font-medium">{fmtDate(job.posted_at) || '—'}</p>
+            <p className="font-medium">{fmtDateTime(job.posted_at) || '—'}</p>
           </div>
           <div>
             <p className="text-xs text-gray-500 uppercase">Source updated</p>
-            <p className="font-medium">{fmtDate(job.source_updated_at) || '—'}</p>
+            <p className="font-medium">{fmtDateTime(job.source_updated_at) || '—'}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase">Created</p>
-            <p className="font-medium">{fmtDate(job.created_at) || '—'}</p>
+            <p className="text-xs text-gray-500 uppercase">Evaluated</p>
+            <p className="font-medium" title="When the GHA scorer first inserted this row">{fmtDateTime(job.created_at) || '—'}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase">Updated</p>
-            <p className="font-medium">{fmtDate(job.updated_at) || '—'}</p>
+            <p className="text-xs text-gray-500 uppercase">Last touched</p>
+            <p className="font-medium">{fmtDateTime(job.updated_at) || '—'}</p>
           </div>
         </div>
 
@@ -252,18 +269,28 @@ export default function JobDetail() {
           rendered here in full so the operator can read the
           posting without leaving the app. ``whitespace-pre-line``
           preserves the line breaks a board's HTML often flattens
-          to ``\n`` between paragraphs. Empty / null descriptions
-          collapse the block (board didn't give us one). */}
-      {job.description && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">
-            Job Description
-          </h2>
+          to ``\n`` between paragraphs.
+
+          Null fallback: pre-migration rows have ``description=NULL``
+          (the v0.5 migration deliberately does not backfill). For
+          those rows we still render the section with a subtle
+          italicised placeholder so the layout doesn't jump
+          unexpectedly when the operator navigates from a row that
+          has a description to one that doesn't. */}
+      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
+        <h2 className="text-sm font-semibold text-gray-900 mb-3">
+          Job Description
+        </h2>
+        {job.description ? (
           <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
             {job.description}
           </div>
-        </div>
-      )}
+        ) : (
+          <p className="text-sm text-gray-500 italic">
+            No description was provided by the source board.
+          </p>
+        )}
+      </div>
 
       {/* Research section */}
       <div className="bg-white border border-gray-200 rounded-xl p-6">

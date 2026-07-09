@@ -47,9 +47,14 @@ export default function JobBoard() {
   const [outreachJob, setOutreachJob] = useState(null);
 
   // Build the query-string dict from current filters. ``status`` is
-  // an array on purpose: when it serialises over GET it becomes
-  // ``?status=in_review&status=approved`` and the backend applies
-  // the rows-any-of shape. Score range, dates, and ats_type map 1:1.
+  // an array on purpose but the backend ``GET /api/jobs`` route
+  // expects a SINGLE comma-separated string (``?status=in_review,
+  // approved``) per the FastAPI ``Query(alias='status')`` shape.
+  // Joining here is the only correct path — axios would otherwise
+  // serialise the array to ``?status=in_review&status=approved`` and
+  // FastAPI would silently drop all but the first value, making
+  // multi-select filtering a no-op. Score range, dates, and
+  // ats_type map 1:1.
   //
   // v0.5: the JobBoardFilters input converts the percent-range
   // slider (0-100) to a 0.0-1.0 float at the boundary, so we can
@@ -67,7 +72,13 @@ export default function JobBoard() {
     if (filters.ats_type) out.ats_type = filters.ats_type;
     if (filters.posted_from) out.posted_from = filters.posted_from;
     if (filters.posted_to) out.posted_to = filters.posted_to;
-    if (filters.status && filters.status.length > 0) out.status = filters.status;
+    if (filters.status && filters.status.length > 0) {
+      // Comma-joined single string for the FastAPI ``status``
+      // query param. The route splits on ``,`` and applies an
+      // ``IN (...)`` predicate; the single-vs-multi wire shape
+      // is the same on the SQL side.
+      out.status = filters.status.join(',');
+    }
     return out;
   }, [filters, page, pageSize]);
 

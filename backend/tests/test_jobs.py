@@ -72,7 +72,18 @@ class TestListAll:
             assert "url" in j
             assert "ai_fit_score" in j
             assert "ai_fit_reasoning" in j
+            assert "description" in j  # nullable but the key must exist
             assert "review_deadline" in j
+
+    async def test_seed_jobs_have_descriptions(self, seeded_jobs: AsyncClient) -> None:
+        # v0.5: every seeded job row carries a non-empty description
+        # so the React ``JobCard`` truncation + "Read more" modal
+        # have something to render in dev / tests. Backfilled
+        # explicitly in ``_TEST_SEED_RECORDS_RAW``.
+        body = (await seeded_jobs.get("/api/jobs")).json()
+        for j in body["jobs"]:
+            assert j["description"], f"job {j['id']} ({j['title']}) has no description"
+            assert len(j["description"]) > 50, "description should be a real posting body"
 
 
 # ---------------------------------------------------------------------
@@ -630,9 +641,13 @@ class TestGetJobById:
         # entry (the React JobDetail reads them all directly).
         for key in (
             "id", "status", "ats_type", "title", "company_name",
-            "url", "ai_fit_score", "ai_fit_reasoning", "review_deadline",
+            "url", "ai_fit_score", "ai_fit_reasoning", "description",
+            "review_deadline",
         ):
             assert key in body
+        # Seed row j_1 carries a real description body.
+        assert body["description"]
+        assert "AI engineer" in body["description"].lower()
 
 
 class TestListJobsCompanyIdFilter:
@@ -756,3 +771,77 @@ class TestListJobsCompanyIdFilter:
         body = r.json()
         assert body["total"] == 1
         assert body["jobs"][0]["id"] == J_1_ID
+
+
+# ---------------------------------------------------------------------
+# v0.5 additions: ``?sort=`` query param. Five allowed values
+# (deadline_asc, score_desc, score_asc, posted_desc, posted_asc);
+# unknown values fall back to the default. The default itself is
+# exercised by every other test in this file (the seed rows are
+# returned in ``review_deadline ASC NULLS LAST, id`` order), so the
+# default path doesn't need its own test — the explicit branches do.
+# ---------------------------------------------------------------------
+class TestSortParam:
+    """Five ``?sort=`` modes + unknown-fallback coverage."""
+
+    async def test_sort_score_desc_returns_highest_first(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # Seed scores: 0.86, 0.78, 0.91, 0.42, 0.74, 0.58.
+        # score_desc → 0.91, 0.86, 0.78, 0.74, 0.58, 0.42.
+        r = await seeded_jobs.get("/api/jobs?sort=score_desc")
+        assert r.status_code == 200, r.text
+        scores = [j["ai_fit_score"] for j in r.json()["jobs"]]
+        assert scores == sorted(scores, reverse=True), scores
+        # The first row is the highest-scored (Vercel @ 0.91).
+        assert scores[0] == pytest.approx(0.91)
+
+    async def test_sort_score_asc_returns_lowest_first(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # score_asc → 0.42, 0.58, 0.74, 0.78, 0.86, 0.91.
+        r = await seeded_jobs.get("/api/jobs?sort=score_asc")
+        assert r.status_code == 200, r.text
+        scores = [j["ai_fit_score"] for j in r.json()["jobs"]]
+        assert scores == sorted(scores), scores
+        assert scores[0] == pytest.approx(0.42)
+
+    async def test_sort_default_uses_deadline_asc(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # No ``?sort=`` → falls through to ``deadline_asc``. Two
+        # in_review rows have non-null deadlines (j_1 = +2h, j_2 =
+        # +5h), the rest are NULL and sink to the bottom.
+        r = await seeded_jobs.get("/api/jobs")
+        assert r.status_code == 200, r.text
+        jobs = r.json()["jobs"]
+        # First two rows should be the in_review pair, ordered by
+        # deadline ASC (j_1 has the earlier deadline).
+        assert jobs[0]["id"] == J_1_ID
+        assert jobs[1]["id"] == J_2_ID
+
+    async def test_sort_unknown_value_falls_back_to_default(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # An unknown ``?sort=`` value falls back to ``deadline_asc``
+        # rather than 400-ing the request — a stale bookmark with
+        # a removed sort value should keep rendering the same list.
+        r = await seeded_jobs.get("/api/jobs?sort=garbage_value")
+        assert r.status_code == 200, r.text
+        jobs = r.json()["jobs"]
+        # Same shape as the default: j_1 first (in_review + deadline).
+        assert jobs[0]["id"] == J_1_ID
+
+    async def test_sort_composes_with_status_filter(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # status=in_review + sort=score_desc → only the 2 in_review
+        # rows, ordered by score DESC (0.86 then 0.78).
+        r = await seeded_jobs.get(
+            "/api/jobs?status=in_review&sort=score_desc"
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["total"] == 2
+        scores = [j["ai_fit_score"] for j in body["jobs"]]
+        assert scores == sorted(scores, reverse=True), scores

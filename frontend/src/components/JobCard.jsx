@@ -29,12 +29,14 @@ const ATS_COLORS = {
 // Title-case display label for the ATS board badge. v0.5 polish:
 // uppercase ``ASHBY``/``GREENHOUSE``/``LEVER`` looked shouty in the
 // v0.4 cards; title-case ``Ashby``/``Greenhouse``/``Lever`` reads as
-// a normal product name. Unknown / missing values render ``Unknown``
-// instead of the v0.4 fallback ``BOARD`` which the operator found
-// meaningless ("why is there a tag called 'boards'?").
+// a normal product name. Returns ``null`` for missing values so the
+// card can skip the badge entirely — the operator found the
+// v0.4 ``BOARD`` fallback meaningless ("why is there a tag called
+// 'boards'?"). Omitting the badge keeps the header clean when the
+// board didn't tell us its source.
 function boardLabel(atsType) {
   const t = (atsType || '').toLowerCase().trim();
-  if (!t) return 'Unknown';
+  if (!t) return null;
   return t.charAt(0).toUpperCase() + t.slice(1);
 }
 
@@ -46,11 +48,21 @@ const JOB_STATUSES = ['in_review', 'approved', 'rejected', 'applied', 'flagged']
 
 const ATS_SOURCE_OPTIONS = ['', 'ashby', 'greenhouse', 'lever'];  // most common; backend returns the full set
 
-function fmtDate(iso) {
+// Full date + time format. Used inline on the card (per the v0.5
+// operator ask: "show the date and time it published/posted") and
+// also in the JobDetail metadata grid. ``hour: 'numeric'`` +
+// ``minute: '2-digit'`` yields "4:51 PM" in the operator's locale.
+function fmtDateTime(iso) {
   if (!iso) return null;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  return d.toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
 }
 
 function fmtRelative(iso) {
@@ -109,10 +121,32 @@ function truncate(text, maxChars = 220) {
 export default function JobCard({ job, onInterviewPrep, onChangeStatus, onGenerateOutreach, onMarkApplied }) {
   const [statusOpen, setStatusOpen] = useState(false);
   const [descOpen, setDescOpen] = useState(false);
+  // Three timestamps the operator wants to see inline on every card
+  // (per the v0.5 ask "show the date and time it published/posted
+  // and if reposted then show the updated date and time and also
+  // the evaluation time at which time the GHA evaluated it"):
+  //  - ``posted_at``    — board-published creation time
+  //  - ``source_updated_at`` — board-published update time (if reposted)
+  //  - ``created_at``   — our DB row creation time = the moment the
+  //                        GitHub Actions scorer first inserted it
+  // ``fmtDateTime`` is used inline (the operator asked for the full
+  // date AND time, not just a relative "3 days ago"); the
+  // ``fmtRelative`` form is kept as a tooltip on hover so the
+  // operator can still glance at "how long ago" without losing the
+  // absolute value.
+  const postedAbs = fmtDateTime(job.posted_at);
   const postedRel = fmtRelative(job.posted_at);
-  const postedAbs = fmtDate(job.posted_at);
+  const updatedAbs = fmtDateTime(job.source_updated_at);
   const updatedRel = fmtRelative(job.source_updated_at);
-  const updatedAbs = fmtDate(job.source_updated_at);
+  const evaluatedAbs = fmtDateTime(job.created_at);
+  const evaluatedRel = fmtRelative(job.created_at);
+  // "Reposted" = the board gave us a source_updated_at AND it
+  // differs from the posted_at. Comparing ISO strings is safe
+  // because both come from the same source in the same format.
+  const isReposted = Boolean(
+    job.source_updated_at && job.posted_at &&
+    new Date(job.source_updated_at).getTime() > new Date(job.posted_at).getTime()
+  );
   const scorePercent = job.ai_fit_score != null ? Math.round(job.ai_fit_score * 100) : null;
   const ats = (job.ats_type || '').toLowerCase();
   const boardName = boardLabel(job.ats_type);
@@ -129,14 +163,20 @@ export default function JobCard({ job, onInterviewPrep, onChangeStatus, onGenera
             >
               {job.title || '(untitled)'}
             </Link>
-            <span
-              className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                ATS_COLORS[ats] || 'bg-gray-100 text-gray-700'
-              }`}
-              title={ats ? `Source: ${boardName}` : 'No ATS source recorded'}
-            >
-              {boardName}
-            </span>
+            {/* Board badge: rendered only when the ATS type is
+                known. v0.5 polish — the v0.4 ``BOARD`` fallback
+                was meaningless to the operator, so we just skip
+                the badge entirely when the board didn't tell us. */}
+            {boardName && (
+              <span
+                className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                  ATS_COLORS[ats] || 'bg-gray-100 text-gray-700'
+                }`}
+                title={`Source: ${boardName}`}
+              >
+                {boardName}
+              </span>
+            )}
             {scorePercent != null && (
               <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
                 scorePercent >= 70
@@ -233,17 +273,32 @@ export default function JobCard({ job, onInterviewPrep, onChangeStatus, onGenera
         </div>
       )}
 
+      {/* Timestamp strip. v0.5: show the FULL date + time inline
+          (per the operator's "date and time it published/posted"
+          ask) with the relative form as a hover tooltip so the
+          operator can still scan "how long ago" without losing the
+          absolute value. Three labels, rendered in this order:
+          Posted, Updated (only if reposted), Evaluated. The
+          "Evaluated" timestamp is ``created_at`` — the moment our
+          DB first saw the row, which is the same moment the GHA
+          scorer inserted it. */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 mb-3">
-        {postedRel && (
-          <span title={postedAbs ? `Posted ${postedAbs}` : ''}>
+        {postedAbs && (
+          <span title={postedRel ? `Posted ${postedRel}` : ''}>
             <span className="font-medium text-gray-600">Posted</span>{' '}
-            {postedRel}
+            <span className="tabular-nums">{postedAbs}</span>
           </span>
         )}
-        {updatedRel && updatedRel !== postedRel && (
-          <span title={updatedAbs ? `Updated ${updatedAbs}` : ''}>
+        {isReposted && updatedAbs && (
+          <span title={updatedRel ? `Updated ${updatedRel}` : ''}>
             <span className="font-medium text-gray-600">Updated</span>{' '}
-            {updatedRel}
+            <span className="tabular-nums">{updatedAbs}</span>
+          </span>
+        )}
+        {evaluatedAbs && (
+          <span title={evaluatedRel ? `Evaluated ${evaluatedRel}` : ''}>
+            <span className="font-medium text-gray-600">Evaluated</span>{' '}
+            <span className="tabular-nums">{evaluatedAbs}</span>
           </span>
         )}
         <a

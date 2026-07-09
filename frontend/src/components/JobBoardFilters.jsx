@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { JOB_STATUSES } from './JobCard';
 
 // Full set of ATS boards the backend accepts; the dropdown shows
@@ -58,6 +58,19 @@ export default function JobBoardFilters({ filters, onChange, pageSize, onPageSiz
   // is the standard pattern for "search-as-you-type" — a leading-
   // edge debounce would skip the first keystroke and feel laggy.
   const [localQ, setLocalQ] = useState(filters.q || '');
+  // Mirror the latest ``filters`` into a ref so the debounce timer
+  // callback always spreads the freshest filter state, not a stale
+  // closure. Without this, a user who types in the search box and
+  // then quickly changes another filter (board, status, dates)
+  // before the 250 ms debounce fires would have the OTHER filter
+  // changes overwritten when the timer commits — the operator
+  // reported "search/status/board filters don't work", and this
+  // stale-closure race was the root cause.
+  const filtersRef = useRef(filters);
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
   useEffect(() => {
     // External reset (e.g. parent "Reset filters" button) should
     // clear the local input too, otherwise the field drifts out of
@@ -68,16 +81,27 @@ export default function JobBoardFilters({ filters, onChange, pageSize, onPageSiz
   useEffect(() => {
     // Skip the initial mount synchronisation — the parent already
     // has whatever value it had; we only want to fire on changes.
+    // The guard below also breaks the feedback loop: when our own
+    // onChange commits, ``filters.q`` becomes ``localQ`` and the
+    // reset effect mirrors it back, so without this guard the
+    // debounce would re-emit on the next render.
     if (localQ === (filters.q || '')) return undefined;
     const handle = setTimeout(() => {
-      onChange({ ...filters, q: localQ || undefined, page: 1 });
+      // Read the freshest ``filters`` from the ref, NOT the
+      // closure's ``filters`` — the closure is only refreshed on
+      // localQ change, so any other filter change since the last
+      // keystroke would be lost otherwise.
+      const fresh = filtersRef.current;
+      onChange({ ...fresh, q: localQ || undefined, page: 1 });
     }, 250);
     return () => clearTimeout(handle);
     // ``filters`` is intentionally omitted from deps: depending on it
     // would cause a feedback loop (the localQ → onChange → filters
     // update → effect re-runs → ...). We only want to react to
     // localQ changes; the next render after onChange commits is
-    // already covered by the next localQ-keystroke cycle.
+    // already covered by the next localQ-keystroke cycle. The
+    // ref-read above gives the timer access to fresh state without
+    // a re-run.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localQ]);
 

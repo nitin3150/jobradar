@@ -11,6 +11,20 @@ dependencies = [
     "dotenv>=0.9.9",
     "fastapi>=0.139.0",
     "langgraph>=1.2.7",
+    # ``openai`` is required by ``services/llm_client.py`` — the scoring
+    # client uses ``openai.AsyncOpenAI`` as a unified driver for BOTH
+    # NVIDIA NIM (``integrate.api.nvidia.com/v1``) and Groq
+    # (``api.groq.com/openai/v1``) because both vendors expose
+    # OpenAI-compatible chat-completions APIs. We override ``base_url``
+    # at client-construction time to swap endpoints. ``>=1.40`` is the
+    # minimum that ships the AsyncOpenAI + the AuthenticationError /
+    # BadRequestError / RateLimitError / NotFoundError exception set the
+    # file imports. Without this line, ``pip install -e .`` (which
+    # reads pyproject.toml and ignores requirements.txt) would not
+    # install openai and ``from openai import …`` would raise
+    # ModuleNotFoundError at boards_scan import time — which is the
+    # failure mode we're fixing right now.
+    "openai>=1.40",
     "playwright>=1.61.0",
     "pydantic>=2.13.4",
     "sqlalchemy[asyncio]>=2.0.30",

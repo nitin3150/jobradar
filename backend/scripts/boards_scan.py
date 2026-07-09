@@ -61,7 +61,12 @@ Optional env vars
 =================
 
 * ``TARGET_ROLES`` — comma-separated target roles for the profile
-  summary. Defaults to the same four the Preferences singleton ships.
+  summary. Used only when ``config/profile.yml`` (and the
+  example-file fallback) is empty AND no ``--target-roles`` CLI
+  override was passed. Post-merge cleanup dropped the hardcoded
+  4-role default; the LLM prompt now renders
+  ``"(no profile configured)"`` and the 7-factor SYSTEM_PROMPT
+  degrades gracefully when this env var is also unset.
 * ``JOB_FIT_THRESHOLD`` — minimum AI fit score (default 0.6).
 * ``NVIDIA_BASE_URL`` / ``NVIDIA_MODEL`` / ``GROQ_BASE_URL`` /
   ``GROQ_MODEL`` — LLM endpoint overrides (read by
@@ -102,19 +107,18 @@ from services.profile_service import (
 )
 from supabase import Client, create_client
 
-# Import the Preferences Pydantic model so the script's fallback
-# target roles are read from the SINGLE source of truth — drift
-# between the GHA worker's profile and the dev path is structurally
-# impossible. ``default_factory()`` invokes the lambda the model
-# declares, so editing the list in :class:`routes.settings.Preferences`
-# flows here without a second hand-edited mirror. The script only
-# uses this as the FINAL fallback (after profile.yml AND the
-# ``TARGET_ROLES`` env var are both empty).
-from routes.settings import Preferences as _Preferences
-
-DEFAULT_TARGET_ROLES: list[str] = list(
-    _Preferences.model_fields["target_roles"].default_factory()
-)
+# Post-merge cleanup: the hardcoded 4-role DEFAULT_TARGET_ROLES
+# fallback is gone. The 3-tier resolution (CLI override → profile.yml
+# → TARGET_ROLES env) is the final word — if the operator's profile
+# is empty AND the env var is unset, the LLM scoring prompt renders
+# ``"(no profile configured)"`` and the 7-factor SYSTEM_PROMPT
+# degrades gracefully (no role-fit / seniority-alignment scoring,
+# but the other 5 factors still produce a sensible score).
+# The previous ``DEFAULT_TARGET_ROLES`` constant mirrored
+# ``routes.settings.Preferences.model_fields["target_roles"].default_factory()``
+# — a hardcoded list that was the source of truth before
+# ``services.profile_service`` existed. With the profile as the
+# source of truth, mirroring a hardcoded list defeats the point.
 
 
 def log(msg: str) -> None:
@@ -139,8 +143,6 @@ def _resolve_profile(
     3. ``TARGET_ROLES`` env var — comma-separated fallback for
        environments without a profile.yml (e.g. legacy cron
        scripts, one-off test runs).
-    4. The Preferences singleton's default factory — the same
-       four hardcoded roles the FastAPI path ships with.
 
     Returns the rendered profile markdown block from
     :func:`services.profile_service.build_profile_summary`. An
@@ -192,12 +194,18 @@ def _resolve_profile(
                 f"profile.yml empty — using TARGET_ROLES env var "
                 f"({len(env_roles)} role(s))"
             )
-        elif DEFAULT_TARGET_ROLES:
-            profile = profile.model_copy(deep=True)
-            profile.target_roles = TargetRoles(primary=DEFAULT_TARGET_ROLES)
+        else:
+            # Profile is empty AND the env var is unset. The LLM
+            # prompt will render ``"(no profile configured)"`` and
+            # the 7-factor SYSTEM_PROMPT degrades gracefully. We
+            # previously had a 4th-tier hardcoded fallback here
+            # (``DEFAULT_TARGET_ROLES``) — removed in post-merge
+            # cleanup so the profile is the only source of truth
+            # for target roles.
             log(
-                "profile.yml + TARGET_ROLES both empty — using "
-                "Preferences default factory (4 hardcoded roles)"
+                "profile.yml + TARGET_ROLES both empty — LLM will "
+                "render '(no profile configured)' and score with the "
+                "7-factor SYSTEM_PROMPT's graceful-degradation path"
             )
     else:
         log(

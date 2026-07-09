@@ -26,12 +26,12 @@ class _SettingsTestCase(unittest.TestCase):
 
 
 # Mirror frontend/src/hooks/usePreferences.DEFAULT_PREFERENCES verbatim.
-_FRONTEND_DEFAULT_ROLES = [
-    "AI Engineer",
-    "Machine Learning Engineer",
-    "LLM Engineer",
-    "Software Engineer",
-]
+# Post-merge cleanup: the legacy 4-role hardcoded list was removed
+# from both the backend Pydantic default_factory and the frontend
+# hook. The profile (config/profile.yml) is the source of truth
+# for target roles now. The wire field stays in the schema for
+# back-compat but is no longer read by any scoring code path.
+_FRONTEND_DEFAULT_ROLES: list[str] = []
 
 
 # ---------------------------------------------------------------------------

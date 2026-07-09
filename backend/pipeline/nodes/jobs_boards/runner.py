@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
@@ -14,6 +15,11 @@ if str(BACKEND_ROOT) not in sys.path:
 from pipeline.nodes.jobs_boards.ashby import fetch as ashby_fetch
 from pipeline.nodes.jobs_boards.greenhouse import fetch as greenhouse_fetch
 from pipeline.nodes.jobs_boards.lever import fetch as lever_fetch
+# Read the operator's seniority band from the Preferences singleton.
+# Same coupling pattern :mod:`services.scoring_service` already uses to
+# pull ``job_fit_threshold`` — keeps the singleton the single source of
+# truth without leaking route-layer modules into the runner.
+from routes.settings import _PREFS_STATE
 from utils.filters import filter_roles
 from utils.http import build_client
 from utils.seen import load_file, save_seen
@@ -30,6 +36,49 @@ ORG_INDEX = {
 # transient 404 (maintenance / rate limit) doesn't permanently drop coverage.
 MISSING_THRESHOLD = 3
 MAX_WORKERS = 8
+
+# ``main()``'s argparse ``--delta-hours`` default when no
+# ``BOARDS_DELTA_HOURS`` env var is exported: 1h (the historical
+# CLI default, preserved so cron scripts that don't know about the
+# env var keep their existing behavior). When the env var IS set,
+# ``main()``'s default flips to ``DEFAULT_DELTA_HOURS`` instead —
+# see ``main()``'s comment block for the conditional.
+CLI_DELTA_HOURS_WHEN_ENV_UNSET = 1
+
+# Default boards-window when ``run_all(...)`` is called without an explicit
+# ``delta_hours``: 168 hours = 1 week (matches the cadence the LangGraph
+# per-domain scheduler uses for funding/OSS and the explicit ``discover``
+# route hands to the runner). Operators can override at deployment time
+# by exporting ``BOARDS_DELTA_HOURS=N`` in ``.env``; the constant is
+# read at *module-import* time (the same convention as ``GITHUB_TOKEN``
+# in ``pipeline.nodes.oss.github_issues``), so a worker restart is
+# required for a change to take effect.
+#
+# See ``CLI_DELTA_HOURS_WHEN_ENV_UNSET`` for the conditional CLI
+# fallback (``main()``) that pairs with this env-driven default.
+#
+# We ``SystemExit`` on a malformed value rather than letting the
+# interpreter raise a cryptic ``ValueError`` — operators reading
+# worker logs at boot see a single actionable line instead of a
+# traceback going to a stdlib int() conversion. Non-positive values
+# are rejected too (a negative or zero lookback would make
+# ``compute_since_cutoff`` yield a *future* timestamp, defeating
+# the per-org ``since`` filter).
+_DEFAULT_DELTA_HOURS_FALLBACK = "168"
+_raw_delta_hours = os.environ.get("BOARDS_DELTA_HOURS", _DEFAULT_DELTA_HOURS_FALLBACK)
+try:
+    DEFAULT_DELTA_HOURS = int(_raw_delta_hours)
+    if DEFAULT_DELTA_HOURS < 1:
+        raise ValueError(
+            f"value must be >= 1 (got {DEFAULT_DELTA_HOURS}); a negative or "
+            f"zero lookback would make compute_since_cutoff yield a future "
+            f"timestamp, which would defeat the per-org fetch filter."
+        )
+except ValueError as exc:
+    raise SystemExit(
+        f"BOARDS_DELTA_HOURS={_raw_delta_hours!r} is not a valid positive integer: {exc}. "
+        f"Expected a positive integer >= 1 (e.g. '24', '168', '720')."
+    ) from exc
 
 
 class UnknownBoardError(ValueError):
@@ -126,7 +175,7 @@ def _write_missing_lists(boards, newly_missing, recovered):
             json.dump(sorted(combined), handle, indent=2)
 
 
-def run_all(delta_hours=1, boards=None, limit=None):
+def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
     boards = validate_boards(boards or list(ORG_INDEX.keys()))
     seen = load_file()
     seen_ids = frozenset(seen.keys())  # read-only snapshot for worker threads
@@ -186,12 +235,36 @@ def run_all(delta_hours=1, boards=None, limit=None):
         "last_run": datetime.now(timezone.utc).isoformat(),
         "org_last_posted": org_last_posted,
     })
-    return filter_roles(results)
+    # Thread the operator's seniority band through to filter_roles.
+    # ``_PREFS_STATE["data"]`` is always populated by the singleton's
+    # ``__init__`` so the ``.get(...)`` defaults are defensive rather
+    # than load-bearing — a missing key would still produce None and
+    # the band filter would no-op.
+    prefs_data = _PREFS_STATE.get("data") or {}
+    return filter_roles(
+        results,
+        min_seniority=prefs_data.get("min_seniority"),
+        max_seniority=prefs_data.get("max_seniority"),
+    )
 
 
 def main():
     parser = argparse.ArgumentParser(description="Run all configured job-board scrapers")
-    parser.add_argument("--delta-hours", type=int, default=1)
+    # When ``BOARDS_DELTA_HOURS`` is exported, its value flows through
+    # to ``run_all``'s positional default at module-import time. We
+    # mirror it here so a ``python -m runner`` invocation without an
+    # explicit ``--delta-hours`` flag picks up the same env value a
+    # direct ``run_all(...)`` call would — *only* when the operator
+    # has set the env var. Unset env falls back to the legacy CLI
+    # default (``1h``) so cron scripts that don't export
+    # ``BOARDS_DELTA_HOURS`` keep their existing behavior; they have
+    # not been "broken" by this change.
+    delta_default = (
+        DEFAULT_DELTA_HOURS
+        if os.environ.get("BOARDS_DELTA_HOURS")
+        else CLI_DELTA_HOURS_WHEN_ENV_UNSET  # preserved for cron scripts that don't export the env var
+    )
+    parser.add_argument("--delta-hours", type=int, default=delta_default)
     parser.add_argument("--boards", nargs="*", default=list(ORG_INDEX.keys()))
     parser.add_argument("--limit", type=int, default=None)
     args = parser.parse_args()

@@ -1,17 +1,25 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchPreferences, updatePreferences } from '../api/client';
 
-// Mirror backend/app/models/preferences.py DEFAULT_* — used as a sync fallback
-// before the first GET resolves (avoids undefined-iteration rendering flash).
-// ``min_seniority`` / ``max_seniority`` are null by default so the band
-// filter is a no-op until the operator opts in via the PreferencesModal.
+// Mirror backend/routes/settings.py ``Preferences`` defaults — used as a
+// sync fallback before the first GET resolves (avoids
+// undefined-iteration rendering flash).
+//
+// Post-merge cleanup: ``target_roles`` is now an empty list. The
+// hardcoded 4-role list was the legacy default before
+// ``services.profile_service`` became the source of truth for the
+// boards runner and the LLM scoring prompt. The operator edits
+// target roles in ``config/profile.yml`` (see
+// ``config/profile.example.yml`` for the template). The field stays
+// in the wire schema for back-compat (an older server build
+// accepting the field gets a 200) but is no longer read by any
+// scoring code path. The modal no longer renders an editor for it.
+//
+// ``min_seniority`` / ``max_seniority`` are null by default so the
+// band filter is a no-op until the operator opts in via the
+// PreferencesModal.
 export const DEFAULT_PREFERENCES = {
-  target_roles: [
-    'AI Engineer',
-    'Machine Learning Engineer',
-    'LLM Engineer',
-    'Software Engineer',
-  ],
+  target_roles: [],
   review_window_hours: 2,
   job_fit_threshold: 0.6,
   send_followup_emails: true,

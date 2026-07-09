@@ -8,10 +8,18 @@ shape stays consistent during the initial paint before the GET resolves.
 
 Wire shape (single object — the hook does NOT wrap it in an envelope):
 
-* ``target_roles: list[str]`` — comma-separated values from the
-  PreferencesModal ``EditableList`` textbox; server ``PATCH`` normalizes
-  (trim, drop blanks, dedupe while preserving order) so React Query's
-  ``setQueryData`` post-write reflects server-side cleanup.
+* ``target_roles: list[str]`` — **legacy field, no longer the source
+  of truth**. Post-merge cleanup (commit on
+  ``fix/post-merge-cleanup``) flipped the default to ``[]`` and
+  marked this field as read-only-in-effect: the operator's
+  ``config/profile.yml`` ``target_roles.primary`` is what feeds
+  the boards runner's initial filter and the LLM scoring prompt
+  via :mod:`services.profile_service`. The PATCH path still
+  accepts the field for back-compat (some operators may have
+  customised it pre-cleanup) but the value is no longer read by
+  any scoring code path. The wire shape is preserved so an older
+  React build doesn't 422 on a PATCH that still includes
+  ``target_roles`` — the field just gets stored-and-ignored.
 * ``review_window_hours: float`` — how long the user has to approve a
   job before the deadline action fires. Bounded ``[0.5, 48]``.
 * ``job_fit_threshold: float`` — minimum AI fit score (``0.0`` to
@@ -54,13 +62,25 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 class Preferences(BaseModel):
     target_roles: list[str] = Field(
-        default_factory=lambda: [
-            "AI Engineer",
-            "Machine Learning Engineer",
-            "LLM Engineer",
-            "Software Engineer",
-        ],
-        description="Match keywords used during discovery + job prefilter.",
+        # Post-merge cleanup: the hardcoded 4-role list was the
+        # legacy default before ``services.profile_service`` became
+        # the source of truth. The default is now ``[]`` so a fresh
+        # clone (no operator profile yet) doesn't accidentally
+        # override the example profile's roles with this stale
+        # hand-edited list. Operators who already have a populated
+        # ``config/profile.yml`` see no change — the profile is
+        # what the boards runner and the LLM scorer actually read.
+        # The field stays in the schema for wire back-compat (an
+        # older React build PATCHing ``target_roles`` still gets a
+        # 200), but the value is stored-and-ignored by every
+        # scoring code path.
+        default_factory=list,
+        description=(
+            "LEGACY: target roles are now read from "
+            "config/profile.yml. This field is kept for wire "
+            "back-compat only and is no longer used by any "
+            "scoring code path. See services.profile_service."
+        ),
     )
     review_window_hours: float = Field(
         default=2.0,

@@ -6,28 +6,10 @@ import {
   SENIORITY_TIERS,
 } from '../../hooks/usePreferences';
 
-function EditableList({ value, onCommit, placeholder, hint }) {
-  const [text, setText] = useState(value.join(', '));
-  return (
-    <div>
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onBlur={() => {
-          const next = text
-            .split(',')
-            .map((s) => s.trim())
-            .filter(Boolean);
-          onCommit(next.length ? next : value);
-        }}
-        rows={3}
-        placeholder={placeholder}
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-      />
-      {hint && <p className="text-xs text-gray-400 mt-1">{hint}</p>}
-    </div>
-  );
-}
+// Post-merge cleanup: the ``EditableList`` for ``target_roles`` is
+// removed — the field is no longer the source of truth (the
+// operator edits roles via ``config/profile.yml``). The component
+// was only used here, so the whole helper is gone.
 
 function PreferencesForm({ prefs, busy, saveError, onSave, onClose, onReset }) {
   const [draft, setDraft] = useState(prefs);
@@ -37,7 +19,18 @@ function PreferencesForm({ prefs, busy, saveError, onSave, onClose, onReset }) {
 
   const handleSave = async () => {
     try {
-      await onSave(draft);
+      // Post-merge cleanup: ``target_roles`` is legacy (the
+      // profile.yml is the source of truth). Strip it from the
+      // PATCH payload so a save doesn't accidentally overwrite a
+      // pre-cleanup value the operator had in ``_PREFS_STATE`` —
+      // and so the "Reset to defaults" button (which sets
+      // ``draft`` from ``DEFAULT_PREFERENCES`` where
+      // ``target_roles === []``) doesn't wipe that legacy value
+      // either. The server's PATCH handler still accepts the
+      // field for back-compat; this is purely a UI-side guard.
+      // eslint-disable-next-line no-unused-vars
+      const { target_roles: _legacy, ...payload } = draft;
+      await onSave(payload);
       setSaved(true);
       setTimeout(onClose, 700);
     } catch {
@@ -47,21 +40,6 @@ function PreferencesForm({ prefs, busy, saveError, onSave, onClose, onReset }) {
 
   return (
     <div className="space-y-5">
-      <section>
-        <label className="block text-sm font-medium text-gray-800 mb-1">
-          Target roles
-        </label>
-        <p className="text-xs text-gray-500 mb-2">
-          Comma-separated. Used as match keywords during discovery + job prefilter.
-        </p>
-        <EditableList
-          value={draft.target_roles}
-          onCommit={(v) => update({ target_roles: v })}
-          placeholder="AI Engineer, Backend Engineer, ..."
-          hint="Saving reformats your list — extras trimmed, blanks removed."
-        />
-      </section>
-
       <section className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-800 mb-1">

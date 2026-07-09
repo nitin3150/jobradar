@@ -86,17 +86,25 @@ from utils.logging import RequestLoggingMiddleware, jobradar_lifespan, new_reque
 # FastAPI's TestClient exercises on construction.
 app = FastAPI(title="JobRadar", lifespan=jobradar_lifespan)
 
-# Permissive CORS for the local Vite dev server on port 3000 (frontend/src/api/client.js
-# defaults to ``import.meta.env.VITE_API_URL`` which is ``http://localhost:8000/api`` in dev).
-# Allow ``http://localhost:3000`` so cross-origin requests during ``npm run dev`` succeed,
-# and 127.0.0.1 as a convenience for curl-from-host debugging. Real production deployments
-# should swap this to the deployed frontend origin.
+# CORS — the local Vite dev server defaults (port 3000) are always
+# allowed. Additional origins can be added at deploy time via the
+# ``ALLOWED_ORIGINS`` env var (comma-separated). This keeps the same
+# image working for localhost dev, Render production, and any other
+# host the operator adds without code changes.
+_default_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+_extra_origins = [
+    o.strip()
+    for o in os.environ.get("ALLOWED_ORIGINS", "").split(",")
+    if o.strip()
+]
+_allow_origins = _default_origins + _extra_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=_allow_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],

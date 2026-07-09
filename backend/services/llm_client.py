@@ -74,14 +74,123 @@ DEFAULT_NVIDIA_RPM: Final = 40
 
 # System prompt applied to every opportunity so score calibration stays
 # consistent across providers.
+#
+# Profile-aware: instructs the LLM to use the FULL profile context
+# (target roles with fit levels, narrative, compensation, location,
+# superpowers, proof points) when scoring — not just the role titles.
+# The user-side prompt (:func:`build_prompt`) already passes the
+# rendered :func:`services.profile_service.build_profile_summary`
+# output verbatim, so every section the renderer emits (Target roles,
+# Headline, Exit story, Superpowers, Proof points, Candidate, Target
+# comp, Location) is available to the model. The system prompt's job
+# is to tell the model to ACTUALLY USE all of it instead of anchoring
+# on the role titles alone.
+#
+# The scoring-factor list mirrors the sections :func:`build_profile_summary`
+# renders, in the same order — so a reader can mentally map "the
+# system prompt told me to check seniority alignment" to "the
+# profile summary has archetype.level right there". This is the same
+# context-parity trick the resume extractor uses in
+# :data:`PROFILE_EXTRACTION_SYSTEM_PROMPT`.
 SYSTEM_PROMPT: Final = (
-    "You are a job-fit scoring assistant. Given a candidate's profile and "
-    "a single job/opportunity, output strict JSON with this shape:\n\n"
+    "You are a job-fit scoring assistant. Given a candidate's complete "
+    "profile (target roles with fit levels, narrative, compensation, "
+    "location) and a single job/opportunity, output strict JSON with "
+    "this shape:\n\n"
     "{\"score\": <float 0.0-1.0>, \"reasoning\": \"<one or two sentences>\"}\n\n"
-    "The score reflects role-fit and seniority alignment: 0.0 = clearly "
-    "off-profile, 1.0 = exact match. Higher means stronger fit. Return "
-    "ONLY the JSON object, with no preamble, no markdown."
+    "SCORING FACTORS — consider ALL of the following when calibrating "
+    "the score:\n\n"
+    "1. ROLE FIT: Does the opportunity's role family match the candidate's "
+    "target_roles? Primary roles are dream matches (0.8-1.0). Secondary "
+    "roles are good fits (0.5-0.8). Adjacent roles are stretches (0.3-0.5). "
+    "Roles outside all three buckets start at 0.0-0.3.\n\n"
+    "2. SENIORITY ALIGNMENT: Does the role's level match the candidate's "
+    "archetype.level (e.g. 'Senior/Staff', 'Mid-Senior')? Mismatched "
+    "seniority is a strong negative signal even when the role family "
+    "is a perfect match.\n\n"
+    "3. SKILL MATCH: Cross-reference the opportunity's required skills "
+    "against the candidate's superpowers and proof_points. A direct "
+    "match to a superpower is a strong positive; a match to a "
+    "proof_point's hero_metric is even stronger (concrete proof of "
+    "impact at scale).\n\n"
+    "4. NARRATIVE ALIGNMENT: Does the role's mission/responsibilities "
+    "align with the candidate's headline and exit_story? The narrative "
+    "tells you WHAT the candidate is optimizing for, not just WHAT "
+    "they can do — a role that matches the exit_story scores higher "
+    "than one that only matches the skills.\n\n"
+    "5. COMPENSATION: If the posting mentions a salary range, check "
+    "against the candidate's compensation.target_range and minimum. A "
+    "posting below the minimum is a soft mismatch even if the role is "
+    "a perfect fit; surface this in the reasoning.\n\n"
+    "6. LOCATION: Does the role's location/remote policy match the "
+    "candidate's location.city / location.timezone / location.visa_status? "
+    "A posting that hard-requires sponsorship when visa_status says "
+    "'No sponsorship needed' is a hard mismatch — score 0.0-0.2.\n\n"
+    "7. PROOF POINTS: If the candidate has proof_points with hero_metrics, "
+    "look for similar metrics in the posting (scale, impact, users). A "
+    "match here signals the candidate has done this exact kind of work.\n\n"
+    "Return ONLY the JSON object, with no preamble, no markdown. The "
+    "score must be calibrated across these factors — a 0.9 posting "
+    "scores 0.9 because it matches on 5+ factors, not because the "
+    "title alone is close. 0.0 = clearly off-profile on multiple "
+    "factors, 1.0 = exact match on all factors."
 )
+
+# System prompt for the resume → profile extractor. Mirrors the YAML
+# schema in ``config/profile.example.yml`` so the parsed dict can be
+# passed directly to ``Profile(**data)`` without field renaming. The
+# LLM is told to OMIT unknown fields rather than emit nulls — that
+# keeps ``Profile.model_dump(exclude_none=True)`` honest on save
+# (otherwise every field would render as ``key: null`` and operators
+# couldn't tell at-a-glance which sections the LLM actually filled).
+PROFILE_EXTRACTION_SYSTEM_PROMPT: Final = (
+    "You are a career-ops profile extractor. Given a candidate's resume "
+    "text, output strict JSON that mirrors the JobRadar profile schema. "
+    "All fields are optional; OMIT any field the resume does not "
+    "explicitly state. Do NOT use null — just leave the key out.\n\n"
+    "Use this exact shape (keys, not values):\n"
+    "{\n"
+    '  "candidate": {"full_name", "email", "phone", "location", '
+    '"linkedin", "portfolio_url", "github", "twitter"},\n'
+    '  "target_roles": {\n'
+    '    "primary": ["Senior AI Engineer", "Staff ML Engineer"],\n'
+    '    "archetypes": [\n'
+    '      {"name": "AI/ML Engineer", "level": "Senior/Staff", '
+    '"fit": "primary|secondary|adjacent"}\n'
+    "    ]\n"
+    "  },\n"
+    '  "narrative": {\n'
+    '    "headline": "One-line professional headline",\n'
+    '    "exit_story": "What makes this candidate unique",\n'
+    '    "superpowers": ["3-5 concrete strengths"],\n'
+    '    "proof_points": [{"name", "url", "hero_metric"}]\n'
+    "  },\n"
+    '  "compensation": {"target_range", "currency", "minimum", '
+    '"location_flexibility"},\n'
+    '  "location": {"country", "city", "timezone", "visa_status"}\n'
+    "}\n\n"
+    "Rules:\n"
+    "- Only extract what the resume EXPLICITLY says. Do not invent "
+    "roles, projects, or metrics.\n"
+    "- target_roles.primary: 2-4 specific role titles the candidate is "
+    "optimizing for (drawn from current/recent titles + stated goals).\n"
+    "- target_roles.archetypes: 2-4 role families with fit levels "
+    "(primary = dream role, secondary = good fit, adjacent = stretch).\n"
+    "- superpowers: 3-5 concrete skills/strengths, not generic soft "
+    "skills (e.g. 'PyTorch' yes, 'team player' no).\n"
+    "- proof_points: 2-4 projects/articles with measurable impact IF "
+    "the resume lists them.\n"
+    "- Return ONLY the JSON object. No preamble, no markdown fences, "
+    "no commentary."
+)
+
+# ``max_tokens`` for the profile extraction is larger than the score
+# call because the LLM has to render a full profile JSON (often 1.5-3 KB
+# for a senior candidate with multiple projects). 2500 is generous
+# enough for the worst-case resume the operator is likely to upload
+# without bloating the per-token cost when most resumes fit in 800-1200
+# tokens.
+PROFILE_EXTRACTION_MAX_TOKENS: Final = 2500
 
 # JSON object extractor — fallback when the model hands back prose around
 # the JSON. Captures the first ``{...}`` mentioning both ``score`` and
@@ -597,6 +706,97 @@ class LLMClient:
         content = (resp.choices[0].message.content or "").strip()
         return parse_score_response(content)
 
+    async def extract_profile(self, resume_text: str) -> tuple[dict, str]:
+        """Run the resume → profile extractor on the given resume text.
+
+        Returns ``(profile_dict, model_used)`` where ``profile_dict`` is
+        a plain ``dict`` shaped like the ``Profile`` Pydantic model
+        (caller validates + saves). ``model_used`` is the
+        ``ProviderConfig.model`` string of whichever provider
+        produced the response (useful for cost-tagging and the
+        ``POST /api/resumes`` upload-side-effect log line).
+
+        Same per-provider retry chain + shared NVIDIA bucket contract
+        as :meth:`score_opportunity` and :meth:`research_opportunity`.
+        Cost ceiling: ``len(providers) * 2`` LLM calls per resume.
+        Total token budget is :data:`PROFILE_EXTRACTION_MAX_TOKENS`
+        (2500) — generous enough for a senior candidate with several
+        projects, bounded enough that one big extraction doesn't
+        blow a single response.
+
+        The returned dict is NOT validated here. The caller
+        (typically :func:`services.profile_service.extract_profile_from_resume`)
+        is responsible for ``Profile(**data)`` and the disk save, so
+        an extraction that returns a partial dict (e.g. LLM only
+        filled ``target_roles``) still validates as an empty-rest
+        ``Profile()`` rather than failing the call. The same
+        shape-on-the-wire guarantee is the one we already use for
+        ``parse_score_response`` — keep validation lazy.
+        """
+        last_exc: Exception | None = None
+        # Same acquire-once-per-unique-bucket contract as
+        # :meth:`score_opportunity` — see that method's docstring for
+        # the two-NVIDIA-keys rationale.
+        for bucket in _unique_rate_limiters(self.providers):
+            await bucket.acquire()
+        for provider in self.providers:
+            client = self._clients[provider.name]
+            for attempt in (1, 2):
+                try:
+                    return await self._extract_profile_once(
+                        client, provider.model, resume_text
+                    ), provider.model
+                except _PermanentError as exc:
+                    last_exc = exc
+                    break  # unrecoverable on this provider; advance
+                except Exception as exc:  # noqa: BLE001 — transient
+                    last_exc = exc
+                    if attempt == 1:
+                        await asyncio.sleep(0.5)
+                    # else: fall through to next provider
+        raise RuntimeError(
+            f"all LLM providers failed on profile extraction; last error "
+            f"type={type(last_exc).__name__}"
+        ) from last_exc
+
+    async def _extract_profile_once(
+        self,
+        client: AsyncOpenAI,
+        model: str,
+        resume_text: str,
+    ) -> dict:
+        """One non-retrying profile-extraction call.
+
+        Mirrors :meth:`_score_once` / :meth:`_research_once`: same
+        error taxonomy, same retry-vs-advance contract, but a higher
+        ``max_tokens`` ceiling because the LLM has to render a full
+        profile JSON (typically 1-3 KB).
+        """
+        try:
+            resp = await client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": PROFILE_EXTRACTION_SYSTEM_PROMPT,
+                    },
+                    {"role": "user", "content": resume_text},
+                ],
+                temperature=0.0,
+                max_tokens=PROFILE_EXTRACTION_MAX_TOKENS,
+            )
+        except (AuthenticationError, BadRequestError, NotFoundError) as exc:
+            raise _PermanentError(f"{type(exc).__name__}: {exc}") from exc
+        except (
+            APIConnectionError,
+            APITimeoutError,
+            InternalServerError,
+            RateLimitError,
+        ):
+            raise  # transient; caller decides retry vs advance
+        content = (resp.choices[0].message.content or "").strip()
+        return parse_profile_response(content)
+
 
 def build_prompt(profile_summary: str, opportunity: dict) -> str:
     """Render the user-side prompt: profile + salient opportunity fields."""
@@ -643,6 +843,61 @@ def parse_score_response(content: str) -> tuple[float, str]:
         except (json.JSONDecodeError, KeyError, TypeError, ValueError):
             pass
     raise _PermanentError(f"could not parse LLM response: {content[:200]!r}")
+
+
+def parse_profile_response(content: str) -> dict:
+    """Parse the LLM's profile JSON response.
+
+    Robust to:
+
+    * Pure JSON — ``json.loads`` first.
+    * Markdown code fences — ``\\`\\`\\`json ... \\`\\`\\``` stripped.
+    * The model wrapping the JSON in preamble prose — fall back to
+      **string slicing** to extract the outermost ``{...}`` block.
+      Slicing beats regex here because the profile JSON has nested
+      objects (``target_roles.archetypes``, ``narrative.proof_points``)
+      that a flat character class would mis-match. ``str.find("{")`` +
+      ``str.rfind("}")`` gives us the outermost braces in one pass.
+
+    Returns the parsed ``dict``. Raises :class:`_PermanentError` if
+    no parse path produces a JSON object — same contract as
+    :func:`parse_score_response`. The caller is responsible for
+    Pydantic validation against :class:`services.profile_service.Profile`
+    so partial dicts (e.g. LLM only filled ``target_roles``) still
+    validate as an empty-rest ``Profile()``.
+    """
+    text = content.strip()
+    if text.startswith("```"):
+        # ``strip("`\\n ")`` is order-sensitive on purpose: backticks
+        # first, then whitespace. The first 4 chars of a ``json``
+        # fence would survive if we went whitespace-first; ordering
+        # them like this keeps the post-strip prefix detect clean.
+        text = text.strip("`\n ")
+        if text.lower().startswith("json"):
+            text = text[4:]
+        text = text.strip()
+    # Direct parse — the common case when the model obeyed the
+    # "ONLY the JSON object" rule in PROFILE_EXTRACTION_SYSTEM_PROMPT.
+    try:
+        return dict(json.loads(text))
+    except (json.JSONDecodeError, TypeError, ValueError):
+        pass
+    # String-slicing fallback for the prose-wrapped case. We use the
+    # OUTERMOST ``{...}`` so nested objects (archetypes, proof_points)
+    # stay intact. If the model emitted multiple JSON objects we
+    # would over-capture; the system prompt forbids that and the
+    # alternative is to add a JSON-stack parser for a 1-in-1000 case.
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        candidate = text[start : end + 1]
+        try:
+            return dict(json.loads(candidate))
+        except (json.JSONDecodeError, TypeError, ValueError):
+            pass
+    raise _PermanentError(
+        f"could not parse profile response: {content[:200]!r}"
+    )
 
 
 def _coerce_score(data: dict) -> tuple[float, str]:
@@ -743,12 +998,15 @@ __all__ = [
     "SYSTEM_PROMPT",
     "RESEARCH_SYSTEM_PROMPT",
     "RESEARCH_MAX_TOKENS",
+    "PROFILE_EXTRACTION_SYSTEM_PROMPT",
+    "PROFILE_EXTRACTION_MAX_TOKENS",
     "AsyncTokenBucket",
     "ProviderConfig",
     "LLMClient",
     "build_prompt",
     "build_research_prompt",
     "parse_score_response",
+    "parse_profile_response",
     "_unique_rate_limiters",
     "_make_nvidia_bucket",
 ]

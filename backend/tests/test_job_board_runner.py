@@ -9,10 +9,14 @@ for the env-var source-of-truth.
 import importlib
 import inspect
 import os
+import re
 import unittest
 from datetime import datetime, timedelta, timezone
 
-from pipeline.nodes.jobs_boards.runner import _display_name_for_slug
+from pipeline.nodes.jobs_boards.runner import (
+    _build_relevant_patterns_from_roles,
+    _display_name_for_slug,
+)
 from utils.time_check import parse_published_at
 
 
@@ -212,6 +216,141 @@ class TestDisplayNameForSlug(unittest.TestCase):
         # readable, never as the literal slug.
         self.assertEqual(_display_name_for_slug("unknown-xyz"), "Unknown Xyz")
         self.assertEqual(_display_name_for_slug("deepmind"), "Deepmind")
+
+
+class TestBuildRelevantPatternsFromRoles(unittest.TestCase):
+    """Step-4: the boards runner's initial filter is now profile-aware.
+
+    The runner calls :func:`_build_relevant_patterns_from_roles` on
+    the operator's ``target_roles`` list and passes the result to
+    :func:`utils.filters.filter_roles` as ``extra_relevant_patterns``.
+    These tests pin the pattern-generation contract: every role
+    becomes a strict substring match, special characters are
+    regex-escaped, and the word-boundary semantics handle non-word
+    characters at the edges (the "C++ Engineer" trap).
+    """
+
+    def test_plain_role_name_produces_strict_match(self) -> None:
+        patterns = _build_relevant_patterns_from_roles(["AI Engineer"])
+        self.assertEqual(len(patterns), 1)
+        # Strict match: the pattern requires the exact phrase with
+        # non-word characters on either side. "AI Engineer" appears
+        # as a contiguous phrase, never as a partial overlap.
+        self.assertTrue(
+            re.search(patterns[0], "Senior AI Engineer"),
+            "AI Engineer should match within Senior AI Engineer",
+        )
+        self.assertTrue(
+            re.search(patterns[0], "AI Engineer at Replicate"),
+            "AI Engineer should match at the start of a title",
+        )
+
+    def test_role_with_special_chars_is_regex_escaped(self) -> None:
+        # "C++ Engineer" has regex metacharacters. Without
+        # re.escape the "+" would match one-or-more of the
+        # preceding character, producing a regex of its own.
+        patterns = _build_relevant_patterns_from_roles(["C++ Engineer"])
+        # If escaping is broken, the compile would raise
+        # re.error (unbalanced parenthesis) or match wildly.
+        compiled = re.compile(patterns[0])
+        self.assertTrue(
+            compiled.search("Senior C++ Engineer"),
+            "C++ Engineer should match (escaping must preserve literal +)",
+        )
+        # And NOT match the unescaped interpretation: a "C" followed
+        # by one-or-more of whatever character. "Ccc Engineer" is
+        # not the same as "C++ Engineer" and must not match.
+        self.assertFalse(
+            compiled.search("Ccc Engineer"),
+            "Escaping must treat + literally, not as a quantifier",
+        )
+
+    def test_role_with_slash_is_regex_escaped(self) -> None:
+        # "AI/ML" has a regex metacharacter. The example profile
+        # uses "AI/ML Engineer" as a primary archetype.
+        patterns = _build_relevant_patterns_from_roles(["AI/ML Engineer"])
+        compiled = re.compile(patterns[0])
+        self.assertTrue(compiled.search("Senior AI/ML Engineer"))
+        # The slash must be literal — "AI" alone should not match
+        # because the pattern requires the slash.
+        self.assertFalse(
+            compiled.search("Senior AI Engineer"),
+            "AI/ML pattern must not match titles without the slash",
+        )
+
+    def test_role_at_start_of_string_uses_lookbehind_not_word_boundary(self) -> None:
+        # The "C++" trap: \bC\+\+ Engineer\b fails because
+        # \b doesn't fire between + and a space (both are
+        # non-word characters). The (?<!\w)...(?!\w) lookarounds
+        # handle this correctly.
+        patterns = _build_relevant_patterns_from_roles(["C++ Engineer"])
+        compiled = re.compile(patterns[0])
+        self.assertTrue(
+            compiled.search("C++ Engineer at Acme"),
+            "C++ Engineer at the start of a title must match",
+        )
+
+    def test_case_insensitive_match(self) -> None:
+        # The (?i) flag is set so "ai engineer" in a job title
+        # matches the "AI Engineer" pattern. Job titles arrive
+        # in arbitrary case from the ATS fetchers.
+        patterns = _build_relevant_patterns_from_roles(["AI Engineer"])
+        compiled = re.compile(patterns[0])
+        self.assertTrue(compiled.search("ai engineer"))
+        self.assertTrue(compiled.search("AI ENGINEER"))
+        self.assertTrue(compiled.search("Ai Engineer"))
+
+    def test_partial_overlap_does_not_match(self) -> None:
+        # Strict match — "AI" alone should not match the
+        # "AI Engineer" pattern. The lookarounds assert the
+        # surrounding characters are non-word, so a longer
+        # word containing "AI" as a substring (e.g.
+        # "AIDEN Engineer") also fails.
+        patterns = _build_relevant_patterns_from_roles(["AI Engineer"])
+        compiled = re.compile(patterns[0])
+        self.assertFalse(
+            compiled.search("AIDEN Engineer"),
+            "Substring match within a longer word must not match",
+        )
+
+    def test_empty_list_returns_empty_list(self) -> None:
+        # An empty target_roles list (operator cleared their
+        # profile) yields an empty pattern list. The filter
+        # treats this as a no-op and falls back to
+        # DEFAULT_RELEVANT_PATTERNS.
+        self.assertEqual(_build_relevant_patterns_from_roles([]), [])
+
+    def test_whitespace_only_role_is_skipped(self) -> None:
+        # A hand-edited profile.yml could sneak a blank entry
+        # past the renderer. Don't generate a pattern for it.
+        patterns = _build_relevant_patterns_from_roles(["", "  ", "AI Engineer"])
+        self.assertEqual(len(patterns), 1)
+        self.assertIn("AI Engineer", patterns[0])
+
+    def test_whitespace_around_role_is_trimmed(self) -> None:
+        # The renderer trims, but a hand-edited profile.yml
+        # could leave a leading/trailing space. Trim defensively.
+        patterns = _build_relevant_patterns_from_roles(["  AI Engineer  "])
+        self.assertEqual(len(patterns), 1)
+        compiled = re.compile(patterns[0])
+        self.assertTrue(compiled.search("AI Engineer"))
+
+    def test_multiple_roles_produce_multiple_patterns(self) -> None:
+        # The example profile has 5 target roles. Each becomes
+        # a separate pattern; the filter ORs them.
+        patterns = _build_relevant_patterns_from_roles(
+            [
+                "Senior AI Engineer",
+                "Staff ML Engineer",
+                "AI/ML Engineer",
+                "AI Product Manager",
+                "Solutions Architect",
+            ]
+        )
+        self.assertEqual(len(patterns), 5)
+        # Every pattern compiles cleanly (no regex errors).
+        for p in patterns:
+            re.compile(p)
 
 
 if __name__ == "__main__":

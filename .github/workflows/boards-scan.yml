@@ -249,6 +249,17 @@ jobs:
       # "***"; unset secrets simply don't appear, so ``jq has($n)``
       # is the right probe. Secret VALUES never appear in
       # ``::error::`` annotations — only the named MISSING list.
+      #
+      # ``OPTIONAL_SECRETS`` is a parallel array for secrets that
+      # SHOULD be set for the doubled-RPM bonus but are not
+      # load-bearing: the LLM client (``from_env``) treats an
+      # unset / empty secret as "skip this key" via its
+      # ``if value:`` guard, so the chain still works. We emit a
+      # ``::warning::`` (not ``::error::``) so a repo that hasn't
+      # set NVIDIA_API_KEY_2 yet doesn't fail the cron — the
+      # warning surfaces in the GHA run summary so the operator
+      # notices the throughput headroom they're leaving on the
+      # table.
       - name: Lint required secrets
         id: secrets-lint
         # 1-minute budget keeps a hung ``jq`` (extremely rare)
@@ -276,6 +287,16 @@ jobs:
             } >&2
             exit 1
           fi
+          # Optional secrets — emit a warning (not an error) if
+          # missing so the operator notices the bonus they're
+          # missing without failing the cron. The LLM client
+          # gracefully degrades to the single-key chain.
+          OPTIONAL=("NVIDIA_API_KEY_2")
+          for NAME in "${OPTIONAL[@]}"; do
+            if ! echo "$SECRETS_JSON" | jq -e --arg n "$NAME" 'has($n)' > /dev/null; then
+              echo "::warning title=Optional GHA secret not set::$NAME (LLM client will use the single-key chain; add at https://github.com/${GITHUB_REPOSITORY}/settings/secrets/actions for doubled RPM throughput)"
+            fi
+          done
           echo "All required secrets are set."
 
       - name: Checkout repository
@@ -308,6 +329,20 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          # ``NVIDIA_API_KEY_2`` is the optional second-key slot
+          # for operators with two NIM keys. The LLM client
+          # (``services.llm_client.LLMClient.from_env``) picks up
+          # both keys when set, dedupes the shared token bucket
+          # (sized at ``len(keys) * 40 RPM``), and walks the chain
+          # ``[nvidia, nvidia_2, groq]`` on per-key failure. An
+          # unset secret here resolves to empty string in the env,
+          # which :func:`from_env`'s ``if value:`` guard filters
+          # out — so operators who don't set NVIDIA_API_KEY_2
+          # still get the single-key chain unchanged. Linted as
+          # OPTIONAL in the ``Lint required secrets`` step above
+          # (a missing secret emits a ``::warning::`` rather than
+          # failing the cron).
+          NVIDIA_API_KEY_2: ${{ secrets.NVIDIA_API_KEY_2 }}
           # ``PYTHONUNBUFFERED=1`` so the script's
           # ``print(..., flush=True)`` reaches the GHA run
           # log incrementally rather than buffering until
@@ -408,6 +443,11 @@ jobs:
       # ``secrets: inherit`` on the ``uses:`` line, otherwise
       # ``toJson(secrets)`` in the called workflow returns ``{}``
       # and the lint false-positives every required name.
+      #
+      # ``OPTIONAL_SECRETS`` is the same pattern as the active
+      # tier — ``NVIDIA_API_KEY_2`` gets a ``::warning::`` if
+      # missing rather than failing the cron. The LLM client
+      # degrades to the single-key chain.
       - name: Lint required secrets
         id: secrets-lint
         # 1-minute budget keeps a hung ``jq`` (extremely rare)
@@ -435,6 +475,16 @@ jobs:
             } >&2
             exit 1
           fi
+          # Optional secrets — emit a warning (not an error) if
+          # missing so the operator notices the bonus they're
+          # missing without failing the cron. The LLM client
+          # gracefully degrades to the single-key chain.
+          OPTIONAL=("NVIDIA_API_KEY_2")
+          for NAME in "${OPTIONAL[@]}"; do
+            if ! echo "$SECRETS_JSON" | jq -e --arg n "$NAME" 'has($n)' > /dev/null; then
+              echo "::warning title=Optional GHA secret not set::$NAME (LLM client will use the single-key chain; add at https://github.com/${GITHUB_REPOSITORY}/settings/secrets/actions for doubled RPM throughput)"
+            fi
+          done
           echo "All required secrets are set."
 
       - name: Checkout repository
@@ -461,6 +511,10 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          # Optional second NVIDIA NIM key — see the matching
+          # comment in the active tier above. Same dedupe +
+          # empty-string fallback rationale.
+          NVIDIA_API_KEY_2: ${{ secrets.NVIDIA_API_KEY_2 }}
           PYTHONUNBUFFERED: "1"
         run: |
           set -euo pipefail

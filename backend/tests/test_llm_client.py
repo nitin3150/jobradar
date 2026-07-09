@@ -52,11 +52,13 @@ from openai import (
 )
 
 from services.llm_client import (
+    SYSTEM_PROMPT,
     AsyncTokenBucket,
     LLMClient,
     ProviderConfig,
     _unique_rate_limiters,
     build_prompt,
+    parse_profile_response,
     parse_score_response,
 )
 
@@ -386,6 +388,233 @@ class TestParseScoreResponse(unittest.TestCase):
             parse_score_response("not json at all")
 
 
+class TestParseProfileResponse(unittest.TestCase):
+    """parse_profile_response is the Step-2 sibling of parse_score_response.
+
+    It must handle the same parse paths (pure JSON, code-fence, prose
+    wrap) AND survive the deeply-nested profile JSON shape (target_roles
+    with archetypes list-of-dicts, narrative.proof_points, etc.). The
+    string-slicing fallback in particular needs a test that exercises
+    a non-trivial nested structure — a flat ``{a: 1, b: 2}`` would
+    pass with a naive regex but a real profile dict has braces inside
+    braces.
+    """
+
+    def test_parses_pure_json(self) -> None:
+        data = parse_profile_response('{"candidate": {"full_name": "Jane"}}')
+        self.assertEqual(data["candidate"]["full_name"], "Jane")
+
+    def test_strips_markdown_codefence(self) -> None:
+        data = parse_profile_response(
+            '```json\n{"candidate": {"full_name": "Jane"}}\n```'
+        )
+        self.assertEqual(data["candidate"]["full_name"], "Jane")
+
+    def test_falls_back_to_slicing_when_wrapped_in_prose(self) -> None:
+        text = (
+            'Here is the profile JSON you asked for:\n'
+            '{"target_roles": {"primary": ["Senior AI Engineer"]}}\n'
+            "Hope that helps."
+        )
+        data = parse_profile_response(text)
+        self.assertEqual(
+            data["target_roles"]["primary"], ["Senior AI Engineer"]
+        )
+
+    def test_slicing_survives_nested_objects(self) -> None:
+        # Nested archetypes (list of dicts) and proof_points (list of
+        # dicts) — the string-slicing fallback has to grab the OUTERMOST
+        # { ... } block, not stop at the first inner one. This is the
+        # test that would catch a regression to a regex-based approach.
+        text = (
+            'Prologue prose we want to ignore. '
+            '{"candidate": {"full_name": "Jane"}, '
+            '"target_roles": {"primary": ["Senior AI Engineer"], '
+            '"archetypes": [{"name": "AI/ML Engineer", "level": "Senior", '
+            '"fit": "primary"}]}, '
+            '"narrative": {"proof_points": [{"name": "Project Alpha", '
+            '"hero_metric": "Reduced inference 40%"}]}} '
+            "Epilogue prose we want to ignore."
+        )
+        data = parse_profile_response(text)
+        self.assertEqual(data["candidate"]["full_name"], "Jane")
+        self.assertEqual(
+            data["target_roles"]["primary"], ["Senior AI Engineer"]
+        )
+        self.assertEqual(
+            data["target_roles"]["archetypes"][0]["name"], "AI/ML Engineer"
+        )
+        self.assertEqual(
+            data["narrative"]["proof_points"][0]["hero_metric"],
+            "Reduced inference 40%",
+        )
+
+    def test_slicing_keeps_only_outermost_block_when_multiple_objects(self) -> None:
+        # If the model emitted two JSON objects, the slicing fallback
+        # keeps the OUTERMOST one — this is the documented behaviour.
+        # In practice the system prompt forbids multiple objects, so
+        # we just confirm the fallback doesn't crash on the input.
+        # The slicing grabs the union of the two objects (everything
+        # between the first ``{`` and the last ``}``), which is NOT
+        # valid JSON, so ``json.loads`` fails and we get a
+        # ``_PermanentError``. That's the accepted outcome — the
+        # test just confirms the function doesn't crash with a
+        # raw ``JSONDecodeError`` or some other non-typed exception.
+        from services.llm_client import _PermanentError
+        text = (
+            '{"a": 1, "candidate": {"full_name": "Jane"}}, '
+            '{"b": 2}'
+        )
+        with self.assertRaises(_PermanentError):
+            parse_profile_response(text)
+
+    def test_returns_empty_dict_on_empty_object(self) -> None:
+        data = parse_profile_response("{}")
+        self.assertEqual(data, {})
+
+    def test_raises_on_unparseable(self) -> None:
+        from services.llm_client import _PermanentError
+        with self.assertRaises(_PermanentError):
+            parse_profile_response("not json at all")
+
+    def test_raises_on_garbage_with_braces(self) -> None:
+        # Braces present but the contents are not valid JSON. The
+        # slicing fallback will grab ``{not json}`` and ``json.loads``
+        # will raise — we want a clean ``_PermanentError`` not a
+        # raw ``JSONDecodeError``.
+        from services.llm_client import _PermanentError
+        with self.assertRaises(_PermanentError):
+            parse_profile_response("Some prose {not json} more prose")
+
+
+class TestLLMClientExtractProfile(unittest.IsolatedAsyncioTestCase):
+    """Step-2: the resume → profile extractor.
+
+    Mirrors TestLLMClientRetryChain. We mock the openai SDK to keep
+    the tests hermetic — the production code path is
+    ``client.chat.completions.create(...)`` and the deepest callable
+    is what gets the canned response.
+    """
+
+    async def test_first_provider_happy_path_returns_parsed_dict(self) -> None:
+        canned = (
+            '{"candidate": {"full_name": "Jane Smith"}, '
+            '"target_roles": {"primary": ["Senior AI Engineer"]}}'
+        )
+        client, mocks = _build_mock_client(nvidia=_fake_response(canned))
+        data, model = await client.extract_profile("Jane Smith\nAI Engineer")
+        self.assertEqual(data["candidate"]["full_name"], "Jane Smith")
+        self.assertEqual(data["target_roles"]["primary"][0], "Senior AI Engineer")
+        self.assertEqual(model, "m")  # the ProviderConfig.model string
+        mocks["nvidia"].chat.completions.create.assert_awaited_once()
+
+    async def test_falls_back_to_groq_when_nvidia_returns_unparseable(self) -> None:
+        # Bad JSON on NVIDIA is a ``_PermanentError`` (parse failure)
+        # so the chain advances to Groq without a retry. The Groq
+        # response is the canonical profile JSON.
+        client, mocks = _build_mock_client(
+            nvidia=_fake_response("not json at all"),
+            groq=_fake_response(
+                '{"candidate": {"full_name": "From Groq"}}'
+            ),
+        )
+        data, _ = await client.extract_profile("resume text")
+        self.assertEqual(data["candidate"]["full_name"], "From Groq")
+        self.assertEqual(mocks["nvidia"].chat.completions.create.call_count, 1)
+        mocks["groq"].chat.completions.create.assert_awaited_once()
+
+    async def test_retries_within_provider_on_transient_error(self) -> None:
+        # Transient SDK error → one retry → success. Same shape as
+        # the scoring retry test; we just want to confirm the new
+        # method also goes through the same retry-then-advance logic.
+        client, mocks = _build_mock_client(
+            nvidia=[
+                _sdk_exception(APIConnectionError, "transient"),
+                _fake_response('{"candidate": {"full_name": "Jane"}}'),
+            ],
+        )
+        with _no_sleep() as mock_sleep:
+            data, _ = await client.extract_profile("resume")
+        self.assertEqual(data["candidate"]["full_name"], "Jane")
+        self.assertEqual(mocks["nvidia"].chat.completions.create.call_count, 2)
+        mock_sleep.assert_awaited_once()
+
+    async def test_raises_runtime_if_every_provider_fails(self) -> None:
+        client, mocks = _build_mock_client(
+            nvidia=[
+                _sdk_exception(APIConnectionError, "a"),
+                _sdk_exception(APIConnectionError, "b"),
+            ],
+            groq=[
+                _sdk_exception(APIConnectionError, "c"),
+                _sdk_exception(APIConnectionError, "d"),
+            ],
+        )
+        with _no_sleep():
+            with self.assertRaises(RuntimeError):
+                await client.extract_profile("resume")
+        self.assertEqual(mocks["nvidia"].chat.completions.create.call_count, 2)
+        self.assertEqual(mocks["groq"].chat.completions.create.call_count, 2)
+
+    async def test_nvidia_rate_limiter_consumed_once_for_extraction(self) -> None:
+        # Two NVIDIA providers share one bucket; one extraction
+        # consumes ONE token. Same dedupe guarantee as
+        # score_opportunity — see TestUniqueRateLimiters for the
+        # underlying helper test.
+        shared = AsyncTokenBucket(capacity=80, refill_per_second=80 / 60.0)
+        providers = [
+            ProviderConfig(
+                name="nvidia", base_url="https://nvidia", api_key="a", model="m",
+                rate_limiter=shared,
+            ),
+            ProviderConfig(
+                name="nvidia_2", base_url="https://nvidia", api_key="b", model="m",
+                rate_limiter=shared,
+            ),
+        ]
+        client = LLMClient(providers)
+        nvidia_mock = AsyncMock()
+        nvidia_mock.chat.completions.create.return_value = _fake_response(
+            '{"candidate": {"full_name": "x"}}'
+        )
+        client._clients = {"nvidia": nvidia_mock, "nvidia_2": nvidia_mock}  # type: ignore[assignment]
+
+        with _no_sleep():
+            await client.extract_profile("resume")
+        # Started at 80, ONE token consumed (dedupe kept the inner
+        # per-provider acquire() from firing twice on the same bucket).
+        self.assertAlmostEqual(shared.available_tokens, 79.0, places=2)
+
+    async def test_extraction_uses_higher_max_tokens_than_score(self) -> None:
+        # The profile extraction is allowed ~8x the score call's
+        # budget. We assert the call is made with max_tokens=2500
+        # (PROFILE_EXTRACTION_MAX_TOKENS) — a regression to 300
+        # would clip a senior candidate's project list silently.
+        client, mocks = _build_mock_client(
+            nvidia=_fake_response('{"candidate": {"full_name": "x"}}'),
+        )
+        await client.extract_profile("resume")
+        call_kwargs = mocks["nvidia"].chat.completions.create.await_args.kwargs
+        self.assertEqual(call_kwargs["max_tokens"], 2500)
+        self.assertEqual(call_kwargs["temperature"], 0.0)
+        # System prompt is the profile-extraction variant, not the
+        # score prompt — guards against an accidental copy-paste.
+        messages = call_kwargs["messages"]
+        self.assertIn("career-ops profile extractor", messages[0]["content"])
+
+    async def test_extraction_user_message_is_resume_text(self) -> None:
+        # The user message is the raw resume text — no prompt
+        # template. This keeps the LLM call cheap (no double
+        # counting of the resume's tokens in a prompt wrapper).
+        client, mocks = _build_mock_client(
+            nvidia=_fake_response('{"candidate": {"full_name": "x"}}'),
+        )
+        await client.extract_profile("Jane Smith\nAI Engineer\n")
+        call_kwargs = mocks["nvidia"].chat.completions.create.await_args.kwargs
+        messages = call_kwargs["messages"]
+        self.assertEqual(messages[1]["content"], "Jane Smith\nAI Engineer\n")
+
+
 class TestBuildPrompt(unittest.TestCase):
     def test_renders_profile_and_opportunity(self) -> None:
         s = build_prompt(
@@ -405,6 +634,103 @@ class TestBuildPrompt(unittest.TestCase):
         s = build_prompt("p", {"foo": "bar"})
         self.assertIn("foo", s)
         self.assertIn("bar", s)
+
+
+class TestSystemPromptProfileAware(unittest.TestCase):
+    """The SYSTEM_PROMPT must instruct the LLM to use the full profile.
+
+    Before this change, SYSTEM_PROMPT only mentioned "role-fit and
+    seniority alignment" — the LLM was free to anchor on the role
+    titles and ignore the narrative / compensation / location
+    sections that :func:`build_profile_summary` actually renders.
+    The expanded prompt enumerates 7 scoring factors in the same
+    order the profile renderer emits them, so a careful reader can
+    map each factor to the corresponding profile section.
+
+    These tests are the regression guard: if a future edit drops
+    one of the factors from the prompt, the LLM will silently
+    stop using that profile section and these tests will catch it.
+    """
+
+    def test_mentions_role_fit_with_fit_levels(self) -> None:
+        # The fit-level bucketing (primary/secondary/adjacent)
+        # is the load-bearing part of the new profile schema.
+        # A prompt that says "consider target_roles" without
+        # the levels would let the LLM treat a primary match
+        # the same as an adjacent one.
+        self.assertIn("ROLE FIT", SYSTEM_PROMPT)
+        self.assertIn("Primary", SYSTEM_PROMPT)
+        self.assertIn("Secondary", SYSTEM_PROMPT)
+        self.assertIn("Adjacent", SYSTEM_PROMPT)
+
+    def test_mentions_seniority_alignment(self) -> None:
+        self.assertIn("SENIORITY ALIGNMENT", SYSTEM_PROMPT)
+        self.assertIn("archetype.level", SYSTEM_PROMPT)
+
+    def test_mentions_skill_match_via_superpowers(self) -> None:
+        # The superpowers list is the candidate's top-5
+        # strengths; the LLM should cross-reference it
+        # against the posting's required skills.
+        self.assertIn("SKILL MATCH", SYSTEM_PROMPT)
+        self.assertIn("superpower", SYSTEM_PROMPT.lower())
+
+    def test_mentions_narrative_alignment(self) -> None:
+        # The headline + exit_story tell the LLM WHAT the
+        # candidate is optimizing for, not just WHAT they
+        # can do. This factor is the differentiator between
+        # a 0.7 (skills match) and a 0.9 (mission match).
+        self.assertIn("NARRATIVE ALIGNMENT", SYSTEM_PROMPT)
+        self.assertIn("headline", SYSTEM_PROMPT)
+        self.assertIn("exit_story", SYSTEM_PROMPT)
+
+    def test_mentions_compensation(self) -> None:
+        # A posting below the operator's minimum is a soft
+        # mismatch. The prompt must tell the LLM to surface
+        # this in the reasoning.
+        self.assertIn("COMPENSATION", SYSTEM_PROMPT)
+        self.assertIn("target_range", SYSTEM_PROMPT)
+        self.assertIn("minimum", SYSTEM_PROMPT)
+
+    def test_mentions_location_and_visa(self) -> None:
+        # A posting that hard-requires sponsorship when the
+        # operator has visa_status "No sponsorship needed"
+        # is a hard mismatch. The prompt must flag this as
+        # a 0.0-0.2 score.
+        self.assertIn("LOCATION", SYSTEM_PROMPT)
+        self.assertIn("visa_status", SYSTEM_PROMPT)
+        self.assertIn("No sponsorship", SYSTEM_PROMPT)
+
+    def test_mentions_proof_points_hero_metrics(self) -> None:
+        # The hero_metric field on proof_points is the
+        # concrete-impact signal. The prompt must tell the
+        # LLM to look for matching metrics in the posting.
+        self.assertIn("PROOF POINTS", SYSTEM_PROMPT)
+        self.assertIn("hero_metric", SYSTEM_PROMPT)
+
+    def test_still_preserves_json_output_format(self) -> None:
+        # Backward-compat: the LLMClient tests assert the
+        # JSON shape elsewhere. The expanded prompt must NOT
+        # change the output contract.
+        self.assertIn('"score"', SYSTEM_PROMPT)
+        self.assertIn('"reasoning"', SYSTEM_PROMPT)
+        # The 0.0-1.0 range is still the contract.
+        self.assertIn("0.0-1.0", SYSTEM_PROMPT)
+
+    def test_still_says_return_only_json(self) -> None:
+        # Critical: the parser relies on the LLM returning
+        # ONLY the JSON object, no markdown fences, no
+        # preamble. A future edit that adds explanatory
+        # prose to the prompt body would break parsing.
+        self.assertIn("ONLY the JSON", SYSTEM_PROMPT)
+        self.assertIn("no markdown", SYSTEM_PROMPT)
+
+    def test_score_calibration_instructs_holistic_evaluation(self) -> None:
+        # The closing clause is the one that actually changes
+        # the LLM's behavior — "0.9 means 5+ factors match,
+        # not because the title is close". Without this, the
+        # LLM regresses to title-matching.
+        self.assertIn("5+ factors", SYSTEM_PROMPT)
+        self.assertIn("title alone is close", SYSTEM_PROMPT)
 
 
 class TestLLMClientRetryChain(unittest.IsolatedAsyncioTestCase):

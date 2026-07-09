@@ -24,9 +24,14 @@
 # ``seen.json`` and re-processes every recent job. We bound that
 # cost two ways:
 #
-#   1. ``--limit`` caps the per-board org count to keep wall-clock
-#      + LLM cost bounded (defaults 50 / 500 / 200 for the three
-#      tiers — see the BUDGET note below).
+#   1. ``--limit`` caps the per-board org count. The script's
+#      argparse treats ``limit <= 0`` as "no cap" (the actual
+#      ``limit > 0 else None`` branch in ``boards_scan.py`` flips
+#      to ``None`` in that case), so setting ``BOARDS_LIMIT: "0"``
+#      in a per-job ``env:`` block is the canonical "scrape every
+#      org" signal — see the active/dormant job ``env:`` blocks
+#      below for the operator's current values, and the BUDGET
+#      note for the resulting cost trade-off.
 #   2. ``ignore_duplicates=True`` on the Supabase upsert means
 #      re-running is idempotent and never overwrites an operator's
 #      prior ``approved`` / ``rejected`` decision on a row.
@@ -107,21 +112,38 @@
 #   LLM_PROVIDER, LLM_MODEL, TARGET_ROLES, BOARDS_DELTA_HOURS,
 #   BOARDS_BOARDS, BOARDS_LIMIT, JOB_FIT_THRESHOLD — see
 #   ``backend/scripts/boards_scan.py`` for the contract.
+# Note: the script's argparse reads ``JOB_FIT_THRESHOLD``
+# from the environment as the default for ``--threshold``
+# (``os.environ.get("JOB_FIT_THRESHOLD", "0.6")``), and the
+# env block below passes the value both as that env var AND
+# explicitly via ``--threshold "${JOB_FIT_THRESHOLD}"`` —
+# belt + suspenders, so the threshold survives a future
+# accidental removal of the CLI flag.
 
 name: boards-scan
 
 on:
   schedule:
     # Hourly active scan — the priority list. New postings from
-    # warm orgs land in the review queue within ~60 minutes.
-    # NOTE: with the GHA free-tier budget above, the default
-    # ``--limit 50`` keeps this inside the 2,000 min/month
-    # ceiling. Operators with larger org sets should drop the
-    # cron to every 2-4 hours AND/OR bump the limit.
+    # warm orgs land in the review queue within ~60 minutes
+    # *when the per-job scan keeps the schedule*. NOTE: the
+    # BUDGET math below is calibrated against the old
+    # ``--limit 50`` and ``--limit 500`` defaults; with
+    # ``BOARDS_LIMIT: "0"`` in the env block (no org cap),
+    # the per-tick scan + score phase is far heavier than
+    # the per-month rollup suggests. The per-job
+    # ``timeout-minutes`` is the binding per-tick budget;
+    # the BUDGET section is informational only — the
+    # ``30`` here, the ``60`` in the dormant job below.
     - cron: "0 * * * *"
     # Daily dormant scan — the slow list. 02:20 UTC keeps it
     # off-peak and gives the 02:00 active tick a 20-min
-    # headroom window to finish before dormant fires.
+    # headroom window to finish before dormant fires. Same
+    # ``BOARDS_LIMIT: "0"`` caveat as the active cron above:
+    # per-tick wall-clock is well above what the BUDGET
+    # monthly rollup implies; ``timeout-minutes: 60`` below
+    # is the binding per-tick budget, not the BUDGET
+    # section's monthly projection.
     - cron: "20 2 * * *"
     # Weekly cleanup — re-probe missing-orgs slugs so a benign
     # outage that benched a slug doesn't keep it benched
@@ -179,7 +201,13 @@ permissions: {}
 
 jobs:
   # -----------------------------------------------------------------
-  # Active tier — hourly, 1h lookback, --limit 50.
+  # Active tier — hourly, 1h lookback, no per-board org cap.
+  # ``BOARDS_LIMIT: "0"`` in the env block below means the
+  # script's ``limit > 0 else None`` branch fires and iterates
+  # every org in the per-board JSON files (~10K orgs total
+  # across ashby/greenhouse/lever). The 1h ``BOARDS_DELTA_HOURS``
+  # bounds only the per-org BOARD-API payload, not the LLM
+  # scoring + Supabase upsert which dominate the wall-clock.
   # -----------------------------------------------------------------
   scan-active:
     # Run on the matching hourly cron OR when ``workflow_dispatch``
@@ -194,7 +222,18 @@ jobs:
     env:
       BOARDS_DELTA_HOURS: "1"
       BOARDS_BOARDS: "ashby greenhouse lever"
-      BOARDS_LIMIT: "50"
+      # ``BOARDS_LIMIT: "0"`` means the script's ``limit > 0 else None``
+      # branch fires, iterating every org in the per-board JSON files
+      # (~10K orgs across ashby/greenhouse/lever). Combined with GHA's
+      # ephemeral ``seen.json`` this rescores the recent window every
+      # cron tick — expensive, but intentional for the operator.
+      BOARDS_LIMIT: "0"
+      # Name matches the script's argparse read for
+      # ``--threshold`` (``os.environ.get("JOB_FIT_THRESHOLD",
+      # "0.6")``). Stricter than that 0.6 default so the
+      # bigger org set doesn't drown the review queue; tune
+      # here, NOT in the script.
+      JOB_FIT_THRESHOLD: "0.7"
     steps:
       # Fail-fast: lint the four required secrets BEFORE checkout
       # so a misconfigured repo fails in ~2 s instead of ~30 s of
@@ -278,7 +317,8 @@ jobs:
           python scripts/boards_scan.py \
             --delta-hours "${BOARDS_DELTA_HOURS}" \
             --boards ${BOARDS_BOARDS} \
-            --limit "${BOARDS_LIMIT}"
+            --limit "${BOARDS_LIMIT}" \
+            --threshold "${JOB_FIT_THRESHOLD}"
 
       - name: Notify status
         # The ``secrets`` context is NOT available in ``if:``
@@ -324,10 +364,12 @@ jobs:
             "${STATUS_WEBHOOK_URL}"
 
   # -----------------------------------------------------------------
-  # Dormant tier — daily 02:20 UTC, 24h lookback, --limit 500.
-  # Larger ``--limit`` because the dormant sweep is once a day
-  # and has 24h to cover; the LLM cost is bounded by the limit
-  # regardless of how many orgs exist on the boards.
+  # Dormant tier — daily 02:20 UTC, 24h lookback, no per-board
+  # org cap (``BOARDS_LIMIT: "0"`` in the env block below).
+  # The 24h ``BOARDS_DELTA_HOURS`` covers the previous-day
+  # posting window across the full per-board list; once-a-day
+  # cadence is the only reason this stays under GHA's
+  # ``timeout-minutes: 60`` budget.
   # -----------------------------------------------------------------
   scan-dormant:
     if: (github.event_name == 'schedule' && github.event.schedule == '20 2 * * *') || (github.event_name == 'workflow_dispatch' && inputs.tier == 'dormant')
@@ -336,7 +378,8 @@ jobs:
     env:
       BOARDS_DELTA_HOURS: "24"
       BOARDS_BOARDS: "ashby greenhouse lever"
-      BOARDS_LIMIT: "500"
+      BOARDS_LIMIT: "0"
+      JOB_FIT_THRESHOLD: "0.7"
     steps:
       # Fail-fast: same secrets-lint as active (see comment there).
       # Duplicated inline because we want the check to run BEFORE
@@ -410,7 +453,8 @@ jobs:
           python scripts/boards_scan.py \
             --delta-hours "${BOARDS_DELTA_HOURS}" \
             --boards ${BOARDS_BOARDS} \
-            --limit "${BOARDS_LIMIT}"
+            --limit "${BOARDS_LIMIT}" \
+            --threshold "${JOB_FIT_THRESHOLD}"
 
       - name: Notify status
         # The ``secrets`` context is NOT available in ``if:``

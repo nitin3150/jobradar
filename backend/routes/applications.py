@@ -423,7 +423,34 @@ async def create_application_from_job(
     # assignment is tracked by SQLAlchemy's unit-of-work; the
     # session.add() above is too. Both land in the same INSERT/
     # UPDATE pair at session.commit() time.
+    previous_job_status = job_row.status
     job_row.status = "applied"
+    # Audit-trail row: same transaction as the INSERT above + the
+    # status flip. The helper writes a ``job_status_history`` row
+    # with ``source="user"`` (the operator's manual-apply click is
+    # the audit default) and the optional ``notes`` carried
+    # through from the POST body so the operator's "applied via
+    # LinkedIn / referred by John" annotation lives next to the
+    # transition in the history table. Same atomicity guarantee
+    # as the PATCH ``/api/jobs/{id}/status`` path: a future
+    # observer can never see ``status='applied'`` without a
+    # matching history row.
+    #
+    # Lazy import: ``routes.jobs`` itself imports nothing from
+    # ``routes.applications``, but a top-level import here would
+    # force a circular chain at module-load time. Pulling the
+    # symbol inside the function body defers the import until
+    # the first POST hits; by that point both modules are
+    # fully initialised.
+    from routes.jobs import record_status_history
+    record_status_history(
+        session,
+        job_row.id,
+        previous_job_status,
+        "applied",
+        db_models.JOB_STATUS_SOURCE_USER,
+        payload.notes,
+    )
 
     # 6. Single commit. Any failure between the add() and the
     # commit() (e.g. the FK constraint check on the INSERT) rolls

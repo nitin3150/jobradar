@@ -191,7 +191,7 @@ def _research_row_to_pydantic(row: db_models.ResearchReport) -> ResearchReport:
     )
 
 
-def _record_status_history(
+def record_status_history(
     session: AsyncSession,
     job_id: UUID,
     from_status: str | None,
@@ -373,19 +373,28 @@ async def get_pending_count(
 
 @router.get("", response_model=JobListResponse)
 async def list_jobs(
-    status_filter: str | None = Query(default=None, alias="status"),
+    status_filter: str | None = Query(
+        default=None,
+        alias="status",
+        description=(
+            "Single status (e.g. ``in_review``) OR comma-separated list "
+            "(e.g. ``in_review,approved``) for a multi-status OR query. "
+            "Unknown values short-circuit to an empty result set."
+        ),
+    ),
     page: int = Query(default=1, ge=1, le=10_000),
     page_size: int = Query(default=50, ge=1, le=200),
     q: str | None = Query(default=None, max_length=200),
     ats_type: str | None = Query(default=None, max_length=32),
     score_min: float = Query(default=0.0, ge=0.0, le=1.0),
+    score_max: float = Query(default=1.0, ge=0.0, le=1.0),
     posted_from: str | None = Query(default=None, max_length=32),
     posted_to: str | None = Query(default=None, max_length=32),
     session: AsyncSession = Depends(get_session),
 ) -> JobListResponse:
     """List jobs with optional ``status`` filter, server-side pagination,
     free-text search across title + company_name, ats_type source
-    filter, score range floor, and posted-date range.
+    filter, score range (floor + ceiling), and posted-date range.
 
     The new envelope includes ``page`` + ``page_size`` so the React
     JobBoard can render the prev/next controls + the "showing N of M"
@@ -394,15 +403,43 @@ async def list_jobs(
     ``q`` is a case-insensitive ILIKE across ``title`` and
     ``company_name``. Posted dates are ISO 8601 strings (YYYY-MM-DD);
     the route parses them once and re-uses for both bounds.
+
+    ``status`` accepts a single value (``?status=in_review``) OR a
+    comma-separated list (``?status=in_review,approved``) for a
+    multi-status OR query. Unknown values in either form short-circuit
+    to an empty result set so a typo at the caller doesn't reach the
+    SQLAlchemy ``jobs.status = $1::job_status`` comparison, where
+    ``<anything>`` would raise ``invalid input value for enum
+    job_status: ...``.
+
+    ``score_min``/``score_max`` together form a half-open / closed
+    range filter. Default ``(0.0, 1.0)`` is a no-op; the React
+    JobBoard uses a slider that emits both bounds.
     """
     stmt = select(db_models.Job)
     count_stmt = select(func.count(db_models.Job.id))
 
     if status_filter:
-        if status_filter not in JOB_STATUS_VALUES:
+        # Comma-separated list, with empty fragments dropped. Any
+        # unknown fragment short-circuits to empty (same contract as
+        # the single-status path).
+        requested_statuses = [
+            s.strip() for s in status_filter.split(",") if s.strip()
+        ]
+        if not requested_statuses:
             return JobListResponse(jobs=[], total=0, page=page, page_size=page_size)
-        stmt = stmt.where(db_models.Job.status == status_filter)
-        count_stmt = count_stmt.where(db_models.Job.status == status_filter)
+        unknown = [s for s in requested_statuses if s not in JOB_STATUS_VALUES]
+        if unknown:
+            return JobListResponse(jobs=[], total=0, page=page, page_size=page_size)
+        # ``Job.status.in_(...)`` is the idiomatic SQLAlchemy
+        # expression for both the single- and multi-status case —
+        # it expands to ``status = ANY($1)`` which the planner treats
+        # identically to a single ``status = $1`` predicate when the
+        # array has one element, and to an OR of equals when the
+        # array has many. The ``idx_jobs_status_created`` index covers
+        # the lookup either way. No need for a single-vs-multi branch.
+        stmt = stmt.where(db_models.Job.status.in_(requested_statuses))
+        count_stmt = count_stmt.where(db_models.Job.status.in_(requested_statuses))
 
     if ats_type:
         stmt = stmt.where(db_models.Job.ats_type == ats_type)
@@ -411,6 +448,9 @@ async def list_jobs(
     if score_min > 0.0:
         stmt = stmt.where(db_models.Job.ai_fit_score >= score_min)
         count_stmt = count_stmt.where(db_models.Job.ai_fit_score >= score_min)
+    if score_max < 1.0:
+        stmt = stmt.where(db_models.Job.ai_fit_score <= score_max)
+        count_stmt = count_stmt.where(db_models.Job.ai_fit_score <= score_max)
 
     if q:
         # ILIKE on both fields. Wrap with ``%`` wildcards so a partial
@@ -496,7 +536,7 @@ async def approve_job(
     previous_status = row.status
     row.status = "approved"
     row.review_deadline = None
-    _record_status_history(session, row.id, previous_status, "approved", "user", None)
+    record_status_history(session, row.id, previous_status, "approved", "user", None)
     await session.commit()
     return _job_row_to_pydantic(row)
 
@@ -522,7 +562,7 @@ async def reject_job(
     previous_status = row.status
     row.status = "rejected"
     row.review_deadline = None
-    _record_status_history(session, row.id, previous_status, "rejected", "user", None)
+    record_status_history(session, row.id, previous_status, "rejected", "user", None)
     await session.commit()
     return _job_row_to_pydantic(row)
 
@@ -564,7 +604,7 @@ async def patch_job_status(
     if payload.status in ("approved", "rejected", "applied"):
         row.review_deadline = None
 
-    _record_status_history(
+    record_status_history(
         session,
         row.id,
         previous_status,

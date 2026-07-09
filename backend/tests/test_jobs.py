@@ -492,5 +492,115 @@ class TestBadUuid(_JobsTestCase):
         self.assertEqual(r.status_code, 404, r.text)
 
 
+# ---------------------------------------------------------------------
+# v0.5 delivery: multi-status filter (?status=in_review,approved) +
+# score range (score_min + score_max) so the React JobBoard can
+# filter on a single slider without a separate dropdown.
+# ---------------------------------------------------------------------
+class TestMultiStatusFilter(_JobsTestCase):
+    """Comma-separated ?status= query param.
+
+    The seed has 2x in_review, 1x approved, 1x rejected, 1x applied,
+    1x flagged. The multi-status OR query should return the union of
+    the requested sets, and the wire ``total`` should reflect the
+    matched count *before* the page-size slice.
+    """
+
+    def test_two_statuses_or_returns_union(self) -> None:
+        r = self.client.get("/api/jobs?status=in_review,approved")
+        self.assertEqual(r.status_code, 200, r.text)
+        body = r.json()
+        # 2 in_review + 1 approved = 3
+        self.assertEqual(body["total"], 3)
+        seen = {j["status"] for j in body["jobs"]}
+        self.assertTrue(seen.issubset({"in_review", "approved"}))
+        self.assertGreater(len(seen), 0)  # at least one of each
+
+    def test_three_statuses_or_returns_union(self) -> None:
+        r = self.client.get("/api/jobs?status=in_review,approved,rejected")
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertEqual(r.json()["total"], 4)
+
+    def test_all_five_statuses_returns_full_set(self) -> None:
+        r = self.client.get(
+            "/api/jobs?status=in_review,approved,rejected,applied,flagged"
+        )
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertEqual(r.json()["total"], 6)
+
+    def test_unknown_in_list_short_circuits_to_empty(self) -> None:
+        # An unknown fragment anywhere in the comma-separated list
+        # short-circuits the whole query — same contract as the
+        # single-status path, so a typo at the call site can't
+        # reach the SQLAlchemy ``status = ANY(...)`` with a bad
+        # enum value.
+        r = self.client.get("/api/jobs?status=in_review,ghosted-by-them")
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertEqual(r.json()["total"], 0)
+        self.assertEqual(r.json()["jobs"], [])
+
+    def test_single_status_still_works(self) -> None:
+        # Backward-compat: ?status=in_review (no comma) must still
+        # return the in_review rows. The new path branches to the
+        # old ``WHERE status = $1`` form for the single-value case
+        # to keep the SQL plan cheap.
+        r = self.client.get("/api/jobs?status=in_review")
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertEqual(r.json()["total"], 2)
+        for j in r.json()["jobs"]:
+            self.assertEqual(j["status"], "in_review")
+
+
+# ---------------------------------------------------------------------
+class TestScoreRangeFilter(_JobsTestCase):
+    """score_min + score_max together form a half-open / closed range.
+
+    Seed: scores are 0.86, 0.78, 0.91, 0.42, 0.74, 0.58. The default
+    (0.0, 1.0) returns all 6. Tightening either bound drops rows.
+    """
+
+    def test_default_range_returns_all(self) -> None:
+        r = self.client.get("/api/jobs")
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertEqual(r.json()["total"], 6)
+
+    def test_score_min_floor_drops_below_threshold(self) -> None:
+        # >= 0.8 → keeps 0.86, 0.91 → 2 rows
+        r = self.client.get("/api/jobs?score_min=0.8")
+        self.assertEqual(r.status_code, 200, r.text)
+        body = r.json()
+        self.assertEqual(body["total"], 2)
+        for j in body["jobs"]:
+            self.assertGreaterEqual(j["ai_fit_score"], 0.8)
+
+    def test_score_max_ceiling_drops_above_threshold(self) -> None:
+        # <= 0.5 → keeps 0.42 → 1 row
+        r = self.client.get("/api/jobs?score_max=0.5")
+        self.assertEqual(r.status_code, 200, r.text)
+        body = r.json()
+        self.assertEqual(body["total"], 1)
+        self.assertLessEqual(body["jobs"][0]["ai_fit_score"], 0.5)
+
+    def test_score_min_and_max_together(self) -> None:
+        # 0.5 <= score <= 0.8 → 0.78, 0.74, 0.58 → 3 rows
+        r = self.client.get("/api/jobs?score_min=0.5&score_max=0.8")
+        self.assertEqual(r.status_code, 200, r.text)
+        body = r.json()
+        self.assertEqual(body["total"], 3)
+        for j in body["jobs"]:
+            self.assertGreaterEqual(j["ai_fit_score"], 0.5)
+            self.assertLessEqual(j["ai_fit_score"], 0.8)
+
+    def test_score_min_out_of_range_returns_422(self) -> None:
+        # Pydantic / FastAPI's ``Query(ge=0.0, le=1.0)`` rejects
+        # out-of-range values with 422 before the route body runs.
+        r = self.client.get("/api/jobs?score_min=1.5")
+        self.assertEqual(r.status_code, 422, r.text)
+
+    def test_score_max_out_of_range_returns_422(self) -> None:
+        r = self.client.get("/api/jobs?score_max=-0.1")
+        self.assertEqual(r.status_code, 422, r.text)
+
+
 if __name__ == "__main__":
     unittest.main()

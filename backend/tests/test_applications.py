@@ -13,6 +13,7 @@ from __future__ import annotations
 import asyncio
 import unittest
 from datetime import datetime, timezone
+from uuid import UUID
 
 from fastapi.testclient import TestClient
 from sqlalchemy import delete as sa_delete, select
@@ -360,6 +361,58 @@ class TestCreateApplicationFromJob(_JobSeedMixin, _ApplicationsTestCase):
         )
         self.assertEqual(r.status_code, 409, r.text)
         self.assertIn("'flagged'", r.json()["detail"])
+
+    def test_post_writes_job_status_history_row(self) -> None:
+        """The manual-apply handoff must write a ``job_status_history``
+        row in the same transaction as the Application INSERT + Job
+        status flip. The audit-trail contract is: a future observer
+        can never see ``status='applied'`` without a matching
+        history row, and vice versa.
+
+        Without this, the ``GET /api/jobs?status=in_review`` queue
+        count and the ``GET /api/jobs/{id}/research`` (latest report)
+        path would have a silent drift — the operator clicks Mark as
+        applied, the job moves to ``applied``, the history table
+        doesn't, and the next "what did the user do to job X?"
+        audit query has no answer.
+        """
+        from sqlalchemy import select
+
+        # Pre-state: no history rows for j_3.
+        async def _history_count() -> int:
+            async with AsyncSessionLocal() as session:
+                stmt = select(db_models.JobStatusHistory).where(
+                    db_models.JobStatusHistory.job_id == UUID(J_3_ID)
+                )
+                return len(list((await session.execute(stmt)).scalars().all()))
+
+        self.assertEqual(_run(_history_count()), 0)
+
+        r = self.client.post(
+            "/api/applications",
+            json={"job_id": J_3_ID, "notes": "Applied via LinkedIn Easy Apply."},
+        )
+        self.assertEqual(r.status_code, 201, r.text)
+
+        # Post-state: one history row, from='approved', to='applied',
+        # source='user' (operator manual click), note carried through.
+        async def _fetch_history() -> list[db_models.JobStatusHistory]:
+            async with AsyncSessionLocal() as session:
+                stmt = (
+                    select(db_models.JobStatusHistory)
+                    .where(db_models.JobStatusHistory.job_id == UUID(J_3_ID))
+                    .order_by(db_models.JobStatusHistory.changed_at.asc())
+                )
+                return list((await session.execute(stmt)).scalars().all())
+
+        history = _run(_fetch_history())
+        self.assertEqual(len(history), 1)
+        h = history[0]
+        self.assertEqual(h.from_status, "approved")
+        self.assertEqual(h.to_status, "applied")
+        self.assertEqual(h.source, db_models.JOB_STATUS_SOURCE_USER)
+        self.assertEqual(h.note, "Applied via LinkedIn Easy Apply.")
+        self.assertIsNotNone(h.changed_at)
 
 
 if __name__ == "__main__":

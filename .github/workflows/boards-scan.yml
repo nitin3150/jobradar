@@ -246,19 +246,29 @@ jobs:
             --limit "${BOARDS_LIMIT}"
 
       - name: Notify status
-        # ``secrets.X != ''`` works in if: expressions because
-        # the ``secrets`` context is fully populated before render
-        # time — unlike a step-level ``env:`` block whose vars
-        # are set AFTER if: is evaluated. Without this guard,
-        # an unset webhook would ``curl`` with an empty URL and
-        # ``set -euo pipefail`` would turn a successful scan
-        # into a failed job. GHA masks the secret value in the
-        # rendered expression so no leakage.
-        if: always() && secrets.STATUS_WEBHOOK_URL != ''
+        # The ``secrets`` context is NOT available in ``if:``
+        # expressions (GHA returns ``Unrecognized named-value:
+        # 'secrets'`` at render time), so the webhook-empty skip
+        # is implemented inside ``run:`` as an explicit
+        # ``exit 0`` rather than gating the step on an ``if:``
+        # predicate. A job-level ``env:`` block WOULD make the
+        # secret available in ``if:`` but at the cost of exposing
+        # the URL value to every step's env lookups, so the
+        # step-level ``env:`` + bash-side guard is the better
+        # isolation: a misconfigured cron stays ``success``
+        # instead of failing on an empty curl URL.
+        if: always()
         env:
           STATUS_WEBHOOK_URL: ${{ secrets.STATUS_WEBHOOK_URL }}
         run: |
           set -euo pipefail
+          # ``${VAR:-}`` defaults to empty under ``set -u`` when
+          # the secret is unset, so this guard cleanly no-ops
+          # the webhook call without a noisy traceback.
+          if [ -z "${STATUS_WEBHOOK_URL:-}" ]; then
+            echo "STATUS_WEBHOOK_URL is unset; skipping notify."
+            exit 0
+          fi
           # Compact one-liner JSON payload via ``jq``. ``conclusion``
           # is one of success / failure / cancelled / skipped — the
           # RECEIVER should treat ``conclusion: failure`` as the
@@ -368,19 +378,29 @@ jobs:
             --limit "${BOARDS_LIMIT}"
 
       - name: Notify status
-        # ``secrets.X != ''`` works in if: expressions because
-        # the ``secrets`` context is fully populated before render
-        # time — unlike a step-level ``env:`` block whose vars
-        # are set AFTER if: is evaluated. Without this guard,
-        # an unset webhook would ``curl`` with an empty URL and
-        # ``set -euo pipefail`` would turn a successful scan
-        # into a failed job. GHA masks the secret value in the
-        # rendered expression so no leakage.
-        if: always() && secrets.STATUS_WEBHOOK_URL != ''
+        # The ``secrets`` context is NOT available in ``if:``
+        # expressions (GHA returns ``Unrecognized named-value:
+        # 'secrets'`` at render time), so the webhook-empty skip
+        # is implemented inside ``run:`` as an explicit
+        # ``exit 0`` rather than gating the step on an ``if:``
+        # predicate. A job-level ``env:`` block WOULD make the
+        # secret available in ``if:`` but at the cost of exposing
+        # the URL value to every step's env lookups, so the
+        # step-level ``env:`` + bash-side guard is the better
+        # isolation: a misconfigured cron stays ``success``
+        # instead of failing on an empty curl URL.
+        if: always()
         env:
           STATUS_WEBHOOK_URL: ${{ secrets.STATUS_WEBHOOK_URL }}
         run: |
           set -euo pipefail
+          # ``${VAR:-}`` defaults to empty under ``set -u`` when
+          # the secret is unset, so this guard cleanly no-ops
+          # the webhook call without a noisy traceback.
+          if [ -z "${STATUS_WEBHOOK_URL:-}" ]; then
+            echo "STATUS_WEBHOOK_URL is unset; skipping notify."
+            exit 0
+          fi
           payload=$(jq -n \
             --arg     tier          "dormant" \
             --arg     conclusion    "${{ steps.scan.conclusion }}" \
@@ -443,19 +463,29 @@ jobs:
           python -m pipeline.nodes.jobs_boards.cleanup_missing_orgs --no-resume
 
       - name: Notify status
-        # ``secrets.X != ''`` works in if: expressions because
-        # the ``secrets`` context is fully populated before render
-        # time — unlike a step-level ``env:`` block whose vars
-        # are set AFTER if: is evaluated. Without this guard,
-        # an unset webhook would ``curl`` with an empty URL and
-        # ``set -euo pipefail`` would turn a successful scan
-        # into a failed job. GHA masks the secret value in the
-        # rendered expression so no leakage.
-        if: always() && secrets.STATUS_WEBHOOK_URL != ''
+        # The ``secrets`` context is NOT available in ``if:``
+        # expressions (GHA returns ``Unrecognized named-value:
+        # 'secrets'`` at render time), so the webhook-empty skip
+        # is implemented inside ``run:`` as an explicit
+        # ``exit 0`` rather than gating the step on an ``if:``
+        # predicate. A job-level ``env:`` block WOULD make the
+        # secret available in ``if:`` but at the cost of exposing
+        # the URL value to every step's env lookups, so the
+        # step-level ``env:`` + bash-side guard is the better
+        # isolation: a misconfigured cron stays ``success``
+        # instead of failing on an empty curl URL.
+        if: always()
         env:
           STATUS_WEBHOOK_URL: ${{ secrets.STATUS_WEBHOOK_URL }}
         run: |
           set -euo pipefail
+          # ``${VAR:-}`` defaults to empty under ``set -u`` when
+          # the secret is unset, so this guard cleanly no-ops
+          # the webhook call without a noisy traceback.
+          if [ -z "${STATUS_WEBHOOK_URL:-}" ]; then
+            echo "STATUS_WEBHOOK_URL is unset; skipping notify."
+            exit 0
+          fi
           payload=$(jq -n \
             --arg     tier          "cleanup" \
             --arg     conclusion    "${{ steps.scan.conclusion }}" \

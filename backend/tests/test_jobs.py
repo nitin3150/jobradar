@@ -605,6 +605,172 @@ class TestScoreRangeFilter:
 
 
 # ---------------------------------------------------------------------
+# Date-range filter: NULL-tolerance regression coverage. Before the
+# fix, setting ``?posted_from=...`` (or ``?posted_to=...``) silently
+# dropped every job whose ``posted_at`` was NULL because SQL's
+# ``NULL >= <date>`` is NULL (falsy). The fix added
+# ``OR posted_at IS NULL`` to the bounds so undated jobs (Ashby in
+# particular) survive the filter. The two tests below install one
+# dated + one NULL row and assert both come back when a bound is set.
+#
+# NOTE: these tests depend on the canonical seed fixture having all
+# ``posted_at`` values NULL. If a future seed backfill stamps real
+# dates on the seed rows, the NULL-tolerance tests will start
+# returning more rows (correct, but the test intent will read as
+# muddier). The exact-row assertions on the *new* test rows still
+# hold either way.
+# ---------------------------------------------------------------------
+class TestDateRangeFilter:
+    async def test_posted_from_keeps_null_posted_at_rows(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # Add a NULL-posted_at row alongside the seed's NULL
+        # ``posted_at`` rows so the regression is observable: a
+        # ``posted_from`` bound MUST still return it. Pre-fix,
+        # this would have returned only the 1 dated row.
+        dated_id = _seed_id_for("dated_posted_at")
+        null_id = _seed_id_for("null_posted_at_drf")
+
+        async def _add() -> None:
+            async with AsyncSessionLocal() as session:
+                session.add(
+                    db_models.Job(
+                        id=dated_id,
+                        company_name="Dated Co",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="Dated Role",
+                        url="https://example.com/dated",
+                        ai_fit_score=0.5,
+                        # A date in the recent past so the bound
+                        # ``posted_from=2026-01-01`` clearly
+                        # includes it.
+                        posted_at=datetime(2026, 6, 1, tzinfo=timezone.utc),
+                    )
+                )
+                session.add(
+                    db_models.Job(
+                        id=null_id,
+                        company_name="NullDate Co",
+                        status="approved",
+                        ats_type="ashby",
+                        title="NullDate Role",
+                        url="https://example.com/nulldate",
+                        ai_fit_score=0.5,
+                        posted_at=None,
+                    )
+                )
+                await session.commit()
+
+        await _add()
+
+        # ``posted_from=2026-01-01`` should return BOTH the dated
+        # row AND the NULL row — pre-fix the NULL row was
+        # silently dropped.
+        r = await seeded_jobs.get("/api/jobs?posted_from=2026-01-01")
+        assert r.status_code == 200, r.text
+        body = r.json()
+        ids = {j["id"] for j in body["jobs"]}
+        assert str(dated_id) in ids
+        assert str(null_id) in ids
+        # ``total`` should reflect the union too (not just the
+        # dated subset).
+        assert body["total"] >= 2
+
+    async def test_posted_to_keeps_null_posted_at_rows(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # Mirror of the above for the upper bound: a job without
+        # a ``posted_at`` must still come back when the operator
+        # sets a ``posted_to`` ceiling.
+        dated_id = _seed_id_for("dated_posted_at_to")
+        null_id = _seed_id_for("null_posted_at_to")
+
+        async def _add() -> None:
+            async with AsyncSessionLocal() as session:
+                session.add(
+                    db_models.Job(
+                        id=dated_id,
+                        company_name="Dated To Co",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="Dated To Role",
+                        url="https://example.com/dated-to",
+                        ai_fit_score=0.5,
+                        posted_at=datetime(2026, 1, 15, tzinfo=timezone.utc),
+                    )
+                )
+                session.add(
+                    db_models.Job(
+                        id=null_id,
+                        company_name="NullDate To Co",
+                        status="approved",
+                        ats_type="ashby",
+                        title="NullDate To Role",
+                        url="https://example.com/nulldate-to",
+                        ai_fit_score=0.5,
+                        posted_at=None,
+                    )
+                )
+                await session.commit()
+
+        await _add()
+
+        r = await seeded_jobs.get("/api/jobs?posted_to=2026-12-31")
+        assert r.status_code == 200, r.text
+        body = r.json()
+        ids = {j["id"] for j in body["jobs"]}
+        assert str(dated_id) in ids
+        assert str(null_id) in ids
+
+    async def test_posted_from_excludes_older_dated_rows(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # Sanity-pin the regression fix didn't over-include: a
+        # row whose ``posted_at`` is BEFORE the ``posted_from``
+        # bound must still be excluded (the NULL branch is the
+        # only thing the fix widens).
+        old_id = _seed_id_for("old_posted_at")
+        new_id = _seed_id_for("new_posted_at")
+
+        async def _add() -> None:
+            async with AsyncSessionLocal() as session:
+                session.add(
+                    db_models.Job(
+                        id=old_id,
+                        company_name="Old Co",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="Old Role",
+                        url="https://example.com/old",
+                        ai_fit_score=0.5,
+                        posted_at=datetime(2025, 1, 1, tzinfo=timezone.utc),
+                    )
+                )
+                session.add(
+                    db_models.Job(
+                        id=new_id,
+                        company_name="New Co",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="New Role",
+                        url="https://example.com/new",
+                        ai_fit_score=0.5,
+                        posted_at=datetime(2026, 6, 1, tzinfo=timezone.utc),
+                    )
+                )
+                await session.commit()
+
+        await _add()
+
+        r = await seeded_jobs.get("/api/jobs?posted_from=2026-01-01")
+        assert r.status_code == 200, r.text
+        ids = {j["id"] for j in r.json()["jobs"]}
+        assert str(old_id) not in ids
+        assert str(new_id) in ids
+
+
+# ---------------------------------------------------------------------
 # v0.5 wire-up: GET /api/jobs/{id} single-job lookup + ?company_id filter
 # on the list endpoint. The single-job route powers the React
 # ``JobDetail`` page; the company_id filter powers CompanyDetail's

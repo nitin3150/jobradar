@@ -164,11 +164,20 @@ export default function JobBoardFilters({ filters, onChange, pageSize, onPageSiz
             min="0"
             max="100"
             step="5"
-            value={filters.score_min ?? 0}
-            // Wire value is 0.0-1.0 (Pydantic Literal[0.0, 1.0]
-            // on the backend) but the UI naturally reads in
-            // percent. Divide at the boundary so the operator
-            // sees "60%+" while the API sees 0.6.
+            // The slider's min/max are 0-100 (percent) but the
+            // wire value is 0.0-1.0 (Pydantic Literal[0.0, 1.0] on
+            // the backend). The previous version passed
+            // ``filters.score_min ?? 0`` (a float in [0, 1]) as
+            // the slider's ``value`` — the browser then positioned
+            // the thumb at position N/100 of the range, so a 60%
+            // state (0.6) put the thumb at position 0.6 and the
+            // thumb visibly snapped back to the left after every
+            // drag. Multiply by 100 so the thumb position matches
+            // the percentage the operator sees in the label below.
+            // ``step={5}`` constrains the user-drag output to
+            // multiples of 5, so the round-trip
+            // (state→slider→state) is always stable.
+            value={Math.round((filters.score_min ?? 0) * 100)}
             onChange={(e) => update({ score_min: Number(e.target.value) / 100 })}
             className="w-32"
           />

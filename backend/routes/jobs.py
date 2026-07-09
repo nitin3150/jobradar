@@ -506,8 +506,22 @@ async def list_jobs(
             posted_from_dt = datetime.fromisoformat(posted_from)
             if posted_from_dt.tzinfo is None:
                 posted_from_dt = posted_from_dt.replace(tzinfo=timezone.utc)
-            stmt = stmt.where(db_models.Job.posted_at >= posted_from_dt)
-            count_stmt = count_stmt.where(db_models.Job.posted_at >= posted_from_dt)
+            # Include NULL ``posted_at`` rows: many boards (Ashby
+            # in particular) don't expose a publish-time, and a
+            # strict ``posted_at >= <date>`` would silently drop
+            # every undated job the moment the operator sets a
+            # date bound — looking like the filter "killed" the
+            # list. ``OR posted_at IS NULL`` keeps them in the
+            # result set; the operator can still narrow the dated
+            # subset with the board/status/score filters above.
+            stmt = stmt.where(
+                (db_models.Job.posted_at >= posted_from_dt)
+                | db_models.Job.posted_at.is_(None)
+            )
+            count_stmt = count_stmt.where(
+                (db_models.Job.posted_at >= posted_from_dt)
+                | db_models.Job.posted_at.is_(None)
+            )
         except ValueError as exc:
             raise HTTPException(
                 status_code=400,
@@ -519,8 +533,16 @@ async def list_jobs(
             posted_to_dt = datetime.fromisoformat(posted_to)
             if posted_to_dt.tzinfo is None:
                 posted_to_dt = posted_to_dt.replace(tzinfo=timezone.utc)
-            stmt = stmt.where(db_models.Job.posted_at <= posted_to_dt)
-            count_stmt = count_stmt.where(db_models.Job.posted_at <= posted_to_dt)
+            # Same NULL-tolerance rationale as the ``posted_from``
+            # branch: don't silently drop undated jobs.
+            stmt = stmt.where(
+                (db_models.Job.posted_at <= posted_to_dt)
+                | db_models.Job.posted_at.is_(None)
+            )
+            count_stmt = count_stmt.where(
+                (db_models.Job.posted_at <= posted_to_dt)
+                | db_models.Job.posted_at.is_(None)
+            )
         except ValueError as exc:
             raise HTTPException(
                 status_code=400,

@@ -93,15 +93,23 @@ if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
 from pipeline.nodes.jobs_boards.runner import run_all
+from services import profile_service
 from services.llm_client import LLMClient
+from services.profile_service import (
+    Profile,
+    TargetRoles,
+    get_all_target_roles,
+)
 from supabase import Client, create_client
 
-# Import the Preferences Pydantic model so the script's default
+# Import the Preferences Pydantic model so the script's fallback
 # target roles are read from the SINGLE source of truth — drift
 # between the GHA worker's profile and the dev path is structurally
 # impossible. ``default_factory()`` invokes the lambda the model
 # declares, so editing the list in :class:`routes.settings.Preferences`
-# flows here without a second hand-edited mirror.
+# flows here without a second hand-edited mirror. The script only
+# uses this as the FINAL fallback (after profile.yml AND the
+# ``TARGET_ROLES`` env var are both empty).
 from routes.settings import Preferences as _Preferences
 
 DEFAULT_TARGET_ROLES: list[str] = list(
@@ -115,16 +123,89 @@ def log(msg: str) -> None:
     print(f"[boards-scan] {msg}", flush=True)
 
 
-def _profile_summary(target_roles: list[str]) -> str:
-    """Build the same ``profile_summary`` shape that the
-    ``scoring_service.build_profile_summary`` helper produces in the
-    FastAPI path. We construct a minimal version here because the
-    GHA worker has no populated ``_PREFS_STATE`` (no operator PATCH
-    ever ran) and no ``_QA_DB`` (the Q&A bank isn't bootstrapped).
+def _resolve_profile(
+    cli_target_roles: list[str] | None,
+) -> str:
+    """Resolve the LLM profile prompt for this scan.
+
+    Resolution order (highest priority first):
+    1. ``--target-roles`` CLI flag — explicit one-off override.
+       When set, it REPLACES the profile's target_roles (primary
+       and archetypes) entirely; the rest of the profile
+       (narrative, compensation, location) still flows through.
+    2. ``config/profile.yml`` (operator's own) — the primary
+       source. Falls back to ``config/profile.example.yml`` when
+       the operator hasn't created their own yet.
+    3. ``TARGET_ROLES`` env var — comma-separated fallback for
+       environments without a profile.yml (e.g. legacy cron
+       scripts, one-off test runs).
+    4. The Preferences singleton's default factory — the same
+       four hardcoded roles the FastAPI path ships with.
+
+    Returns the rendered profile markdown block from
+    :func:`services.profile_service.build_profile_summary`. An
+    empty profile renders as ``"(no profile configured)"`` and the
+    LLM scoring degrades gracefully (the SYSTEM_PROMPT's calibration
+    clause still produces a reasonable score).
+
+    Note: the script DELIBERATELY mutates the loaded profile's
+    ``target_roles`` when applying overrides. The module-level
+    cache in :mod:`services.profile_service` is invalidated by
+    every ``load_profile`` call (``use_cache=True`` is the default
+    but the cache holds the unmutated reference, and we mutate a
+    fresh dataclass via ``Profile(**profile.model_copy())`` below),
+    so the next boards_scan.py invocation starts clean.
     """
-    if not target_roles:
-        return "(no profile configured)"
-    return "Target roles:\n" + "\n".join(f"- {r}" for r in target_roles)
+    # Start with the on-disk profile (operator's own, or the
+    # example fallback). ``load_profile()`` is cached, so a
+    # second call in the same process is free.
+    profile = profile_service.load_profile()
+
+    if cli_target_roles:
+        # CLI override wins — but ONLY when the override has at
+        # least one role. An empty list (``--target-roles=""``)
+        # is treated as "operator didn't actually override" so
+        # we don't accidentally zero out the profile and feed
+        # the LLM ``(no profile configured)``. This matches the
+        # intuition that an empty CLI flag is a no-op, not a
+        # destructive override.
+        profile = profile.model_copy(deep=True)
+        profile.target_roles = TargetRoles(primary=list(cli_target_roles))
+        log(
+            f"using --target-roles override ({len(cli_target_roles)} role(s))"
+        )
+    elif not get_all_target_roles(profile):
+        # Profile is empty (operator cleared their YAML or only
+        # the example file is present, and the example has
+        # roles — so this branch only fires when the operator
+        # explicitly cleared their profile). Fall back to
+        # TARGET_ROLES env var, then the Preferences default.
+        env_roles = [
+            r.strip()
+            for r in os.environ.get("TARGET_ROLES", "").split(",")
+            if r.strip()
+        ]
+        if env_roles:
+            profile = profile.model_copy(deep=True)
+            profile.target_roles = TargetRoles(primary=env_roles)
+            log(
+                f"profile.yml empty — using TARGET_ROLES env var "
+                f"({len(env_roles)} role(s))"
+            )
+        elif DEFAULT_TARGET_ROLES:
+            profile = profile.model_copy(deep=True)
+            profile.target_roles = TargetRoles(primary=DEFAULT_TARGET_ROLES)
+            log(
+                "profile.yml + TARGET_ROLES both empty — using "
+                "Preferences default factory (4 hardcoded roles)"
+            )
+    else:
+        log(
+            f"loaded profile from {profile_service.PROFILE_PATH} "
+            f"({len(get_all_target_roles(profile))} target role(s))"
+        )
+
+    return profile_service.build_profile_summary(profile)
 
 
 def _job_id(url: str) -> str:
@@ -167,9 +248,22 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument(
         "--target-roles",
         type=str,
-        default=os.environ.get("TARGET_ROLES", ",".join(DEFAULT_TARGET_ROLES)),
-        help="Comma-separated target roles for the profile summary. "
-        "Default: the four the Preferences singleton ships with.",
+        # Default ``None`` (not the env-var value) so the
+        # resolution function can tell "operator passed
+        # --target-roles='x,y,z'" from "operator didn't pass the
+        # flag at all". ``os.environ.get("TARGET_ROLES")`` is
+        # still consulted inside :func:`_resolve_profile` as the
+        # fallback when profile.yml is empty.
+        default=None,
+        help=(
+            "Comma-separated target roles for a ONE-OFF scan "
+            "override. Replaces the profile.yml target_roles "
+            "entirely (narrative, compensation, location still "
+            "flow through). Default: None — read from profile.yml "
+            "(via services.profile_service.load_profile()), "
+            "falling back to TARGET_ROLES env var, then the "
+            "Preferences default factory."
+        ),
     )
     p.add_argument(
         "--dry-run",
@@ -273,9 +367,17 @@ def main() -> int:
         return 0
 
     # ---- 2. Build the profile + spin up the LLM client ------------------
-    target_roles = [r.strip() for r in args.target_roles.split(",") if r.strip()]
-    profile = _profile_summary(target_roles)
-    log(f"scoring with profile: {len(target_roles)} target role(s)")
+    # Resolve the profile from profile.yml (primary), TARGET_ROLES
+    # env var (fallback), or --target-roles CLI flag (one-off
+    # override). ``cli_target_roles`` is None when the flag wasn't
+    # passed (or when it was passed as empty), which signals
+    # "don't override" to _resolve_profile.
+    cli_target_roles = (
+        [r.strip() for r in args.target_roles.split(",") if r.strip()]
+        if args.target_roles is not None
+        else None
+    )
+    profile = _resolve_profile(cli_target_roles)
 
     try:
         llm = LLMClient.from_env()

@@ -195,22 +195,17 @@ _NVIDIA_RPM_LIMITERS: dict[int, AsyncTokenBucket] = {}
 
 
 def _nvidia_rate_limiter_from_env() -> AsyncTokenBucket | None:
-    """Read ``NVIDIA_RPM`` and build (or fetch) the matching token bucket.
+    """Backward-compat single-bucket helper.
 
-    Returns ``None`` when ``NVIDIA_RPM`` is set to ``0`` or any
-    non-positive value — that disables the limiter. A malformed
-    value (``NVIDIA_RPM=abc``) raises ``ValueError`` so the operator
-    sees the misconfig at boot, not at the first scoring call.
-
-    We log the chosen RPM at INFO so the operator can confirm the
-    limiter is active without having to read code. The bucket is
-    created with ``capacity == rpm`` and ``refill_per_second ==
-    rpm / 60`` so a fully-drained bucket recovers to its burst
-    capacity in exactly 60 seconds.
+    Older callers (and the scoring_service module's pre-2-key code
+    path) want to fetch ONE bucket sized at ``NVIDIA_RPM``. New code
+    should compose :func:`_make_nvidia_bucket` directly so the bucket
+    capacity is explicit. Kept as a thin wrapper so the signature
+    stays stable.
     """
     raw = os.environ.get("NVIDIA_RPM", str(DEFAULT_NVIDIA_RPM)).strip()
     try:
-        rpm = int(raw)
+        rpm = int(raw or DEFAULT_NVIDIA_RPM)
     except ValueError as exc:
         raise ValueError(
             f"NVIDIA_RPM={raw!r} is not a valid integer (expected a "
@@ -218,15 +213,65 @@ def _nvidia_rate_limiter_from_env() -> AsyncTokenBucket | None:
         ) from exc
     if rpm <= 0:
         return None
+    return _make_nvidia_bucket(rpm)
+
+
+def _unique_rate_limiters(providers: list[ProviderConfig]) -> list[AsyncTokenBucket]:
+    """Dedupe rate-limiters by object identity.
+
+    Multiple :class:`ProviderConfig` slots can share one
+    :class:`AsyncTokenBucket` (the 2-NVIDIA-key case). Without this
+    dedupe an opportunity that walks across both NVIDIA providers
+    would ``acquire()`` the same bucket twice, halving the effective
+    throughput from the operator's intended
+    ``len(nvidia_keys) * 40`` RPM down to ``40`` RPM.
+
+    Returns the buckets in first-seen order so the acquire sequence
+    is deterministic (helpful for log replays).
+    """
+    seen_ids: set[int] = set()
+    out: list[AsyncTokenBucket] = []
+    for provider in providers:
+        bucket = provider.rate_limiter
+        if bucket is None:
+            continue
+        bid = id(bucket)
+        if bid in seen_ids:
+            continue
+        seen_ids.add(bid)
+        out.append(bucket)
+    return out
+
+
+def _make_nvidia_bucket(rpm: int) -> AsyncTokenBucket:
+    """Return (or build + cache) the token bucket for a given RPM target.
+
+    The cache key is the integer RPM, so a single FastAPI process
+    serves all its LLMClients from one bucket per RPM value — even
+    when those clients correspond to multiple NVIDIA API keys.
+
+    A non-positive ``rpm`` is normalised to a no-op helper on the
+    side: callers that pass 0 from a misconfig should NOT see a
+    bucket created (it would block ``acquire()`` forever per the
+    bucket invariant). We raise ``ValueError`` instead so the
+    misconfig surfaces at route import time rather than the first
+    LLM call.
+    """
+    if rpm <= 0:
+        raise ValueError(
+            f"cannot build a rate-limiter bucket for rpm={rpm}; pass a "
+            f"positive integer (the LLMClient.from_env() code short-circuits "
+            f"to None when NVIDIA_RPM is 0)"
+        )
     bucket = _NVIDIA_RPM_LIMITERS.get(rpm)
     if bucket is None:
         bucket = AsyncTokenBucket(capacity=rpm, refill_per_second=rpm / 60.0)
         _NVIDIA_RPM_LIMITERS[rpm] = bucket
         logging.getLogger("jobradar.llm").info(
-            "NVIDIA rate limiter active: %d RPM (capacity=%d, refill=%.4f/s). "
-            "Override with NVIDIA_RPM=0 to disable. Cached at module level "
-            "so the budget is process-global, not per-LLMClient.",
-            rpm,
+            "NVIDIA rate-limiter bucket active: capacity=%d (refill=%.4f/s). "
+            "Module-level cache so multiple LLMClients + multiple NVIDIA "
+            "keys share one process-global budget. Override with NVIDIA_RPM=0 "
+            "to disable.",
             rpm,
             rpm / 60.0,
         )
@@ -238,10 +283,17 @@ class ProviderConfig(NamedTuple):
 
     ``rate_limiter`` is an optional :class:`AsyncTokenBucket`; when set,
     :meth:`LLMClient.score_opportunity` will ``await acquire()`` before
-    the first attempt at this provider. We throttle the *primary* so
-    bulk scans never trip the upstream 429; the fallback can also be
-    throttled in the same way if a future operator hits Groq's free
-    tier ceiling, but JobRadar's v1 only throttles NVIDIA.
+    the first attempt at this provider.
+
+    When the operator configures two NVIDIA API keys (``NVIDIA_API_KEY``
+    AND ``NVIDIA_API_KEY_2``), both keys feed the chain as separate
+    providers (a primary ``"nvidia"`` slot + a ``"nvidia_2"`` slot) —
+    but they share a *single* token bucket sized at
+    ``len(nvidia_keys) * 40 RPM``. A 401 on the first key breaks out of
+    the inner retry loop and advances to the second key, which then
+    ``await``s the same shared bucket. The end result is "doubled RPM
+    throughput on a healthy pair of keys, transparent fail-over if one
+    of them gets revoked".
     """
 
     name: str
@@ -249,6 +301,11 @@ class ProviderConfig(NamedTuple):
     api_key: str
     model: str
     rate_limiter: AsyncTokenBucket | None = None
+
+    # ``key_label`` disambiguates the two NVIDIA slots in logs (``nvidia``
+    # vs ``nvidia_2``) and in the per-key future-disable list. None for
+    # the single NVIDIA case so the logs clean up.
+    key_label: str | None = None
 
 
 class LLMClient:
@@ -283,27 +340,73 @@ class LLMClient:
         """Construct an :class:`LLMClient` from process env vars.
 
         Providers are included only if their API key is set. Order is
-        NVIDIA first, Groq second so the cheaper/quicker primary is
-        tried first by default.
+        NVIDIA first (one provider per configured key), Groq second so
+        the cheaper/quicker primary is tried first by default.
+
+        NVIDIA key plumbing: ``NVIDIA_API_KEY`` is the canonical env
+        var; ``NVIDIA_API_KEY_2`` is the optional second-key slot. When
+        both are present the chain becomes
+        ``[nvidia_1, nvidia_2, groq]`` and they share a single token
+        bucket sized at ``len(keys) * NVIDIA_RPM`` (so two keys at the
+        default 40 RPM yield an 80 RPM combined budget, exactly the
+        "doubled RPM" behaviour the operator asked for).
+
+        The shared bucket is *one* per (RPM, providers-config) tuple so a
+        FastAPI process that constructs multiple :class:`LLMClient`
+        instances still respects the global provider RPM — the module-
+        level :data:`_NVIDIA_RPM_LIMITERS` cache keys by RPM value
+        only, so two LLMClients reading the same env see the same
+        bucket.
 
         NVIDIA is throttled by an :class:`AsyncTokenBucket` whose
-        capacity and refill rate are read from the ``NVIDIA_RPM`` env
-        var (default :data:`DEFAULT_NVIDIA_RPM`, i.e. 40 RPM). Set
-        ``NVIDIA_RPM=0`` to disable the limiter — useful for higher
-        tier keys, integration tests, and one-off bulk rescans.
+        capacity and refill rate are derived from the ``NVIDIA_RPM``
+        env var (default :data:`DEFAULT_NVIDIA_RPM`, i.e. 40 RPM per
+        key). Set ``NVIDIA_RPM=0`` to disable the limiter entirely —
+        useful for higher tier keys, integration tests, and one-off
+        bulk rescans.
         """
         providers: list[ProviderConfig] = []
-        nvidia_key = os.environ.get("NVIDIA_API_KEY", "").strip()
-        if nvidia_key:
-            providers.append(
-                ProviderConfig(
-                    name="nvidia",
-                    base_url=os.environ.get("NVIDIA_BASE_URL", DEFAULT_NVIDIA_BASE),
-                    api_key=nvidia_key,
-                    model=os.environ.get("NVIDIA_MODEL", DEFAULT_NVIDIA_MODEL),
-                    rate_limiter=_nvidia_rate_limiter_from_env(),
-                )
+
+        # ---- Build the list of NVIDIA keys, in priority order. ----------
+        # ``NVIDIA_API_KEY`` is canonical; ``NVIDIA_API_KEY_2`` is the
+        # opt-in second key. Empty strings are filtered out so a
+        # placeholder env file (``NVIDIA_API_KEY_2=``) doesn't sneak a
+        # blank slot into the chain.
+        nvidia_keys: list[tuple[str, str, str]] = []  # (env_name, key, label)
+        for env_name, label in (("NVIDIA_API_KEY", "primary"), ("NVIDIA_API_KEY_2", "secondary")):
+            value = os.environ.get(env_name, "").strip()
+            if value:
+                nvidia_keys.append((env_name, value, label))
+
+        if nvidia_keys:
+            # ``len(keys) * DEFAULT_NVIDIA_RPM`` — the doubling the
+            # operator asked for, capped at the bucket's
+            # ``NVIDIA_RPM`` env override. The bucket is fetched via
+            # the same _nvidia_rate_limiter_from_env helper that
+            # single-key callers use; the helper reads only
+            # ``NVIDIA_RPM`` so the bucket size stays config-driven
+            # rather than hard-coded.
+            rpm_per_key = int(
+                os.environ.get("NVIDIA_RPM", str(DEFAULT_NVIDIA_RPM)).strip()
+                or DEFAULT_NVIDIA_RPM
             )
+            total_rpm = rpm_per_key * len(nvidia_keys)
+            shared_bucket = _make_nvidia_bucket(total_rpm)
+            base_url = os.environ.get("NVIDIA_BASE_URL", DEFAULT_NVIDIA_BASE)
+            model = os.environ.get("NVIDIA_MODEL", DEFAULT_NVIDIA_MODEL)
+            for idx, (_env_name, key, _label) in enumerate(nvidia_keys):
+                slot_name = "nvidia" if idx == 0 else f"nvidia_{idx + 1}"
+                providers.append(
+                    ProviderConfig(
+                        name=slot_name,
+                        base_url=base_url,
+                        api_key=key,
+                        model=model,
+                        rate_limiter=shared_bucket,
+                        key_label=slot_name,
+                    )
+                )
+
         groq_key = os.environ.get("GROQ_API_KEY", "").strip()
         if groq_key:
             providers.append(
@@ -320,6 +423,83 @@ class LLMClient:
                 "GROQ_API_KEY in the environment (see backend/.env.example)"
             )
         return cls(providers)
+
+    async def research_opportunity(
+        self,
+        job: dict,
+        profile_summary: str,
+        websearch_results: list[dict] | None = None,
+    ) -> tuple[str, str]:
+        """Generate an interview-prep Markdown brief for a single job.
+
+        Returns ``(markdown_content, model_used)`` where ``model_used``
+        is the ``ProviderConfig.model`` string of whichever provider
+        produced the response (useful for cost-tagging and for the
+        front-end display '\u2014 generated by NVIDIA llama-3.1-70b\u2019).
+
+        ``websearch_results`` is reserved for the LLM + Serper /
+        Apify future. v1 callers pass ``None``; the prompt builder
+        recognises the empty case and slots the right fallback text.
+
+        Same per-provider retry chain + shared NVIDIA bucket contract
+        as :meth:`score_opportunity`. The cost ceiling is the same
+        (``len(providers) * 2`` calls). The async research UX
+        described in the design spec is intentionally NOT wired here
+        \u2014 v1 routes call this sync and the route handler awaits
+        before returning.
+        """
+        prompt = build_research_prompt(job, profile_summary, websearch_results)
+        last_exc: Exception | None = None
+        for provider in self.providers:
+            if provider.rate_limiter is not None:
+                await provider.rate_limiter.acquire()
+            client = self._clients[provider.name]
+            for attempt in (1, 2):
+                try:
+                    content = await self._research_once(
+                        client, provider.model, prompt
+                    )
+                    return content, provider.model
+                except _PermanentError as exc:
+                    last_exc = exc
+                    break  # unrecoverable on this provider; advance
+                except Exception as exc:  # noqa: BLE001 \u2014 transient
+                    last_exc = exc
+                    if attempt == 1:
+                        await asyncio.sleep(0.5)
+                    # else: fall through to next provider
+        raise RuntimeError(
+            f"all LLM providers failed on research call; last error "
+            f"type={type(last_exc).__name__}"
+        ) from last_exc
+
+    async def _research_once(
+        self,
+        client: AsyncOpenAI,
+        model: str,
+        prompt: str,
+    ) -> str:
+        """One non-retrying research call. Same error taxonomy as _score_once."""
+        try:
+            resp = await client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": RESEARCH_SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0.2,  # slightly creative\u2014the brief has prose sections
+                max_tokens=RESEARCH_MAX_TOKENS,
+            )
+        except (AuthenticationError, BadRequestError, NotFoundError) as exc:
+            raise _PermanentError(f"{type(exc).__name__}: {exc}") from exc
+        except (
+            APIConnectionError,
+            APITimeoutError,
+            InternalServerError,
+            RateLimitError,
+        ):
+            raise  # transient; caller decides retry vs advance
+        return (resp.choices[0].message.content or "").strip()
 
     async def score_opportunity(
         self, profile_summary: str, opportunity: dict
@@ -339,13 +519,15 @@ class LLMClient:
         *that* provider's token independently).
         """
         last_exc: Exception | None = None
+        # Acquire each UNIQUE rate-limiter bucket at most once per
+        # opportunity. Two NVIDIA providers reference the SAME bucket
+        # when NVIDIA_API_KEY and NVIDIA_API_KEY_2 are both set; if we
+        # blindly acquired per-provider-iteration each opportunity
+        # would consume 2 tokens and the effective throughput would be
+        # half the intended ``len(nvidia_keys) * 40`` RPM.
+        for bucket in _unique_rate_limiters(self.providers):
+            await bucket.acquire()
         for provider in self.providers:
-            if provider.rate_limiter is not None:
-                # One token per opportunity, regardless of how many
-                # internal retries happen on this provider. This keeps
-                # bulk scans at-or-under the configured RPM even when
-                # the upstream has transient errors.
-                await provider.rate_limiter.acquire()
             client = self._clients[provider.name]
             for attempt in (1, 2):
                 try:
@@ -454,6 +636,121 @@ def _coerce_score(data: dict) -> tuple[float, str]:
     return score, reasoning
 
 
+# ---------------------------------------------------------------------------
+# Interview-Prep "deep research" surface.
+#
+# The Interview Prep card on the JobBoard darkens a regular scoring call
+# with a larger context window and a Markdown-flavoured prompt so the
+# LLM can produce a structured pre-interview brief. v1 is pure-LLM;
+# the ``websearch_results`` kwarg is plumbed but unused so a future
+# Serper / Apify integration can drop in without touching the route.
+# ---------------------------------------------------------------------------
+RESEARCH_SYSTEM_PROMPT: Final = (
+    "You are an expert interview-prep analyst. Given a single job "
+    "posting and (optionally) recent web search results about the "
+    "company, produce a structured pre-interview brief in Markdown. "
+    "Use exactly these sections, in this order:\n\n"
+    "## Company Snapshot\n"
+    "## Likely Tech Stack\n"
+    "## What they probably test\n"
+    "## 5 smart questions to ask them\n"
+    "## Red flags / watch-outs\n\n"
+    "Be specific. Use the role description verbatim where it names "
+    "frameworks, services, level. Highlight anything the candidate "
+    "should highlight in the opener. If a section cannot be answered "
+    "from the inputs, write 'Not enough public info' rather than "
+    "guessing. Return Markdown only — no JSON, no preamble."
+)
+
+
+def build_research_prompt(
+    job: dict,
+    profile_summary: str,
+    websearch_results: list[dict] | None = None,
+) -> str:
+    """Compose the user-side prompt for :meth:`LLMClient.research_opportunity`.
+
+    Inputs:
+    * ``job`` — the Job/Company dict (title, company_name, url, description+).
+    * ``profile_summary`` — same target-roles + Q&A blob the scorer uses so the
+      brief can call out specific skill matches / conflicts.
+    * ``websearch_results`` — reserved. When non-None each entry is a dict
+      shaped ``{"title", "url", "snippet"}``; appended verbatim to the prompt
+      under a "Web context" section. v1 always passes None.
+
+    The output caps ``description`` at 1500 chars because LLM context
+    windows are finite and a 10 KB posting description would crowd
+    out the analysis room. The cap is intentionally generous — most
+    real postings arrive in 1-3 KB.
+    """
+    pieces: list[str] = [
+        "Candidate profile (use to flag skill matches and gaps):",
+        profile_summary.strip(),
+        "",
+        "Job posting:",
+        f"Title: {job.get('title') or '(untitled)'}",
+        f"Company: {job.get('company_name') or '(unknown)'}",
+        f"URL: {job.get('url') or '(no url)'}",
+        f"ATS / source: {job.get('ats_type') or job.get('source') or '(unknown)'}",
+        "",
+        "Description (truncated to 1500 chars):",
+        (job.get("description") or "(no description)")[:1500],
+    ]
+    if websearch_results:
+        pieces.extend(["", "Web context (most recent first):"])
+        for result in websearch_results[:5]:
+            pieces.append(
+                f"- {result.get('title', '(untitled)')}\n"
+                f"  {result.get('url', '')}\n"
+                f"  {result.get('snippet', '')[:300]}"
+            )
+    pieces.extend(
+        [
+            "",
+            "Return Markdown only, with the five sections named above.",
+        ]
+    )
+    return "\n".join(pieces)
+
+
+# ``max_tokens`` for the research brief is larger than the score call
+# because a five-section Markdown brief can easily run 700-1200 tokens.
+RESEARCH_MAX_TOKENS = 1500
+
+
+class LLMClient:
+    """Scoring + research client with retry-then-fallback across providers.
+
+    Providers are tried in order. Within a provider, transient failures
+    (timeout, 5xx, connection, rate-limit) trigger one retry before we
+    advance to the next provider. ``BadRequest`` / ``Authentication`` /
+    ``NotFound`` are treated as permanent — they won't help if we just
+    try again, so we advance immediately.
+
+    Cost ceiling: a single opportunity costs at most ``len(providers) * 2``
+    LLM calls (1 attempt + 1 retry per provider) before :meth:`score_opportunity`
+    raises :class:`RuntimeError`.
+
+    Two NVIDIA keys are supported by adding a second provider slot;
+    both NVIDIA slots share one rate-limiter bucket so the combined
+    RPM budget is ``len(nvidia_keys) * NVIDIA_RPM``.
+    """
+
+    def __init__(self, providers: list[ProviderConfig]) -> None:
+        if not providers:
+            raise ValueError("providers list cannot be empty")
+        self.providers = providers
+        # ``AsyncOpenAI`` is async-only; we instantiate one per provider because
+        # the underlying SDK holds an ``httpx.AsyncClient`` bound to the asyncio
+        # loop at construction time. Re-using across loops causes warnings — we
+        # avoid the footgun by keeping the count small (≤ 3 providers in v1:
+        # nvidia_1 + nvidia_2 + groq).
+        self._clients: dict[str, AsyncOpenAI] = {
+            p.name: AsyncOpenAI(api_key=p.api_key, base_url=p.base_url)
+            for p in providers
+        }
+
+
 __all__ = [
     "DEFAULT_NVIDIA_BASE",
     "DEFAULT_NVIDIA_MODEL",
@@ -461,9 +758,12 @@ __all__ = [
     "DEFAULT_GROQ_MODEL",
     "DEFAULT_NVIDIA_RPM",
     "SYSTEM_PROMPT",
+    "RESEARCH_SYSTEM_PROMPT",
+    "RESEARCH_MAX_TOKENS",
     "AsyncTokenBucket",
     "ProviderConfig",
     "LLMClient",
     "build_prompt",
+    "build_research_prompt",
     "parse_score_response",
 ]

@@ -7,6 +7,9 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import httpx
+import re
+
+LOGGER_NAME = "jobradar.runner"
 
 BACKEND_ROOT = Path(__file__).resolve().parents[3]
 if str(BACKEND_ROOT) not in sys.path:
@@ -20,7 +23,12 @@ from pipeline.nodes.jobs_boards.lever import fetch as lever_fetch
 # pull ``job_fit_threshold`` — keeps the singleton the single source of
 # truth without leaking route-layer modules into the runner.
 from routes.settings import _PREFS_STATE
-from utils.filters import filter_roles
+from utils.filters import (
+    bench_org_from_text,
+    filter_roles,
+    is_relevant_role,
+    min_years_required,
+)
 from utils.http import build_client
 from utils.seen import load_file, save_seen
 from utils.time_check import parse_published_at
@@ -36,6 +44,15 @@ ORG_INDEX = {
 # transient 404 (maintenance / rate limit) doesn't permanently drop coverage.
 MISSING_THRESHOLD = 3
 MAX_WORKERS = 8
+
+# Years-of-experience floor for the role-drop gate: any posting that
+# hard-requires ≥ this many years is dropped before it reaches the
+# LLM scorer. The operator explicitly wants 6+ years roles
+# discarded. We do NOT bench the whole org on a 6+-years match —
+# only on the harder citizenship-required / hard sponsorship-block
+# match (see the loop in ``run_all`` and
+# :func:`utils.filters.bench_org_from_text`).
+MIN_YEARS_FLOOR_DROP = 6
 
 # ``main()``'s argparse ``--delta-hours`` default when no
 # ``BOARDS_DELTA_HOURS`` env var is exported: 1h (the historical
@@ -83,6 +100,29 @@ except ValueError as exc:
 
 class UnknownBoardError(ValueError):
     pass
+
+
+import logging  # noqa: E402  (kept after stdlib + third-party imports for readability)
+logger = logging.getLogger(LOGGER_NAME)
+
+
+def _text_hits_clearance(title: str, description: str) -> bool:
+    """True when the combined title+description hits the existing
+    :data:`utils.filters.CLEARANCE_PATTERNS` regex set.
+
+    Re-imported lazily so editing the patterns module doesn't create a
+    circular import at startup. ``is_relevant_role`` already filters
+    on these patterns as a role-drop gate; we duplicate the check
+    here so the boards runner can attribute a *failed* match to
+    a specific (board, slug) pair and bench it without re-running
+    the whole role filter.
+    """
+    from utils.filters import CLEARANCE_PATTERNS
+
+    joined = f"{title or ''} {description or ''}".lower()
+    if not joined.strip():
+        return False
+    return any(re.search(pat, joined) for pat in CLEARANCE_PATTERNS)
 
 
 def compute_since_cutoff(now=None, delta_hours=1, last_run=None):
@@ -191,6 +231,21 @@ def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
     org_last_posted = {}
     newly_missing = {board: set() for board in boards}
     recovered = {board: set() for board in boards}
+    # Clearance/6+-years gate attributes these to the underlying
+    # (board, slug) so we can append them to <board>_missing_orgs.json
+    # after the fetch loop closes. Two distinct triggers:
+    #   - ``newly_cleared_or_seniority_blocked`` — boarder boards that
+    #     hard-require citizenship, sponsor-block, or >=6 years
+    #     experience per the operator's "bench the company" policy.
+    #     These go into the missing-orgs list immediately (not
+    #     throttled by MISSING_THRESHOLD — the operator's intent was
+    #     explicit "any mention = remove the company").
+    #   - ``newly_too_senior`` — roles dropped just because of >=6
+    #     years but the company's other roles aren't necessarily
+    #     blocked. We just drop them from results; no org-level bench.
+    newly_cleared_or_seniority_blocked: dict[str, set[str]] = {
+        board: set() for board in boards
+    }
 
     client = build_client()
     try:
@@ -213,12 +268,72 @@ def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
                 board_failures = failure_counts.setdefault(board_name, {})
 
                 if outcome == "ok":
-                    results.extend(r["jobs"])
+                    kept_after_gates: list[dict] = []
+                    slug_bench_reasons: set[str] = set()
+                    for job in r["jobs"]:
+                        title = job.get("title") or ""
+                        description = (
+                            job.get("description") or job.get("content") or ""
+                        )
+                        # 6+ years → drop the role only (per operator
+                        # request: "discard the roles"). We DO NOT
+                        # bench the whole company on a 6+-years match —
+                        # only on the harder citizenship-required match
+                        # below, which is the operator's expressed
+                        # intent for "remove the company".
+                        years_floor = min_years_required(
+                            f"{title} {description}"
+                        )
+                        if years_floor is not None and years_floor >= MIN_YEARS_FLOOR_DROP:
+                            logger.debug(
+                                "drop %s/%s: hard-requires %d+ years experience",
+                                board_name, slug, years_floor,
+                            )
+                            continue
+                        # Clearance / hard-sponsorship-block text on ANY
+                        # job from this org → bench the whole org. The
+                        # operator explicitly wants "the name of that
+                        # company should be removed from the list of
+                        # companies" — so a single citizenship-required
+                        # mention is enough.
+                        if (
+                            _text_hits_clearance(title, description)
+                            or bench_org_from_text(f"{title} {description}")
+                        ):
+                            slug_bench_reasons.add(
+                                "clearance_or_citizenship_required"
+                            )
+                            logger.debug(
+                                "bench %s/%s: org-level disqualifier "
+                                "(clearance/citizenship block) found on a job",
+                                board_name, slug,
+                            )
+                            continue
+                        # Source published_at + source_updated_at from
+                        # the board's payload so the downstream Pydantic
+                        # ``Job`` shape carries them into the DB row.
+                        # ``parse_published_at`` is the existing helper
+                        # that already handles Greenhouse's updatedAt /
+                        # Lever's createdAt / etc. graceful fallback.
+                        published = job.get("published_at")
+                        if published:
+                            parsed = parse_published_at(published)
+                            if parsed is not None:
+                                job["posted_at"] = parsed
+                        updated = job.get("updated_at")
+                        if updated and updated != published:
+                            parsed_updated = parse_published_at(updated)
+                            if parsed_updated is not None:
+                                job["source_updated_at"] = parsed_updated
+                        kept_after_gates.append(job)
+                    results.extend(kept_after_gates)
                     for job_id, stamp in r["new_ids"].items():
                         seen[job_id] = stamp
                     if r.get("latest"):
                         org_last_posted[slug] = r["latest"]
                     board_failures.pop(slug, None)  # reset failure streak
+                    if slug_bench_reasons:
+                        newly_cleared_or_seniority_blocked[board_name].add(slug)
                     recovered[board_name].add(slug)
                 elif outcome == "missing":
                     board_failures[slug] = board_failures.get(slug, 0) + 1
@@ -229,6 +344,37 @@ def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
         client.close()
 
     _write_missing_lists(boards, newly_missing, recovered)
+    # Org benches triggered by clearance/citizenship text on a single
+    # job merge into the same `<board>_missing_orgs.json` file the
+    # failure-threshold path writes to. Two distinct write paths
+    # into one persistent file — failure-threshold benches (3
+    # consecutive 404/410s) and content-trigger benches (1 mention).
+    # Both keys end up on the same exclusion list, so a single
+    # ``load_orgs(board_name)`` lookup filters them all out on the
+    # next cron tick. Merging here keeps the on-disk schema flat.
+    for board_name in boards:
+        disqualified = newly_cleared_or_seniority_blocked.get(board_name, set())
+        if not disqualified:
+            continue
+        missing_path = DATA_DIR / f"{board_name}_missing_orgs.json"
+        previous: set[str] = set()
+        if missing_path.exists():
+            with open(missing_path, "r") as handle:
+                try:
+                    previous = set(json.load(handle))
+                except (json.JSONDecodeError, TypeError):
+                    previous = set()
+        combined = previous | disqualified
+        with open(missing_path, "w") as handle:
+            json.dump(sorted(combined), handle, indent=2)
+        logger.info(
+            "benched %d org(s) on board %r due to clearance/citizenship "
+            "content trigger: %s",
+            len(disqualified),
+            board_name,
+            sorted(disqualified),
+        )
+
     save_failure_counts(failure_counts)
     save_seen(seen)
     save_last_run_state({

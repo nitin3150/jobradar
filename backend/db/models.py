@@ -72,6 +72,33 @@ from sqlalchemy.dialects.postgresql import ARRAY, ENUM, JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
+# ---------------------------------------------------------------------------
+# Job-status-change-source values written to ``job_status_history.source``.
+# Kept here so the wire-side validators and DB writes share one source of
+# truth. Adding a new source (e.g. "gmail_poller") is a one-line edit.
+# ---------------------------------------------------------------------------
+JOB_STATUS_SOURCE_SCORER = "scorer"
+JOB_STATUS_SOURCE_USER = "user"
+JOB_STATUS_SOURCE_AUTO_APPLY = "auto_apply"
+JOB_STATUS_SOURCES = frozenset(
+    {JOB_STATUS_SOURCE_SCORER, JOB_STATUS_SOURCE_USER, JOB_STATUS_SOURCE_AUTO_APPLY}
+)
+
+
+# ---------------------------------------------------------------------------
+# Research-report lifecycle values written to
+# ``research_reports.status``. Free text so future states (e.g. "expired")
+# land without a migration; the API surface in v1 only writes
+# 'ready' / 'failed' — 'pending' is reserved for the async UX.
+# ---------------------------------------------------------------------------
+RESEARCH_STATUS_READY = "ready"
+RESEARCH_STATUS_FAILED = "failed"
+RESEARCH_STATUS_PENDING = "pending"
+RESEARCH_STATUSES = frozenset(
+    {RESEARCH_STATUS_READY, RESEARCH_STATUS_FAILED, RESEARCH_STATUS_PENDING}
+)
+
+
 def _utcnow() -> datetime:
     """Naive-free ``datetime.utcnow`` shim.
 
@@ -482,6 +509,20 @@ class Job(Base):
     # External (ATS) ID for dedupe against the runner's board fetch loop.
     external_id: Mapped[str | None] = mapped_column(Text, nullable=True)
 
+    # Board-published timestamps. Nullable because some boards
+    # (Ashby in particular) don't expose a stable publish-time on
+    # their public scraper endpoints. Populated by the boards runner
+    # via the ``published_at`` / ``updated_at`` keys on the per-board
+    # opportunity payload. ``created_at`` / ``updated_at`` below continue
+    # to mean "row lifecycle in our DB" — they're independent of what
+    # the board told us about the posting itself.
+    posted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    source_updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
@@ -506,6 +547,14 @@ class Job(Base):
             postgresql_where=text("status = 'in_review'"),
         ),
         Index("idx_jobs_status_created", "status", text("created_at DESC")),
+        # New: served the "newest postings in the last N days" filter
+        # front-end query once we add posted_at. Partial WHERE skips
+        # rows Ashby couldn't give us a timestamp for.
+        Index(
+            "idx_jobs_posted_at",
+            text("posted_at DESC"),
+            postgresql_where=text("posted_at IS NOT NULL"),
+        ),
         Index("idx_jobs_external", "external_id"),
     )
 
@@ -881,6 +930,125 @@ class AtsDiscoveredOrg(Base):
 
 
 # ---------------------------------------------------------------------------
+class JobStatusHistory(Base):
+    """One row per status transition of a Job.
+
+    A separate table (vs. per-status columns on ``jobs``) so that
+    intermediate transitions survive later overwrites — see
+    ``db/migrations/versions/0002_status_history_and_research_reports.py``
+    for the full rationale.
+
+    ``from_status`` is NULL only for the initial row written when the
+    scorer first inserts the job into the queue (``(None,
+    'in_review')``). All subsequent transitions have both fields set.
+
+    The ``source`` column captures *who* drove the transition:
+    ``JOB_STATUS_SOURCE_SCORER`` (initial scored insert),
+    ``JOB_STATUS_SOURCE_USER`` (manual UI approve / reject / mark-applied),
+    or :data:`JOB_STATUS_SOURCE_AUTO_APPLY` (future Playwright
+    handoff).
+    """
+
+    __tablename__ = "job_status_history"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+    job_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("jobs.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    from_status: Mapped[str | None] = mapped_column(Text, nullable=True)
+    to_status: Mapped[str] = mapped_column(Text, nullable=False)
+    changed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_utcnow,
+        server_default=text("now()"),
+    )
+    source: Mapped[str] = mapped_column(
+        Text, nullable=False, server_default=JOB_STATUS_SOURCE_SCORER
+    )
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    __table_args__ = (
+        Index(
+            "idx_job_status_history_job_changed",
+            "job_id",
+            text("changed_at DESC"),
+        ),
+        Index(
+            "idx_job_status_history_to_changed",
+            "to_status",
+            text("changed_at DESC"),
+        ),
+    )
+
+
+# ---------------------------------------------------------------------------
+class ResearchReport(Base):
+    """One row per Interview-Prep generation attempt.
+
+    The sync ``POST /api/jobs/{id}/research`` endpoint writes a single
+    row with ``status='ready'`` (content populated) or
+    ``status='failed'`` (error populated). Future async UX
+    ('pending' rows that the polling endpoint reads) is supported by
+    the free-text ``status`` column but not exercised in v1.
+
+    ``websearch_payload`` is always NULL in v1 — reserved so a future
+    Serper / Apify integration can plumb results in without a
+    migration. ``model_used`` records which LLM produced the report
+    so cost allocation can slice by model.
+    """
+
+    __tablename__ = "research_reports"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+    # ``ON DELETE SET NULL`` + ``nullable=True`` mirror the rationale
+    # in :class:`db.models.Application`:: an interview-prep LLM call is
+    # an expensive artefact (we paid tokens + wall-clock for it) and a
+    # user-facing "what reports did I generate for company X last
+    # month?" query shouldn't depend on the parent Job still existing.
+    # Orphaned rows (``job_id IS NULL``) become a "report without a
+    # known posting" bucket readable by a future "research archive"
+    # front-end view.
+    job_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("jobs.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    status: Mapped[str] = mapped_column(
+        Text, nullable=False, server_default=RESEARCH_STATUS_READY
+    )
+    content: Mapped[str | None] = mapped_column(Text, nullable=True)
+    model_used: Mapped[str | None] = mapped_column(Text, nullable=True)
+    websearch_payload: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    requested_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_utcnow,
+        server_default=text("now()"),
+    )
+    generated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+    __table_args__ = (
+        Index(
+            "idx_research_reports_job_requested",
+            "job_id",
+            text("requested_at DESC"),
+        ),
+    )
+
+
+# ---------------------------------------------------------------------------
 # Re-export of the COMPLETE metadata so env.py / Alembic can pull a single
 # symbol without chasing imports.
 __all__ = [
@@ -901,4 +1069,14 @@ __all__ = [
     "PipelineStatus",
     "BoardSeenJob",
     "AtsDiscoveredOrg",
+    "JobStatusHistory",
+    "ResearchReport",
+    "JOB_STATUS_SOURCES",
+    "JOB_STATUS_SOURCE_SCORER",
+    "JOB_STATUS_SOURCE_USER",
+    "JOB_STATUS_SOURCE_AUTO_APPLY",
+    "RESEARCH_STATUSES",
+    "RESEARCH_STATUS_READY",
+    "RESEARCH_STATUS_FAILED",
+    "RESEARCH_STATUS_PENDING",
 ]

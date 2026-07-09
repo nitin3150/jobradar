@@ -63,6 +63,104 @@ from __future__ import annotations
 import re
 from typing import Iterable, Literal, Optional
 
+# ---- Years-of-experience parser ----------------------------------
+# Match the common phrasings in modern postings:
+#   "5+ years of experience"
+#   "minimum 5 years experience"
+#   "at least 5 years' experience"
+#   "5 years experience required"
+#   "5+ yrs experience"
+# Single-digit minimum (1-9); anything >=10 is captured but the
+# ``board_runner`` use case only cares about >=6, so the upper bound
+# is whatever the job description says.
+# The leading word boundary guards against false positives like
+# "5+ excellent engineers" where 5 is just a count.
+YEARS_OF_EXPERIENCE_PATTERN = re.compile(
+    r"(?i)\b(?:minimum|min\.?|at\s+least|requires?|with|over|more\s+than|\+)?\s*"
+    r"(\d{1,2})\s*\+?\s*(?:years?|yrs?|yr\.?)\s*(?:of\s+)?(?:experience|exp\.?)?\b"
+)
+
+# Same set as NO_SPONSORSHIP_PATTERNS but tightened to *only* the
+# "required" phrasings. A loose mention ("sponsorship not available")
+# rejects the role but doesn't bench the whole org; a hard requirement
+# ("US citizenship required") does bench the org, because every role
+# at a citizenship-locked shop will be wasted tokens for the LLM.
+HARD_BENCH_TRIGGER_PATTERNS: list[str] = [
+    # Citizenship / permanent-residency (REQUIRED, not just "preferred").
+    r"(?i)\b(citizenship\s+required|must\s+be\s+a\s+(?:us|u\.s\.?)\s+citizen|"
+    r"u\.?s\.?\s+citizenship\s+required|permanent\s+resident\s+required|"
+    r"green\s+card\s+required|green\s+card\s+holder\s+required)\b",
+    # Visa-block phrasings with strong "required" modifiers.
+    r"(?i)\b(?:must\s+(?:have|possess)\s+(?:us|u\.s\.?)?\s*citizenship|"
+    r"must\s+be\s+(?:a\s+)?(?:us|u\.s\.?)\s+citizen|cannot\s+sponsor|"
+    r"will\s+not\s+sponsor|no\s+sponsorship\s+will\s+be\s+(?:provided|available)|"
+    r"no\s+visa\s+sponsorship\s+available)\b",
+]
+
+
+def bench_org_from_text(text: str) -> bool:
+    """True when ``text`` mentions citizenship-required / hard sponsorship-
+    block phrasings. Used by :func:`pipeline.nodes.jobs_boards.runner` to
+    bench the whole org (not just drop the role) when ANY job at the
+    company surfaces a hard requirement.
+
+    Distinct from :data:`NO_SPONSORSHIP_PATTERNS` which is a broader
+    role-drop gate — a "sponsorship not available" mention drops the
+    role but doesn't necessarily mean every role at the org has the
+    same constraint. ``HARD_BENCH_TRIGGER_PATTERNS`` is restricted to
+    the strict "required" phrasings where benching the org is the
+    right call.
+
+    The clearance patterns already in :data:`CLEARANCE_PATTERNS` are
+    implicitly "hard bench" (no DoD / federal contractor is going to
+    sponsor anyone who can't clear) so this helper does NOT include
+    them — boards runner checks clearance via the existing role-drop
+    path and adds the org to the bench list when that fires.
+    """
+    if not text:
+        return False
+    lowered = text.lower()
+    return any(re.search(pat, lowered) for pat in HARD_BENCH_TRIGGER_PATTERNS)
+
+
+def min_years_required(text: str) -> int | None:
+    """Pull the minimum years-of-experience number from a job description.
+
+    Returns the lowest positive integer where the LLM-style hint appears.
+    Used by the boards runner to drop roles that hard-require ≥6 years
+    (the user wants those discarded before the LLM sees them). Returns
+    ``None`` when no minimum-years pattern matches — the absence of a
+    number is interpreted as "no explicit floor" and the role PROCEEDS.
+
+    Caveats (documented so a future review doesn't ask "why did X pass?"):
+
+    * Only the FIRST match is returned. A posting stating "3 years +
+      5 years of senior X experience" picks 3, which is the more
+      permissive interpretation. If we ever need the strictest floor
+      we can return ``max()`` across matches; for the v1 use case
+      "discard if 6+" the first match suffices.
+    * Phrases like "5+ years" return 5. The runner treats "5" as
+      "minimum 5", so 5+ is inclusive of 5 itself.
+    * Returns ``None`` for senior-level roles like "Staff Engineer"
+      when no years number is stated. Those pass the years filter;
+      the seniority band filter (Preferences) governs their
+      fate instead.
+    """
+    if not text:
+        return None
+    lowered = text.lower()
+    # Just the leading aggregate so re.search picks the first hit.
+    match = YEARS_OF_EXPERIENCE_PATTERN.search(lowered)
+    if not match:
+        return None
+    try:
+        n = int(match.group(1))
+    except (TypeError, ValueError):
+        return None
+    if n < 1:
+        return None
+    return n
+
 
 DEFAULT_IRRELEVANT_PATTERNS = [
     r"(?i)\b(sales|account executive|business development|customer success|support|operations|finance|hr|human resources|recruiter|marketing|content|design|product manager|product designer|project manager|scrum master|intern|internship|contract|temporary|part-time)\b",

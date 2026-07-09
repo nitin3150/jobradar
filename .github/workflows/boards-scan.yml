@@ -130,6 +130,35 @@ on:
     # doesn't support it — Sunday 04:20 UTC is the next
     # equivalent. Set to 0 0 * * 0 to shift to midnight.
     - cron: "20 4 * * 0"
+  # Manual trigger so we don't have to wait for the next :00
+  # UTC to verify the workflow after a config change. Picks
+  # the same three tiers the schedule trigger would fire; the
+  # matching job's ``if:`` block reads the input and only
+  # runs when its tier matches (see each job below).
+  #
+  # IMPORTANT: there is NO ``on: push`` trigger — pushing the
+  # workflow file does NOT fire it. Cron + manual are the
+  # two ways to invoke. This is intentional: a 30-min boards
+  # scan on every PR push would burn the 2,000 min/month
+  # ceiling in days. If you ever want CI-style firing on
+  # workflow changes only, add ``push:`` with a
+  # ``paths: ['.github/workflows/boards-scan.yml']`` filter so
+  # it doesn't trigger on every commit to the runner.
+  workflow_dispatch:
+    inputs:
+      tier:
+        description: >-
+          Tier to run. Mirrors which cron would fire this job
+          (``active`` = hourly, ``dormant`` = daily 02:20 UTC,
+          ``cleanup`` = weekly Sunday 04:20 UTC). Picks the
+          matching job only — other tiers stay skipped.
+        required: true
+        default: 'active'
+        type: choice
+        options:
+          - active
+          - dormant
+          - cleanup
 
 # Per-tier concurrency: an in-flight scan blocks the next cron
 # tick of the SAME tier (so we never overlap a long scan with
@@ -153,7 +182,13 @@ jobs:
   # Active tier — hourly, 1h lookback, --limit 50.
   # -----------------------------------------------------------------
   scan-active:
-    if: github.event.schedule == '0 * * * *'
+    # Run on the matching hourly cron OR when ``workflow_dispatch``
+    # picks tier=active. The OR is on a single line because GHA's
+    # ``if:`` expression renderer doesn't re-fold YAML multiline
+    # scalars fine enough — keeping it on one line avoids the
+    # subtle parser quirk where a folded multi-line condition ends
+    # up with an invisible extra space and fails to match.
+    if: (github.event_name == 'schedule' && github.event.schedule == '0 * * * *') || (github.event_name == 'workflow_dispatch' && inputs.tier == 'active')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -295,7 +330,7 @@ jobs:
   # regardless of how many orgs exist on the boards.
   # -----------------------------------------------------------------
   scan-dormant:
-    if: github.event.schedule == '20 2 * * *'
+    if: (github.event_name == 'schedule' && github.event.schedule == '20 2 * * *') || (github.event_name == 'workflow_dispatch' && inputs.tier == 'dormant')
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
@@ -423,7 +458,7 @@ jobs:
   # the run log shows which slugs were re-verified.
   # -----------------------------------------------------------------
   scan-cleanup:
-    if: github.event.schedule == '20 4 * * 0'
+    if: (github.event_name == 'schedule' && github.event.schedule == '20 4 * * 0') || (github.event_name == 'workflow_dispatch' && inputs.tier == 'cleanup')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

@@ -114,15 +114,18 @@ class PendingCountResponse(BaseModel):
 class JobStatusPatch(BaseModel):
     """Body for the canonical status writer.
 
-    ``status`` is required; ``source`` defaults to ``"user"`` so an
-    operator-click is the audit-trail default. ``note`` is optional
-    and bounded to 2 KB so a runaway note cannot balloon row sizes
-    (the JobStatusHistory table stores it as TEXT without a length cap
-    at the DB layer).
+    ``status`` is required; ``source`` defaults to
+    :data:`db.models.JOB_STATUS_SOURCE_USER` so an operator-click is
+    the audit-trail default. ``note`` is optional and bounded to 2 KB
+    so a runaway note cannot balloon row sizes (the JobStatusHistory
+    table stores it as TEXT without a length cap at the DB layer).
     """
 
     status: JobStatus
-    source: str | None = Field(default="user", max_length=64)
+    # Canonical default; future auto_apply paths will pass a different
+    # source so a single query surfaces human- vs machine-driven
+    # transitions.
+    source: str | None = Field(default=db_models.JOB_STATUS_SOURCE_USER, max_length=64)
     note: str | None = Field(default=None, max_length=2000)
 
 
@@ -563,7 +566,10 @@ async def approve_job(
     previous_status = row.status
     row.status = "approved"
     row.review_deadline = None
-    record_status_history(session, row.id, previous_status, "approved", "user", None)
+    record_status_history(
+        session, row.id, previous_status, "approved",
+        db_models.JOB_STATUS_SOURCE_USER, None,
+    )
     await session.commit()
     return _job_row_to_pydantic(row)
 
@@ -589,7 +595,10 @@ async def reject_job(
     previous_status = row.status
     row.status = "rejected"
     row.review_deadline = None
-    record_status_history(session, row.id, previous_status, "rejected", "user", None)
+    record_status_history(
+        session, row.id, previous_status, "rejected",
+        db_models.JOB_STATUS_SOURCE_USER, None,
+    )
     await session.commit()
     return _job_row_to_pydantic(row)
 
@@ -604,10 +613,11 @@ async def patch_job_status(
     ``job_status_history`` row in the same transaction so a future
     audit query can never observe a status with no history.
 
-    The ``source`` column on the history row defaults to ``"user"``
-    (operator click). Future automated paths (the
-    ``auto_apply_worker`` blueprint) will write ``source="auto_apply"``
-    so a single query surfaces the difference.
+    The ``source`` column on the history row defaults to
+    :data:`db.models.JOB_STATUS_SOURCE_USER` (operator click).
+    Future automated paths (the ``auto_apply_worker`` blueprint) will
+    write ``source="auto_apply"`` so a single query surfaces the
+    difference.
 
     Validation: ``status`` must be one of the five valid ``JobStatus``
     enum values; ``source`` is free-text but bounded to 64 chars;

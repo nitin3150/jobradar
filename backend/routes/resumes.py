@@ -38,9 +38,27 @@ from datetime import datetime, timezone
 from typing import Literal
 from uuid import uuid4
 
-from fastapi import APIRouter, File, Form, HTTPException, Path, UploadFile
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    File,
+    Form,
+    HTTPException,
+    Path,
+    UploadFile,
+)
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
+
+# Imported here so the resume → profile extraction can be enqueued as
+# a background task on every successful upload. The helper catches
+# its own exceptions so a failed LLM call never crashes the
+# FastAPI BackgroundTasks runner — see the long docstring on
+# ``_run_profile_extraction_after_upload`` in ``services/profile_service.py``
+# for the full rationale. Importing at module scope is safe:
+# ``services.profile_service`` does NOT import from ``routes.``, so
+# there is no circular-import hazard here.
+from services.profile_service import _run_profile_extraction_after_upload  # noqa: E402
 
 
 router = APIRouter()
@@ -177,6 +195,7 @@ def list_resumes() -> ResumeListResponse:
 
 @router.post("", response_model=Resume, status_code=201)
 async def upload_resume(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(..., description="Resume file (PDF/DOC/DOCX/TXT/MD)."),
     tags: str | None = Form(default=None, description="Comma-separated tag list."),
     is_default: bool = Form(default=False, description='When "true", mark as default resume.'),
@@ -214,6 +233,26 @@ async def upload_resume(
     }
     _RESUMES_DB[resume_id] = record
     _RESUME_BYTES[resume_id] = contents
+
+    # Side effect: kick off profile extraction in the background so
+    # the LLM call doesn't block the 201 response. The background
+    # task is wrapped in try/except internally (see
+    # ``_run_profile_extraction_after_upload``) so a failed LLM
+    # call is logged but never crashes the FastAPI BackgroundTasks
+    # runner. The operator can re-trigger extraction explicitly via
+    # ``POST /api/profile/regenerate`` if the first attempt failed.
+    #
+    # We pass ``contents`` (the already-read bytes) rather than
+    # re-reading ``file.file`` because ``UploadFile.file`` is closed
+    # after the response is sent — by the time the background task
+    # runs, the file pointer is no longer safe to read from.
+    background_tasks.add_task(
+        _run_profile_extraction_after_upload,
+        resume_id,
+        contents,
+        record["name"],
+    )
+
     return Resume(**record)
 
 

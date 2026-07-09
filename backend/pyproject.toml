@@ -25,8 +25,27 @@ dependencies = [
     # ModuleNotFoundError at boards_scan import time — which is the
     # failure mode we're fixing right now.
     "openai>=1.40",
+    # ``pyyaml`` is required by ``services/profile_service.py`` to
+    # load ``config/profile.yml`` (the operator's candidate profile
+    # that drives the LLM scorer). Without it the import fails at
+    # route import time with a clear ``ModuleNotFoundError: yaml`` —
+    # ``>=6.0`` is the modern release line that ships Python 3.12
+    # wheels and ``safe_load``/``safe_dump`` hardening.
+    "pyyaml>=6.0",
     "playwright>=1.61.0",
     "pydantic>=2.13.4",
+    # ``pypdf`` is the resume text extractor used by
+    # ``services.profile_service.extract_resume_text`` when a user
+    # uploads a PDF resume. The extractor catches ``ImportError``
+    # and falls back to a UTF-8 decode so the upload route never
+    # crashes on a missing library, but the operator will see a
+    # degraded profile (binary blob → U+FFFD garbage) if pypdf is
+    # not installed. ``>=4.0`` is the modern release line that
+    # ships Python 3.12 wheels and the page-by-page ``extract_text()``
+    # API the extractor relies on. ``PdfReader`` is imported lazily
+    # inside the function so test collection never requires pypdf
+    # to be importable.
+    "pypdf>=4.0",
     # ``python-multipart`` is required by FastAPI for any route that
     # accepts form data — in our case ``routes/resumes.py:@router.post
     # ("")`` uses ``UploadFile`` for resume file uploads. Without it,

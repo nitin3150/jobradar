@@ -138,6 +138,12 @@ def _opportunity_to_job_fields(
         "url": opp.get("url") or "(no url)",
         "ai_fit_score": round(max(0.0, min(1.0, score)), 4),
         "ai_fit_reasoning": reasoning,
+        # Board-published posting body. The boards runner (Greenhouse,
+        # Lever, Ashby) extracts ``description`` from each response
+        # payload so the React ``JobCard`` can render a truncated
+        # preview + a "Read more" modal without re-fetching. The
+        # column is nullable because Ashby sometimes omits the field.
+        "description": opp.get("description") or None,
         # Scheduler populates ``review_deadline`` when it processes
         # the queue; out of scope here. ``None`` keeps terminal
         # statuses consistent with the Pydantic model in routes.jobs.
@@ -153,6 +159,7 @@ UPSERT_UPDATE_COLUMNS = (
     "url",
     "ai_fit_score",
     "ai_fit_reasoning",
+    "description",
 )
 
 

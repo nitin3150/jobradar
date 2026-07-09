@@ -502,6 +502,14 @@ class Job(Base):
         nullable=True,
     )
     ai_fit_reasoning: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Board-published job description (HTML/plain-text from the ATS).
+    # The React ``JobCard`` truncates this to ~3 lines with a
+    # "Read more" affordance that opens a modal with the full text;
+    # ``JobDetail`` renders the whole body in a ``<pre>``-style block.
+    # Nullable because some boards (Ashby in particular) sometimes
+    # omit the field on a ``GET posting-api/job-board/<slug>``
+    # response.
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
     review_deadline: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )

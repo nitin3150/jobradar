@@ -43,7 +43,7 @@ from uuid import UUID, uuid5
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from pydantic import BaseModel, Field
-from sqlalchemy import func, select
+from sqlalchemy import asc, desc, func, nulls_last, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import models as db_models
@@ -76,6 +76,23 @@ JobStatus = Literal["in_review", "approved", "rejected", "applied", "flagged"]
 # Postgres raises ``invalid input value for enum job_status: ...``.
 JOB_STATUS_VALUES: frozenset[str] = frozenset(get_args(JobStatus))
 
+# Allowed ``?sort=`` values for ``GET /api/jobs``. The default
+# ``deadline_asc`` preserves the v0.5 behaviour (in-review rows with
+# a real deadline at the top, terminal-status rows with NULL deadlines
+# sink to the bottom). The other options drive the new React sort
+# dropdown on ``JobBoardFilters``. Anything outside the allow-list
+# falls through to the default — we deliberately do NOT 400 here
+# because a stale bookmarked URL with a deprecated ``?sort=`` value
+# should keep rendering the same list rather than blow up.
+JobSort = Literal[
+    "deadline_asc",
+    "score_desc",
+    "score_asc",
+    "posted_desc",
+    "posted_asc",
+]
+JOB_SORT_VALUES: frozenset[str] = frozenset(get_args(JobSort))
+
 
 class Job(BaseModel):
     id: str
@@ -86,6 +103,11 @@ class Job(BaseModel):
     url: str
     ai_fit_score: float | None = Field(default=None, ge=0.0, le=1.0)
     ai_fit_reasoning: str | None = None
+    # Board-published posting body. Drives the React ``JobCard``
+    # description preview + "Read more" modal. Nullable because
+    # some boards (Ashby in particular) sometimes omit the field
+    # on the public ``GET posting-api/job-board/<slug>`` response.
+    description: str | None = None
     review_deadline: str | None = None
     # New: board-published timestamps + our DB-side row lifecycle. All
     # nullable because Ashby in particular doesn't expose either on
@@ -174,6 +196,7 @@ def _job_row_to_pydantic(row: db_models.Job) -> Job:
         url=row.url,
         ai_fit_score=row.ai_fit_score,
         ai_fit_reasoning=row.ai_fit_reasoning,
+        description=row.description,
         review_deadline=_iso_utc(row.review_deadline),
         posted_at=_iso_utc(row.posted_at),
         source_updated_at=_iso_utc(row.source_updated_at),
@@ -218,6 +241,7 @@ _TEST_SEED_RECORDS_RAW: list[dict] = [
         "url": "https://replicate.com/careers",
         "ai_fit_score": 0.86,
         "ai_fit_reasoning": "Strong match — LLM inference + Python + open-source fluency.",
+        "description": "Replicate is hiring a Senior AI Engineer to join our team and help us build the next generation of machine learning infrastructure. You will work on deploying large language models at scale, optimizing inference latency, and building developer-facing APIs. Strong Python skills and experience with PyTorch or JAX required. Bonus points for open-source contributions to ML projects.",
         "review_deadline_isostring": "in_2_hours",
     },
     {
@@ -230,6 +254,7 @@ _TEST_SEED_RECORDS_RAW: list[dict] = [
         "url": "https://mastra.ai/careers",
         "ai_fit_score": 0.78,
         "ai_fit_reasoning": "TypeScript + AI agent infrastructure; matches your skill stack.",
+        "description": "Mastra is hiring a Founding Engineer to build the future of AI agent infrastructure. You will be responsible for architecting our core platform, designing APIs that developers love, and shipping features end-to-end. We use TypeScript, Node.js, and modern cloud infrastructure. Equity and significant ownership in the company.",
         "review_deadline_isostring": "in_5_hours",
     },
     {
@@ -242,6 +267,7 @@ _TEST_SEED_RECORDS_RAW: list[dict] = [
         "url": "https://vercel.com/careers",
         "ai_fit_score": 0.91,
         "ai_fit_reasoning": "High-priority match — Node + edge runtime experience applies directly.",
+        "description": "Vercel is hiring a Backend Engineer to help us build the future of the web. You will work on the systems that power millions of sites, focusing on edge runtime performance, serverless infrastructure, and developer experience. Strong Node.js and TypeScript skills required. Experience with React and Next.js is a plus.",
         "review_deadline_isostring": None,
     },
     {
@@ -254,6 +280,7 @@ _TEST_SEED_RECORDS_RAW: list[dict] = [
         "url": "https://midjourney.com/careers",
         "ai_fit_score": 0.42,
         "ai_fit_reasoning": "Below your preferred threshold; aligned with your directional interests but lacks senior scope.",
+        "description": "Midjourney is hiring a Junior ML Engineer for an entry-level position working on image generation models. You will assist senior engineers in training and evaluating diffusion models, processing large datasets, and writing Python code for our ML pipelines. Some experience with PyTorch and computer vision preferred but not required.",
         "review_deadline_isostring": None,
     },
     {
@@ -266,6 +293,7 @@ _TEST_SEED_RECORDS_RAW: list[dict] = [
         "url": "https://cloudflare.com/careers",
         "ai_fit_score": 0.74,
         "ai_fit_reasoning": "Applied via apply_worker — Rust + edge experience.",
+        "description": "Cloudflare is hiring a Distributed Systems Engineer to build the systems that power the internet. You will design and implement the core infrastructure that handles millions of requests per second across our global edge network. Strong experience with Rust, Go, or C++ required. Deep knowledge of distributed consensus, replication, and fault tolerance expected.",
         "review_deadline_isostring": None,
     },
     {
@@ -278,6 +306,7 @@ _TEST_SEED_RECORDS_RAW: list[dict] = [
         "url": "https://doist.com/careers",
         "ai_fit_score": 0.58,
         "ai_fit_reasoning": "Flagged for manual review — overlaps your stack but the role is IC-track not engineer-track.",
+        "description": "Doist is hiring a Remote Solutions Architect to join our remote-first team and architect solutions for enterprise customers. You will work directly with clients to understand their needs, design technical solutions using our product suite (Todoist, Twist), and help them achieve their productivity goals. This is a customer-facing role with a technical focus.",
         "review_deadline_isostring": None,
     },
 ]
@@ -333,6 +362,7 @@ async def _seed_job_rows(session: AsyncSession) -> None:
             url=raw["url"],
             ai_fit_score=raw["ai_fit_score"],
             ai_fit_reasoning=raw["ai_fit_reasoning"],
+            description=raw.get("description"),
             review_deadline=deadline,
             external_id=f"seed:{raw['id_uuid_text']}",
         )
@@ -379,6 +409,19 @@ async def list_jobs(
             "Filter to jobs whose ``company_id`` column matches. Used by "
             "the React ``CompanyDetail`` page to render a company's job "
             "list. Composes with the other filter params."
+        ),
+    ),
+    sort: str = Query(
+        default="deadline_asc",
+        description=(
+            "Sort order for the returned page. Allowed values: "
+            "``deadline_asc`` (default — in-review rows with a real "
+            "deadline first, terminal rows last), ``score_desc`` "
+            "(highest AI-fit first, NULL scores last), ``score_asc`` "
+            "(lowest first, NULLs last), ``posted_desc`` (newest "
+            "posting first, NULLs last), ``posted_asc`` (oldest "
+            "posting first, NULLs last). Unknown values fall back "
+            "to ``deadline_asc`` so a stale bookmark doesn't 500."
         ),
     ),
     session: AsyncSession = Depends(get_session),
@@ -496,14 +539,36 @@ async def list_jobs(
         stmt = stmt.where(db_models.Job.company_id == company_id)
         count_stmt = count_stmt.where(db_models.Job.company_id == company_id)
 
-    # ``review_deadline ASC NULLS LAST`` keeps the in-review rows that
-    # have a real deadline at the top of the list — those are the rows
-    # the operator wants to clear first. Terminal-status rows have
-    # ``review_deadline IS NULL`` and naturally sink to the bottom.
-    stmt = stmt.order_by(
-        db_models.Job.review_deadline.asc().nulls_last(),
-        db_models.Job.id,
-    ).offset((page - 1) * page_size).limit(page_size)
+    # Sort selection. Each branch picks the primary order_by and
+    # falls back to ``id`` as a stable secondary key so a re-paginate
+    # of the same query set doesn't shuffle rows. ``nulls_last()``
+    # is explicit on the nullable columns (ai_fit_score, posted_at)
+    # so unscored / undated jobs land at the bottom of the list
+    # regardless of the primary direction — sorting
+    # ``score ASC NULLS FIRST`` would otherwise float the unscored
+    # rows to the top, which is the opposite of what the operator
+    # wants.
+    if sort == "score_desc":
+        order_clauses = [db_models.Job.ai_fit_score.desc().nulls_last(), db_models.Job.id]
+    elif sort == "score_asc":
+        order_clauses = [db_models.Job.ai_fit_score.asc().nulls_last(), db_models.Job.id]
+    elif sort == "posted_desc":
+        order_clauses = [db_models.Job.posted_at.desc().nulls_last(), db_models.Job.id]
+    elif sort == "posted_asc":
+        order_clauses = [db_models.Job.posted_at.asc().nulls_last(), db_models.Job.id]
+    else:
+        # Default — and the fallback for unknown ``?sort=`` values.
+        # ``review_deadline ASC NULLS LAST`` keeps the in-review rows
+        # that have a real deadline at the top of the list — those
+        # are the rows the operator wants to clear first. Terminal-
+        # status rows have ``review_deadline IS NULL`` and naturally
+        # sink to the bottom.
+        order_clauses = [
+            db_models.Job.review_deadline.asc().nulls_last(),
+            db_models.Job.id,
+        ]
+
+    stmt = stmt.order_by(*order_clauses).offset((page - 1) * page_size).limit(page_size)
 
     total = int((await session.scalar(count_stmt)) or 0)
     rows = (await session.execute(stmt)).scalars().all()

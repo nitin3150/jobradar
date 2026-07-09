@@ -22,3 +22,57 @@ body {
 .anim-fade {
   animation: fade 120ms ease-out;
 }
+
+/* ---------------------------------------------------------------------------
+ * Dual-handle score range slider (FilterBar jobs variant).
+ *
+ * Two overlapping ``<input type="range">`` elements share a single
+ * visual track built from two absolutely-positioned divs (gray base
+ * + indigo range). The native track + focus ring is hidden so only
+ * the thumb is interactive; ``pointer-events: none`` on the input
+ * itself lets clicks pass through to the underlying divs, while
+ * ``pointer-events: auto`` on the thumb pseudo-element keeps the
+ * thumb draggable. The min/max ``onChange`` handler in
+ * ``DualRangeSlider`` clamps so the thumbs never cross.
+ * ------------------------------------------------------------------------- */
+.dual-range-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  pointer-events: none;
+  z-index: 1;
+}
+.dual-range-thumb::-webkit-slider-runnable-track {
+  background: transparent;
+  height: 100%;
+}
+.dual-range-thumb::-moz-range-track {
+  background: transparent;
+  height: 100%;
+}
+.dual-range-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #4f46e5;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  pointer-events: auto;
+}
+.dual-range-thumb::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #4f46e5;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  pointer-events: auto;
+}

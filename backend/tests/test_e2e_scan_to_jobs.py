@@ -481,7 +481,14 @@ class TestScanBoardsEndToEnd:
              ) as mock_write_missing, \
              patch(
                  "pipeline.nodes.jobs_boards.runner.filter_roles",
-                 side_effect=lambda jobs: jobs,
+                 # The real ``filter_roles(jobs, *, min_seniority=...,
+                 # max_seniority=..., keywords=[...])`` was extended
+                 # with seniority bounds; the test mock must accept
+                 # the same keyword-only signature so a regression
+                 # where filter_roles is widened again next quarter
+                 # surfaces here, not as a ``TypeError`` in
+                 # production.
+                 side_effect=lambda jobs, **_: jobs,
              ) as mock_filter_roles, \
              patch(
                  "pipeline.nodes.jobs_boards.runner.execute_fetch"

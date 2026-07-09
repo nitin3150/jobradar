@@ -130,7 +130,7 @@ class TestPageSize:
 class TestPatchStatus:
     async def test_patch_flips_status(self, seeded_applications: AsyncClient) -> None:
         r = await seeded_applications.patch(
-            "/api/applications/a_1/status",
+            f"/api/applications/{A_1_ID}/status",
             json={"status": "interview"},
         )
         assert r.status_code == 200, r.text
@@ -140,7 +140,7 @@ class TestPatchStatus:
 
     async def test_patch_appends_notes(self, seeded_applications: AsyncClient) -> None:
         r = await seeded_applications.patch(
-            "/api/applications/a_1/status",
+            f"/api/applications/{A_1_ID}/status",
             json={"status": "submitted", "notes": "Recruiter call notes go here."},
         )
         assert r.status_code == 200, r.text
@@ -161,7 +161,7 @@ class TestPatchStatus:
         original_notes = await _fetch_notes()
         assert original_notes is not None
         r = await seeded_applications.patch(
-            "/api/applications/a_2/status", json={"status": "ghosted"},
+            f"/api/applications/{A_2_ID}/status", json={"status": "ghosted"},
         )
         assert r.status_code == 200, r.text
         assert r.json()["notes"] == original_notes

@@ -667,10 +667,30 @@ class TestListJobsCompanyIdFilter:
         self, seeded_jobs: AsyncClient,
     ) -> None:
         # Stamp j_1 + j_2 with the same company_id and re-query.
+        #
+        # The ``jobs.company_id`` column has a FK constraint to
+        # ``companies.id`` (with ``ON DELETE SET NULL``), so the test
+        # must insert a matching ``Company`` row first — the seeded
+        # job rows have ``company_id=NULL`` and the production boards
+        # runner never leaves FKs dangling. We supply only the
+        # NOT-NULL columns (title / organization / category / score /
+        # source / published_at); everything else defaults.
         test_company_id = _seed_id_for("company_for_test")
 
         async def _stamp() -> None:
             async with AsyncSessionLocal() as session:
+                session.add(
+                    db_models.Company(
+                        id=test_company_id,
+                        title="Test Co 1",
+                        organization="TestCo Inc 1",
+                        category="boards",
+                        score=0.75,
+                        source="test",
+                        published_at=datetime.now(timezone.utc),
+                    )
+                )
+                await session.flush()
                 for marker in ("j_1", "j_2"):
                     jid = _seed_id_for(marker)
                     row = await session.get(db_models.Job, jid)
@@ -698,10 +718,27 @@ class TestListJobsCompanyIdFilter:
     ) -> None:
         # The new filter should compose with the existing multi-status
         # filter — the SQL builder treats them as an AND.
+        #
+        # Same FK-satisfying Company insert as
+        # ``test_company_id_returns_only_matching_rows``: the
+        # ``jobs.company_id`` SET NULL FK means we can't stamp jobs
+        # onto a company id that doesn't exist in ``companies``.
         test_company_id = _seed_id_for("company_for_test2")
 
         async def _stamp() -> None:
             async with AsyncSessionLocal() as session:
+                session.add(
+                    db_models.Company(
+                        id=test_company_id,
+                        title="Test Co 2",
+                        organization="TestCo Inc 2",
+                        category="boards",
+                        score=0.75,
+                        source="test",
+                        published_at=datetime.now(timezone.utc),
+                    )
+                )
+                await session.flush()
                 j1 = await session.get(db_models.Job, _seed_id_for("j_1"))
                 j3 = await session.get(db_models.Job, _seed_id_for("j_3"))
                 j1.company_id = test_company_id  # in_review

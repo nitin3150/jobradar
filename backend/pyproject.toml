@@ -27,6 +27,16 @@ dependencies = [
     "openai>=1.40",
     "playwright>=1.61.0",
     "pydantic>=2.13.4",
+    # ``python-multipart`` is required by FastAPI for any route that
+    # accepts form data — in our case ``routes/resumes.py:@router.post
+    # ("")`` uses ``UploadFile`` for resume file uploads. Without it,
+    # ``uvicorn`` raises ``RuntimeError: Form data requires
+    # "python-multipart" to be installed.`` at route-decorator time
+    # (import time, NOT request time), which crashes the Render
+    # deployment. ``>=0.0.9`` is the minimum that fixes the
+    # ``TypeError: string argument without an encoding`` crash on
+    # multipart parses in older 0.0.x releases.
+    "python-multipart>=0.0.9",
     "sqlalchemy[asyncio]>=2.0.30",
     "supabase>=2.4.0",
     "uvicorn>=0.30.0",

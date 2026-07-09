@@ -115,5 +115,80 @@ class TestPatchValidation(_SettingsTestCase):
         self.assertEqual(r.status_code, 422, r.text)
 
 
+# ---------------------------------------------------------------------------
+class TestSeniorityDefaults(_SettingsTestCase):
+    def test_defaults_include_null_min_and_max(self) -> None:
+        body = self.client.get("/api/settings").json()
+        self.assertIn("min_seniority", body)
+        self.assertIn("max_seniority", body)
+        self.assertIsNone(body["min_seniority"])
+        self.assertIsNone(body["max_seniority"])
+
+
+# ---------------------------------------------------------------------------
+class TestSeniorityPatchRoundTrip(_SettingsTestCase):
+    def test_patch_min_seniority_round_trips(self) -> None:
+        r = self.client.patch("/api/settings", json={"min_seniority": "senior"})
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertEqual(r.json()["min_seniority"], "senior")
+        # Untouched fields remain at their defaults.
+        self.assertIsNone(r.json()["max_seniority"])
+
+    def test_patch_max_seniority_round_trips(self) -> None:
+        r = self.client.patch("/api/settings", json={"max_seniority": "staff"})
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertEqual(r.json()["max_seniority"], "staff")
+        self.assertIsNone(r.json()["min_seniority"])
+
+    def test_patch_both_bounds_round_trip(self) -> None:
+        r = self.client.patch(
+            "/api/settings",
+            json={"min_seniority": "senior", "max_seniority": "staff"},
+        )
+        self.assertEqual(r.status_code, 200, r.text)
+        body = r.json()
+        self.assertEqual(body["min_seniority"], "senior")
+        self.assertEqual(body["max_seniority"], "staff")
+
+    def test_patch_null_clears_bound(self) -> None:
+        # Set then clear.
+        self.client.patch("/api/settings", json={"min_seniority": "senior"})
+        r = self.client.patch("/api/settings", json={"min_seniority": None})
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertIsNone(r.json()["min_seniority"])
+
+
+# ---------------------------------------------------------------------------
+class TestSeniorityPatchValidation(_SettingsTestCase):
+    def test_patch_min_seniority_unknown_value_returns_422(self) -> None:
+        r = self.client.patch("/api/settings", json={"min_seniority": "phoenix"})
+        self.assertEqual(r.status_code, 422, r.text)
+
+    def test_patch_max_seniority_unknown_value_returns_422(self) -> None:
+        r = self.client.patch("/api/settings", json={"max_seniority": "phoenix"})
+        self.assertEqual(r.status_code, 422, r.text)
+
+    def test_patch_min_exceeds_max_returns_422(self) -> None:
+        r = self.client.patch(
+            "/api/settings",
+            json={"min_seniority": "vp", "max_seniority": "intern"},
+        )
+        self.assertEqual(r.status_code, 422, r.text)
+
+    def test_patch_min_equals_max_is_accepted(self) -> None:
+        # Tight band (only this tier) is a degenerate but valid case.
+        r = self.client.patch(
+            "/api/settings",
+            json={"min_seniority": "senior", "max_seniority": "senior"},
+        )
+        self.assertEqual(r.status_code, 200, r.text)
+
+    def test_patch_only_one_bound_set_does_not_validate_cross(self) -> None:
+        # PATCH ``min`` alone shouldn't trip a cross-bound error — the
+        # operator may set ``min`` first and ``max`` later.
+        r = self.client.patch("/api/settings", json={"min_seniority": "vp"})
+        self.assertEqual(r.status_code, 200, r.text)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -97,12 +97,118 @@ class TestDiscover(_PipelineTestCase):
     def test_discover_returns_completed_with_attached_count(self):
         with patch("routes.pipeline.run_jobs_boards") as mock_run:
             mock_run.return_value = [{"id": "j1"}, {"id": "j2"}, {"id": "j3"}]
-            r = self.client.get("/api/pipeline/discover")
+            # Stub scoring to a constant so the test doesn't try to
+            # instantiate ``LLMClient.from_env()`` against the real env.
+            with patch("routes.pipeline.score_and_persist") as mock_score:
+                mock_score.return_value = 0
+                r = self.client.get("/api/pipeline/discover")
         self.assertEqual(r.status_code, 200, r.text)
         body = r.json()
         self.assertEqual(body["status"], "completed")
         self.assertEqual(body["companies_attached"], 3)
         self.assertEqual(body["scanned"], 3)
+        self.assertEqual(body["winners_count"], 0)
+        self.assertIsNone(body["error"])
+
+    def test_discover_scores_returned_jobs_with_boards_ats_type(self):
+        """The boards dispatch path must run the LLM scoring service over
+        every job returned by ``run_jobs_boards`` so winners land in the
+        in-review queue without the operator having to call
+        ``/api/scan/boards`` separately.
+        """
+        jobs = [
+            {"id": "j1", "title": "Senior AI Engineer", "url": "https://a/1"},
+            {"id": "j2", "title": "Junior Painter", "url": "https://b/2"},
+        ]
+        with patch("routes.pipeline.run_jobs_boards") as mock_run:
+            mock_run.return_value = jobs
+            with patch("routes.pipeline.score_and_persist") as mock_score:
+                mock_score.return_value = 2
+                r = self.client.get("/api/pipeline/discover")
+        self.assertEqual(r.status_code, 200, r.text)
+        mock_score.assert_called_once()
+        call_args, _call_kwargs = mock_score.call_args
+        # First positional arg is the opportunities list; second is the
+        # ``ats_type`` discriminator used to namespace ``_JOBS_DB`` keys.
+        self.assertEqual(call_args[0], jobs)
+        self.assertEqual(call_args[1], "boards")
+
+        body = r.json()
+        self.assertEqual(body["status"], "completed")
+        self.assertEqual(body["winners_count"], 2)
+
+    def test_discover_reports_zero_winners_when_scoring_returns_zero(self):
+        """Stubs ``score_and_persist`` directly to verify the response
+        contract: when scoring yields zero winners, the discover response
+        stays ``status="completed"`` and ``winners_count`` mirrors the
+        stub return value verbatim.
+        """
+        with patch("routes.pipeline.run_jobs_boards") as mock_run:
+            mock_run.return_value = [{"id": "j1"}]
+            with patch(
+                "routes.pipeline.score_and_persist",
+                return_value=0,
+            ) as mock_score:
+                r = self.client.get("/api/pipeline/discover")
+        self.assertEqual(r.status_code, 200, r.text)
+        body = r.json()
+        self.assertEqual(body["status"], "completed")
+        self.assertEqual(body["scanned"], 1)
+        self.assertEqual(body["winners_count"], 0)
+        mock_score.assert_called_once()
+
+    def test_discover_records_recent_error_when_scoring_service_raises(self):
+        """Defense-in-depth: if ``score_and_persist`` ever escapes its
+        internal swallow and propagates (e.g., an ``asyncio.run`` bound
+        to a running event loop, or a regression in the swallow), the
+        discover endpoint must keep status="completed" because the boards
+        scrape itself succeeded, but ``_PIPELINE_STATE["recent_error"]``
+        must surface the scoring failure so the operator's
+        ``/api/pipeline/status`` doesn't show a silent breakage.
+        """
+        with patch("routes.pipeline.run_jobs_boards") as mock_run:
+            mock_run.return_value = [{"id": "j1"}]
+            with patch(
+                "routes.pipeline.score_and_persist",
+                side_effect=RuntimeError("scoring service crashed"),
+            ):
+                r = self.client.get("/api/pipeline/discover")
+        self.assertEqual(r.status_code, 200, r.text)
+        body = r.json()
+        # Boards scrape succeeded; scoring crash doesn't degrade status.
+        self.assertEqual(body["status"], "completed")
+        self.assertEqual(body["scanned"], 1)
+        self.assertEqual(body["winners_count"], 0)
+        # But recent_error IS set so /status surfaces the failure.
+        r_status = self.client.get("/api/pipeline/status").json()
+        self.assertIn("scoring crashed after boards scrape", r_status["recent_error"] or "")
+
+    def test_discover_reports_zero_winners_when_llm_provider_missing(self):
+        """Genuinely exercises the missing-provider path: stubs
+        ``services.scoring_service.LLMClient.from_env`` to raise the
+        production ``RuntimeError`` that an empty env hits. Catches any
+        regression where ``score_and_persist`` stops swallowing the
+        missing-provider error and starts propagating it (which would
+        degrade the discover response to status="failed" even though
+        the boards scrape itself succeeded).
+        """
+        with patch("routes.pipeline.run_jobs_boards") as mock_run:
+            mock_run.return_value = [
+                {"id": "j1", "title": "Senior AI Engineer", "url": "https://a/1"},
+                {"id": "j2", "title": "Junior Painter", "url": "https://b/2"},
+            ]
+            with patch(
+                "services.llm_client.LLMClient.from_env",
+                side_effect=RuntimeError("no LLM provider configured"),
+            ):
+                r = self.client.get("/api/pipeline/discover")
+        self.assertEqual(r.status_code, 200, r.text)
+        body = r.json()
+        # Boards scrape succeeded even though scoring couldn't run, so
+        # status stays "completed" and winners_count is 0.
+        self.assertEqual(body["status"], "completed")
+        self.assertEqual(body["scanned"], 2)
+        self.assertEqual(body["winners_count"], 0)
         self.assertIsNone(body["error"])
 
     def test_discover_propagates_failure_status_200_with_status_failed(self):
@@ -117,6 +223,7 @@ class TestDiscover(_PipelineTestCase):
         self.assertEqual(body["status"], "failed")
         self.assertEqual(body["error"], "boards runner down")
         self.assertEqual(body["companies_attached"], 0)
+        self.assertEqual(body["winners_count"], 0)
 
     def test_discover_returns_409_when_state_running(self):
         _PIPELINE_STATE["state"] = "running"

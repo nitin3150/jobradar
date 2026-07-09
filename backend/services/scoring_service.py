@@ -221,7 +221,15 @@ async def _score_and_persist_async(
         async with semaphore:
             try:
                 score, reasoning = await client.score_opportunity(profile, opp)
-            except RuntimeError as exc:
+            except (RuntimeError, asyncio.CancelledError, asyncio.TimeoutError) as exc:
+                # Catch operational failures only — LLM transient errors
+                # (RuntimeError raised by score_opportunity when all
+                # providers fail), worker shutdown (CancelledError
+                # mid-rate-limiter-wait), and per-call timeouts
+                # (TimeoutError). Shape mismatches like TypeError /
+                # AttributeError from a malformed opportunity dict are
+                # NOT caught here — those are programming bugs that
+                # should surface as test failures, not silent drops.
                 logger.debug("scoring failed for %r: %s", opp.get("url"), exc)
                 return None
             if score < threshold:

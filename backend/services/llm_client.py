@@ -28,6 +28,9 @@ The defaults read from the process environment on each
 * ``NVIDIA_API_KEY`` — required to enable NVIDIA as a provider.
 * ``NVIDIA_BASE_URL`` — defaults to ``https://integrate.api.nvidia.com/v1``.
 * ``NVIDIA_MODEL`` — defaults to ``meta/llama-3.1-70b-instruct``.
+* ``NVIDIA_RPM`` — defaults to :data:`DEFAULT_NVIDIA_RPM` (40). Sets the
+  per-process rate-limit on NVIDIA calls so the GHA boards-scan workflow
+  doesn't trip 429. ``0`` disables the limiter.
 * ``GROQ_API_KEY`` — required to enable Groq as a provider.
 * ``GROQ_BASE_URL`` — defaults to ``https://api.groq.com/openai/v1``.
 * ``GROQ_MODEL`` — defaults to ``llama-3.3-70b-versatile``.
@@ -39,8 +42,10 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 import re
+import time
 from typing import Final, NamedTuple
 
 from openai import (
@@ -58,6 +63,14 @@ DEFAULT_NVIDIA_BASE: Final = "https://integrate.api.nvidia.com/v1"
 DEFAULT_NVIDIA_MODEL: Final = "meta/llama-3.1-70b-instruct"
 DEFAULT_GROQ_BASE: Final = "https://api.groq.com/openai/v1"
 DEFAULT_GROQ_MODEL: Final = "llama-3.3-70b-versatile"
+
+# Default NVIDIA requests-per-minute budget. The free / dev-tier NVIDIA
+# NIM API key is throttled at 40 RPM; we respect that by default so
+# opportunistic bulk scans (e.g. the hourly boards-scan GHA workflow)
+# never trip a 429. Operators with a higher-tier key can raise the
+# ceiling via the ``NVIDIA_RPM`` env var; ``NVIDIA_RPM=0`` disables
+# the limiter entirely (each request fires immediately).
+DEFAULT_NVIDIA_RPM: Final = 40
 
 # System prompt applied to every opportunity so score calibration stays
 # consistent across providers.
@@ -79,17 +92,163 @@ _JSON_OBJ_RE = re.compile(
 )
 
 
+class AsyncTokenBucket:
+    """Async token-bucket rate limiter for LLM API quotas.
+
+    Capacity is the maximum burst size; ``refill_per_second`` is the
+    long-run average rate. The bucket starts full so the first
+    ``capacity`` calls fire immediately. Subsequent calls block
+    (asynchronously — they ``await asyncio.sleep`` rather than spin)
+    until enough virtual time has passed for another token to refill.
+
+    The bucket is process-local: two ``AsyncTokenBucket`` instances
+    track independent budgets. The module-level
+    :data:`_NVIDIA_RPM_LIMITERS` cache is the recommended way to
+    share a single bucket across ``LLMClient`` instances within a
+    process — see :func:`_nvidia_rate_limiter_from_env` for the
+    reason (per-call buckets would let a long-running FastAPI process
+    collectively exceed the API key's per-minute budget).
+    """
+
+    def __init__(self, capacity: int, refill_per_second: float) -> None:
+        if capacity < 1:
+            raise ValueError(
+                f"capacity must be >= 1 (got {capacity}); a non-positive "
+                f"burst budget would make acquire() block forever."
+            )
+        if refill_per_second <= 0:
+            raise ValueError(
+                f"refill_per_second must be > 0 (got {refill_per_second}); "
+                f"a non-positive refill rate would make acquire() block forever."
+            )
+        self._capacity = float(capacity)
+        self._refill = float(refill_per_second)
+        # Start full so the operator's first ``capacity`` calls (the
+        # common case for an interactive run) don't pay a startup delay.
+        self._tokens = float(capacity)
+        self._last = time.monotonic()
+        # Single asyncio.Lock serialises all acquires; the cost is
+        # negligible compared to the LLM call we're protecting.
+        self._lock = asyncio.Lock()
+
+    @property
+    def available_tokens(self) -> float:
+        """Snapshot the current token count — read-only, no refill applied.
+
+        Used by tests to assert the bucket's steady-state behaviour
+        without having to instrument ``acquire()`` internals.
+        """
+        return self._tokens
+
+    async def acquire(self) -> None:
+        """Block until 1 token is available, then consume it.
+
+        Implements the token-bucket algorithm. On every call we
+        credit the bucket with ``elapsed * refill`` tokens (capped at
+        ``capacity``), then either consume a token (returning
+        immediately) or sleep just long enough to accrue 1 token
+        before retrying.
+
+        ``asyncio.CancelledError`` propagating through ``asyncio.sleep``
+        releases the lock via ``async with`` cleanup and does NOT
+        consume a token (the consumer never reached the decrement
+        line). This is the right behaviour for a worker that gets
+        cancelled mid-wait — the budget is preserved for the next
+        call.
+        """
+        while True:
+            async with self._lock:
+                now = time.monotonic()
+                elapsed = now - self._last
+                self._last = now
+                # Cap at capacity so a long idle period doesn't
+                # accumulate an unbounded "credit balance" that would
+                # cause a subsequent burst to blow through the limit.
+                self._tokens = min(
+                    self._capacity, self._tokens + elapsed * self._refill
+                )
+                if self._tokens >= 1.0:
+                    self._tokens -= 1.0
+                    return
+                # Bucket doesn't have a token yet — sleep outside the
+                # lock for the exact deficit / refill-rate duration.
+                deficit = 1.0 - self._tokens
+                wait_seconds = deficit / self._refill
+            await asyncio.sleep(wait_seconds)
+
+
 class _PermanentError(Exception):
     """Won't help to retry or fall back: bad input, auth, or unparseable response."""
 
 
+# Module-level rate-limiter cache so the 40-RPM budget is process-global,
+# not per-LLMClient. Two concurrent ``LLMClient.from_env()`` calls in a
+# long-running FastAPI process otherwise each construct a fresh bucket
+# and the process collectively uses 2 × NVIDIA_RPM, which would still
+# trip the upstream 429 the limiter is meant to prevent.
+#
+# Keyed by the integer RPM so callers that raise the limit (e.g. a
+# higher-tier key with NVIDIA_RPM=200) get a separate bucket from a
+# caller that leaves the default 40 — the two operate on independent
+# budgets, which is what the operator intends when they set the env var.
+_NVIDIA_RPM_LIMITERS: dict[int, AsyncTokenBucket] = {}
+
+
+def _nvidia_rate_limiter_from_env() -> AsyncTokenBucket | None:
+    """Read ``NVIDIA_RPM`` and build (or fetch) the matching token bucket.
+
+    Returns ``None`` when ``NVIDIA_RPM`` is set to ``0`` or any
+    non-positive value — that disables the limiter. A malformed
+    value (``NVIDIA_RPM=abc``) raises ``ValueError`` so the operator
+    sees the misconfig at boot, not at the first scoring call.
+
+    We log the chosen RPM at INFO so the operator can confirm the
+    limiter is active without having to read code. The bucket is
+    created with ``capacity == rpm`` and ``refill_per_second ==
+    rpm / 60`` so a fully-drained bucket recovers to its burst
+    capacity in exactly 60 seconds.
+    """
+    raw = os.environ.get("NVIDIA_RPM", str(DEFAULT_NVIDIA_RPM)).strip()
+    try:
+        rpm = int(raw)
+    except ValueError as exc:
+        raise ValueError(
+            f"NVIDIA_RPM={raw!r} is not a valid integer (expected a "
+            f"non-negative request-per-minute budget, e.g. '40', '0')."
+        ) from exc
+    if rpm <= 0:
+        return None
+    bucket = _NVIDIA_RPM_LIMITERS.get(rpm)
+    if bucket is None:
+        bucket = AsyncTokenBucket(capacity=rpm, refill_per_second=rpm / 60.0)
+        _NVIDIA_RPM_LIMITERS[rpm] = bucket
+        logging.getLogger("jobradar.llm").info(
+            "NVIDIA rate limiter active: %d RPM (capacity=%d, refill=%.4f/s). "
+            "Override with NVIDIA_RPM=0 to disable. Cached at module level "
+            "so the budget is process-global, not per-LLMClient.",
+            rpm,
+            rpm,
+            rpm / 60.0,
+        )
+    return bucket
+
+
 class ProviderConfig(NamedTuple):
-    """One slot in the LLM provider chain."""
+    """One slot in the LLM provider chain.
+
+    ``rate_limiter`` is an optional :class:`AsyncTokenBucket`; when set,
+    :meth:`LLMClient.score_opportunity` will ``await acquire()`` before
+    the first attempt at this provider. We throttle the *primary* so
+    bulk scans never trip the upstream 429; the fallback can also be
+    throttled in the same way if a future operator hits Groq's free
+    tier ceiling, but JobRadar's v1 only throttles NVIDIA.
+    """
 
     name: str
     base_url: str
     api_key: str
     model: str
+    rate_limiter: AsyncTokenBucket | None = None
 
 
 class LLMClient:
@@ -126,6 +285,12 @@ class LLMClient:
         Providers are included only if their API key is set. Order is
         NVIDIA first, Groq second so the cheaper/quicker primary is
         tried first by default.
+
+        NVIDIA is throttled by an :class:`AsyncTokenBucket` whose
+        capacity and refill rate are read from the ``NVIDIA_RPM`` env
+        var (default :data:`DEFAULT_NVIDIA_RPM`, i.e. 40 RPM). Set
+        ``NVIDIA_RPM=0`` to disable the limiter — useful for higher
+        tier keys, integration tests, and one-off bulk rescans.
         """
         providers: list[ProviderConfig] = []
         nvidia_key = os.environ.get("NVIDIA_API_KEY", "").strip()
@@ -136,6 +301,7 @@ class LLMClient:
                     base_url=os.environ.get("NVIDIA_BASE_URL", DEFAULT_NVIDIA_BASE),
                     api_key=nvidia_key,
                     model=os.environ.get("NVIDIA_MODEL", DEFAULT_NVIDIA_MODEL),
+                    rate_limiter=_nvidia_rate_limiter_from_env(),
                 )
             )
         groq_key = os.environ.get("GROQ_API_KEY", "").strip()
@@ -163,9 +329,23 @@ class LLMClient:
         Returns ``(score, reasoning)`` where ``score`` is clamped to
         ``[0.0, 1.0]`` and ``reasoning`` is at most 400 chars. Raises
         :class:`RuntimeError` if every provider in the chain fails.
+
+        If a provider has a :attr:`ProviderConfig.rate_limiter` set, we
+        ``await acquire()`` once per opportunity (outside the retry
+        loop). That means a transient-failure retry does **not**
+        consume a second token — the operator paid for the attempt
+        and the retry is a recovery, not a fresh budget hit. If the
+        retry also fails, we advance to the next provider (and acquire
+        *that* provider's token independently).
         """
         last_exc: Exception | None = None
         for provider in self.providers:
+            if provider.rate_limiter is not None:
+                # One token per opportunity, regardless of how many
+                # internal retries happen on this provider. This keeps
+                # bulk scans at-or-under the configured RPM even when
+                # the upstream has transient errors.
+                await provider.rate_limiter.acquire()
             client = self._clients[provider.name]
             for attempt in (1, 2):
                 try:
@@ -279,7 +459,9 @@ __all__ = [
     "DEFAULT_NVIDIA_MODEL",
     "DEFAULT_GROQ_BASE",
     "DEFAULT_GROQ_MODEL",
+    "DEFAULT_NVIDIA_RPM",
     "SYSTEM_PROMPT",
+    "AsyncTokenBucket",
     "ProviderConfig",
     "LLMClient",
     "build_prompt",

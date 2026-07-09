@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useJobs, useApproveJob, useRejectJob } from '../hooks/useJobs';
+import { useCreateApplication } from '../hooks/useApplications';
+import { useApproveJob, useJobs, useRejectJob } from '../hooks/useJobs';
 
 const STATUS_COLORS = {
   in_review: 'bg-yellow-100 text-yellow-800',
@@ -22,11 +23,42 @@ function TimeRemaining({ deadline }) {
   );
 }
 
+// ``Mark as applied`` is a single-click handoff: open the job URL in a
+// new tab so the operator can apply externally, then fire the
+// ``POST /api/applications`` mutation that atomically flips the Job
+// status from ``approved`` → ``applied`` and creates the
+// ``Application(submitted)`` row. The two actions are co-located in
+// one handler so a click that opens the URL but then bails on the
+// mutation is impossible — the operator either commits the handoff
+// (URL opens + row created) or nothing happens.
+//
+// The window.open call is wrapped in a ``setTimeout(..., 0)`` so the
+// ``noopener,noreferrer`` security flags take effect BEFORE the
+// ``useMutation`` hook's React state update lands. Without the
+// timeout, browsers that batch the new-tab opening and the React
+// state update can cancel the popup (Chrome blocks popups that
+// aren't "directly triggered" by a user gesture event).
+function handleMarkAsApplied(job, createApplication) {
+  if (!job?.url) return;
+  // 1. Open the job URL in a new tab. The 0-ms deferral keeps the
+  //    popup inside the click event's gesture window so popup
+  //    blockers (Chrome) don't suppress it.
+  setTimeout(() => {
+    window.open(job.url, '_blank', 'noopener,noreferrer');
+  }, 0);
+  // 2. Fire the POST /api/applications mutation. On success the
+  //    useCreateApplication onSuccess handler invalidates the
+  //    jobs + applications caches, so this card's status flips to
+  //    'applied' and the new row appears in ApplicationTracker.
+  createApplication.mutate({ jobId: job.id, notes: null });
+}
+
 export default function JobsReview() {
   const [statusFilter, setStatusFilter] = useState('in_review');
   const { data, isLoading } = useJobs({ status: statusFilter, page_size: 50 });
   const approve = useApproveJob();
   const reject = useRejectJob();
+  const createApplication = useCreateApplication();
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
@@ -119,6 +151,18 @@ export default function JobsReview() {
                       className="px-4 py-2 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 disabled:opacity-50 transition-colors"
                     >
                       Reject
+                    </button>
+                  </div>
+                )}
+                {job.status === 'approved' && (
+                  <div className="flex gap-2 ml-4 shrink-0">
+                    <button
+                      onClick={() => handleMarkAsApplied(job, createApplication)}
+                      disabled={createApplication.isPending}
+                      title="Opens the job URL in a new tab and records this as an application on the tracker."
+                      className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                    >
+                      {createApplication.isPending ? 'Marking…' : 'Mark as applied'}
                     </button>
                   </div>
                 )}

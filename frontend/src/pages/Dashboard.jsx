@@ -4,6 +4,7 @@ import { useScannerOpportunities } from '../hooks/useScanner';
 import FilterBar from '../components/FilterBar';
 import CompanyFeed from '../components/CompanyFeed';
 import OutreachPanel from '../components/OutreachPanel';
+import PendingReviewWidget from '../components/PendingReviewWidget';
 
 const CATEGORY_INTROS = {
   funding: 'Startups and products making headlines in the last 24 hours, with founder / contact links for outreach.',
@@ -52,6 +53,13 @@ function DashboardContents({ category }) {
         </span>
         <span className="text-xs text-gray-400">{category.toUpperCase()} domain</span>
       </div>
+
+      {/* In-flow job-lifecycle widget — sits above the scanner feed so
+          the operator's "Approve → Apply" hot path is the first thing
+          they see on every Dashboard visit. Hides itself when there are
+          no jobs awaiting a decision so the scanner view stays clean. */}
+      <PendingReviewWidget />
+
       <FilterBar filters={filters} setFilters={setFilters} category={category} />
 
       <CompanyFeed

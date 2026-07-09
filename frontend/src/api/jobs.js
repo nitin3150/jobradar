@@ -10,6 +10,13 @@ export const fetchApplications = (params) =>
   api.get('/applications', { params }).then((r) => r.data);
 export const updateApplicationStatus = (id, status, notes) =>
   api.patch(`/applications/${id}/status`, { status, notes }).then((r) => r.data);
+// Manual-apply handoff — create an Application row from a job_id and
+// atomically flip the linked Job to status='applied'. The JobsReview
+// Mark as applied button POSTs here after opening the job URL in a new
+// tab; the backend enforces the state-machine guard (only 'approved'
+// jobs can transition to 'applied') and returns the new Application.
+export const createApplicationFromJob = (jobId, notes) =>
+  api.post('/applications', { job_id: jobId, notes }).then((r) => r.data);
 
 // Q&A Bank
 export const fetchQABank = () => api.get('/qa-bank').then((r) => r.data);

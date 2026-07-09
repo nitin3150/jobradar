@@ -811,7 +811,9 @@ class TestSortParam:
     ) -> None:
         # No ``?sort=`` → falls through to ``deadline_asc``. Two
         # in_review rows have non-null deadlines (j_1 = +2h, j_2 =
-        # +5h), the rest are NULL and sink to the bottom.
+        # +5h), the rest are NULL and sink to the bottom; among
+        # those terminal rows, the secondary ``ai_fit_score DESC``
+        # orders them best-matched first (0.91, 0.74, 0.58, 0.42).
         r = await seeded_jobs.get("/api/jobs")
         assert r.status_code == 200, r.text
         jobs = r.json()["jobs"]
@@ -819,6 +821,13 @@ class TestSortParam:
         # deadline ASC (j_1 has the earlier deadline).
         assert jobs[0]["id"] == J_1_ID
         assert jobs[1]["id"] == J_2_ID
+        # Remaining 4 rows all have NULL review_deadline and are
+        # ordered by the secondary ``ai_fit_score DESC NULLS LAST``
+        # — j_3 (0.91) → j_5 (0.74) → j_6 (0.58) → j_4 (0.42).
+        terminal_ids = [j["id"] for j in jobs[2:]]
+        assert terminal_ids == [J_3_ID, J_5_ID, J_6_ID, J_4_ID]
+        terminal_scores = [j["ai_fit_score"] for j in jobs[2:]]
+        assert terminal_scores == sorted(terminal_scores, reverse=True)
 
     async def test_sort_unknown_value_falls_back_to_default(
         self, seeded_jobs: AsyncClient,
@@ -845,3 +854,173 @@ class TestSortParam:
         assert body["total"] == 2
         scores = [j["ai_fit_score"] for j in body["jobs"]]
         assert scores == sorted(scores, reverse=True), scores
+
+    async def test_sort_posted_desc_uses_score_desc_as_secondary(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # Two extra rows with the same ``posted_at`` but different
+        # ``ai_fit_score`` so the primary sort ties and the secondary
+        # ``ai_fit_score DESC NULLS LAST`` becomes visible. The seed
+        # rows all have NULL posted_at, so they cluster at the
+        # bottom under ``nulls_last``; the two new same-date rows
+        # dominate the top of the response.
+        same_date = datetime(2026, 7, 1, 12, 0, 0, tzinfo=timezone.utc)
+        high_id = _seed_id_for("posted_secondary_high")
+        low_id = _seed_id_for("posted_secondary_low")
+
+        async def _add() -> None:
+            async with AsyncSessionLocal() as session:
+                session.add(
+                    db_models.Job(
+                        id=low_id,
+                        company_name="SameDate LowScore",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="SameDate LowScore",
+                        url="https://example.com/samedate-lowscore",
+                        ai_fit_score=0.50,
+                        posted_at=same_date,
+                    )
+                )
+                session.add(
+                    db_models.Job(
+                        id=high_id,
+                        company_name="SameDate HighScore",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="SameDate HighScore",
+                        url="https://example.com/samedate-highscore",
+                        ai_fit_score=0.95,
+                        posted_at=same_date,
+                    )
+                )
+                await session.commit()
+
+        await _add()
+
+        r = await seeded_jobs.get("/api/jobs?sort=posted_desc")
+        assert r.status_code == 200, r.text
+        jobs = r.json()["jobs"]
+        same_date_rows = [
+            j for j in jobs
+            if j["id"] in {str(high_id), str(low_id)}
+        ]
+        assert len(same_date_rows) == 2
+        assert same_date_rows[0]["id"] == str(high_id)
+        assert same_date_rows[1]["id"] == str(low_id)
+        assert same_date_rows[0]["ai_fit_score"] > same_date_rows[1]["ai_fit_score"]
+
+    async def test_sort_posted_asc_uses_score_desc_as_secondary(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # The secondary ``ai_fit_score DESC`` is constant across
+        # sort modes: even when the primary is ``posted_asc``, ties
+        # on posted_at break by highest score first. Verifies the
+        # consistency the user asked for ("all five sort options").
+        same_date = datetime(2026, 7, 1, 12, 0, 0, tzinfo=timezone.utc)
+        high_id = _seed_id_for("posted_asc_secondary_high")
+        low_id = _seed_id_for("posted_asc_secondary_low")
+
+        async def _add() -> None:
+            async with AsyncSessionLocal() as session:
+                session.add(
+                    db_models.Job(
+                        id=low_id,
+                        company_name="AscDate LowScore",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="AscDate LowScore",
+                        url="https://example.com/ascdate-lowscore",
+                        ai_fit_score=0.50,
+                        posted_at=same_date,
+                    )
+                )
+                session.add(
+                    db_models.Job(
+                        id=high_id,
+                        company_name="AscDate HighScore",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="AscDate HighScore",
+                        url="https://example.com/ascdate-highscore",
+                        ai_fit_score=0.95,
+                        posted_at=same_date,
+                    )
+                )
+                await session.commit()
+
+        await _add()
+
+        r = await seeded_jobs.get("/api/jobs?sort=posted_asc")
+        assert r.status_code == 200, r.text
+        jobs = r.json()["jobs"]
+        # The two same-date rows are the only non-NULL posted_at
+        # rows in the corpus, so under ``posted_asc NULLS LAST``
+        # they cluster at the TOP of the list (oldest non-NULL
+        # dates come first; the 6 seed rows with NULL posted_at
+        # sink to the bottom).
+        same_date_rows = [
+            j for j in jobs
+            if j["id"] in {str(high_id), str(low_id)}
+        ]
+        assert len(same_date_rows) == 2
+        # Secondary sort kicks in within the same date even under ASC.
+        assert same_date_rows[0]["id"] == str(high_id)
+        assert same_date_rows[1]["id"] == str(low_id)
+
+    async def test_sort_score_desc_with_tied_scores_uses_secondary(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # Two extra rows with the same ``ai_fit_score`` so the
+        # primary sort ties. The secondary sort is also
+        # ``ai_fit_score DESC`` (a no-op for ties on the same
+        # column) so the tertiary ``id`` is what actually
+        # differentiates. The visible effect is that two rows with
+        # the same score come back in a deterministic order, not
+        # in a random Postgres row-order sequence.
+        tied_score = 0.77
+        a_id = _seed_id_for("tied_a")
+        b_id = _seed_id_for("tied_b")
+
+        async def _add() -> None:
+            async with AsyncSessionLocal() as session:
+                session.add(
+                    db_models.Job(
+                        id=a_id,
+                        company_name="Tied A",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="Tied A",
+                        url="https://example.com/tied-a",
+                        ai_fit_score=tied_score,
+                    )
+                )
+                session.add(
+                    db_models.Job(
+                        id=b_id,
+                        company_name="Tied B",
+                        status="approved",
+                        ats_type="greenhouse",
+                        title="Tied B",
+                        url="https://example.com/tied-b",
+                        ai_fit_score=tied_score,
+                    )
+                )
+                await session.commit()
+
+        await _add()
+
+        r = await seeded_jobs.get("/api/jobs?sort=score_desc")
+        assert r.status_code == 200, r.text
+        jobs = r.json()["jobs"]
+        tied_rows = [j for j in jobs if j["id"] in {str(a_id), str(b_id)}]
+        assert len(tied_rows) == 2
+        assert tied_rows[0]["ai_fit_score"] == pytest.approx(tied_score)
+        assert tied_rows[1]["ai_fit_score"] == pytest.approx(tied_score)
+        # Deterministic order: the row with the lexicographically
+        # smaller UUID (id-column ASC tiebreaker) comes first.
+        expected_first, expected_second = sorted(
+            [str(a_id), str(b_id)],
+        )
+        assert tied_rows[0]["id"] == expected_first
+        assert tied_rows[1]["id"] == expected_second

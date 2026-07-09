@@ -540,32 +540,59 @@ async def list_jobs(
         count_stmt = count_stmt.where(db_models.Job.company_id == company_id)
 
     # Sort selection. Each branch picks the primary order_by and
-    # falls back to ``id`` as a stable secondary key so a re-paginate
-    # of the same query set doesn't shuffle rows. ``nulls_last()``
-    # is explicit on the nullable columns (ai_fit_score, posted_at)
-    # so unscored / undated jobs land at the bottom of the list
-    # regardless of the primary direction — sorting
-    # ``score ASC NULLS FIRST`` would otherwise float the unscored
-    # rows to the top, which is the opposite of what the operator
-    # wants.
+    # then layers on a common secondary/tertiary sort:
+    #   * ``ai_fit_score DESC NULLS LAST`` — within rows that tie on
+    #     the primary key, the highest-scored jobs float to the top
+    #     so the operator sees the best matches first regardless of
+    #     which primary axis they picked. ``NULLS LAST`` keeps
+    #     unscored rows at the bottom so an unscored job never
+    #     floats to the top of a "newest first" list just because
+    #     its score is missing.
+    #   * ``id`` — stable tertiary tiebreaker so a re-paginate of
+    #     the same query set doesn't shuffle rows.
+    #
+    # ``nulls_last()`` is also explicit on the nullable primary
+    # columns (ai_fit_score, posted_at) so unscored / undated jobs
+    # land at the bottom of the list regardless of the primary
+    # direction — sorting ``score ASC NULLS FIRST`` would otherwise
+    # float the unscored rows to the top, which is the opposite of
+    # what the operator wants.
+    secondary_sort = (
+        db_models.Job.ai_fit_score.desc().nulls_last(),
+        db_models.Job.id,
+    )
     if sort == "score_desc":
-        order_clauses = [db_models.Job.ai_fit_score.desc().nulls_last(), db_models.Job.id]
+        order_clauses = [
+            db_models.Job.ai_fit_score.desc().nulls_last(),
+            *secondary_sort,
+        ]
     elif sort == "score_asc":
-        order_clauses = [db_models.Job.ai_fit_score.asc().nulls_last(), db_models.Job.id]
+        order_clauses = [
+            db_models.Job.ai_fit_score.asc().nulls_last(),
+            *secondary_sort,
+        ]
     elif sort == "posted_desc":
-        order_clauses = [db_models.Job.posted_at.desc().nulls_last(), db_models.Job.id]
+        order_clauses = [
+            db_models.Job.posted_at.desc().nulls_last(),
+            *secondary_sort,
+        ]
     elif sort == "posted_asc":
-        order_clauses = [db_models.Job.posted_at.asc().nulls_last(), db_models.Job.id]
+        order_clauses = [
+            db_models.Job.posted_at.asc().nulls_last(),
+            *secondary_sort,
+        ]
     else:
         # Default — and the fallback for unknown ``?sort=`` values.
         # ``review_deadline ASC NULLS LAST`` keeps the in-review rows
         # that have a real deadline at the top of the list — those
         # are the rows the operator wants to clear first. Terminal-
         # status rows have ``review_deadline IS NULL`` and naturally
-        # sink to the bottom.
+        # sink to the bottom; the secondary ``ai_fit_score DESC``
+        # then orders those terminal rows from best-matched to
+        # worst-matched.
         order_clauses = [
             db_models.Job.review_deadline.asc().nulls_last(),
-            db_models.Job.id,
+            *secondary_sort,
         ]
 
     stmt = stmt.order_by(*order_clauses).offset((page - 1) * page_size).limit(page_size)

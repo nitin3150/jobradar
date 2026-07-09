@@ -234,6 +234,13 @@ jobs:
       # bigger org set doesn't drown the review queue; tune
       # here, NOT in the script.
       JOB_FIT_THRESHOLD: "0.7"
+      # Supabase REST auth — supabase-py reads these from the process
+      # env at startup; missing or wrong values make every REST write
+      # 401 with "Invalid API key" (PostgREST layer). The actual
+      # values live in repo Settings → Secrets and variables → Actions
+      # — NOT here in plaintext.
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
       # Fail-fast: lint the four required secrets BEFORE checkout
       # so a misconfigured repo fails in ~2 s instead of ~30 s of
@@ -380,6 +387,13 @@ jobs:
       BOARDS_BOARDS: "ashby greenhouse lever"
       BOARDS_LIMIT: "0"
       JOB_FIT_THRESHOLD: "0.7"
+      # Supabase REST auth — supabase-py reads these from the process
+      # env at startup; missing or wrong values make every REST write
+      # 401 with "Invalid API key" (PostgREST layer). The actual
+      # values live in repo Settings → Secrets and variables → Actions
+      # — NOT here in plaintext.
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
       # Fail-fast: same secrets-lint as active (see comment there).
       # Duplicated inline because we want the check to run BEFORE

@@ -2,4 +2,15 @@ fastapi
 dotenv
 pydantic
 uvicorn
-python-multipart
+# ``python-multipart`` install was relocated to the repo-root
+# ``Makefile`` (target ``install-multipart``) and pinned ``>=0.0.9``
+# there. Removing the line here ensures ``uv pip install -e .``
+# (which consults ``pyproject.toml`` only) won't accidentally pull an
+# unpinned 0.0.x release that crashes Starlette's form parser at
+# test-collection time — see the Makefile header comment for the
+# schema-blocker-mask rationale.
+sqlalchemy[asyncio]>=2.0.30
+asyncpg>=0.29.0
+alembic>=1.13.0
+supabase>=2.4.0
+openai>=1.40

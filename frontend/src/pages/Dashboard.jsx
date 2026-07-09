@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useCategory } from '../contexts/CategoryContext';
 import { useScannerOpportunities } from '../hooks/useScanner';
+import { useBoardOpportunities } from '../hooks/useBoardOpportunities';
 import FilterBar from '../components/FilterBar';
 import CompanyFeed from '../components/CompanyFeed';
 import OutreachPanel from '../components/OutreachPanel';
@@ -30,7 +31,20 @@ function DashboardContents({ category }) {
     return out;
   }, [filters.delta_hours, filters.min_score]);
 
-  const { data, isLoading } = useScannerOpportunities(category, queryParams);
+  // The boards tab reads from Supabase (`/api/jobs`); the other 4 tabs
+  // (funding / ngos / remote / oss) keep live-scraping via
+  // ``useScannerOpportunities``. Passing ``null`` as the category to
+  // ``useScannerOpportunities`` disables its auto-trigger
+  // (``enabled: !!category`` in the hook), so the unused branch costs
+  // nothing — React Query just sits idle waiting for a real category.
+  // ``useBoardOpportunities`` is unconditional because React's rules
+  // of hooks forbid branching at the hook call site.
+  const scannerQuery = useScannerOpportunities(
+    category === 'boards' ? null : category,
+    queryParams,
+  );
+  const boardQuery = useBoardOpportunities();
+  const { data, isLoading } = category === 'boards' ? boardQuery : scannerQuery;
 
   const opportunities = useMemo(() => {
     const list = data?.opportunities || [];

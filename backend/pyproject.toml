@@ -38,6 +38,15 @@ required-version = ">=0.4.0"
 #   * tests        — pytest modules; not part of distribution
 #   * scripts      — ad-hoc entry points (boots via ``python scripts/X.py``)
 #   * apply_worker — out-of-process Playwright worker, separate entry point
+#   * storage      — directory exists locally but is UNTRACKED in this
+#                     branch, so the GHA clone doesn't have it and setuptools
+#                     would refuse to install with ``package directory
+#                     'storage' does not exist``. Nothing in the boards_scan
+#                     runtime closure (script + runner + llm_client +
+#                     settings) imports from ``storage``, so dropping it is
+#                     safe. Once a separate PR ships its contents, re-add
+#                     ``"storage"`` alphabetically between ``"services"``
+#                     and ``"utils"``.
 #
 # ``models`` is included even though it lacks ``__init__.py`` because
 # ``pipeline/nodes/merge.py`` and ``pipeline/graph.py`` do
@@ -55,6 +64,5 @@ packages = [
     "pipeline",
     "routes",
     "services",
-    "storage",
     "utils",
 ]

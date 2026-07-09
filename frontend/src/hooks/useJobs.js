@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   approveJob,
+  fetchJob,
   fetchJobs,
   fetchPendingCount,
   patchJobStatus,
@@ -24,6 +25,23 @@ export function useJobs(filters = {}) {
     staleTime: 30_000,
     refetchInterval: 60_000,
     keepPreviousData: true,
+  });
+}
+
+// Single-job lookup. Drives the React ``JobDetail`` page; mirrors
+// the pattern of ``useCompany`` in ``hooks/useCompanies.js``. The
+// ``enabled: !!id`` guard avoids a wasted request on first render
+// when ``useParams`` returns ``{id: undefined}`` (deep-link
+// mid-route-mount).
+export function useJob(id) {
+  return useQuery({
+    queryKey: ['job', id],
+    queryFn: () => fetchJob(id),
+    enabled: !!id,
+    // 30s is short enough to catch a status flip the operator
+    // makes from the JobBoard + nav-back, long enough to skip
+    // re-fetch storms when the React Query cache is warm.
+    staleTime: 30_000,
   });
 }
 

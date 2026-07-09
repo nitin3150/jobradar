@@ -1,9 +1,80 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useCompany } from '../hooks/useCompanies';
+import { useJobs } from '../hooks/useJobs';
 import { useOutreachMessages } from '../hooks/useOutreach';
 import Navbar from '../components/Navbar';
 import OutreachPanel from '../components/OutreachPanel';
+
+const JOB_STATUS_COLORS = {
+  in_review: 'bg-yellow-100 text-yellow-800',
+  approved: 'bg-green-100 text-green-800',
+  rejected: 'bg-red-100 text-red-800',
+  applied: 'bg-blue-100 text-blue-800',
+  flagged: 'bg-orange-100 text-orange-800',
+};
+
+// Related Jobs list. The backend ``GET /api/jobs?company_id=<uuid>``
+// filter does the SQL work; this component renders the returned
+// rows as compact cards that link to ``/jobs/:id`` for the full
+// detail + research view. Lazy research: we deliberately do NOT
+// fetch research_reports here — an N+1 of LLM-backed queries per
+// company would be too expensive. The JobDetail page handles the
+// "View research" affordance on click.
+function RelatedJobs({ companyId }) {
+  const { data, isLoading } = useJobs({ company_id: companyId, page_size: 50 });
+
+  if (isLoading) {
+    return (
+      <p className="text-sm text-gray-400">Loading related jobs…</p>
+    );
+  }
+
+  const jobs = data?.jobs || [];
+  if (jobs.length === 0) {
+    return (
+      <p className="text-sm text-gray-400">
+        No jobs from this company in the queue yet.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-2" data-testid="related-jobs">
+      {jobs.map((job) => (
+        <Link
+          key={job.id}
+          to={`/jobs/${job.id}`}
+          className="flex items-center justify-between gap-3 p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-100 transition-colors"
+        >
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {job.title}
+            </p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {job.ats_type}
+              {job.ai_fit_score != null && (
+                <>
+                  {' · '}
+                  <span className="text-indigo-600 font-medium">
+                    {Math.round(job.ai_fit_score * 100)}% fit
+                  </span>
+                </>
+              )}
+            </p>
+          </div>
+          <span
+            className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full ${
+              JOB_STATUS_COLORS[job.status] || 'bg-gray-100 text-gray-700'
+            }`}
+          >
+            {job.status.replace('_', ' ')}
+          </span>
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 function ScoreBar({ score }) {
   let barColor = 'bg-red-500';
@@ -174,6 +245,24 @@ export default function CompanyDetail() {
           </div>
         </div>
       )}
+
+      {/* Related Jobs — drives the wire from company → JobDetail.
+          Each row is a Link to ``/jobs/:id`` where the operator can
+          read the full posting + the LLM Interview Prep brief. */}
+      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-gray-900">
+            Related Jobs
+          </h2>
+          <Link
+            to={`/jobs?company_id=${company.id}`}
+            className="text-xs text-indigo-600 hover:underline"
+          >
+            View all →
+          </Link>
+        </div>
+        <RelatedJobs companyId={company.id} />
+      </div>
 
       {/* Outreach History */}
       <div className="bg-white border border-gray-200 rounded-xl p-6">

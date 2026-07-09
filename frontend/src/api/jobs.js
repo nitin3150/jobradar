@@ -23,6 +23,12 @@
 // show provenance.
 
 export const fetchJobs = (params) => api.get('/jobs', { params }).then((r) => r.data);
+// Single-job lookup. Drives the React ``JobDetail`` page. The
+// server returns the same ``Job`` Pydantic model the list endpoint
+// emits per-row, so the React JobCard / JobDetail consumers share
+// the same field set without a separate ``JobDetail`` schema. 404
+// surfaces as an axios error with the server's ``detail`` field.
+export const fetchJob = (id) => api.get(`/jobs/${id}`).then((r) => r.data);
 export const fetchPendingCount = () => api.get('/jobs/pending-count').then((r) => r.data);
 
 // Generic status PATCH. Replaces the per-status POST endpoints in

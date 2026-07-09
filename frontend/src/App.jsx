@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import CompanyDetail from './pages/CompanyDetail';
 import JobBoard from './pages/JobBoard';
+import JobDetail from './pages/JobDetail';
 import ApplicationTracker from './pages/ApplicationTracker';
 import QABank from './pages/QABank';
 import { CategoryProvider, useCategory } from './contexts/CategoryContext';
@@ -37,6 +38,7 @@ function Shell() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/company/:id" element={<CompanyDetail />} />
         <Route path="/jobs" element={<JobBoard />} />
+        <Route path="/jobs/:id" element={<JobDetail />} />
         <Route path="/applications" element={<ApplicationTracker />} />
         <Route path="/qa-bank" element={<QABank />} />
       </Routes>

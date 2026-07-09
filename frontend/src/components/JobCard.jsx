@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 // Single status-pill colour map. Mirrors the legacy JobsReview styling
 // so the merged page keeps the colour-by-status instant-readability the
@@ -73,7 +74,6 @@ function fmtRelative(iso) {
  */
 export default function JobCard({ job, onInterviewPrep, onChangeStatus, onGenerateOutreach, onMarkApplied }) {
   const [statusOpen, setStatusOpen] = useState(false);
-  const [pendingStatus, setPendingStatus] = useState(null);
   const postedRel = fmtRelative(job.posted_at);
   const postedAbs = fmtDate(job.posted_at);
   const updatedRel = fmtRelative(job.source_updated_at);
@@ -86,14 +86,12 @@ export default function JobCard({ job, onInterviewPrep, onChangeStatus, onGenera
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <a
-              href={job.url}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to={`/jobs/${job.id}`}
               className="text-lg font-semibold text-gray-900 hover:text-indigo-600 transition-colors truncate max-w-[28rem]"
             >
               {job.title || '(untitled)'}
-            </a>
+            </Link>
             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
               ATS_COLORS[ats] || 'bg-gray-100 text-gray-700'
             }`}>

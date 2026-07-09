@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchLatestResearch, requestResearch } from '../api/jobs';
 
 const RESEARCH_KEY = ['research'];
@@ -17,11 +17,17 @@ const RESEARCH_KEY = ['research'];
  *     fresh LLM call.
  */
 export function useResearchMutation() {
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (jobId) => requestResearch(jobId),
-    // No query invalidation on success — the research_reports row
-    // lives in its own cache namespace (``['research', jobId]``) so
-    // the job-list cache stays quiet.
+    // Invalidate the cached ``['research', jobId]`` query so the
+    // JobDetail page + InterviewPrepModal both pick up the new
+    // brief immediately after a Regenerate click. Without this the
+    // mutation succeeds server-side but the displayed content stays
+    // stale for up to the 60s ``useLatestResearch`` staleTime.
+    onSuccess: (_data, jobId) => {
+      qc.invalidateQueries({ queryKey: [...RESEARCH_KEY, jobId] });
+    },
   });
 }
 

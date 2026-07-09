@@ -13,6 +13,7 @@ from pipeline.nodes.funding.runner import scan_funding
 from pipeline.nodes.ngos.runner import scan_ngos
 from pipeline.nodes.oss.runner import scan_oss
 from pipeline.nodes.remote.runner import scan_remote
+from services.scoring_service import score_and_persist
 
 router = APIRouter()
 
@@ -26,6 +27,21 @@ def _ok(domain: str, opportunities: list[dict], *, delta_hours: int, sources: Op
         "opportunities": opportunities,
         "count": len(opportunities),
     }
+
+
+def _score_then_ok(domain: str, opportunities: list[dict], *, delta_hours: int, sources: Optional[list[str]] = None) -> dict:
+    """Run the scanner, score every opportunity against the user's profile,
+    persist winners above ``preferences.job_fit_threshold``, drop the rest,
+    then return the canonical scan-response envelope.
+
+    Scoring is intentionally fire-and-forget from the response's perspective
+    — the user sees raw opportunities immediately, and the persisted winners
+    show up in ``/api/jobs`` shortly after. If the LLM is misconfigured or
+    every provider fails, :func:`score_and_persist` logs a WARN and returns
+    ``0`` so the scan response still ships.
+    """
+    score_and_persist(opportunities, domain)
+    return _ok(domain, opportunities, delta_hours=delta_hours, sources=sources)
 
 
 # ---------------------------------------------------------------------------
@@ -42,6 +58,7 @@ def run_boards(
     except UnknownBoardError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
+    score_and_persist(jobs, "boards")
     return {
         "message": "True",
         "domain": "boards",
@@ -73,7 +90,7 @@ def run_funding(
     limit: int = Query(default=50, ge=1),
     sources: Optional[list[str]] = Query(default=None, description="Allowed values: producthunt, startupsgallery."),
 ) -> dict[str, object]:
-    return _ok(
+    return _score_then_ok(
         "funding",
         scan_funding(delta_hours=delta_hours, limit=limit, sources=sources),
         delta_hours=delta_hours,
@@ -90,7 +107,7 @@ def run_ngos(
     limit: int = Query(default=50, ge=1),
     sources: Optional[list[str]] = Query(default=None, description="Allowed values: reliefweb, idealist."),
 ) -> dict[str, object]:
-    return _ok(
+    return _score_then_ok(
         "ngos",
         scan_ngos(delta_hours=delta_hours, limit=limit, sources=sources),
         delta_hours=delta_hours,
@@ -107,7 +124,7 @@ def run_remote(
     limit: int = Query(default=50, ge=1),
     sources: Optional[list[str]] = Query(default=None, description="Allowed values: hackernews, remotive, remoteok."),
 ) -> dict[str, object]:
-    return _ok(
+    return _score_then_ok(
         "remote",
         scan_remote(delta_hours=delta_hours, limit=limit, sources=sources),
         delta_hours=delta_hours,
@@ -131,6 +148,7 @@ def run_oss(
         sources=sources,
         languages=languages,
     )
+    score_and_persist(opportunities, "oss")
     return {
         "message": "True",
         "domain": "oss",

@@ -85,7 +85,7 @@ export default function Navbar({ category, onCategoryChange }) {
 
         {/* Auto-Apply Nav Links (Q&A Bank moved into ProfileMenu) */}
         <div className="flex items-center gap-1 ml-3">
-          <NavLink path="/jobs" label="Review" showBadge count={pendingCount} />
+          <NavLink path="/jobs" label="Job Board" showBadge count={pendingCount} />
           <NavLink path="/applications" label="Applications" />
         </div>
       </div>

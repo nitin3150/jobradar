@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import CompanyDetail from './pages/CompanyDetail';
-import JobsReview from './pages/JobsReview';
+import JobBoard from './pages/JobBoard';
 import ApplicationTracker from './pages/ApplicationTracker';
 import QABank from './pages/QABank';
 import { CategoryProvider, useCategory } from './contexts/CategoryContext';
@@ -36,7 +36,7 @@ function Shell() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/company/:id" element={<CompanyDetail />} />
-        <Route path="/jobs" element={<JobsReview />} />
+        <Route path="/jobs" element={<JobBoard />} />
         <Route path="/applications" element={<ApplicationTracker />} />
         <Route path="/qa-bank" element={<QABank />} />
       </Routes>

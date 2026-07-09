@@ -27,6 +27,7 @@ from pydantic import BaseModel
 
 from pipeline.graph import scan_pipeline
 from pipeline.nodes.jobs_boards.runner import run_all as run_jobs_boards
+from services.scoring_service import score_and_persist
 
 router = APIRouter()
 
@@ -67,6 +68,11 @@ class DiscoverResponse(BaseModel):
     status: Literal["completed", "failed"]
     companies_attached: int
     scanned: int
+    # How many of the ``scanned`` opportunities cleared the user's
+    # ``job_fit_threshold`` and landed in the in-review queue. Zero when
+    # the LLM provider is not configured (boards run unscored) or every
+    # score was below the threshold.
+    winners_count: int = 0
     error: str | None = None
 
 
@@ -222,20 +228,42 @@ def discover() -> DiscoverResponse:
     _PIPELINE_STATE["state"] = "running"
     _PIPELINE_STATE["recent_error"] = None
     try:
-        jobs = run_jobs_boards(delta_hours=168)
+        try:
+            # No explicit ``delta_hours`` so the runner's positional
+            # default (``DEFAULT_DELTA_HOURS``, resolved at module-import
+            # time from ``os.environ.get("BOARDS_DELTA_HOURS", "168")`` or
+            # 168h baseline) takes effect. The LangGraph scheduler path
+            # now honors ``BOARDS_DELTA_HOURS`` end-to-end without a
+            # query-string override — operators tune the lookback once
+            # in ``.env`` and the discover scheduler + per-call route +
+            # CLI all pick it up after a worker restart.
+            jobs = run_jobs_boards()
+        except Exception as exc:
+            _log.exception("discover run failed (boards scrape)")
+            _PIPELINE_STATE["recent_error"] = str(exc)
+            return DiscoverResponse(
+                status="failed",
+                companies_attached=0,
+                scanned=0,
+                winners_count=0,
+                error=str(exc),
+            )
+        # Boards scraping succeeded. Score separately so a scoring crash
+        # doesn't degrade the response to ``status="failed"``. See the
+        # defense-in-depth block below for the swallow-regression guard.
+        try:
+            winners_count = score_and_persist(jobs, "boards")
+        except Exception as exc:
+            _log.exception("scoring service crashed (boards scrape succeeded)")
+            _PIPELINE_STATE["recent_error"] = (
+                f"scoring crashed after boards scrape: {exc}"
+            )
+            winners_count = 0
         return DiscoverResponse(
             status="completed",
             companies_attached=len(jobs),
             scanned=len(jobs),
-        )
-    except Exception as exc:
-        _log.exception("discover run failed")
-        _PIPELINE_STATE["recent_error"] = str(exc)
-        return DiscoverResponse(
-            status="failed",
-            companies_attached=0,
-            scanned=0,
-            error=str(exc),
+            winners_count=winners_count,
         )
     finally:
         _PIPELINE_STATE["state"] = "idle"

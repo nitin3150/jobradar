@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useCategory } from '../contexts/CategoryContext';
 import { useScannerOpportunities } from '../hooks/useScanner';
-import { useBoardOpportunities } from '../hooks/useBoardOpportunities';
 import FilterBar from '../components/FilterBar';
 import CompanyFeed from '../components/CompanyFeed';
 import OutreachPanel from '../components/OutreachPanel';
@@ -11,7 +10,6 @@ const CATEGORY_INTROS = {
   funding: 'Startups and products making headlines in the last 24 hours, with founder / contact links for outreach.',
   ngos: 'Job openings posted by NGOs in the last 3 days — humanitarian, policy, advocacy roles.',
   remote: 'Remote-friendly roles updated across HN, Remotive, and RemoteOK in the last 24 hours.',
-  boards: 'Engineering roles pulled from Ashby, Greenhouse, and Lever boards in the last hour.',
   oss: 'Trending open source repos — pick one where you can ship a PR and pitch the maintainer.',
 };
 
@@ -31,20 +29,14 @@ function DashboardContents({ category }) {
     return out;
   }, [filters.delta_hours, filters.min_score]);
 
-  // The boards tab reads from Supabase (`/api/jobs`); the other 4 tabs
-  // (funding / ngos / remote / oss) keep live-scraping via
-  // ``useScannerOpportunities``. Passing ``null`` as the category to
-  // ``useScannerOpportunities`` disables its auto-trigger
-  // (``enabled: !!category`` in the hook), so the unused branch costs
-  // nothing — React Query just sits idle waiting for a real category.
-  // ``useBoardOpportunities`` is unconditional because React's rules
-  // of hooks forbid branching at the hook call site.
-  const scannerQuery = useScannerOpportunities(
-    category === 'boards' ? null : category,
-    queryParams,
-  );
-  const boardQuery = useBoardOpportunities();
-  const { data, isLoading } = category === 'boards' ? boardQuery : scannerQuery;
+  // The four remaining tabs (funding / ngos / remote / oss) all
+  // keep live-scraping via ``useScannerOpportunities``. The boards
+  // category was retired — its content lives on the new ``/jobs``
+  // JobBoard page where it shares the canonical ``jobs`` table with
+  // the manual-apply handoff. Passing the active category is
+  // unconditional so the hook's ``enabled: !!category`` check fires.
+  const scannerQuery = useScannerOpportunities(category, queryParams);
+  const { data, isLoading } = scannerQuery;
 
   const opportunities = useMemo(() => {
     const list = data?.opportunities || [];
@@ -67,12 +59,6 @@ function DashboardContents({ category }) {
         </span>
         <span className="text-xs text-gray-400">{category.toUpperCase()} domain</span>
       </div>
-
-      {/* In-flow job-lifecycle widget — sits above the scanner feed so
-          the operator's "Approve → Apply" hot path is the first thing
-          they see on every Dashboard visit. Hides itself when there are
-          no jobs awaiting a decision so the scanner view stays clean. */}
-      <PendingReviewWidget />
 
       <FilterBar filters={filters} setFilters={setFilters} category={category} />
 

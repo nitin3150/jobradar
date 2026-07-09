@@ -5,13 +5,24 @@ the previous in-memory version; :class:`Job` etc. still match what
 ``frontend/src/api/jobs.js`` consumes:
 
 * ``GET /api/jobs?status=in_review&page_size=50`` →
-  ``{"jobs": [...], "total": int}``.
-* ``GET /api/jobs/pending-count`` → ``{"count": int}`` — number of
-  jobs in ``status == "in_review"``.
+  ``{\"jobs\": [...], \"total\": int, \"page\": int, \"page_size\": int}``.
+* ``GET /api/jobs/pending-count`` → ``{\"count\": int}`` — number of
+  jobs in ``status == \"in_review\"``.
 * ``POST /api/jobs/{job_id}/approve`` — flips ``status`` to
-  ``"approved"`` and clears ``review_deadline``.
+  ``\"approved\"`` and clears ``review_deadline``. Bus-compat shim;
+  writes a job_status_history row.
 * ``POST /api/jobs/{job_id}/reject`` — flips ``status`` to
-  ``"rejected"`` and clears ``review_deadline``.
+  ``\"rejected\"`` and clears ``review_deadline``. Bus-compat shim;
+  writes a job_status_history row.
+* ``PATCH /api/jobs/{job_id}/status`` — canonical status writer. Body
+  ``{ status, source?, note? }``. Updates ``jobs.status`` AND inserts
+  a ``job_status_history`` row in the same transaction so an analyst
+  query can never observe a status with no history.
+* ``POST /api/jobs/{job_id}/research`` — sync Interview Prep. Calls
+  :class:`services.llm_client.LLMClient.research_opportunity`,
+  persists a ``research_reports`` row, returns the report envelope.
+* ``GET /api/jobs/{job_id}/research`` — re-open the most recent
+  ready report without a fresh LLM call.
 
 Read paths source from :class:`db.models.Job` via the async
 SQLAlchemy session factory. Writes from :mod:`services.scoring_service`
@@ -20,7 +31,9 @@ upsert keyed on a deterministic :func:`uuid5`-generated id.
 
 Route-ordering note: ``GET /jobs/pending-count`` is declared BEFORE
 the ``{job_id}`` action routes so a future ``GET /jobs/{job_id}``
-addition does not shadow the literal pending-count path.
+addition does not shadow the literal pending-count path. The
+``GET /jobs/{job_id}/research`` literal is also declared BEFORE
+``PATCH /jobs/{job_id}/status`` for the same reason.
 """
 from __future__ import annotations
 
@@ -35,6 +48,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import models as db_models
 from db.session import get_session, require_database_configured
+from services.llm_client import LLMClient
+from services.scoring_service import build_profile_summary
 
 
 router = APIRouter()
@@ -71,11 +86,21 @@ class Job(BaseModel):
     ai_fit_score: float | None = Field(default=None, ge=0.0, le=1.0)
     ai_fit_reasoning: str | None = None
     review_deadline: str | None = None
+    # New: board-published timestamps + our DB-side row lifecycle. All
+    # nullable because Ashby in particular doesn't expose either on
+    # its public scraper endpoints, and ``created_at`` / ``updated_at``
+    # are post-0002 columns on the ``jobs`` table.
+    posted_at: str | None = None
+    source_updated_at: str | None = None
+    created_at: str | None = None
+    updated_at: str | None = None
 
 
 class JobListResponse(BaseModel):
     jobs: list[Job]
     total: int
+    page: int = 1
+    page_size: int = 50
 
 
 class PendingCountResponse(BaseModel):
@@ -83,23 +108,59 @@ class PendingCountResponse(BaseModel):
 
 
 # ----------------------------------------------------------------------
+# PATCH /api/jobs/{id}/status body
+# ----------------------------------------------------------------------
+class JobStatusPatch(BaseModel):
+    """Body for the canonical status writer.
+
+    ``status`` is required; ``source`` defaults to ``"user"`` so an
+    operator-click is the audit-trail default. ``note`` is optional
+    and bounded to 2 KB so a runaway note cannot balloon row sizes
+    (the JobStatusHistory table stores it as TEXT without a length cap
+    at the DB layer).
+    """
+
+    status: JobStatus
+    source: str | None = Field(default="user", max_length=64)
+    note: str | None = Field(default=None, max_length=2000)
+
+
+# ----------------------------------------------------------------------
+# Research report envelope
+# ----------------------------------------------------------------------
+class ResearchReport(BaseModel):
+    id: str
+    job_id: str | None
+    status: str  # "ready" | "failed" | "pending"
+    content: str | None
+    model_used: str | None
+    error: str | None
+    requested_at: str
+    generated_at: str | None
+
+
+# ----------------------------------------------------------------------
 # Translation helpers — DB row → Pydantic wire shape
 # ----------------------------------------------------------------------
+def _iso_utc(dt: datetime | None) -> str | None:
+    """Render a timezone-aware datetime as ISO 8601 with a trailing ``Z``.
+
+    Same ``+00:00`` → ``Z`` rewrite the rest of JobRadar's wire
+    format uses, so frontend code that does ``new Date(s).toISOString()``
+    comparison can rely on the suffix.
+    """
+    if dt is None:
+        return None
+    return dt.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
 def _job_row_to_pydantic(row: db_models.Job) -> Job:
     """Map an ORM ``Job`` row to the wire-shape Pydantic ``Job``.
 
-    Two non-trivial conversions: ``id`` is a real Postgres UUID but
-    the contract is a string, and ``review_deadline`` is a real
-    ``datetime`` but the contract is an ISO 8601 string with the
-    trailing ``Z`` so tests / frontend code can match the rest of
-    JobRadar's wire format (``datetime.now(timezone.utc).isoformat()``
-    with the ``+00:00`` ⟶ ``Z`` rewrite).
+    All datetime fields render through :func:`_iso_utc` for the
+    trailing-``Z`` rewrite. ``id`` is a real Postgres UUID but the
+    contract is a string.
     """
-    deadline_iso: str | None = None
-    if row.review_deadline is not None:
-        deadline_iso = row.review_deadline.astimezone(timezone.utc).isoformat().replace(
-            "+00:00", "Z"
-        )
     return Job(
         id=str(row.id),
         status=row.status,
@@ -109,8 +170,52 @@ def _job_row_to_pydantic(row: db_models.Job) -> Job:
         url=row.url,
         ai_fit_score=row.ai_fit_score,
         ai_fit_reasoning=row.ai_fit_reasoning,
-        review_deadline=deadline_iso,
+        review_deadline=_iso_utc(row.review_deadline),
+        posted_at=_iso_utc(row.posted_at),
+        source_updated_at=_iso_utc(row.source_updated_at),
+        created_at=_iso_utc(row.created_at),
+        updated_at=_iso_utc(row.updated_at),
     )
+
+
+def _research_row_to_pydantic(row: db_models.ResearchReport) -> ResearchReport:
+    return ResearchReport(
+        id=str(row.id),
+        job_id=str(row.job_id) if row.job_id is not None else None,
+        status=row.status,
+        content=row.content,
+        model_used=row.model_used,
+        error=row.error,
+        requested_at=_iso_utc(row.requested_at) or "",
+        generated_at=_iso_utc(row.generated_at),
+    )
+
+
+def _record_status_history(
+    session: AsyncSession,
+    job_id: UUID,
+    from_status: str | None,
+    to_status: str,
+    source: str,
+    note: str | None,
+) -> db_models.JobStatusHistory:
+    """Append a job_status_history row in the *current* session.
+
+    The caller is responsible for ``session.commit()`` so the history
+    row and the parent ``jobs.status`` update land in the same
+    transaction. Splitting them would let a future observer see a
+    status change with no history — which is exactly the bug the
+    v0.5 audit-trail rebuild is meant to prevent.
+    """
+    history = db_models.JobStatusHistory(
+        job_id=job_id,
+        from_status=from_status,
+        to_status=to_status,
+        source=source or db_models.JOB_STATUS_SOURCE_USER,
+        note=note,
+    )
+    session.add(history)
+    return history
 
 
 # ----------------------------------------------------------------------
@@ -199,7 +304,7 @@ _SEED_NAMESPACE = UUID("12345678-1234-5678-1234-567812345678")
 
 
 def _seed_id_for(marker: str) -> UUID:
-    """Deterministic UUID for a seed marker (``"j_1"`` ⟶ stable UUID).
+    """Deterministic UUID for a seed marker (``"j_1"`` → stable UUID).
 
     Uses :func:`uuid.uuid5` with a fixed namespace so re-running the
     seed fixture against a clean table produces the *same* primary
@@ -269,29 +374,84 @@ async def get_pending_count(
 @router.get("", response_model=JobListResponse)
 async def list_jobs(
     status_filter: str | None = Query(default=None, alias="status"),
+    page: int = Query(default=1, ge=1, le=10_000),
     page_size: int = Query(default=50, ge=1, le=200),
+    q: str | None = Query(default=None, max_length=200),
+    ats_type: str | None = Query(default=None, max_length=32),
+    score_min: float = Query(default=0.0, ge=0.0, le=1.0),
+    posted_from: str | None = Query(default=None, max_length=32),
+    posted_to: str | None = Query(default=None, max_length=32),
     session: AsyncSession = Depends(get_session),
 ) -> JobListResponse:
-    """List jobs with optional ``status`` filter.
+    """List jobs with optional ``status`` filter, server-side pagination,
+    free-text search across title + company_name, ats_type source
+    filter, score range floor, and posted-date range.
 
-    Newest in-review rows by review deadline DESC NULLS LAST, then any
-    terminal-status rows below. ``total`` reflects the matched set
-    *before* slicing so the React list can render "showing N of M".
+    The new envelope includes ``page`` + ``page_size`` so the React
+    JobBoard can render the prev/next controls + the "showing N of M"
+    counter. ``total`` reflects the matched set *before* slicing.
+
+    ``q`` is a case-insensitive ILIKE across ``title`` and
+    ``company_name``. Posted dates are ISO 8601 strings (YYYY-MM-DD);
+    the route parses them once and re-uses for both bounds.
     """
     stmt = select(db_models.Job)
     count_stmt = select(func.count(db_models.Job.id))
+
     if status_filter:
-        # Unknown values short-circuit before the SQLAlchemy ORM
-        # builds a ``jobs.status = $1::job_status`` bindparam cast;
-        # letting an arbitrary client string reach PG would raise
-        # ``invalid input value for enum job_status: '...'`` on the
-        # live types. Returning an empty envelope (200 + []) matches
-        # the wire shape the React ``usePendingCount`` /
-        # ``useJobs`` hooks already render.
         if status_filter not in JOB_STATUS_VALUES:
-            return JobListResponse(jobs=[], total=0)
+            return JobListResponse(jobs=[], total=0, page=page, page_size=page_size)
         stmt = stmt.where(db_models.Job.status == status_filter)
         count_stmt = count_stmt.where(db_models.Job.status == status_filter)
+
+    if ats_type:
+        stmt = stmt.where(db_models.Job.ats_type == ats_type)
+        count_stmt = count_stmt.where(db_models.Job.ats_type == ats_type)
+
+    if score_min > 0.0:
+        stmt = stmt.where(db_models.Job.ai_fit_score >= score_min)
+        count_stmt = count_stmt.where(db_models.Job.ai_fit_score >= score_min)
+
+    if q:
+        # ILIKE on both fields. Wrap with ``%`` wildcards so a partial
+        # match (no anchored start) is cheap; an index on either field
+        # wouldn't help a ``%foo%`` query anyway, so we don't need
+        # to add one for this access pattern.
+        like = f"%{q.lower()}%"
+        stmt = stmt.where(
+            func.lower(db_models.Job.title).like(like)
+            | func.lower(db_models.Job.company_name).like(like)
+        )
+        count_stmt = count_stmt.where(
+            func.lower(db_models.Job.title).like(like)
+            | func.lower(db_models.Job.company_name).like(like)
+        )
+
+    if posted_from:
+        try:
+            posted_from_dt = datetime.fromisoformat(posted_from)
+            if posted_from_dt.tzinfo is None:
+                posted_from_dt = posted_from_dt.replace(tzinfo=timezone.utc)
+            stmt = stmt.where(db_models.Job.posted_at >= posted_from_dt)
+            count_stmt = count_stmt.where(db_models.Job.posted_at >= posted_from_dt)
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=400,
+                detail=f"posted_from={posted_from!r} is not a valid ISO 8601 date",
+            ) from exc
+
+    if posted_to:
+        try:
+            posted_to_dt = datetime.fromisoformat(posted_to)
+            if posted_to_dt.tzinfo is None:
+                posted_to_dt = posted_to_dt.replace(tzinfo=timezone.utc)
+            stmt = stmt.where(db_models.Job.posted_at <= posted_to_dt)
+            count_stmt = count_stmt.where(db_models.Job.posted_at <= posted_to_dt)
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=400,
+                detail=f"posted_to={posted_to!r} is not a valid ISO 8601 date",
+            ) from exc
 
     # ``review_deadline ASC NULLS LAST`` keeps the in-review rows that
     # have a real deadline at the top of the list — those are the rows
@@ -300,13 +460,15 @@ async def list_jobs(
     stmt = stmt.order_by(
         db_models.Job.review_deadline.asc().nulls_last(),
         db_models.Job.id,
-    ).limit(page_size)
+    ).offset((page - 1) * page_size).limit(page_size)
 
     total = int((await session.scalar(count_stmt)) or 0)
     rows = (await session.execute(stmt)).scalars().all()
     return JobListResponse(
         jobs=[_job_row_to_pydantic(r) for r in rows],
         total=total,
+        page=page,
+        page_size=page_size,
     )
 
 
@@ -315,7 +477,14 @@ async def approve_job(
     job_id: str = Path(min_length=1, max_length=64),
     session: AsyncSession = Depends(get_session),
 ) -> Job:
-    """Flip status to ``approved`` and clear the review deadline."""
+    """Flip status to ``approved`` and clear the review deadline.
+
+    Bus-compat shim around :func:`patch_job_status`. New UI should
+    call ``PATCH /api/jobs/{id}/status`` directly; this shim exists
+    for the legacy ``useApproveJob`` hook and any external automation
+    that still POSTs here. The history write happens in the same
+    session as the status update so the two writes commit together.
+    """
     try:
         uuid_id = UUID(job_id)
     except ValueError as exc:
@@ -324,8 +493,10 @@ async def approve_job(
     row = await session.get(db_models.Job, uuid_id)
     if row is None:
         raise HTTPException(status_code=404, detail=f"job {job_id!r} not found")
+    previous_status = row.status
     row.status = "approved"
     row.review_deadline = None
+    _record_status_history(session, row.id, previous_status, "approved", "user", None)
     await session.commit()
     return _job_row_to_pydantic(row)
 
@@ -335,7 +506,11 @@ async def reject_job(
     job_id: str = Path(min_length=1, max_length=64),
     session: AsyncSession = Depends(get_session),
 ) -> Job:
-    """Flip status to ``rejected`` and clear the review deadline."""
+    """Flip status to ``rejected`` and clear the review deadline.
+
+    Bus-compat shim around :func:`patch_job_status`; same history-
+    write contract as :func:`approve_job`.
+    """
     try:
         uuid_id = UUID(job_id)
     except ValueError as exc:
@@ -344,7 +519,171 @@ async def reject_job(
     row = await session.get(db_models.Job, uuid_id)
     if row is None:
         raise HTTPException(status_code=404, detail=f"job {job_id!r} not found")
+    previous_status = row.status
     row.status = "rejected"
     row.review_deadline = None
+    _record_status_history(session, row.id, previous_status, "rejected", "user", None)
     await session.commit()
     return _job_row_to_pydantic(row)
+
+
+@router.patch("/{job_id}/status", response_model=Job)
+async def patch_job_status(
+    payload: JobStatusPatch,
+    job_id: str = Path(min_length=1, max_length=64),
+    session: AsyncSession = Depends(get_session),
+) -> Job:
+    """Canonical status writer. Updates ``jobs.status`` AND inserts a
+    ``job_status_history`` row in the same transaction so a future
+    audit query can never observe a status with no history.
+
+    The ``source`` column on the history row defaults to ``"user"``
+    (operator click). Future automated paths (the
+    ``auto_apply_worker`` blueprint) will write ``source="auto_apply"``
+    so a single query surfaces the difference.
+
+    Validation: ``status`` must be one of the five valid ``JobStatus``
+    enum values; ``source`` is free-text but bounded to 64 chars;
+    ``note`` is bounded to 2 KB. Pydantic raises 422 on bad input.
+    """
+    try:
+        uuid_id = UUID(job_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=f"job {job_id!r} not found") from exc
+
+    row = await session.get(db_models.Job, uuid_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"job {job_id!r} not found")
+
+    previous_status = row.status
+    row.status = payload.status
+    # ``approved`` / ``rejected`` / ``applied`` are terminal — clear
+    # the review deadline so the in-review queue's partial index
+    # stops surfacing this row. ``in_review`` / ``flagged`` keep
+    # whatever deadline the prior transition left.
+    if payload.status in ("approved", "rejected", "applied"):
+        row.review_deadline = None
+
+    _record_status_history(
+        session,
+        row.id,
+        previous_status,
+        payload.status,
+        payload.source or db_models.JOB_STATUS_SOURCE_USER,
+        payload.note,
+    )
+    await session.commit()
+    return _job_row_to_pydantic(row)
+
+
+@router.post("/{job_id}/research", response_model=ResearchReport)
+async def post_research(
+    job_id: str = Path(min_length=1, max_length=64),
+    session: AsyncSession = Depends(get_session),
+) -> ResearchReport:
+    """Sync Interview Prep. Loads the job, calls
+    :func:`LLMClient.research_opportunity`, persists a
+    ``research_reports`` row, returns the envelope.
+
+    The LLM call is heavy (15-60s); a future async UX (a
+    ``research_reports`` row inserted with ``status='pending'`` then
+    a separate worker that flips it) can land on top of this shape
+    without changing the persistence model.
+    """
+    try:
+        uuid_id = UUID(job_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=f"job {job_id!r} not found") from exc
+
+    row = await session.get(db_models.Job, uuid_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"job {job_id!r} not found")
+
+    now = datetime.now(timezone.utc)
+    try:
+        client = LLMClient.from_env()
+        # Compose a Job-shaped dict for ``research_opportunity`` from
+        # the ORM row. We don't have a description column on Job so
+        # the brief is built from title + company + URL + AI reasoning
+        # — the operator's profile summary goes through unchanged.
+        job_payload = {
+            "id": str(row.id),
+            "title": row.title,
+            "company_name": row.company_name,
+            "url": row.url,
+            "ats_type": row.ats_type,
+            "description": row.ai_fit_reasoning or "",
+        }
+        profile_summary = build_profile_summary()
+        content, model_used = await client.research_opportunity(
+            job_payload, profile_summary
+        )
+        report = db_models.ResearchReport(
+            job_id=row.id,
+            status=db_models.RESEARCH_STATUS_READY,
+            content=content,
+            model_used=model_used,
+            error=None,
+            requested_at=now,
+            generated_at=datetime.now(timezone.utc),
+        )
+    except Exception as exc:  # noqa: BLE001 — RuntimeError is a subclass
+        # ``LLMClient.from_env()`` raised — no API key configured. Or
+        # ``research_opportunity`` raised — every provider failed. Or
+        # any transient provider exception. Either way we persist a
+        # ``failed`` row and return 502 so the React modal can
+        # surface the error verbatim. Catching ``Exception`` (with
+        # the BLE001 noqa) means a stray programming error still
+        # gets the failed-row + 502 treatment rather than a 500
+        # stacktrace the operator has to grep worker logs for.
+        report = db_models.ResearchReport(
+            job_id=row.id,
+            status=db_models.RESEARCH_STATUS_FAILED,
+            content=None,
+            model_used=None,
+            error=str(exc),
+            requested_at=now,
+            generated_at=datetime.now(timezone.utc),
+        )
+        session.add(report)
+        await session.commit()
+        raise HTTPException(
+            status_code=502,
+            detail=f"research failed: {exc}",
+        ) from exc
+
+    session.add(report)
+    await session.commit()
+    return _research_row_to_pydantic(report)
+
+
+@router.get("/{job_id}/research", response_model=ResearchReport)
+async def get_latest_research(
+    job_id: str = Path(min_length=1, max_length=64),
+    session: AsyncSession = Depends(get_session),
+) -> ResearchReport:
+    """Re-open the most recent ready report for a job without paying
+    for a fresh LLM call.
+
+    Returns 404 when no report exists yet so the React modal can
+    drive a fresh ``POST /api/jobs/{id}/research`` from a 404 catch.
+    """
+    try:
+        uuid_id = UUID(job_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=f"job {job_id!r} not found") from exc
+
+    stmt = (
+        select(db_models.ResearchReport)
+        .where(db_models.ResearchReport.job_id == uuid_id)
+        .where(db_models.ResearchReport.status == db_models.RESEARCH_STATUS_READY)
+        .order_by(db_models.ResearchReport.requested_at.desc())
+        .limit(1)
+    )
+    row = (await session.execute(stmt)).scalars().first()
+    if row is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"no research report for job {job_id!r} yet",
+        )
+    return _research_row_to_pydantic(row)

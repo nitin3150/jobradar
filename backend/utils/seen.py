@@ -122,8 +122,21 @@ def load_file() -> dict:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     if not SEEN_IDs.exists():
         return {}
-    with open(SEEN_IDs, "r") as f:
-        data = json.load(f)
+    try:
+        with open(SEEN_IDs, "r") as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, OSError) as exc:
+        # Malformed seen.json shouldn't crash the boards worker — the
+        # next save_seen call will overwrite the file with a clean
+        # dict. We log a warning at the warning level so an operator
+        # chasing a "missing dedup" bug sees it in the worker logs.
+        import logging
+        logging.getLogger("jobradar.seen").warning(
+            "seen.json at %s was unreadable (%s); treating as empty.",
+            SEEN_IDs,
+            type(exc).__name__,
+        )
+        return {}
     if isinstance(data, list):
         return {_hash_key(str(job_id)): None for job_id in data}
     if isinstance(data, dict):

@@ -381,17 +381,33 @@ class LLMClient:
         if nvidia_keys:
             # ``len(keys) * DEFAULT_NVIDIA_RPM`` — the doubling the
             # operator asked for, capped at the bucket's
-            # ``NVIDIA_RPM`` env override. The bucket is fetched via
-            # the same _nvidia_rate_limiter_from_env helper that
-            # single-key callers use; the helper reads only
-            # ``NVIDIA_RPM`` so the bucket size stays config-driven
-            # rather than hard-coded.
-            rpm_per_key = int(
-                os.environ.get("NVIDIA_RPM", str(DEFAULT_NVIDIA_RPM)).strip()
-                or DEFAULT_NVIDIA_RPM
-            )
+            # ``NVIDIA_RPM`` env override. Wrap the int() so a
+            # malformed env value (e.g. ``NVIDIA_RPM=fast``) raises
+            # a clear ``ValueError("NVIDIA_RPM=...")`` rather than
+            # the stdlib ``int()`` error that doesn't name the env
+            # var — the operator reading worker logs at boot
+            # immediately sees which knob is mis-configured.
+            raw_rpm = os.environ.get("NVIDIA_RPM", str(DEFAULT_NVIDIA_RPM)).strip()
+            try:
+                rpm_per_key = int(raw_rpm or DEFAULT_NVIDIA_RPM)
+            except ValueError as exc:
+                raise ValueError(
+                    f"NVIDIA_RPM={raw_rpm!r} is not a valid integer: {exc}. "
+                    f"Expected a non-negative integer (e.g. '40', '0', '100')."
+                ) from exc
             total_rpm = rpm_per_key * len(nvidia_keys)
-            shared_bucket = _make_nvidia_bucket(total_rpm)
+            # ``NVIDIA_RPM=0`` (or a malformed-but-zero value) means
+            # "disable throttling" — the operator wants to push the
+            # throttle out of the way for a higher-tier key or a
+            # one-off bulk rescan. Without this short-circuit
+            # ``_make_nvidia_bucket(0)`` raises ``ValueError`` per
+            # its positive-integer contract; we keep the providers
+            # in the chain with ``rate_limiter=None`` so the chain
+            # still works (each call fires immediately, no 429
+            # protection — but that's the explicit intent).
+            shared_bucket = (
+                _make_nvidia_bucket(total_rpm) if total_rpm > 0 else None
+            )
             base_url = os.environ.get("NVIDIA_BASE_URL", DEFAULT_NVIDIA_BASE)
             model = os.environ.get("NVIDIA_MODEL", DEFAULT_NVIDIA_MODEL)
             for idx, (_env_name, key, _label) in enumerate(nvidia_keys):
@@ -718,39 +734,6 @@ def build_research_prompt(
 RESEARCH_MAX_TOKENS = 1500
 
 
-class LLMClient:
-    """Scoring + research client with retry-then-fallback across providers.
-
-    Providers are tried in order. Within a provider, transient failures
-    (timeout, 5xx, connection, rate-limit) trigger one retry before we
-    advance to the next provider. ``BadRequest`` / ``Authentication`` /
-    ``NotFound`` are treated as permanent — they won't help if we just
-    try again, so we advance immediately.
-
-    Cost ceiling: a single opportunity costs at most ``len(providers) * 2``
-    LLM calls (1 attempt + 1 retry per provider) before :meth:`score_opportunity`
-    raises :class:`RuntimeError`.
-
-    Two NVIDIA keys are supported by adding a second provider slot;
-    both NVIDIA slots share one rate-limiter bucket so the combined
-    RPM budget is ``len(nvidia_keys) * NVIDIA_RPM``.
-    """
-
-    def __init__(self, providers: list[ProviderConfig]) -> None:
-        if not providers:
-            raise ValueError("providers list cannot be empty")
-        self.providers = providers
-        # ``AsyncOpenAI`` is async-only; we instantiate one per provider because
-        # the underlying SDK holds an ``httpx.AsyncClient`` bound to the asyncio
-        # loop at construction time. Re-using across loops causes warnings — we
-        # avoid the footgun by keeping the count small (≤ 3 providers in v1:
-        # nvidia_1 + nvidia_2 + groq).
-        self._clients: dict[str, AsyncOpenAI] = {
-            p.name: AsyncOpenAI(api_key=p.api_key, base_url=p.base_url)
-            for p in providers
-        }
-
-
 __all__ = [
     "DEFAULT_NVIDIA_BASE",
     "DEFAULT_NVIDIA_MODEL",
@@ -766,4 +749,6 @@ __all__ = [
     "build_prompt",
     "build_research_prompt",
     "parse_score_response",
+    "_unique_rate_limiters",
+    "_make_nvidia_bucket",
 ]

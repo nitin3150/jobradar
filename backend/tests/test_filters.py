@@ -25,14 +25,18 @@ import unittest
 from utils.filters import (
     CLEARANCE_PATTERNS,
     DEFAULT_RELEVANT_PATTERNS,
+    HARD_BENCH_TRIGGER_PATTERNS,
     NO_SPONSORSHIP_PATTERNS,
     SENIORITY_RANKS,
     SENIORITY_TIERS,
     SENIORITY_VALUES,
     SeniorityTier,
+    YEARS_OF_EXPERIENCE_PATTERN,
+    bench_org_from_text,
     classify_seniority,
     filter_roles,
     is_relevant_role,
+    min_years_required,
     seniority_rank,
 )
 
@@ -377,6 +381,228 @@ class TestPatternsAreNonEmpty(unittest.TestCase):
 
     def test_relevant_patterns_non_empty(self) -> None:
         self.assertGreater(len(DEFAULT_RELEVANT_PATTERNS), 0)
+
+
+# ---------------------------------------------------------------------------
+# v0.5 additions: years-of-experience gate + org-level hard-bench trigger.
+# These power the boards runner's pre-LLM drop path — a posting that
+# hard-requires 6+ years of experience is dropped before the LLM sees it
+# (saves tokens, the operator's time, and keeps the score queue focused on
+# realistically-applicable roles). ``bench_org_from_text`` is the
+# citizenship-required version: a single match benches the whole org
+# (added to ``<board>_missing_orgs.json``) because every role at a
+# citizenship-locked shop is wasted LLM budget.
+# ---------------------------------------------------------------------------
+class TestMinYearsRequired(unittest.TestCase):
+    """Each phase tests a single phrasings variant so a regex typo
+    points at the broken expression.
+    """
+
+    def test_5_plus_years(self) -> None:
+        self.assertEqual(
+            min_years_required("5+ years of experience required"), 5
+        )
+
+    def test_minimum_5_years(self) -> None:
+        self.assertEqual(
+            min_years_required("Minimum 5 years experience"), 5
+        )
+
+    def test_at_least_3_years(self) -> None:
+        self.assertEqual(
+            min_years_required("At least 3 years of relevant experience"), 3
+        )
+
+    def test_over_7_years(self) -> None:
+        self.assertEqual(
+            min_years_required("Over 7 years of professional experience"), 7
+        )
+
+    def test_yrs_abbreviation(self) -> None:
+        self.assertEqual(min_years_required("5+ yrs experience"), 5)
+
+    def test_yr_dot_abbreviation(self) -> None:
+        self.assertEqual(min_years_required("3 yr. exp."), 3)
+
+    def test_minimum_8_returns_8(self) -> None:
+        # The boards runner's 6+ years drop fires when this returns
+        # >= 6 — verify a posting that hard-requires 8 also surfaces
+        # the right number (no off-by-one in the years parser).
+        self.assertEqual(
+            min_years_required("Minimum 8 years of experience"), 8
+        )
+
+    def test_returns_none_for_no_minimum(self) -> None:
+        # No "N years" phrasing → returns None → the role PROCEEDS to
+        # the LLM scorer. The operator's years-floor gate only fires
+        # on explicit minimums; unstated seniority is not grounds to
+        # drop a role.
+        self.assertIsNone(min_years_required("Great culture, remote work."))
+
+    def test_returns_none_for_empty_string(self) -> None:
+        self.assertIsNone(min_years_required(""))
+
+    def test_returns_none_for_none_input(self) -> None:
+        # Type guard: the function must accept None without raising.
+        # A future caller that misses the description column on the
+        # Job row should not crash the runner.
+        self.assertIsNone(min_years_required(None))  # type: ignore[arg-type]
+
+    def test_5_plus_with_preferred_only_does_not_overcount(self) -> None:
+        # A common posting: "Required: 3 years. Preferred: 7 years."
+        # The first-match rule returns 3 (the required floor) — more
+        # permissive interpretation. The boards runner's 6+ gate
+        # correctly classifies this as a pass (3 < 6).
+        self.assertEqual(
+            min_years_required("Required: 3 years. Preferred: 7 years of additional experience."),
+            3,
+        )
+
+    def test_returns_positive_int_only(self) -> None:
+        # Defensive: a future regex tweak that captures '0' or a
+        # negative int must not return it (we'd then pass it as a
+        # years-floor and the boards runner would treat every role
+        # as 0+ years, dropping nothing).
+        # We test the parser's contract directly by feeding it text
+        # where the regex would nominally capture '0' (it shouldn't,
+        # because the pattern requires \\d{1,2} so '0' is matched but
+        # the post-parse filter rejects < 1).
+        self.assertIsNone(
+            min_years_required("0 years of experience")
+        )
+
+
+# ---------------------------------------------------------------------------
+class TestBenchOrgFromText(unittest.TestCase):
+    """Hard-bench trigger regex coverage. Each test isolates a single
+    HARD_BENCH_TRIGGER_PATTERNS entry so a regression points straight
+    at the broken regex.
+    """
+
+    def test_citizenship_required(self) -> None:
+        self.assertTrue(
+            bench_org_from_text("Citizenship required for this role.")
+        )
+
+    def test_must_be_a_us_citizen(self) -> None:
+        self.assertTrue(
+            bench_org_from_text("Must be a US citizen to apply.")
+        )
+
+    def test_us_citizenship_required(self) -> None:
+        self.assertTrue(
+            bench_org_from_text("U.S. citizenship required.")
+        )
+
+    def test_permanent_resident_required(self) -> None:
+        self.assertTrue(
+            bench_org_from_text("Permanent resident required.")
+        )
+
+    def test_green_card_required(self) -> None:
+        self.assertTrue(
+            bench_org_from_text("Green card required at time of hire.")
+        )
+
+    def test_green_card_holder_required(self) -> None:
+        self.assertTrue(
+            bench_org_from_text("Green card holder required for export control.")
+        )
+
+    def test_cannot_sponsor(self) -> None:
+        self.assertTrue(
+            bench_org_from_text("We cannot sponsor at this time.")
+        )
+
+    def test_will_not_sponsor(self) -> None:
+        self.assertTrue(
+            bench_org_from_text("Company will not sponsor work visas.")
+        )
+
+    def test_no_sponsorship_will_be_provided(self) -> None:
+        self.assertTrue(
+            bench_org_from_text("No sponsorship will be provided.")
+        )
+
+    def test_no_sponsorship_will_be_available(self) -> None:
+        self.assertTrue(
+            bench_org_from_text("No sponsorship will be available.")
+        )
+
+    def test_no_visa_sponsorship_available(self) -> None:
+        self.assertTrue(
+            bench_org_from_text("No visa sponsorship available.")
+        )
+
+    def test_must_have_citizenship(self) -> None:
+        self.assertTrue(
+            bench_org_from_text("Applicants must have U.S. citizenship.")
+        )
+
+    def test_must_be_us_citizen(self) -> None:
+        # The HARD_BENCH_TRIGGER_PATTERNS regex requires the
+        # singular ``citizen`` (with the optional preceding ``a``);
+        # the plural ``citizens`` is NOT matched. A future
+        # pluralization tweak in the regex would widen this
+        # coverage — for v1 the strict-singular contract is the
+        # documented contract.
+        self.assertTrue(
+            bench_org_from_text("Candidates must be a U.S. citizen.")
+        )
+
+    def test_negative_text_returns_false(self) -> None:
+        # No "required" / "must be" / "sponsorship" — role proceeds.
+        self.assertFalse(
+            bench_org_from_text("Visa sponsorship is available for the right candidate.")
+        )
+
+    def test_empty_string_returns_false(self) -> None:
+        self.assertFalse(bench_org_from_text(""))
+
+    def test_none_input_returns_false(self) -> None:
+        self.assertFalse(bench_org_from_text(None))  # type: ignore[arg-type]
+
+    def test_clearance_does_not_bench(self) -> None:
+        # Clearance is a HARD role drop but NOT an org bench — a
+        # DoD shop may post non-cleared IC roles; benching the
+        # whole org would lose those.
+        self.assertFalse(
+            bench_org_from_text("Active TS/SCI clearance required for this role.")
+        )
+
+    def test_loose_sponsorship_mention_does_not_bench(self) -> None:
+        # "Sponsorship not available" is the role-drop gate but NOT
+        # the org-bench trigger. A company can decline to sponsor
+        # for one role and still have other roles that are
+        # sponsorship-friendly (e.g. cleared-only vs entry-level).
+        self.assertFalse(
+            bench_org_from_text("Sponsorship not available for this position.")
+        )
+
+
+# ---------------------------------------------------------------------------
+class TestPatternListsPopulated(unittest.TestCase):
+    """Regression guards: the new pattern lists must contain at least
+    one regex. An accidentally emptied list silently accepts every
+    posting — disastrous for both the role-drop and org-bench paths.
+    """
+
+    def test_years_of_experience_pattern_compiles(self) -> None:
+        # A future typo in the pattern string would break the
+        # compile. The import succeeded so the compile succeeded;
+        # the explicit pattern.search() call here documents the
+        # contract.
+        self.assertIsNotNone(YEARS_OF_EXPERIENCE_PATTERN.search("5 years of experience"))
+
+    def test_hard_bench_triggers_non_empty(self) -> None:
+        self.assertGreater(len(HARD_BENCH_TRIGGER_PATTERNS), 0)
+
+    def test_min_years_required_returns_int(self) -> None:
+        # Type-guard: the function is annotated ``int | None``; verify
+        # the positive branch returns a real int (not e.g. a string).
+        result = min_years_required("5+ years")
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, int)
 
 
 if __name__ == "__main__":

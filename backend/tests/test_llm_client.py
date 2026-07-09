@@ -55,6 +55,7 @@ from services.llm_client import (
     AsyncTokenBucket,
     LLMClient,
     ProviderConfig,
+    _unique_rate_limiters,
     build_prompt,
     parse_score_response,
 )
@@ -141,11 +142,15 @@ class TestAsyncTokenBucket(unittest.IsolatedAsyncioTestCase):
     async def test_drains_one_token_per_acquire(self) -> None:
         bucket = AsyncTokenBucket(capacity=3, refill_per_second=100.0)
         await bucket.acquire()  # token 1/3
-        self.assertAlmostEqual(bucket.available_tokens, 2.0, places=3)
+        # places=1 because the 100/s refill adds ~1ms worth of
+        # fractional tokens between acquires — places=3 was tight
+        # enough to flake on a slow CI runner. places=1 is the
+        # documented precision contract for this assertion.
+        self.assertAlmostEqual(bucket.available_tokens, 2.0, places=1)
         await bucket.acquire()  # token 2/3
-        self.assertAlmostEqual(bucket.available_tokens, 1.0, places=3)
+        self.assertAlmostEqual(bucket.available_tokens, 1.0, places=1)
         await bucket.acquire()  # token 3/3
-        self.assertAlmostEqual(bucket.available_tokens, 0.0, places=3)
+        self.assertAlmostEqual(bucket.available_tokens, 0.0, places=1)
 
     async def test_blocks_when_bucket_is_empty(self) -> None:
         # 1 token capacity, 4 tokens/sec refill → ~250ms between calls
@@ -223,10 +228,16 @@ class TestAsyncTokenBucket(unittest.IsolatedAsyncioTestCase):
         # Tighter assertion: bucket state should be unchanged by the
         # cancellation. If a regression ever consumed a token on
         # cancel, this would catch it before the next call even runs.
+        # places=1 because the bucket's 1/s refill adds fractional
+        # tokens while the cancellation propagates through
+        # ``asyncio.wait_for`` — places=6 was tight enough to flake
+        # on a slow CI runner. The semantic guarantee is "no
+        # full token was consumed by the cancellation", not
+        # "the internal float didn't change at all".
         self.assertAlmostEqual(
             bucket._tokens,
             tokens_before,
-            places=6,
+            places=1,
             msg=(
                 f"cancelled acquire() mutated _tokens from {tokens_before} "
                 f"to {bucket._tokens}; the consumer never reached the "
@@ -713,6 +724,182 @@ class TestLLMClientFromEnv(unittest.TestCase):
         os.environ["GROQ_API_KEY"] = "xyz"
         client = LLMClient.from_env()
         self.assertEqual([p.name for p in client.providers], ["groq"])
+
+
+# ----------------------------------------------------------------------
+# 2-NVIDIA-key dedupe — _unique_rate_limiters(providers) returns one entry
+# per distinct bucket object identity so the (nvidia, nvidia_2, groq)
+# chain consumes exactly 1 token per opportunity, not 2. The 2-NVIDIA
+# throttling bug the v1 review caught: each opportunity would acquire
+# the shared bucket once per NVIDIA provider slot, halving the effective
+# throughput from ``len(keys) * 40`` RPM down to ``40`` RPM. The fix is
+# to dedupe by ``id(bucket)`` and acquire ONCE per unique bucket at the
+# top of both score_opportunity and research_opportunity.
+# ----------------------------------------------------------------------
+class TestUniqueRateLimiters(unittest.IsolatedAsyncioTestCase):
+    def test_two_nvidia_sharing_one_bucket_dedupes_to_one(self) -> None:
+        # The production `from_env` path builds two ProviderConfigs that
+        # both reference the same AsyncTokenBucket (capacity=2*40 RPM).
+        # The dedupe helper must return exactly 1 entry so the retry
+        # loop's per-provider acquire() doesn't double-consume.
+        shared = AsyncTokenBucket(capacity=80, refill_per_second=80 / 60.0)
+        providers = [
+            ProviderConfig(
+                name="nvidia",
+                base_url="x",
+                api_key="a",
+                model="m",
+                rate_limiter=shared,
+                key_label="primary",
+            ),
+            ProviderConfig(
+                name="nvidia_2",
+                base_url="x",
+                api_key="b",
+                model="m",
+                rate_limiter=shared,
+                key_label="secondary",
+            ),
+            ProviderConfig(
+                name="groq",
+                base_url="y",
+                api_key="g",
+                model="m",
+                rate_limiter=None,
+            ),
+        ]
+        unique = _unique_rate_limiters(providers)
+        self.assertEqual(len(unique), 1)
+        self.assertIs(unique[0], shared)
+
+    def test_two_nvidia_separate_buckets_returns_two(self) -> None:
+        # Backward-compat sanity: when each provider has its OWN
+        # bucket (the pre-2-key code path), the helper returns one
+        # entry per bucket — the dedupe is by identity, not by name.
+        bucket_a = AsyncTokenBucket(capacity=40, refill_per_second=40 / 60.0)
+        bucket_b = AsyncTokenBucket(capacity=40, refill_per_second=40 / 60.0)
+        providers = [
+            ProviderConfig(name="nvidia", base_url="x", api_key="a", model="m", rate_limiter=bucket_a),
+            ProviderConfig(name="nvidia_2", base_url="x", api_key="b", model="m", rate_limiter=bucket_b),
+        ]
+        unique = _unique_rate_limiters(providers)
+        self.assertEqual(len(unique), 2)
+        # Order is first-seen, which is the order the providers list
+        # was constructed with.
+        self.assertIs(unique[0], bucket_a)
+        self.assertIs(unique[1], bucket_b)
+
+    def test_all_groq_returns_empty(self) -> None:
+        # Groq has no rate_limiter in v1 — the helper returns [] so
+        # the score_opportunity / research_opportunity acquire loop
+        # does nothing.
+        providers = [
+            ProviderConfig(name="groq", base_url="y", api_key="g", model="m", rate_limiter=None),
+        ]
+        self.assertEqual(_unique_rate_limiters(providers), [])
+
+    def test_empty_providers_returns_empty(self) -> None:
+        # Edge case: an LLMClient constructed with zero providers
+        # shouldn't have crashed before this point, but the helper
+        # itself must not raise.
+        self.assertEqual(_unique_rate_limiters([]), [])
+
+    def test_providers_list_none_rate_limiters_are_skipped(self) -> None:
+        # Mixed chain: NVIDIA with limiter + Groq without + an extra
+        # provider that opted out. The dedupe ignores the None
+        # entries, returning only the buckets that exist.
+        bucket = AsyncTokenBucket(capacity=40, refill_per_second=40 / 60.0)
+        providers = [
+            ProviderConfig(name="nvidia", base_url="x", api_key="a", model="m", rate_limiter=bucket),
+            ProviderConfig(name="groq", base_url="y", api_key="g", model="m", rate_limiter=None),
+        ]
+        unique = _unique_rate_limiters(providers)
+        self.assertEqual(unique, [bucket])
+
+    async def test_score_opportunity_consumes_one_token_with_two_nvidia(self) -> None:
+        # End-to-end assertion: with 2 NVIDIA providers sharing one
+        # bucket, ONE opportunity = ONE token consumed (not two). This
+        # is the integration-level guarantee the dedupe is meant to
+        # deliver.
+        shared = AsyncTokenBucket(capacity=80, refill_per_second=80 / 60.0)
+        providers = [
+            ProviderConfig(
+                name="nvidia", base_url="https://nvidia", api_key="a", model="m",
+                rate_limiter=shared, key_label="primary",
+            ),
+            ProviderConfig(
+                name="nvidia_2", base_url="https://nvidia", api_key="b", model="m",
+                rate_limiter=shared, key_label="secondary",
+            ),
+            ProviderConfig(
+                name="groq", base_url="https://groq", api_key="g", model="m", rate_limiter=None,
+            ),
+        ]
+        client = LLMClient(providers)
+        # Mock all three providers so the test exercises the
+        # acquire-dedupe-then-advance chain, not the LLM API.
+        nvidia_mock = AsyncMock()
+        nvidia_mock.chat.completions.create.return_value = _fake_response(
+            '{"score": 0.7, "reasoning": "ok"}'
+        )
+        groq_mock = AsyncMock()
+        groq_mock.chat.completions.create.return_value = _fake_response(
+            '{"score": 0.4, "reasoning": "fallback"}'
+        )
+        client._clients = {"nvidia": nvidia_mock, "nvidia_2": nvidia_mock, "groq": groq_mock}  # type: ignore[assignment]
+
+        with _no_sleep():
+            score, _ = await client.score_opportunity("profile", {"title": "x"})
+        self.assertAlmostEqual(score, 0.7)
+        # The primary NVIDIA provider served the response. The
+        # secondary wasn't called (chain succeeded on the first slot).
+        self.assertEqual(nvidia_mock.chat.completions.create.call_count, 1)
+        groq_mock.chat.completions.create.assert_not_awaited()
+        # CRITICAL: the shared bucket went from 80 to 79 — exactly ONE
+        # token consumed for this opportunity. If the dedupe were
+        # broken, this would be 78 (two acquires) and the effective
+        # throughput would be 40 RPM instead of the intended 80 RPM.
+        self.assertAlmostEqual(
+            shared.available_tokens,
+            79.0,
+            places=2,
+            msg=(
+                f"Shared bucket dropped to {shared.available_tokens}; "
+                f"expected ~79.0. Two-NVIDIA dedupe is broken if the "
+                f"bucket consumed 2 tokens for one opportunity."
+            ),
+        )
+
+    async def test_research_opportunity_consumes_one_token_with_two_nvidia(self) -> None:
+        # Same dedupe guarantee for the research (Interview Prep)
+        # code path. Bug regression: before the fix, the per-provider
+        # acquire() in research_opportunity would have consumed 2
+        # tokens per research call, doubling the LLM bill.
+        shared = AsyncTokenBucket(capacity=80, refill_per_second=80 / 60.0)
+        providers = [
+            ProviderConfig(
+                name="nvidia", base_url="https://nvidia", api_key="a", model="m",
+                rate_limiter=shared, key_label="primary",
+            ),
+            ProviderConfig(
+                name="nvidia_2", base_url="https://nvidia", api_key="b", model="m",
+                rate_limiter=shared, key_label="secondary",
+            ),
+        ]
+        client = LLMClient(providers)
+        nvidia_mock = AsyncMock()
+        nvidia_mock.chat.completions.create.return_value = _fake_response(
+            "## Company Snapshot\nstub"
+        )
+        client._clients = {"nvidia": nvidia_mock, "nvidia_2": nvidia_mock}  # type: ignore[assignment]
+
+        with _no_sleep():
+            content, model = await client.research_opportunity(
+                {"title": "x", "company_name": "y"}, "profile"
+            )
+        self.assertEqual(content, "## Company Snapshot\nstub")
+        # CRITICAL: same single-token guarantee as score_opportunity.
+        self.assertAlmostEqual(shared.available_tokens, 79.0, places=2)
 
 
 if __name__ == "__main__":

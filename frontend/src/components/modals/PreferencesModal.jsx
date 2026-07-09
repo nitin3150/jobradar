@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import Modal from '../Modal';
-import { usePreferences, DEFAULT_PREFERENCES } from '../../hooks/usePreferences';
+import {
+  usePreferences,
+  DEFAULT_PREFERENCES,
+  SENIORITY_TIERS,
+} from '../../hooks/usePreferences';
 
 function EditableList({ value, onCommit, placeholder, hint }) {
   const [text, setText] = useState(value.join(', '));
@@ -100,6 +104,51 @@ function PreferencesForm({ prefs, busy, saveError, onSave, onClose, onReset }) {
           <p className="text-xs text-gray-400 mt-1">
             Jobs below this score are dropped silently.
           </p>
+        </div>
+      </section>
+
+      <section>
+        <label className="block text-sm font-medium text-gray-800 mb-1">
+          Seniority band
+        </label>
+        <p className="text-xs text-gray-500 mb-2">
+          Filter jobs before they reach the LLM scorer. <em>Any seniority</em> disables the band.
+        </p>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">Minimum</label>
+            <select
+              value={draft.min_seniority ?? ''}
+              onChange={(e) =>
+                update({ min_seniority: e.target.value === '' ? null : e.target.value })
+              }
+              disabled={busy}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-50 disabled:opacity-70 bg-white"
+            >
+              {SENIORITY_TIERS.map((t) => (
+                <option key={`min-${t.value || 'any'}`} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">Maximum</label>
+            <select
+              value={draft.max_seniority ?? ''}
+              onChange={(e) =>
+                update({ max_seniority: e.target.value === '' ? null : e.target.value })
+              }
+              disabled={busy}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-50 disabled:opacity-70 bg-white"
+            >
+              {SENIORITY_TIERS.map((t) => (
+                <option key={`max-${t.value || 'any'}`} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </section>
 

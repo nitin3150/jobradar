@@ -54,6 +54,35 @@ MAX_WORKERS = 8
 # :func:`utils.filters.bench_org_from_text`).
 MIN_YEARS_FLOOR_DROP = 6
 
+# Slug → display name overrides for orgs where the title-case
+# fallback would mangle the brand ("openai" → "Openai" looks broken;
+# "xai" → "Xai" loses the lowercase x). Keep this list small — most
+# slugs title-case cleanly. The keys are the ATS slugs as written in
+# ``backend/data/{ashby,greenhouse,lever}_companies.json``.
+_COMPANY_NAME_OVERRIDES: dict[str, str] = {
+    "openai": "OpenAI",
+    "xai": "xAI",
+    "n8n": "n8n",
+    "scale-ai": "Scale AI",
+    "arize-ai": "Arize AI",
+}
+
+
+def _display_name_for_slug(slug: str) -> str:
+    """Map an org slug (e.g. ``"replicate"``, ``"stripe-inc"``) to a
+    human-readable company name for the JobCard UI.
+
+    The override map handles brand names that title-case badly;
+    the fallback is ``slug.replace("-", " ").title()`` which turns
+    ``"stripe-inc"`` into ``"Stripe Inc"`` and ``"replicate"`` into
+    ``"Replicate"``. The mapping is intentionally narrow — most
+    slugs title-case cleanly and adding more entries drifts toward
+    a maintenance burden the operator doesn't actually need.
+    """
+    if slug in _COMPANY_NAME_OVERRIDES:
+        return _COMPANY_NAME_OVERRIDES[slug]
+    return slug.replace("-", " ").title()
+
 # ``main()``'s argparse ``--delta-hours`` default when no
 # ``BOARDS_DELTA_HOURS`` env var is exported: 1h (the historical
 # CLI default, preserved so cron scripts that don't know about the
@@ -325,6 +354,20 @@ def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
                             parsed_updated = parse_published_at(updated)
                             if parsed_updated is not None:
                                 job["source_updated_at"] = parsed_updated
+                        # Tag the job with a human-readable company name so
+                        # downstream consumers (scoring_service, boards_scan)
+                        # can persist a real value instead of the literal
+                        # "(unknown)" fallback. The ATS fetchers don't surface
+                        # the company on each posting; the org slug (e.g.
+                        # "replicate", "stripe-inc") is the only identifier
+                        # the runner has. The override map handles the brand
+                        # names title-casing mangles ("openai" → "Openai"
+                        # without it), the title-case fallback handles
+                        # hyphenated slugs ("stripe-inc" → "Stripe Inc"), and
+                        # the ``not in`` guard keeps a future fetcher that
+                        # returns a real company_name from being clobbered.
+                        if "company_name" not in job or not job["company_name"]:
+                            job["company_name"] = _display_name_for_slug(slug)
                         kept_after_gates.append(job)
                     results.extend(kept_after_gates)
                     for job_id, stamp in r["new_ids"].items():

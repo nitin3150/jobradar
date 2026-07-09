@@ -12,6 +12,7 @@ import os
 import unittest
 from datetime import datetime, timedelta, timezone
 
+from pipeline.nodes.jobs_boards.runner import _display_name_for_slug
 from utils.time_check import parse_published_at
 
 
@@ -162,6 +163,55 @@ class TestJobBoardRunner(unittest.TestCase):
             importlib.reload(runner_module)
         msg = str(cm.exception)
         self.assertIn("positive integer", msg)
+
+
+class TestDisplayNameForSlug(unittest.TestCase):
+    """Pin the org-slug → display-name mapping used by ``run_all``
+    to populate the ``company_name`` field on each job.
+
+    The board fetchers (ashby / greenhouse / lever) don't return a
+    company name on each posting, so the runner has to derive one
+    from the org slug. The override map handles brand names
+    title-casing mangles (e.g. ``"openai"`` → ``"Openai"``), and
+    the fallback is ``slug.replace("-", " ").title()``. Pinning
+    both paths keeps a future "let's just use the slug" refactor
+    from silently regressing the JobCard UI back to ugly
+    "Stripe Inc" (was) vs "Stripe Inc" (correct) collisions.
+    """
+
+    def test_override_map_handles_brand_names(self) -> None:
+        # These three are the cases where ``.title()`` produces
+        # something an operator would call a regression. Pin them
+        # so a future "drop the map" refactor breaks the test
+        # rather than the UI.
+        self.assertEqual(_display_name_for_slug("openai"), "OpenAI")
+        self.assertEqual(_display_name_for_slug("xai"), "xAI")
+        self.assertEqual(_display_name_for_slug("n8n"), "n8n")
+
+    def test_override_map_handles_hyphenated_acronyms(self) -> None:
+        # "Scale-AI" → "Scale Ai" via .title(); "Arize-AI" via
+        # .title() — both look broken next to the brand's own
+        # marketing spelling. Override catches both.
+        self.assertEqual(_display_name_for_slug("scale-ai"), "Scale AI")
+        self.assertEqual(_display_name_for_slug("arize-ai"), "Arize AI")
+
+    def test_title_case_fallback_handles_hyphenated_slugs(self) -> None:
+        # The common case: a hyphenated slug the operator hasn't
+        # bothered to register in the override map. The title-case
+        # fallback converts "stripe-inc" → "Stripe Inc" without
+        # dragging in a hand-maintained map entry.
+        self.assertEqual(_display_name_for_slug("stripe-inc"), "Stripe Inc")
+        self.assertEqual(_display_name_for_slug("replicate"), "Replicate")
+        self.assertEqual(_display_name_for_slug("mastra"), "Mastra")
+
+    def test_unknown_slug_uses_title_case_fallback(self) -> None:
+        # No override + no obvious tokenization — title() lower-cases
+        # nothing, capitalises the first letter of each whitespace-
+        # separated token, and leaves the rest alone. Pins the
+        # contract: unknown slugs always render as something
+        # readable, never as the literal slug.
+        self.assertEqual(_display_name_for_slug("unknown-xyz"), "Unknown Xyz")
+        self.assertEqual(_display_name_for_slug("deepmind"), "Deepmind")
 
 
 if __name__ == "__main__":

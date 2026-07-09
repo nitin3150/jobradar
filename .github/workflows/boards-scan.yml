@@ -1,0 +1,469 @@
+# .github/workflows/boards-scan.yml
+#
+# JobRadar boards-scan orchestrator — runs the boards runner
+# directly inside the GitHub Actions worker. No backend deploy
+# required.
+#
+# Why "in the worker" instead of POSTing to a backend
+# ---------------------------------------------------
+# The boards runner with ``MAX_WORKERS=8`` over 10K+ orgs takes
+# 20-40 minutes. Most free-tier PaaS hosts (Render free, Railway
+# free, Koyeb) cap HTTP request timeouts at 30-60 seconds — the
+# POST would 504 long before the scan finished. GHA's free tier
+# gives 6 hours of wall-clock per job, and the worker already has
+# the ``ubuntu-latest`` image, Python 3.12, and network access.
+# So the cron triggers just shell out to the runner, the LLM, and
+# the Supabase REST API from inside the worker, and the response
+# is the JSON the script writes to stdout.
+#
+# The trade-off (vs. running on a persistent host)
+# ------------------------------------------------
+# The boards runner writes per-org dedupe state to
+# ``backend/data/seen.json`` etc. on every run. In GHA that file
+# is ephemeral — the next cron tick starts with an empty
+# ``seen.json`` and re-processes every recent job. We bound that
+# cost two ways:
+#
+#   1. ``--limit`` caps the per-board org count to keep wall-clock
+#      + LLM cost bounded (defaults 50 / 500 / 200 for the three
+#      tiers — see the BUDGET note below).
+#   2. ``ignore_duplicates=True`` on the Supabase upsert means
+#      re-running is idempotent and never overwrites an operator's
+#      prior ``approved`` / ``rejected`` decision on a row.
+#
+# For persistent cross-run dedupe, lift the runner onto a host
+# with persistent disk (Oracle Cloud Always Free ARM is the
+# recommendation — 4 cores / 24GB RAM, never expires) and have
+# this workflow POST to it instead of running the runner locally.
+#
+# Tier semantics
+# --------------
+# active  : hourly scrape of "warm" orgs. 1h delta_hours.
+# dormant : daily scrape of "slow" orgs. 24h delta_hours; the
+#           larger window catches postings that landed during
+#           off-hours UTC.
+# cleanup : weekly re-probe of missing-orgs slugs against all
+#           three boards. The existing
+#           ``cleanup_missing_orgs.py`` CLI runs in dry-run mode
+#           (probes but does not commit the verified-orgs list —
+#           that requires a host with persistent disk).
+#
+# BUDGET — GitHub Actions free tier
+# ----------------------------------
+# Public-repo free tier: 2,000 minutes/month. Each cron tick
+# pays a fixed ``~100s`` of setup overhead (checkout +
+# setup-python + pip install) BEFORE the scan starts. With the
+# defaults below, the realistic monthly breakdown is:
+#
+#   active  (hourly, ``--limit 50``)
+#     24 jobs/day × ~125s (100s setup + 25s scan+score+persist)
+#     = ~50 min/day ≈ 1,500 min/month
+#   dormant (daily 02:20, ``--limit 500``)
+#     1 job/day × ~210s (100s setup + 110s scan+score+persist)
+#     = ~3.5 min/day ≈ 105 min/month
+#   cleanup (weekly Sunday, dry-run probe)
+#     1 job/week × ~700s (100s setup + 600s probe of all
+#     missing slugs across three boards) ≈ 50 min/month
+#     (12 min/week × ~4.3 weeks/month)
+#   ---------------------------------------------
+#   total                              ≈ 1,655 min/month
+#
+# Headroom is ~300 min/month. To stay safely under:
+#
+#   - Bumping ``BOARDS_LIMIT`` for active past 200 starts to
+#     blow the budget — the setup is fixed, the scan scales
+#     linearly.
+#   - Bumping the cron to every-30-minutes doubles the
+#     active-minute cost and goes over immediately.
+#   - The free-tier Groq limit is 30 LLM req/min — at
+#     ``--limit 50`` an hourly cron uses 50 req/hour, which
+#     is comfortably under. ``--limit 500`` daily uses 500
+#     req in a few seconds and is the binding ceiling for
+#     the dormant tier on a free Groq key.
+#
+# Required GitHub Actions secrets (configure at the repo or org
+# level; the workflow will fail-fast on the first 4xx if any are
+# missing):
+#
+#   SUPABASE_URL              - e.g. https://abc.supabase.co
+#                              (no trailing slash)
+#   SUPABASE_SERVICE_ROLE_KEY - service_role secret from the
+#                              Supabase project settings
+#                              (Settings -> API). This is
+#                              server-only — never expose to the
+#                              React frontend.
+#   GROQ_API_KEY              - Groq API key for the LLM
+#                              scoring step (free tier works).
+#                              NVIDIA_API_KEY is the other
+#                              accepted name; the LLM client
+#                              picks whichever is set.
+#   STATUS_WEBHOOK_URL       - receiver for the per-tier notify
+#                              payload (Slack-compatible
+#                              incoming-webhook URL, or any
+#                              HTTPS endpoint that accepts a
+#                              JSON POST and returns 2xx).
+#
+# Optional workflow env vars (set per-job, not secrets):
+#   LLM_PROVIDER, LLM_MODEL, TARGET_ROLES, BOARDS_DELTA_HOURS,
+#   BOARDS_BOARDS, BOARDS_LIMIT, JOB_FIT_THRESHOLD — see
+#   ``backend/scripts/boards_scan.py`` for the contract.
+
+name: boards-scan
+
+on:
+  schedule:
+    # Hourly active scan — the priority list. New postings from
+    # warm orgs land in the review queue within ~60 minutes.
+    # NOTE: with the GHA free-tier budget above, the default
+    # ``--limit 50`` keeps this inside the 2,000 min/month
+    # ceiling. Operators with larger org sets should drop the
+    # cron to every 2-4 hours AND/OR bump the limit.
+    - cron: "0 * * * *"
+    # Daily dormant scan — the slow list. 02:20 UTC keeps it
+    # off-peak and gives the 02:00 active tick a 20-min
+    # headroom window to finish before dormant fires.
+    - cron: "20 2 * * *"
+    # Weekly cleanup — re-probe missing-orgs slugs so a benign
+    # outage that benched a slug doesn't keep it benched
+    # forever. 04:20 UTC runs after the dormant scan. The
+    # ``@weekly`` shortcut would be cleaner but GHA cron
+    # doesn't support it — Sunday 04:20 UTC is the next
+    # equivalent. Set to 0 0 * * 0 to shift to midnight.
+    - cron: "20 4 * * 0"
+
+# Per-tier concurrency: an in-flight scan blocks the next cron
+# tick of the SAME tier (so we never overlap a long scan with
+# a long scan of the same tier), but the three tiers don't
+# block each other. ``cancel-in-progress: false`` waits for
+# the in-flight scan to finish rather than killing it
+# mid-flight.
+concurrency:
+  group: boards-scan-${{ github.event.schedule }}
+  cancel-in-progress: false
+
+# Zero-trust GHM token scope: the workflow has no
+# ``actions/checkout`` consumer beyond the default (and we
+# explicitly grant nothing so a future maintainer who adds a
+# writeable step will need to opt in to a scope here — that
+# loud failure is the point).
+permissions: {}
+
+jobs:
+  # -----------------------------------------------------------------
+  # Active tier — hourly, 1h lookback, --limit 50.
+  # -----------------------------------------------------------------
+  scan-active:
+    if: github.event.schedule == '0 * * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BOARDS_DELTA_HOURS: "1"
+      BOARDS_BOARDS: "ashby greenhouse lever"
+      BOARDS_LIMIT: "50"
+    steps:
+      # Fail-fast: lint the four required secrets BEFORE checkout
+      # so a misconfigured repo fails in ~2 s instead of ~30 s of
+      # checkout + pip install. ``toJson(secrets)`` produces an
+      # object keyed by every SET secret with values masked to
+      # "***"; unset secrets simply don't appear, so ``jq has($n)``
+      # is the right probe. Secret VALUES never appear in
+      # ``::error::`` annotations — only the named MISSING list.
+      - name: Lint required secrets
+        id: secrets-lint
+        # 1-minute budget keeps a hung ``jq`` (extremely rare)
+        # from burning the 30/60-min job limit. The actual script
+        # runs in <500 ms — the cap is a safety belt, not a
+        # pacing knob.
+        timeout-minutes: 1
+        env:
+          SECRETS_JSON: ${{ toJson(secrets) }}
+        run: |
+          set -euo pipefail
+          MISSING=()
+          for NAME in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY GROQ_API_KEY NVIDIA_API_KEY; do
+            if ! echo "$SECRETS_JSON" | jq -e --arg n "$NAME" 'has($n)' > /dev/null; then
+              MISSING+=("$NAME")
+            fi
+          done
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            {
+              echo "::error title=Missing required GHA secrets::${MISSING[*]}"
+              for M in "${MISSING[@]}"; do
+                echo "::error::  - $M"
+              done
+              echo "::error::Add them at: https://github.com/${GITHUB_REPOSITORY}/settings/secrets/actions"
+            } >&2
+            exit 1
+          fi
+          echo "All required secrets are set."
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          # ``pip install -e .`` honours ``pyproject.toml`` and
+          # pulls every dep the boards runner + LLM client +
+          # supabase-py need. The boards runner imports
+          # ``routes.settings`` so an editable install is
+          # load-bearing (not a flat ``pip install -r
+          # requirements.txt``).
+          pip install -e .
+
+      - name: Run boards scan (active tier)
+        id: scan
+        working-directory: backend
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          # ``PYTHONUNBUFFERED=1`` so the script's
+          # ``print(..., flush=True)`` reaches the GHA run
+          # log incrementally rather than buffering until
+          # job end. The cleanup step declares the same env
+          # var explicitly; setting it here too keeps the
+          # three jobs uniform.
+          PYTHONUNBUFFERED: "1"
+        run: |
+          set -euo pipefail
+          # The script writes a structured one-line summary
+          # to stdout on every run; no ``set -x`` because the
+          # GHA run log is storage quota, not a debug
+          # terminal.
+          python scripts/boards_scan.py \
+            --delta-hours "${BOARDS_DELTA_HOURS}" \
+            --boards ${BOARDS_BOARDS} \
+            --limit "${BOARDS_LIMIT}"
+
+      - name: Notify status
+        # ``secrets.X != ''`` works in if: expressions because
+        # the ``secrets`` context is fully populated before render
+        # time — unlike a step-level ``env:`` block whose vars
+        # are set AFTER if: is evaluated. Without this guard,
+        # an unset webhook would ``curl`` with an empty URL and
+        # ``set -euo pipefail`` would turn a successful scan
+        # into a failed job. GHA masks the secret value in the
+        # rendered expression so no leakage.
+        if: always() && secrets.STATUS_WEBHOOK_URL != ''
+        env:
+          STATUS_WEBHOOK_URL: ${{ secrets.STATUS_WEBHOOK_URL }}
+        run: |
+          set -euo pipefail
+          # Compact one-liner JSON payload via ``jq``. ``conclusion``
+          # is one of success / failure / cancelled / skipped — the
+          # RECEIVER should treat ``conclusion: failure`` as the
+          # canonical "did it work?" signal because the scan
+          # step's outputs may be empty on early-exit (e.g. a
+          # boards-runner crash before the GITHUB_OUTPUT line
+          # ran). ``tier`` tells the receiver which cron fired.
+          payload=$(jq -n \
+            --arg     tier          "active" \
+            --arg     conclusion    "${{ steps.scan.conclusion }}" \
+            --arg     workflow      "${{ github.workflow }}" \
+            --argjson run_id        "${{ github.run_id }}" \
+            --argjson run_attempt   "${{ github.run_attempt }}" \
+            '{tier: $tier, conclusion: $conclusion, workflow: $workflow, run_id: $run_id, run_attempt: $run_attempt}')
+          curl -sS -X POST \
+            -H "Content-Type: application/json" \
+            -d "${payload}" \
+            "${STATUS_WEBHOOK_URL}"
+
+  # -----------------------------------------------------------------
+  # Dormant tier — daily 02:20 UTC, 24h lookback, --limit 500.
+  # Larger ``--limit`` because the dormant sweep is once a day
+  # and has 24h to cover; the LLM cost is bounded by the limit
+  # regardless of how many orgs exist on the boards.
+  # -----------------------------------------------------------------
+  scan-dormant:
+    if: github.event.schedule == '20 2 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      BOARDS_DELTA_HOURS: "24"
+      BOARDS_BOARDS: "ashby greenhouse lever"
+      BOARDS_LIMIT: "500"
+    steps:
+      # Fail-fast: same secrets-lint as active (see comment there).
+      # Duplicated inline because we want the check to run BEFORE
+      # checkout — composite actions can't reference ``secrets``
+      # without a prior checkout, which would defeat the fail-fast
+      # goal. If a third consumer ever needs the same lint, factor
+      # into a **reusable workflow** at
+      # ``.github/workflows/_secrets-lint.yml`` rather than a
+      # composite action — reusable workflows are loaded from
+      # GitHub remote and CAN run before checkout, inverse of the
+      # composite-action constraint. The caller still needs
+      # ``secrets: inherit`` on the ``uses:`` line, otherwise
+      # ``toJson(secrets)`` in the called workflow returns ``{}``
+      # and the lint false-positives every required name.
+      - name: Lint required secrets
+        id: secrets-lint
+        # 1-minute budget keeps a hung ``jq`` (extremely rare)
+        # from burning the 30/60-min job limit. The actual script
+        # runs in <500 ms — the cap is a safety belt, not a
+        # pacing knob.
+        timeout-minutes: 1
+        env:
+          SECRETS_JSON: ${{ toJson(secrets) }}
+        run: |
+          set -euo pipefail
+          MISSING=()
+          for NAME in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY GROQ_API_KEY NVIDIA_API_KEY; do
+            if ! echo "$SECRETS_JSON" | jq -e --arg n "$NAME" 'has($n)' > /dev/null; then
+              MISSING+=("$NAME")
+            fi
+          done
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            {
+              echo "::error title=Missing required GHA secrets::${MISSING[*]}"
+              for M in "${MISSING[@]}"; do
+                echo "::error::  - $M"
+              done
+              echo "::error::Add them at: https://github.com/${GITHUB_REPOSITORY}/settings/secrets/actions"
+            } >&2
+            exit 1
+          fi
+          echo "All required secrets are set."
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Run boards scan (dormant tier)
+        id: scan
+        working-directory: backend
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          set -euo pipefail
+          python scripts/boards_scan.py \
+            --delta-hours "${BOARDS_DELTA_HOURS}" \
+            --boards ${BOARDS_BOARDS} \
+            --limit "${BOARDS_LIMIT}"
+
+      - name: Notify status
+        # ``secrets.X != ''`` works in if: expressions because
+        # the ``secrets`` context is fully populated before render
+        # time — unlike a step-level ``env:`` block whose vars
+        # are set AFTER if: is evaluated. Without this guard,
+        # an unset webhook would ``curl`` with an empty URL and
+        # ``set -euo pipefail`` would turn a successful scan
+        # into a failed job. GHA masks the secret value in the
+        # rendered expression so no leakage.
+        if: always() && secrets.STATUS_WEBHOOK_URL != ''
+        env:
+          STATUS_WEBHOOK_URL: ${{ secrets.STATUS_WEBHOOK_URL }}
+        run: |
+          set -euo pipefail
+          payload=$(jq -n \
+            --arg     tier          "dormant" \
+            --arg     conclusion    "${{ steps.scan.conclusion }}" \
+            --arg     workflow      "${{ github.workflow }}" \
+            --argjson run_id        "${{ github.run_id }}" \
+            --argjson run_attempt   "${{ github.run_attempt }}" \
+            '{tier: $tier, conclusion: $conclusion, workflow: $workflow, run_id: $run_id, run_attempt: $run_attempt}')
+          curl -sS -X POST \
+            -H "Content-Type: application/json" \
+            -d "${payload}" \
+            "${STATUS_WEBHOOK_URL}"
+
+  # -----------------------------------------------------------------
+  # Cleanup tier — weekly Sunday 04:20 UTC. Re-probes the
+  # ``<board>_missing_orgs.json`` slugs against all three boards
+  # via the existing ``cleanup_missing_orgs.py`` CLI. Runs in
+  # default dry-run mode (probes but doesn't commit
+  # ``verified_org_targets.json`` — that requires a host with
+  # persistent disk). The dry-run output goes to stdout so
+  # the run log shows which slugs were re-verified.
+  # -----------------------------------------------------------------
+  scan-cleanup:
+    if: github.event.schedule == '20 4 * * 0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          # The cleanup CLI only needs ``httpx`` + the
+          # ``utils.time_check`` / ``utils.http`` helpers, but
+          # ``pip install -e .`` is the simplest reproducible
+          # command and pays the same one-time install cost.
+          pip install -e .
+
+      - name: Run boards cleanup (dry-run)
+        id: scan
+        working-directory: backend
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          set -euo pipefail
+          # ``--no-resume`` ignores the on-disk probe cache so
+          # every cleanup run re-probes from scratch (the cache
+          # is ephemeral in GHA anyway). Default mode is
+          # dry-run — the CLI prints the verification summary
+          # to stdout without writing
+          # ``verified_org_targets.json``.
+          python -m pipeline.nodes.jobs_boards.cleanup_missing_orgs --no-resume
+
+      - name: Notify status
+        # ``secrets.X != ''`` works in if: expressions because
+        # the ``secrets`` context is fully populated before render
+        # time — unlike a step-level ``env:`` block whose vars
+        # are set AFTER if: is evaluated. Without this guard,
+        # an unset webhook would ``curl`` with an empty URL and
+        # ``set -euo pipefail`` would turn a successful scan
+        # into a failed job. GHA masks the secret value in the
+        # rendered expression so no leakage.
+        if: always() && secrets.STATUS_WEBHOOK_URL != ''
+        env:
+          STATUS_WEBHOOK_URL: ${{ secrets.STATUS_WEBHOOK_URL }}
+        run: |
+          set -euo pipefail
+          payload=$(jq -n \
+            --arg     tier          "cleanup" \
+            --arg     conclusion    "${{ steps.scan.conclusion }}" \
+            --arg     workflow      "${{ github.workflow }}" \
+            --argjson run_id        "${{ github.run_id }}" \
+            --argjson run_attempt   "${{ github.run_attempt }}" \
+            '{tier: $tier, conclusion: $conclusion, workflow: $workflow, run_id: $run_id, run_attempt: $run_attempt}')
+          curl -sS -X POST \
+            -H "Content-Type: application/json" \
+            -d "${payload}" \
+            "${STATUS_WEBHOOK_URL}"

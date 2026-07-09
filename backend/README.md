@@ -34,6 +34,7 @@ variable; this README is the operator quick-reference.
 | `LLM_PROVIDER`    | yes       | Fail-closed during `fit scoring`; scrapers still run.            |
 | `LLM_API_KEY` (or `GROQ_API_KEY` / `NVIDIA_API_KEY`) | yes | LLM ranker cannot score; jobs land in `in_review` unranked. |
 | `GITHUB_TOKEN`    | **optional** | OSS tab's good-first-issues call is rate-limited to **60 req/IP/hour**. With any personal access token, it jumps to **5,000 req/hour**. **Recommended for production.** |
+| `JOBRADAR_SKIP_MIGRATIONS` | **optional** | Set to `1` to skip the auto-migration the lifespan runs on every boot. Default behaviour (unset) is to apply pending alembic migrations before serving requests — see [Deployment](#deployment) for the rationale. The test suite sets this in `backend/tests/conftest.py` so the lifespan does not race the seed fixtures on every `AsyncClient` construction. |
 
 ### `GITHUB_TOKEN` in detail
 
@@ -142,6 +143,56 @@ Search API in-process; expect ~6 outbound HTTPS calls per run. If you
 have a `GITHUB_TOKEN`, both fall under the 5,000/hr authenticated
 quota; without one, GitHub may throttle a 3-call burst on trending.
 
+## Deployment
+
+The backend auto-applies pending alembic migrations on every FastAPI
+boot. The lifespan wired into `app = FastAPI(lifespan=jobradar_lifespan)`
+in `main.py` calls `db.migrations.runner.run_migrations_to_head` after
+logging is configured and before any request lands. A failed migration
+crashes the boot — exactly the right behaviour on Render, where a
+failing migration rolls back the deploy and keeps the previous
+container serving traffic.
+
+The runner is a thin wrapper around `alembic.command.upgrade` (programmatic
+API, not the CLI), offloaded to a thread via `asyncio.to_thread` so the
+lifespan's event loop is not blocked. The runner is idempotent — calling
+it on a database already at head is a no-op, so it's safe to invoke
+from both `preDeployCommand` and the lifespan without coordination.
+
+### Render Blueprint
+
+A [`render.yaml`](../render.yaml) Blueprint spec is checked in at the
+repo root. It declares a `web` service with:
+
+- `preDeployCommand: "cd backend && alembic upgrade head"` — runs once
+  per deploy, **before** the new container is swapped in. A non-zero
+  exit aborts the deploy and keeps the previous container live.
+- `startCommand: "cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT"`
+- `healthCheckPath: /health`
+
+To enable: in the Render dashboard, go to **Blueprints → New Blueprint
+Instance** and point it at this repository. After the first deploy, set
+`DATABASE_URL` as a secret env var on the service's "Environment" page
+(do **not** commit the Supabase password to `render.yaml` — the file
+intentionally leaves it out).
+
+If you're deploying via the older "manual service" flow (no Blueprint),
+the startup hook in `jobradar_lifespan` is the only auto-migration
+guarantee. That's fine for a single-instance service — the hook fires
+once per boot, the migration is idempotent, and Render keeps the
+previous container live when a new build fails health checks.
+
+### Escaping the auto-migration
+
+Set `JOBRADAR_SKIP_MIGRATIONS=1` to opt out of the lifespan-based
+migration. Useful for one-off debug shells or when the schema is
+managed out-of-band (e.g., via the Supabase SQL editor). The test
+suite sets this flag in `backend/tests/conftest.py` because the
+lifespan fires on every `AsyncClient(transport=ASGITransport(app=app))`
+construction — paying the alembic-upgrade cost on every test is
+wasteful when the conftest fixtures already bring the schema to a
+known state via their own seed helpers.
+
 ## Where to look
 
 |Find in this file|
@@ -152,3 +203,5 @@ quota; without one, GitHub may throttle a 3-call burst on trending.
 |FastAPI routes|`routes/scanner.py`, `routes/dashboard.py`|
 |Universal opportunity model|`pipeline/nodes/merge.py`|
 |Time-parsing helper (`parse_opportunity_published`)|`utils/time_check.py`|
+|Auto-migration runner + lifespan wiring|`db/migrations/runner.py`, `utils/logging.py`|
+|Deployment Blueprint spec|`../render.yaml`|

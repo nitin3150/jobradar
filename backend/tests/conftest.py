@@ -47,6 +47,19 @@ from typing import AsyncIterator
 # tests that pin a specific value are unaffected.
 os.environ.setdefault("JOBRADAR_TEST_DB", "1")
 
+# ``JOBRADAR_SKIP_MIGRATIONS=1`` opts the test runner out of the
+# auto-migration-on-startup that ``utils.logging.jobradar_lifespan``
+# wires into every FastAPI boot. The lifespan fires on every
+# ``TestClient(app)`` (or in this repo, every ``httpx.AsyncClient`` +
+# ``ASGITransport(app=app)``) construction, so without this escape
+# hatch every test would pay the alembic-upgrade cost AND race the
+# test fixtures' own seed helpers for the same rows. The conftest
+# fixtures already bring the schema to a known state via
+# ``_seed_job_rows`` / ``_seed_applications`` — re-running alembic on
+# top of that is wasteful. Set the flag here at the very top of the
+# file so the ``from main import app`` import below picks it up.
+os.environ.setdefault("JOBRADAR_SKIP_MIGRATIONS", "1")
+
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import delete as sa_delete

@@ -42,6 +42,7 @@ but every route in this service returns JSON via FastAPI's default
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 import time
@@ -49,6 +50,7 @@ import uuid
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, AsyncIterator
 
+from db.migrations.runner import run_migrations_to_head
 from starlette.middleware.base import BaseHTTPMiddleware
 
 if TYPE_CHECKING:
@@ -227,15 +229,54 @@ def _iter_routes(app: "FastAPI"):
 
 @asynccontextmanager
 async def jobradar_lifespan(app: "FastAPI") -> AsyncIterator[None]:
-    """Application lifespan: configure logging + dump routes on startup.
+    """Application lifespan: configure logging + run migrations + dump routes on startup.
 
     Used as ``FastAPI(lifespan=...)`` in ``main.py``. ``TestClient``
     runs the lifespan on construction, so the access log is configured
     and the route dump is written before any test request fires.
+
+    Migration runner
+    ----------------
+    After logging is configured but before routes are dumped (and
+    long before any request lands), every pending alembic migration
+    is applied via :func:`db.migrations.runner.run_migrations_to_head`.
+    This protects the Render deployment from the v0.5-class outage
+    where the app boots against a stale schema and the very first
+    request that touches a new column 500s with
+    ``column jobs.posted_at does not exist``.
+
+    The runner is sync, so it is offloaded to a thread via
+    :func:`asyncio.to_thread` to avoid blocking the lifespan's
+    event loop. Exceptions propagate so a failed migration
+    crashes the boot — which is the correct behaviour on Render:
+    the existing container keeps serving traffic, the new build
+    is marked failed, and no 5xx ever lands on the wire.
+    Starlette's lifespan machinery already logs uncaught exceptions
+    with a full traceback, so we do not wrap the call in a redundant
+    ``try / except / raise``.
+
+    Set ``JOBRADAR_SKIP_MIGRATIONS=1`` (or ``true``) to opt out —
+    matches the convention :mod:`db.session` uses for
+    ``JOBRADAR_TEST_DB``. The test suite sets this in
+    ``backend/tests/conftest.py`` because the lifespan fires on
+    every ``AsyncClient(transport=ASGITransport(app=app))``
+    construction — paying the migration cost (and writing to a
+    real DB) on every test is unnecessary because the
+    conftest-managed fixtures already bring the schema to a known
+    state via their own seed helpers.
     """
     setup_logging()
     _startup_log.info("JobRadar backend starting up (LOG_LEVEL=%s)",
                       logging.getLevelName(logging.getLogger().level))
+    if os.environ.get("JOBRADAR_SKIP_MIGRATIONS", "").strip() in ("1", "true"):
+        _startup_log.info("alembic: skipped (JOBRADAR_SKIP_MIGRATIONS=1)")
+    else:
+        # ``asyncio.to_thread`` offloads the sync alembic call so the
+        # lifespan's event loop is not blocked. An uncaught exception
+        # here propagates out of the asynccontextmanager — Starlette
+        # surfaces it as a failed lifespan start, which the FastAPI
+        # / uvicorn boot path reports to the operator verbatim.
+        await asyncio.to_thread(run_migrations_to_head)
     dump_routes(app)
     try:
         yield

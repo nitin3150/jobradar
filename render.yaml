@@ -1,0 +1,75 @@
+# =============================================================================
+# JobRadar — Render Blueprint spec
+# =============================================================================
+#
+# This file is the canonical Render deployment config. To enable it:
+#
+#   1. In the Render dashboard, go to Blueprints → New Blueprint Instance.
+#   2. Point it at this repository. Render reads render.yaml and provisions
+#      the services below.
+#   3. After the first deploy, fill in the sync=false envVars (DATABASE_URL
+#      etc.) on the service's "Environment" page — Render's secret store
+#      is the safe place for the Supabase connection string.
+#
+# Why preDeployCommand runs alembic
+# ---------------------------------
+# ``preDeployCommand`` fires after the build but BEFORE Render swaps in
+# the new container and starts its health checks. This is the right
+# place to land schema changes: a failed migration aborts the deploy,
+# so the previous (working) container keeps serving traffic and no
+# 5xx ever lands on the wire. The startup hook in
+# ``utils.logging.jobradar_lifespan`` is a belt-and-suspenders backup
+# — both paths run ``alembic upgrade head`` which is idempotent (no-op
+# at head), so the second call is free.
+#
+# ``JOBRADAR_SKIP_MIGRATIONS=1`` is NOT set in this file: we want the
+# startup hook to also run in case preDeployCommand ever fails silently
+# (e.g. operator removed the preDeployCommand line in a future edit).
+#
+# Build / runtime contract
+# ------------------------
+# * buildCommand: installs backend/ into a venv that the startCommand
+#   can use. The ``.[all]`` extra is a placeholder — pyproject.toml
+#   only declares ``[test]`` today; if/when production extras are
+#   added (e.g. ``[runtime]``) swap the selector. Plain ``.`` works
+#   for the current pyproject.
+# * startCommand: runs uvicorn from backend/ so the alembic.ini
+#   ``script_location = db/migrations`` and ``prepend_sys_path = .``
+#   directives resolve correctly. ``$PORT`` is injected by Render.
+# * env: python — Render's Python runtime; ``pythonVersion`` is pinned
+#   to match ``backend/.python-version`` (3.12 today).
+#
+# Sync=false env vars
+# -------------------
+# Render's "sync" env vars are written into the runtime environment
+# AND persisted to the file system, which is appropriate for non-secret
+# config. DATABASE_URL is a SECRET — it carries the Supabase password
+# — and must be set via the dashboard's "Secret Files" or "Environment
+# Variables" UI, not as a sync value. Leaving DATABASE_URL out of
+# render.yaml entirely is the safest shape; the operator adds it
+# post-provisioning.
+# =============================================================================
+
+services:
+  - type: web
+    name: jobradar-backend
+    runtime: python
+    pythonVersion: 3.12
+    plan: starter
+    region: oregon
+    buildCommand: "cd backend && pip install -e ."
+    preDeployCommand: "cd backend && alembic upgrade head"
+    startCommand: "cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: LOG_LEVEL
+        value: "INFO"
+      # DATABASE_URL is intentionally absent — set it via the Render
+      # dashboard's secret env-var UI so the password never lands in
+      # git or in the public Blueprint spec. The asyncpg URL form is
+      # ``postgresql+asyncpg://postgres.<project>:<password>@aws-1-us-west-2.pooler.supabase.com:6543/postgres``
+      # — ``backend/db/migrations/env.py`` will auto-append
+      # ``prepared_statement_cache_size=0`` when it sees the pooler host.

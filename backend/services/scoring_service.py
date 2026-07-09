@@ -4,12 +4,16 @@ Reads
 =====
 
 * :data:`routes.settings._PREFS_STATE` — in-memory singleton the same
-  :mod:`routes.settings` writes to. We read ``job_fit_threshold`` and
-  ``target_roles``. (Will move to :class:`models.Preferences` once
-  :mod:`routes.settings` itself goes DB-native.)
-* :data:`routes.qa_bank._QA_DB` — in-memory seeded Q&A store. We pull
-  up to :data:`MAX_QA_ENTRIES_IN_PROMPT` entries, trimmed to
-  :data:`MAX_CHARS_PER_QA_ANSWER` chars each, so the prompt stays bounded.
+  :mod:`routes.settings` writes to. We read ``job_fit_threshold``
+  (the only knob the operator tunes for scoring). Target roles,
+  archetypes, and narrative context now come from the YAML profile
+  via :mod:`services.profile_service`, NOT from this dict.
+* :func:`services.profile_service.build_profile_summary` — renders
+  the rich ``config/profile.yml`` (target roles, archetypes,
+  narrative, compensation, location) into the markdown block the
+  LLM scoring prompt uses. Replaces the old Q&A-bank-blended
+  summary that mixed ``_PREFS_STATE.target_roles`` with
+  ``_QA_DB.values()``.
 
 Writes
 ======
@@ -37,7 +41,6 @@ Failure handling
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import json
 import logging
 from typing import Any
@@ -48,55 +51,42 @@ from sqlalchemy.sql import func
 
 from db import models as db_models
 from db.session import AsyncSessionLocal, require_database_configured
-from routes.qa_bank import _QA_DB
 from routes.settings import _PREFS_STATE
 
+from services import profile_service
 from .llm_client import LLMClient
 
 logger = logging.getLogger("jobradar.scoring")
 
-# Caps on the profile-summary prompt so the LLM context stays bounded
-# regardless of how many Q&A entries the operator accumulates. Extra
-# entries add tokens without changing the model's calibrated answer.
-MAX_QA_ENTRIES_IN_PROMPT = 12
-MAX_CHARS_PER_QA_ANSWER = 200
+# Cap on the number of opportunity-scoring coroutines running in
+# parallel inside one scanner pass. The LLM client has its own
+# per-provider rate-limiter (``AsyncTokenBucket`` sized at NVIDIA_RPM
+# by default), so this concurrency limit is a separate concern: it
+# caps the in-flight coroutine count so a bulk scan doesn't queue
+# hundreds of open ``await client.score_opportunity(...)`` calls on
+# the same event loop. 8 is empirically enough to saturate a 40-RPM
+# NVIDIA key without overwhelming the loop scheduler.
 MAX_SCORE_CONCURRENCY = 8
 
 
 def build_profile_summary() -> str:
     """Compose the candidate-context blob the LLM scores against.
 
-    Format::
+    Step-3: delegates to :func:`services.profile_service.build_profile_summary`
+    so the scoring context comes from the operator's YAML profile
+    (target roles, archetypes, narrative, compensation, location)
+    rather than the Q&A bank. The Q&A bank is reserved for the
+    application form auto-fill (see :mod:`routes.qa_bank`) — it
+    wasn't pulling its weight in the scoring prompt (the LLM
+    couldn't use "Years of experience: 5" to decide whether a
+    job is a fit) and it crowded out the rich profile context.
 
-        Target roles:
-        - AI Engineer
-        - LLM Engineer
-        ...
-
-        Q&A summary (frequently asked application questions):
-        - Q: Years of experience
-          A: 5 years of professional software engineering ...
-        - Q: ...
+    The public function name + zero-arg signature is preserved so
+    callers (the boards runner, the test suite, the legacy
+    ``scoring_service.build_profile_summary()`` consumers) keep
+    working without modification.
     """
-    prefs = _PREFS_STATE.get("data") or {}
-    roles = prefs.get("target_roles") or []
-    qa_entries = list(_QA_DB.values())
-
-    parts: list[str] = []
-    if roles:
-        parts.append("Target roles:\n" + "\n".join(f"- {r}" for r in roles))
-    if qa_entries:
-        sorted_entries = sorted(
-            qa_entries,
-            key=lambda e: (-e.get("times_used", 0), e["canonical_question"]),
-        )
-        sorted_entries = sorted_entries[:MAX_QA_ENTRIES_IN_PROMPT]
-        qa_lines: list[str] = []
-        for entry in sorted_entries:
-            answer = (entry.get("answer") or "(no answer yet)").strip()[:MAX_CHARS_PER_QA_ANSWER]
-            qa_lines.append(f"- Q: {entry['canonical_question']}\n  A: {answer}")
-        parts.append("Q&A summary:\n" + "\n".join(qa_lines))
-    return "\n\n".join(parts) if parts else "(no profile configured)"
+    return profile_service.build_profile_summary()
 
 
 def _job_id(ats_type: str, opportunity: dict[str, Any]):
@@ -292,6 +282,4 @@ __all__ = [
     "build_profile_summary",
     "score_and_persist",
     "_score_and_persist_async",
-    "MAX_QA_ENTRIES_IN_PROMPT",
-    "MAX_CHARS_PER_QA_ANSWER",
 ]

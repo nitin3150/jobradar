@@ -11,6 +11,13 @@ async pipeline) instead of the sync :func:`score_and_persist` wrapper —
 because the sync wrapper uses ``asyncio.run`` internally and would
 conflict with the per-test event loop that
 :class:`unittest.IsolatedAsyncioTestCase` provides.
+
+Step-3 note: ``build_profile_summary`` now delegates to
+:func:`services.profile_service.build_profile_summary`, so the
+profile content in tests comes from the committed
+``config/profile.example.yml`` (no QA bank involvement). The
+profile-service module-level cache is reset in :meth:`asyncSetUp`
+so a cached profile from one test never bleeds into the next.
 """
 from __future__ import annotations
 
@@ -21,11 +28,10 @@ from sqlalchemy import delete as sa_delete, select
 
 from db import models as db_models
 from db.session import AsyncSessionLocal
-from routes.qa_bank import _QA_DB, _seed as _seed_qa
 from routes.settings import _PREFS_STATE, _reset_prefs
+from services.profile_service import reset_cache
 
 from services.scoring_service import (
-    MAX_QA_ENTRIES_IN_PROMPT,
     _score_and_persist_async,
     build_profile_summary,
 )
@@ -53,51 +59,79 @@ async def _row_count_for_url(url: str) -> int:
 
 class _ScoringTestCase(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self) -> None:
-        _seed_qa()  # reset _QA_DB to canonical seed records (in-memory)
         _reset_prefs()  # reset _PREFS_STATE (in-memory)
+        reset_cache()  # reset the profile_service module-level cache
         await _truncate_jobs_table()
 
     async def asyncTearDown(self) -> None:
+        reset_cache()
         await _truncate_jobs_table()
 
 
 # ---------------------------------------------------------------------
-class TestBuildProfileSummary(_ScoringTestCase):
-    def test_includes_target_roles(self) -> None:
+class TestBuildProfileSummary(unittest.TestCase):
+    """``build_profile_summary`` is a pure-function delegate to the
+    profile_service renderer — no DB, no LLM, no async.
+
+    Deliberately NOT inheriting from :class:`_ScoringTestCase` (which
+    truncates the ``jobs`` table in asyncSetUp) because the profile
+    rendering has nothing to do with the DB. The autouse ``setUp``
+    resets the profile_service module-level cache so a cached
+    profile from a previous test file (e.g. test_profile_service.py
+    saving a mocked "Logged" candidate) doesn't bleed into this
+    class's assertions.
+    """
+
+    def setUp(self) -> None:
+        reset_cache()
+
+    def test_includes_target_roles_from_profile_yaml(self) -> None:
+        # The example profile has these as primary target roles;
+        # the test environment has no operator profile.yml so the
+        # example is the fallback. ``build_profile_summary`` should
+        # render the fit-grouped block ("Primary (dream roles):" etc.)
+        # from the profile_service renderer, NOT the old
+        # "Target roles:\n- X\n- Y" bullet list.
         text = build_profile_summary()
         self.assertIn("Target roles:", text)
-        self.assertIn("AI Engineer", text)
-        self.assertIn("LLM Engineer", text)
+        self.assertIn("Senior AI Engineer", text)
+        # The new format groups by fit level so the LLM understands
+        # priority ordering.
+        self.assertIn("Primary (dream roles):", text)
 
-    def test_includes_qa_with_answers(self) -> None:
+    def test_does_not_include_qa_summary(self) -> None:
+        # Step-3 regression guard: the Q&A bank is no longer in
+        # the scoring prompt. A test that the section header
+        # never appears, regardless of what the operator has
+        # put in the Q&A bank (the bank itself still exists for
+        # application form auto-fill — see routes.qa_bank).
         text = build_profile_summary()
-        self.assertIn("Q&A summary:", text)
-        self.assertIn("Years of experience", text)
-        self.assertIn("5 years of professional software engineering", text)
+        self.assertNotIn("Q&A summary:", text)
+        self.assertNotIn("Q: Years of experience", text)
+        self.assertNotIn("(no answer yet)", text)
 
-    def test_truncates_huge_qa_answers(self) -> None:
-        _QA_DB["q_huge"] = {
-            "id": "q_huge",
-            "question_pattern": "huge",
-            "canonical_question": "Tell me everything",
-            "answer": "x" * 1_000_000,
-            "answer_type": "long_text",
-            "times_used": 99,
-        }
+    def test_includes_narrative_from_profile_yaml(self) -> None:
+        # The example profile has a headline + superpowers; the
+        # new renderer surfaces these in the LLM prompt so the
+        # scorer can use narrative context (not just role titles).
         text = build_profile_summary()
-        # Cap is 200 chars per entry; the answer line stays bounded even
-        # though the source answer is 1M chars.
-        self.assertLess(len(text), 5_000)
+        # headline: "ML Engineer turned AI product builder"
+        self.assertIn("Headline:", text)
+        self.assertIn("ML Engineer", text)
 
-    def test_includes_unanswered_qa_entries_with_sentinel(self) -> None:
+    def test_renders_empty_profile_safely(self) -> None:
+        # If neither profile.yml nor profile.example.yml exists,
+        # build_profile_summary returns "(no profile configured)".
+        # We don't delete the example here (it's committed to the
+        # repo); this test just confirms the sentinel path doesn't
+        # raise. The non-existent-file case is covered in
+        # test_profile_service.py::TestLoadProfile.
         text = build_profile_summary()
-        # q2 / q4 / q5 are seeded with answer=None. They should still
-        # appear in the summary so the LLM knows they exist.
-        self.assertIn("(no answer yet)", text)
-
-    def test_caps_qa_entries_count(self) -> None:
-        # Public constant for the upstream prompt builder.
-        self.assertEqual(MAX_QA_ENTRIES_IN_PROMPT, 12)
+        # We expect the example to be present, so the sentinel
+        # should NOT appear. The assertion is "non-empty
+        # string starting with 'Target roles:' or 'Headline:'".
+        self.assertNotEqual(text, "(no profile configured)")
+        self.assertTrue(text.startswith("Target roles:") or "Headline:" in text)
 
 
 # ---------------------------------------------------------------------

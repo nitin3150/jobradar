@@ -27,13 +27,16 @@ function NavLink({ path, label, showBadge, count = 0 }) {
   );
 }
 
-// Five scanner categories — one per backend domain. `key` is the value
-// CategoryContext stores; `label` is the navbar text.
+// Four scanner categories — one per backend domain. `key` is the value
+// CategoryContext stores; `label` is the navbar text. Job-board scans
+// get their own dedicated ``/jobs`` page via the ``NavLink`` below
+// rather than a tab here, so the operator can manage the full review
+// queue (status, score, board, dates) without going through the
+// dashboard.
 const TABS = [
   { key: 'funding', label: 'Funding News' },
   { key: 'ngos', label: 'NGO Jobs' },
   { key: 'remote', label: 'Remote' },
-  { key: 'boards', label: 'Job Boards' },
   { key: 'oss', label: 'Open Source' },
 ];
 

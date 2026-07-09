@@ -1,15 +1,60 @@
 [project]
-name = "backend"
+name = "jobradar-backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "JobRadar FastAPI backend — companies, jobs, applications, scanner pipeline, Supabase persistence."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.13.0",
+    "asyncpg>=0.29.0",
     "bs4>=0.0.2",
     "dotenv>=0.9.9",
     "fastapi>=0.139.0",
     "langgraph>=1.2.7",
     "playwright>=1.61.0",
     "pydantic>=2.13.4",
+    "sqlalchemy[asyncio]>=2.0.30",
+    "supabase>=2.4.0",
     "uvicorn>=0.30.0",
+]
+
+[tool.uv]
+# Pin a version of uv that understands the `[asyncio]` extras spec above.
+required-version = ">=0.4.0"
+
+# ---------------------------------------------------------------------------
+# Build configuration.
+#
+# Explicit ``packages`` list — REQUIRED because setuptools ≥70.x fires the
+# "Multiple top-level packages discovered in a flat-layout" safety check on
+# ``pip install -e .`` BEFORE consulting the ``[tool.setuptools.packages.
+# find]`` directive. The legacy find directive is removed; the explicit
+# list bypasses the safety check and is the only reliable build shape
+# for our flat layout on newer setuptools installs (the GHA worker uses
+# a recent one).
+#
+# OMITTED from this list (NOT installed as Python packages):
+#   * data         — JSON state files; not code
+#   * tests        — pytest modules; not part of distribution
+#   * scripts      — ad-hoc entry points (boots via ``python scripts/X.py``)
+#   * apply_worker — out-of-process Playwright worker, separate entry point
+#
+# ``models`` is included even though it lacks ``__init__.py`` because
+# ``pipeline/nodes/merge.py`` and ``pipeline/graph.py`` do
+# ``from models.graph_state import PipelineState``. PEP 420 namespace
+# packaging (setuptools ≥61) handles it: the directory is installed as
+# an implicit namespace package and ``from models.X import Y`` resolves.
+# Setuptools may emit a ``UserWarning`` about the missing ``__init__.py``
+# — that's cosmetic, NOT a build failure.
+# ---------------------------------------------------------------------------
+[tool.setuptools]
+packages = [
+    "cache",
+    "db",
+    "models",
+    "pipeline",
+    "routes",
+    "services",
+    "storage",
+    "utils",
 ]

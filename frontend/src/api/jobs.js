@@ -1,3 +1,5 @@
+import api from './client';
+
 // Jobs
 // -----
 // Wire shape that the React JobBoard page consumes. The server's

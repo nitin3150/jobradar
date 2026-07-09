@@ -7,12 +7,14 @@ import {
   patchJobStatus,
   rejectJob,
 } from '../api/jobs';
-import { api as _api } from '../api/client';
-
-// `_api` import is intentionally retained for backwards compat with
-// any custom callers that build their own queries. The default
-// exports here route through ``fetchJobs`` / ``patchJobStatus``
-// which go through the shared axios instance.
+// Note: the previous ``import { api as _api } from '../api/client';`` was
+// removed because ``client.js`` exposes the axios instance as its DEFAULT
+// export (named exports are only the wrapper functions like
+// ``fetchCompanies``). The variable was unused dead code in this module
+// anyway — every actual call routes through ``fetchJobs`` /
+// ``patchJobStatus`` above. Keeping it would block Vite/Rolldown builds
+// (Render deploy error: ``MISSING_EXPORT: "api" is not exported by
+// "src/api/client.js"``).
 
 export function useJobs(filters = {}) {
   // The filter object is the React Query key — identical objects

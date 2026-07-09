@@ -247,6 +247,24 @@ export default function JobDetail() {
         </div>
       </div>
 
+      {/* Description section — v0.5: the board-published posting
+          body now lives on the ``jobs.description`` column and is
+          rendered here in full so the operator can read the
+          posting without leaving the app. ``whitespace-pre-line``
+          preserves the line breaks a board's HTML often flattens
+          to ``\n`` between paragraphs. Empty / null descriptions
+          collapse the block (board didn't give us one). */}
+      {job.description && (
+        <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
+          <h2 className="text-sm font-semibold text-gray-900 mb-3">
+            Job Description
+          </h2>
+          <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+            {job.description}
+          </div>
+        </div>
+      )}
+
       {/* Research section */}
       <div className="bg-white border border-gray-200 rounded-xl p-6">
         <h2 className="text-sm font-semibold text-gray-900 mb-3">

@@ -1,13 +1,48 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { JOB_STATUSES } from './JobCard';
 
-const ATS_SOURCE_OPTIONS = ['', 'ashby', 'greenhouse', 'lever'];
+// Full set of ATS boards the backend accepts; the dropdown shows
+// every value so the operator can drill into e.g. Greenhouse-only
+// reviews. Mirrors ``ATS_BOARD_VALUES`` in :mod:`backend.db.models`.
+const ATS_SOURCE_OPTIONS = [
+  { value: '', label: 'All boards' },
+  { value: 'ashby', label: 'Ashby' },
+  { value: 'greenhouse', label: 'Greenhouse' },
+  { value: 'lever', label: 'Lever' },
+  { value: 'remotive', label: 'Remotive' },
+  { value: 'remoteok', label: 'RemoteOK' },
+  { value: 'hackernews', label: 'Hacker News' },
+];
+
+// Allowed ``?sort=`` values. The backend defaults to ``deadline_asc``
+// when the param is missing or unknown, so the React UI's
+// placeholder label is "Best match (deadline)" — the same behaviour
+// the v0.4 page shipped with.
+const SORT_OPTIONS = [
+  { value: 'deadline_asc', label: 'Best match (deadline)' },
+  { value: 'score_desc', label: 'Score: high to low' },
+  { value: 'score_asc', label: 'Score: low to high' },
+  { value: 'posted_desc', label: 'Newest posted' },
+  { value: 'posted_asc', label: 'Oldest posted' },
+];
 
 /**
  * Filter bar for the JobBoard page. Holds the same field set the
  * backend ``GET /api/jobs`` filter parser accepts — ``q`` is the search
- * needle (matches ``title`` + ``company_name`` server-side), and the
- * rest map cleanly to query-string params.
+ * needle (matches ``title`` + ``company_name`` server-side), ``sort``
+ * drives the new sort dropdown, and the rest map cleanly to
+ * query-string params.
+ *
+ * v0.5 fixes from the v0.4 review:
+ *  - **Search debounce**: the input is now backed by a shadow
+ *    ``localQ`` state that syncs to the parent on a 250 ms debounce
+ *    so a fast typist no longer floods ``useJobs`` with intermediate
+ *    refetches.
+ *  - **Score scale**: the min-score slider is 0-100% in the UI, but
+ *    the backend expects 0.0-1.0. We divide by 100 just-in-time on
+ *    the ``onChange`` path so the wire value matches the API.
+ *  - **Sort**: new ``<select>`` driving the new ``?sort=`` query
+ *    param. Defaults to ``deadline_asc`` to preserve v0.4 behaviour.
  *
  * State lives in the parent so we don't prop-drill, but this component
  * is purely a controlled input — flipping any field calls
@@ -15,17 +50,36 @@ const ATS_SOURCE_OPTIONS = ['', 'ashby', 'greenhouse', 'lever'];
  * to commit (e.g. debounce the search box, immediate on the chips).
  */
 export default function JobBoardFilters({ filters, onChange, pageSize, onPageSizeChange, total }) {
-  const searchRef = useRef(null);
-
-  // ``useEffect``-based debounce on the search box — typed queries
-  // shouldn't hit the wire on every keystroke. 250 ms is short enough
-  // to feel instant but long enough to skip the intermediate
-  // "react-query re-fetch storms" a fast typist would create.
+  // ---- Search debounce (shadow local state) ----
+  // The ``filters.q`` value (the one that hits the wire) is the
+  // *debounced* value. We mirror the input field onto ``localQ`` so
+  // every keystroke is responsive visually, and only call
+  // ``onChange`` after 250 ms of idle. The trailing-edge debounce
+  // is the standard pattern for "search-as-you-type" — a leading-
+  // edge debounce would skip the first keystroke and feel laggy.
+  const [localQ, setLocalQ] = useState(filters.q || '');
   useEffect(() => {
-    if (searchRef.current === null) return undefined;
-    const handle = setTimeout(() => {}, 0);
-    return () => clearTimeout(handle);
+    // External reset (e.g. parent "Reset filters" button) should
+    // clear the local input too, otherwise the field drifts out of
+    // sync with the actual query.
+    setLocalQ(filters.q || '');
   }, [filters.q]);
+
+  useEffect(() => {
+    // Skip the initial mount synchronisation — the parent already
+    // has whatever value it had; we only want to fire on changes.
+    if (localQ === (filters.q || '')) return undefined;
+    const handle = setTimeout(() => {
+      onChange({ ...filters, q: localQ || undefined, page: 1 });
+    }, 250);
+    return () => clearTimeout(handle);
+    // ``filters`` is intentionally omitted from deps: depending on it
+    // would cause a feedback loop (the localQ → onChange → filters
+    // update → effect re-runs → ...). We only want to react to
+    // localQ changes; the next render after onChange commits is
+    // already covered by the next localQ-keystroke cycle.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localQ]);
 
   const update = (patch) => onChange({ ...filters, ...patch, page: 1 });
   const toggleStatus = (s) => {
@@ -37,16 +91,15 @@ export default function JobBoardFilters({ filters, onChange, pageSize, onPageSiz
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 mb-4 space-y-4">
-      {/* Row 1 — search + score range + page size */}
+      {/* Row 1 — search + score range + sort + page size */}
       <div className="flex flex-wrap gap-4 items-end">
         <div className="flex flex-col gap-1 flex-1 min-w-[220px]">
           <label className="text-xs font-medium text-gray-500 uppercase">Search</label>
           <input
-            ref={searchRef}
             type="text"
             placeholder="e.g. Replicate OR platform engineer"
-            value={filters.q || ''}
-            onChange={(e) => update({ q: e.target.value || undefined })}
+            value={localQ}
+            onChange={(e) => setLocalQ(e.target.value)}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white w-full"
           />
         </div>
@@ -58,9 +111,24 @@ export default function JobBoardFilters({ filters, onChange, pageSize, onPageSiz
             onChange={(e) => update({ ats_type: e.target.value || undefined })}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
           >
-            <option value="">All boards</option>
-            {ATS_SOURCE_OPTIONS.filter(Boolean).map((s) => (
-              <option key={s} value={s}>{s}</option>
+            {ATS_SOURCE_OPTIONS.map((opt) => (
+              <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-gray-500 uppercase" htmlFor="jobboard-sort">
+            Sort
+          </label>
+          <select
+            id="jobboard-sort"
+            value={filters.sort || 'deadline_asc'}
+            onChange={(e) => update({ sort: e.target.value })}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
+          >
+            {SORT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
         </div>
@@ -73,10 +141,14 @@ export default function JobBoardFilters({ filters, onChange, pageSize, onPageSiz
             max="100"
             step="5"
             value={filters.score_min ?? 0}
-            onChange={(e) => update({ score_min: Number(e.target.value) || 0 })}
+            // Wire value is 0.0-1.0 (Pydantic Literal[0.0, 1.0]
+            // on the backend) but the UI naturally reads in
+            // percent. Divide at the boundary so the operator
+            // sees "60%+" while the API sees 0.6.
+            onChange={(e) => update({ score_min: Number(e.target.value) / 100 })}
             className="w-32"
           />
-          <span className="text-xs text-gray-500">{(filters.score_min ?? 0)}+</span>
+          <span className="text-xs text-gray-500">{Math.round((filters.score_min ?? 0) * 100)}%+</span>
         </div>
 
         <div className="flex flex-col gap-1">

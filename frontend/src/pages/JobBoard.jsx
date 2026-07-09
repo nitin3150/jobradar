@@ -8,7 +8,7 @@ import InterviewPrepModal from '../components/InterviewPrepModal';
 import OutreachPanel from '../components/OutreachPanel';
 
 const DEFAULT_PAGE_SIZE = 20;
-const DEFAULT_FILTERS = { q: undefined, status: undefined, ats_type: undefined, score_min: 0, posted_from: undefined, posted_to: undefined };
+const DEFAULT_FILTERS = { q: undefined, status: undefined, ats_type: undefined, score_min: 0, posted_from: undefined, posted_to: undefined, sort: 'deadline_asc' };
 
 /**
  * The merged Job Board page.
@@ -50,11 +50,18 @@ export default function JobBoard() {
   // an array on purpose: when it serialises over GET it becomes
   // ``?status=in_review&status=approved`` and the backend applies
   // the rows-any-of shape. Score range, dates, and ats_type map 1:1.
+  //
+  // v0.5: the JobBoardFilters input converts the percent-range
+  // slider (0-100) to a 0.0-1.0 float at the boundary, so we can
+  // pass ``filters.score_min`` straight through. ``sort`` is
+  // also forwarded verbatim — the backend defaults to
+  // ``deadline_asc`` when the param is missing or unknown.
   const queryFilters = useMemo(() => {
     const out = {
       page,
       page_size: pageSize,
       score_min: filters.score_min ?? 0,
+      sort: filters.sort || 'deadline_asc',
     };
     if (filters.q) out.q = filters.q;
     if (filters.ats_type) out.ats_type = filters.ats_type;
@@ -99,7 +106,6 @@ export default function JobBoard() {
     setPageSize(size);
     setPage(1);
   };
-  const handlePageReset = () => setPage(1);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const isLoadingFirstPage = jobsQuery.isLoading && jobs.length === 0;

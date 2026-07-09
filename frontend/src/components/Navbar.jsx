@@ -4,28 +4,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { usePendingCount } from '../hooks/useJobs';
 import ProfileMenu from './ProfileMenu';
 
-function NavLink({ path, label, showBadge, count = 0 }) {
-  const location = useLocation();
-  const isActive = location.pathname === path;
-
-  return (
-    <Link
-      to={path}
-      className={`relative px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-        isActive
-          ? 'bg-indigo-50 text-indigo-600'
-          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-      }`}
-    >
-      {label}
-      {showBadge && count > 0 && (
-        <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-          {count > 9 ? '9+' : count}
-        </span>
-      )}
-    </Link>
-  );
-}
+// Tab styling shared by the scanner-category buttons and the
+// auto-apply nav links. Centralised so the merged navbar renders as
+// ONE visual group with the same active/hover treatment for both
+// ``<button>`` (scanner tabs) and ``<Link>`` (Job Board /
+// Applications) children.
+const TAB_BASE = 'px-3 py-1.5 text-sm font-medium rounded-md transition-colors';
+const TAB_ACTIVE = 'bg-white text-indigo-600 shadow-sm';
+const TAB_INACTIVE = 'text-gray-600 hover:text-gray-900';
 
 // Four scanner categories — one per backend domain. `key` is the value
 // CategoryContext stores; `label` is the navbar text. Job-board scans
@@ -38,6 +24,15 @@ const TABS = [
   { key: 'ngos', label: 'NGO Jobs' },
   { key: 'remote', label: 'Remote' },
   { key: 'oss', label: 'Open Source' },
+];
+
+// Auto-apply links live in the SAME tab group as the scanner
+// categories (per v0.5 design: one unified tab strip). ``pending`` on
+// ``/jobs`` powers the small red badge — the operator wants the
+// queue size at-a-glance without scanning the page.
+const NAV_LINKS = [
+  { path: '/jobs', label: 'Job Board', showBadge: true },
+  { path: '/applications', label: 'Applications', showBadge: false },
 ];
 
 export default function Navbar({ category, onCategoryChange }) {
@@ -64,32 +59,75 @@ export default function Navbar({ category, onCategoryChange }) {
           <h1 className="text-xl font-bold text-gray-900">FundingRadar</h1>
         </Link>
 
-        {/* Five Scanner category tabs — each maps to a backend domain. */}
-        <div className="flex items-center bg-gray-100 rounded-lg p-1 ml-2" role="tablist" aria-label="Scanner category">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              role="tab"
-              aria-selected={category === tab.key}
-              onClick={() => {
-                onCategoryChange(tab.key);
-                if (location.pathname !== '/') navigate('/');
-              }}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                category === tab.key
-                  ? 'bg-white text-indigo-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        {/* Single unified tab group. v0.5 merge: scanner category
+            buttons (state) + auto-apply nav links (router) share
+            ONE outer ``bg-gray-100 rounded-lg p-1`` container so
+            the strip reads as one cohesive UI with the same
+            background (per the operator's "merge into one section"
+            ask). Inside the container we keep the semantic split
+            — the scanner tabs live in their own ``role="tablist"``
+            and the auto-apply links live in a ``<nav>`` — so the
+            visual is unified while the accessibility is correct.
+            A 1px divider between the two groups sits *inside* the
+            outer pill so the eye reads the strip as one continuous
+            background with a subtle grouping, not two separate
+            pills. */}
+        <div className="flex items-center bg-gray-100 rounded-lg p-1 ml-2">
+          <div
+            className="flex items-center"
+            role="tablist"
+            aria-label="Scanner category"
+          >
+            {TABS.map((tab) => {
+              const isActive = category === tab.key && location.pathname === '/';
+              return (
+                <button
+                  key={tab.key}
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => {
+                    onCategoryChange(tab.key);
+                    if (location.pathname !== '/') navigate('/');
+                  }}
+                  className={`${TAB_BASE} ${isActive ? TAB_ACTIVE : TAB_INACTIVE}`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
 
-        {/* Auto-Apply Nav Links (Q&A Bank moved into ProfileMenu) */}
-        <div className="flex items-center gap-1 ml-3">
-          <NavLink path="/jobs" label="Job Board" showBadge count={pendingCount} />
-          <NavLink path="/applications" label="Applications" />
+          {/* 1px rail between the two groups — INSIDE the outer
+              pill so the strip is one continuous background. ``h-4``
+              (not h-5/h-6) keeps it from intersecting the pill's
+              ``p-1`` top/bottom padding. */}
+          <div className="w-px h-4 bg-gray-300 mx-1" aria-hidden="true" />
+
+          <nav
+            className="flex items-center"
+            aria-label="Auto-apply"
+          >
+            {NAV_LINKS.map((link) => {
+              const isActive = location.pathname === link.path;
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`${TAB_BASE} ${isActive ? TAB_ACTIVE : TAB_INACTIVE} ${
+                    link.showBadge ? 'relative' : ''
+                  }`}
+                >
+                  {link.label}
+                  {link.showBadge && pendingCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                      {pendingCount > 9 ? '9+' : pendingCount}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
       </div>
 

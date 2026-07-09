@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Modal from './Modal';
 
 // Single status-pill colour map. Mirrors the legacy JobsReview styling
 // so the merged page keeps the colour-by-status instant-readability the
@@ -13,9 +14,9 @@ const STATUS_COLORS = {
   flagged: 'bg-orange-100 text-orange-800 border-orange-200',
 };
 
-// Both the ats_type badge colour and the source-board dropdown options
-// share this list — adding a board means editing both the dropdown and
-// the colour map. Kept in one place to avoid drift.
+// ATS board badge color map — keyed LOWERCASE so the lookup stays
+// decoupled from the title-case display text in :func:`boardLabel`.
+// Adding a board means editing both the map and the label function.
 const ATS_COLORS = {
   ashby: 'bg-emerald-100 text-emerald-700',
   greenhouse: 'bg-green-100 text-green-700',
@@ -24,6 +25,18 @@ const ATS_COLORS = {
   remoteok: 'bg-indigo-100 text-indigo-700',
   hackernews: 'bg-orange-100 text-orange-700',
 };
+
+// Title-case display label for the ATS board badge. v0.5 polish:
+// uppercase ``ASHBY``/``GREENHOUSE``/``LEVER`` looked shouty in the
+// v0.4 cards; title-case ``Ashby``/``Greenhouse``/``Lever`` reads as
+// a normal product name. Unknown / missing values render ``Unknown``
+// instead of the v0.4 fallback ``BOARD`` which the operator found
+// meaningless ("why is there a tag called 'boards'?").
+function boardLabel(atsType) {
+  const t = (atsType || '').toLowerCase().trim();
+  if (!t) return 'Unknown';
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
 
 // Five valid statuses — ``JobStatus`` Literal in the backend. Hard-
 // coded here to avoid a roundtrip on first render. Kept in sync
@@ -54,13 +67,34 @@ function fmtRelative(iso) {
   return `${Math.floor(months / 12)}y ago`;
 }
 
+// Truncate a description to ``maxChars`` characters at the nearest
+// word boundary, appending an ellipsis. Used by the JobCard to
+// decide whether the body is long enough to warrant a "Read more"
+// affordance — pure presentational, so kept inside the component
+// module instead of utils.
+function truncate(text, maxChars = 220) {
+  if (!text) return { text: '', truncated: false };
+  if (text.length <= maxChars) return { text, truncated: false };
+  // Walk back to the last whitespace inside the budget so we don't
+  // chop a word in half (e.g. "engineer" → "engi…").
+  const slice = text.slice(0, maxChars);
+  const lastSpace = slice.lastIndexOf(' ');
+  const cut = lastSpace > 80 ? slice.slice(0, lastSpace) : slice;
+  return { text: `${cut.trimEnd()}…`, truncated: true };
+}
+
 /**
  * The JobBoard card. Each card carries:
  *
- * - Title + company name + ats_type badge
+ * - Title + company name + ATS board badge (title-case)
  * - AI-fit score (rendered 0..100)
  * - Status DROPDOWN (5-way) — wires directly to ``useJobStatus`` so a
  *   drop-down click writes a job_status_history row on the server.
+ * - Description preview (truncated) + "Read more" button when the
+ *   body is longer than ~220 chars; clicking opens a modal with the
+ *   full description body. The v0.4 ``AI: <reasoning>`` body line is
+ *   removed — that text moved to ``JobDetail`` so the card can show
+ *   the actual posting instead.
  * - Posted date + Last updated date when the board gave us one
  * - Direct link to the actual posting
  * - "Interview Prep" button (always visible) — opens the modal
@@ -74,12 +108,15 @@ function fmtRelative(iso) {
  */
 export default function JobCard({ job, onInterviewPrep, onChangeStatus, onGenerateOutreach, onMarkApplied }) {
   const [statusOpen, setStatusOpen] = useState(false);
+  const [descOpen, setDescOpen] = useState(false);
   const postedRel = fmtRelative(job.posted_at);
   const postedAbs = fmtDate(job.posted_at);
   const updatedRel = fmtRelative(job.source_updated_at);
   const updatedAbs = fmtDate(job.source_updated_at);
   const scorePercent = job.ai_fit_score != null ? Math.round(job.ai_fit_score * 100) : null;
   const ats = (job.ats_type || '').toLowerCase();
+  const boardName = boardLabel(job.ats_type);
+  const desc = truncate(job.description, 220);
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow">
@@ -92,10 +129,13 @@ export default function JobCard({ job, onInterviewPrep, onChangeStatus, onGenera
             >
               {job.title || '(untitled)'}
             </Link>
-            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-              ATS_COLORS[ats] || 'bg-gray-100 text-gray-700'
-            }`}>
-              {(job.ats_type || 'board').toUpperCase()}
+            <span
+              className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                ATS_COLORS[ats] || 'bg-gray-100 text-gray-700'
+              }`}
+              title={ats ? `Source: ${boardName}` : 'No ATS source recorded'}
+            >
+              {boardName}
             </span>
             {scorePercent != null && (
               <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
@@ -168,11 +208,29 @@ export default function JobCard({ job, onInterviewPrep, onChangeStatus, onGenera
         </div>
       </div>
 
-      {job.ai_fit_reasoning && (
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          <span className="text-gray-400 mr-1">AI:</span>
-          {job.ai_fit_reasoning}
-        </p>
+      {/* Description preview + "Read more" affordance. v0.5
+          replaces the v0.4 ``AI: <reasoning>`` line with the actual
+          board-published description (truncated to ~220 chars).
+          Empty / null descriptions skip the block entirely so the
+          card layout collapses cleanly when a board omits the
+          field. The "Read more" button is only rendered when the
+          truncation actually dropped characters, so a short
+          description doesn't show a no-op button. */}
+      {desc.text && (
+        <div className="mb-3">
+          <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+            {desc.text}
+          </p>
+          {desc.truncated && (
+            <button
+              type="button"
+              onClick={() => setDescOpen(true)}
+              className="mt-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 hover:underline transition-colors"
+            >
+              Read more →
+            </button>
+          )}
+        </div>
       )}
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 mb-3">
@@ -227,6 +285,44 @@ export default function JobCard({ job, onInterviewPrep, onChangeStatus, onGenera
           </button>
         )}
       </div>
+
+      {/* Description modal — opens via the "Read more" button. The
+          modal reuses the shared ``Modal`` component so it inherits
+          the backdrop / ESC / body-scroll-lock contract for free. */}
+      <Modal
+        open={descOpen}
+        onClose={() => setDescOpen(false)}
+        title={job.title || 'Job description'}
+        description={`${job.company_name || ''}${boardName ? ` · ${boardName}` : ''}`}
+        widthClass="max-w-2xl"
+        footer={
+          <div className="flex items-center justify-between">
+            <a
+              href={job.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-indigo-600 hover:underline"
+            >
+              Open original posting →
+            </a>
+            <button
+              type="button"
+              onClick={() => setDescOpen(false)}
+              className="text-xs px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+            >
+              Close
+            </button>
+          </div>
+        }
+      >
+        {job.description ? (
+          <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+            {job.description}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500">No description was provided by the source board.</p>
+        )}
+      </Modal>
     </div>
   );
 }

@@ -34,6 +34,18 @@ dependencies = [
     "pyyaml>=6.0",
     "playwright>=1.61.0",
     "pydantic>=2.13.4",
+    # ``rapidfuzz`` is the local-signal Q&A matcher used by
+    # ``apply_worker.qa_matcher``. The three rapidfuzz flavors it
+    # calls (``partial_ratio``, ``token_sort_ratio``,
+    # ``token_set_ratio``) were chosen so the matcher can cope with
+    # three distinct phrasing modes on real ATS forms: substring
+    # match (long label + short pattern), word-order swap, and
+    # extra-word tolerance — a SequenceMatcher-based fallback would
+    # miss two of the three. ``>=3.0`` is the modern release line
+    # that ships Python 3.12 wheels; ``<4.0`` keeps us on the v3
+    # API (the v4 line ships breaking rename of ``fuzz.token_*``
+    # -> ``fuzz.WRatio`` that we explicitly don't want yet).
+    "rapidfuzz>=3.0,<4.0",
     # ``pypdf`` is the resume text extractor used by
     # ``services.profile_service.extract_resume_text`` when a user
     # uploads a PDF resume. The extractor catches ``ImportError``
@@ -138,7 +150,6 @@ asyncio_default_fixture_loop_scope = "function"
 #   * data         — JSON state files; not code
 #   * tests        — pytest modules; not part of distribution
 #   * scripts      — ad-hoc entry points (boots via ``python scripts/X.py``)
-#   * apply_worker — out-of-process Playwright worker, separate entry point
 #   * storage      — directory exists locally but is UNTRACKED in this
 #                     branch, so the GHA clone doesn't have it and setuptools
 #                     would refuse to install with ``package directory
@@ -156,9 +167,9 @@ asyncio_default_fixture_loop_scope = "function"
 # an implicit namespace package and ``from models.X import Y`` resolves.
 # Setuptools may emit a ``UserWarning`` about the missing ``__init__.py``
 # — that's cosmetic, NOT a build failure.
-# ---------------------------------------------------------------------------
-[tool.setuptools]
+# ---------------------------------------------------------------------------[tool.setuptools]
 packages = [
+    "apply_worker",
     "cache",
     "db",
     "models",
@@ -166,4 +177,4 @@ packages = [
     "routes",
     "services",
     "utils",
-]
+]  

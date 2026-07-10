@@ -23,10 +23,22 @@
 // it separately and resets to 1 on any filter change (handled by
 // the page component, not the FilterBar).
 
-const STATUSES = ['in_review', 'approved', 'rejected', 'flagged', 'applied'];
+const STATUSES = ['in_review', 'approved', 'paused', 'rejected', 'flagged', 'applied'];
+// Mirrors the color palette in JobCard.jsx so a pill toggled in
+// FilterBar matches the one in the card column. ``paused`` uses the
+// same slate/gray as ``rejected``/``applied``'s muted cousins —
+// reads as "parked / inactive" rather than traffic-light.
+//
+// FilterBar's STATUS_COLORS shape is slightly different from
+// JobCard's: the `border-current` class on the active pill (see
+// ``toggleStatus`` below) needs a single Tailwind border colour
+// class on the matching rule, so JobCard's `border-<hue>-200`
+// rules are inlined here as `border-<hue>-300` to keep the active
+// state visually distinct.
 const STATUS_COLORS = {
   in_review: 'bg-yellow-100 text-yellow-800 border-yellow-300',
   approved: 'bg-green-100 text-green-800 border-green-300',
+  paused: 'bg-slate-100 text-slate-800 border-slate-300',
   rejected: 'bg-red-100 text-red-800 border-red-300',
   applied: 'bg-blue-100 text-blue-800 border-blue-300',
   flagged: 'bg-orange-100 text-orange-800 border-orange-300',

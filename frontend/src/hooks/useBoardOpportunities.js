@@ -19,11 +19,17 @@
 // tier). The four other tabs (``funding``/``ngos``/``remote``/``oss``)
 // keep their existing live-scrape behavior — this hook is intentionally
 // ``boards``-only.
+//
+// Single-threshold semantics: the scorer writes ``status='approved'``
+// directly for any job that clears ``JOB_FIT_THRESHOLD``; below-
+// threshold rows are NOT persisted. The boards tab therefore
+// queries ``status='approved'`` so it serves as a "what's about to
+// be auto-applied" preview — fresh scans surface here immediately.
 import { useMemo } from 'react';
 import { useJobs } from './useJobs';
 
 export function useBoardOpportunities() {
-  const { data, isLoading } = useJobs({ status: 'in_review', page_size: 50 });
+  const { data, isLoading } = useJobs({ status: 'approved', page_size: 50 });
 
   return useMemo(() => {
     const jobs = data?.jobs || [];

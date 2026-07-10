@@ -19,7 +19,7 @@ vi.mock('../hooks/useJobs', () => ({
   useJobs: vi.fn(),
   // ``Navbar`` (rendered by CompanyDetail) calls ``usePendingCount``;
   // the mock must provide it or the test crashes on first render.
-  usePendingCount: vi.fn(() => ({ data: { count: 0 } })),
+  useApprovedCount: vi.fn(() => ({ data: { count: 0 } })),
 }));
 
 import { useCompany } from '../hooks/useCompanies';

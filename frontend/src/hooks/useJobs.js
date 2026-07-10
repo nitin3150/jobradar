@@ -47,9 +47,19 @@ export function useJob(id) {
   });
 }
 
-export function usePendingCount() {
+// Number of ``approved`` rows — the auto-apply queue size. Drives
+// the Navbar badge (``useApprovedCount → Navbar badge wire``) so
+// the operator sees at-a-glance "how many jobs still need an
+// application submitted". Renamed from ``usePendingCount`` after
+// the v0.6 single-threshold scoring flip: previously this counted
+// the operator-review queue (``status == "in_review"``); that
+// pool no longer exists post-flip, only the auto-apply queue
+// (``status == "approved"``) is meaningful. The route name
+// ``/api/jobs/pending-count`` was kept to avoid breaking
+// bookmarked URLs + audit-log aliases.
+export function useApprovedCount() {
   return useQuery({
-    queryKey: ['jobs', 'pending-count'],
+    queryKey: ['jobs', 'approved-count'],
     queryFn: fetchPendingCount,
     refetchInterval: 30_000,
   });
@@ -59,7 +69,14 @@ export function usePendingCount() {
 // body is forwarded verbatim to /api/jobs/{id}/status so the backend
 // state-machine allows the transition and writes a job_status_history
 // row in the same tx.
-export function useJobStatus() {
+//
+// Accepts an OPTIONAL ``onError`` callback so the caller can surface
+// failures (race-condition 409, network drop, backend 5xx) without
+// blocking on React Query's default silent rejection. Cache
+// invalidation on success is preserved regardless of caller-supplied
+// callbacks — the hook composes on top of them rather than being
+// shadowed by them.
+export function useJobStatus({ onError: onErrorCallback } = {}) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, status, source, note }) =>
@@ -69,6 +86,9 @@ export function useJobStatus() {
       // pending-count badge; the latter drives the Navbar counter so
       // it must refresh whenever a row's status changes.
       qc.invalidateQueries({ queryKey: ['jobs'] });
+    },
+    onError: (err, variables, ctx) => {
+      onErrorCallback?.(err, variables, ctx);
     },
   });
 }

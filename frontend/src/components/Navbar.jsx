@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { triggerPipeline, fetchPipelineStatus } from '../api/client';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { usePendingCount } from '../hooks/useJobs';
+import { useApprovedCount } from '../hooks/useJobs';
 import ProfileMenu from './ProfileMenu';
 
 // Tab styling shared by the scanner-category buttons and the
@@ -46,8 +46,15 @@ export default function Navbar({ category, onCategoryChange }) {
   });
 
   const runPipeline = useMutation({ mutationFn: triggerPipeline });
-  const { data: countData } = usePendingCount();
-  const pendingCount = countData?.count || 0;
+  // ``useApprovedCount`` returns the auto-apply queue size — the
+  // number of ``status == "approved"`` rows the future apply
+  // worker has to chew through. Renamed from ``usePendingCount``
+  // after the v0.6 scoring flip because the old semantics (the
+  // operator-review queue) no longer exists; the visual badge
+  // stays on the ``/jobs`` NavLink so the operator can see queue
+  // size without scanning the page.
+  const { data: countData } = useApprovedCount();
+  const approvedCount = countData?.count || 0;
 
   return (
     <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-50">
@@ -119,9 +126,12 @@ export default function Navbar({ category, onCategoryChange }) {
                   }`}
                 >
                   {link.label}
-                  {link.showBadge && pendingCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                      {pendingCount > 9 ? '9+' : pendingCount}
+                  {link.showBadge && approvedCount > 0 && (
+                    <span
+                      aria-label={`${approvedCount} jobs queued for auto-apply`}
+                      className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"
+                    >
+                      {approvedCount > 9 ? '9+' : approvedCount}
                     </span>
                   )}
                 </Link>

@@ -116,7 +116,18 @@ def _opportunity_to_job_fields(
     """
     return {
         "id": job_id,
-        "status": "in_review",
+        # Single-threshold rule: every opportunity that cleared
+        # ``job_fit_threshold`` is written directly with
+        # ``status='approved'``. The apply worker (or the operator)
+        # picks ``approved`` jobs up on the next polling tick. There
+        # is no ``in_review`` intermediate — the LLM scoring
+        # decision IS the approval decision. Below-threshold jobs
+        # are filtered out in ``_score_one`` and never reach this
+        # mapping. Route-level approve/reject endpoints in
+        # ``routes.jobs`` now never receive ``in_review`` rows from
+        # the scorer either — they are reserved for operator
+        # re-classification of already-approved / applied rows.
+        "status": "approved",
         "ats_type": ats_type,
         "title": opp.get("title") or opp.get("name") or "(untitled)",
         "company_name": (

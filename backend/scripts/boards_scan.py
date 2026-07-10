@@ -315,16 +315,28 @@ def _persist_winners(
     """Upsert each winner into the ``jobs`` table via the Supabase
     REST API with ``ignore_duplicates=True`` so re-running the cron
     is idempotent and never overwrites an operator's later
-    ``approved`` / ``rejected`` decision. Returns the number of
-    rows that were actually inserted (the rest were duplicates the
-    REST API skipped).
+    ``applied`` / ``flagged`` decision. Returns the number of rows
+    that were actually inserted (the rest were duplicates the REST
+    API skipped).
+
+    Single-threshold rule: every row that survives the threshold
+    filter above is written directly with ``status='approved'``. The
+    apply worker (or the operator) picks ``approved`` jobs up on the
+    next polling tick. There is no ``in_review`` intermediate — we
+    trust the LLM at threshold, so jobs that clear the cutoff are
+    eligible for the apply queue immediately. Below-threshold jobs
+    are filtered out by :func:`_score_all` / the ``winners`` list
+    comprehension in :func:`main` and are NOT written here.
     """
     inserted = 0
     for job, score, reasoning in winners:
         url = job.get("url") or "(no url)"
         row = {
             "id": _job_id(url),
-            "status": "in_review",
+            # Single-threshold rule: above ``--threshold`` ⇒
+            # ``approved`` (auto-apply queue), below ⇒ not persisted.
+            # See module docstring for the rationale.
+            "status": "approved",
             "ats_type": "boards",
             "title": (job.get("title") or "(untitled)")[:500],
             "company_name": (job.get("company_name") or "(unknown)")[:500],

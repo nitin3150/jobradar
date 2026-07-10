@@ -119,6 +119,20 @@
 # explicitly via ``--threshold "${JOB_FIT_THRESHOLD}"`` —
 # belt + suspenders, so the threshold survives a future
 # accidental removal of the CLI flag.
+#
+# Single-threshold semantics: every job whose AI fit score
+# clears ``JOB_FIT_THRESHOLD`` is persisted with
+# ``status='approved'`` (not ``'in_review'``). The apply
+# worker picks ``approved`` rows up on its next polling tick.
+# There is no human review gate between the LLM scoring
+# pass and the apply queue — set the threshold conservatively
+# on this workflow (the per-job ``JOB_FIT_THRESHOLD: "0.7"``
+# below) since ``approved`` is the auto-apply entry point.
+# Crank it up to 0.85+ if you want the LLM to be much more
+# selective before submissions go out; the apply worker is
+# still gated by Q&A fillability (``abort + flag`` for any
+# unknown form question), so an extra-strict threshold
+# compounds with that guardrail.
 
 name: boards-scan
 

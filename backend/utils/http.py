@@ -13,6 +13,7 @@ non-retryable HTTP errors (so callers can classify 404/410 as "missing"), and
 (e.g. a Cloudflare / maintenance HTML page).
 """
 
+import os
 import time
 
 import httpx

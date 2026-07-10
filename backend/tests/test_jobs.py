@@ -22,9 +22,16 @@ every coroutine on the same loop the runner provides — see
 The ``/api/jobs/pending-count`` endpoint is *not* reduced to a
 generic ``{{job_id}}`` lookup — that ordering is verified by
 :func:`TestPendingCount` which asserts ``GET /api/jobs/pending-count``
-returns ``2`` (= number of ``in_review`` records) although the URL
-*would* match a hypothetical ``GET /api/jobs/{job_id}`` route if
-one were added later.
+returns the number of ``approved`` rows (= the auto-apply queue
+size) although the URL *would* match a hypothetical
+``GET /api/jobs/{job_id}`` route if one were added later.
+
+After the v0.6 single-threshold scoring flip, ``approved`` (not
+``in_review``) is the source of truth for "how many jobs the apply
+worker has to chew through" — the Navbar badge the React
+``useApprovedCount`` hook reads is wired to this count. Semantic
+caller-side comment: a row in ``applied`` state was approved once
+already; the badge should not count it.
 """
 from __future__ import annotations
 
@@ -121,20 +128,135 @@ class TestPageSize:
 
 # ---------------------------------------------------------------------
 class TestPendingCount:
-    async def test_pending_count_matches_seeded_in_review_records(
+    """`/api/jobs/pending-count` now counts ``approved`` rows (the
+    auto-apply queue), not ``in_review``. The seed has
+    ``1x approved, 2x in_review, 1x rejected, 1x applied, 1x flagged``,
+    so the baseline count is **1** (just j_3, the seeded Vercel
+    Backend row). Approving a second row (j_1) bumps the count to 2.
+
+    The React ``useApprovedCount`` hook + Navbar badge are wired
+    to this number — these tests are the backend contract surface
+    for that wire.
+    """
+
+    async def test_pending_count_matches_seeded_approved_records(
         self, seeded_jobs: AsyncClient,
     ) -> None:
         r = await seeded_jobs.get("/api/jobs/pending-count")
         assert r.status_code == 200, r.text
-        assert r.json()["count"] == 2
+        # Seed has exactly one ``approved`` row (j_3 = Vercel Backend
+        # Engineer). The two ``in_review`` rows (j_1, j_2) and the
+        # ``applied`` / ``rejected`` / ``flagged`` rows are all
+        # excluded — the Navbar should reflect "1 job waiting to be
+        # applied" at baseline.
+        assert r.json()["count"] == 1
 
-    async def test_pending_count_update_after_approve(
+    async def test_pending_count_increments_after_approve(
         self, seeded_jobs: AsyncClient,
     ) -> None:
+        # Approve a previously-in_review row → it joins the
+        # auto-apply queue → the badge count goes up by 1 (the
+        # apply worker hasn't fired yet, so the row is still
+        # ``approved`` not ``applied``).
         before = (await seeded_jobs.get("/api/jobs/pending-count")).json()["count"]
         await seeded_jobs.post(f"/api/jobs/{J_1_ID}/approve")
         after = (await seeded_jobs.get("/api/jobs/pending-count")).json()["count"]
+        assert after == before + 1
+
+    async def test_pending_count_decrements_after_apply(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        # An ``applied`` row is no longer in the queue. This test
+        # is the explicit regression for "approved → applied flips
+        # the badge" without going through the full apply worker.
+        # ``j_3`` (Vercel Backend) is the seeded approved row so we
+        # can post a manual apply directly without first calling
+        # ``/approve``; the ``/api/applications`` endpoint enforces
+        # the state-machine guard against any non-approved source
+        # state, so a successful response is the proof we hit the
+        # transition.
+        before = (await seeded_jobs.get("/api/jobs/pending-count")).json()["count"]
+        apply_resp = await seeded_jobs.post(
+            "/api/applications",
+            json={"job_id": J_3_ID, "notes": "manual apply"},
+        )
+        # Pin the transition explicitly so a future state-machine
+        # guard drift manifests as a clean assertion failure here
+        # rather than as a silent ``after == before`` false-positive
+        # below.
+        assert apply_resp.status_code in (200, 201), apply_resp.text
+        after = (await seeded_jobs.get("/api/jobs/pending-count")).json()["count"]
         assert after == before - 1
+
+    async def test_pending_count_excludes_paused_rows(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        """Pausing an approved row must drop it from the badge count
+        because the future apply_worker dequeue is
+        ``WHERE status='approved'`` — paused rows are explicitly
+        OUT of the auto-apply queue. Without this, parking a job
+        wouldn't drop the Navbar badge and the operator would
+        think the worker is still about to fire on a deal-breaker.
+
+        Also: a paused row that is then *manually applied* still
+        jumps through the same ``/api/applications`` 409 guard as
+        anywhere else, so the second half of this test pins the
+        state-machine guard rather than reaching the route via a
+        creative bypass.
+        """
+        before = (await seeded_jobs.get("/api/jobs/pending-count")).json()["count"]
+        assert before == 1, "test fixture broke: baseline should be 1"
+
+        # Pause j_3 → badge drops by 1.
+        await seeded_jobs.patch(
+            f"/api/jobs/{J_3_ID}/status",
+            json={"status": "paused", "source": "user", "note": "visa"},
+        )
+        after_pause = (await seeded_jobs.get("/api/jobs/pending-count")).json()["count"]
+        assert after_pause == before - 1
+
+        # Resume j_3 → badge climbs back.
+        await seeded_jobs.patch(
+            f"/api/jobs/{J_3_ID}/status",
+            json={"status": "approved", "source": "user", "note": "resumed"},
+        )
+        after_resume = (await seeded_jobs.get("/api/jobs/pending-count")).json()["count"]
+        assert after_resume == before
+
+    async def test_list_filter_paused_returns_only_paused_rows(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        """The React ``PendingReviewWidget`` queries
+        ``?status=paused`` to render the "Parked" sub-list. The new
+        enum value MUST flow through the multi-status OR filter the
+        same way the other five statuses do — a typo in
+        ``JOB_STATUS_VALUES`` would short-circuit the query to an
+        empty result and the Parked sub-list would silently render
+        zero rows.
+        """
+        # Baseline: zero paused rows.
+        r0 = await seeded_jobs.get("/api/jobs?status=paused")
+        assert r0.status_code == 200, r0.text
+        assert r0.json()["total"] == 0
+
+        # Pause j_3.
+        await seeded_jobs.patch(
+            f"/api/jobs/{J_3_ID}/status",
+            json={"status": "paused", "source": "user", "note": "relocation"},
+        )
+
+        # Now exactly one paused row.
+        r1 = await seeded_jobs.get("/api/jobs?status=paused")
+        assert r1.status_code == 200, r1.text
+        body = r1.json()
+        assert body["total"] == 1
+        assert body["jobs"][0]["id"] == J_3_ID
+        assert body["jobs"][0]["status"] == "paused"
+
+        # Multi-status OR: paused + approved still works.
+        r_or = await seeded_jobs.get("/api/jobs?status=paused,approved")
+        assert r_or.status_code == 200, r_or.text
+        assert r_or.json()["total"] >= 1
 
 
 # ---------------------------------------------------------------------
@@ -318,6 +440,58 @@ class TestPatchJobStatus:
 
         h = await _fetch_history()
         assert h.source == "user"
+
+    async def test_patch_to_paused_writes_history_row(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        """v0.6 operator-veto path: PATCH approved → paused parks the
+        row before the future apply_worker fires. The transition
+        must write a job_status_history row so an analyst query can
+        later trace "why didn't the worker apply to job X?" back to
+        the operator's pause click.
+        """
+        j3_id = _seed_id_for("j_3")  # seeded approved
+        r = await seeded_jobs.patch(
+            f"/api/jobs/{j3_id}/status",
+            json={"status": "paused", "source": "user", "note": "visa"},
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["status"] == "paused"
+        # Paused is NOT a terminal-clear status (the prior
+        # approve/reject/applied terminal-clear branch doesn't
+        # include ''paused''), so the existing ``review_deadline``
+        # stays whatever it was (NULL for j_3).
+        assert body["review_deadline"] is None
+
+        async def _fetch_history() -> list[db_models.JobStatusHistory]:
+            async with AsyncSessionLocal() as session:
+                stmt = (
+                    select(db_models.JobStatusHistory)
+                    .where(db_models.JobStatusHistory.job_id == j3_id)
+                )
+                return list((await session.execute(stmt)).scalars().all())
+
+        history = await _fetch_history()
+        assert len(history) == 1
+        assert history[0].from_status == "approved"
+        assert history[0].to_status == "paused"
+        assert history[0].source == "user"
+        assert history[0].note == "visa"
+
+    async def test_patch_to_invalid_status_paused_still_works(
+        self, seeded_jobs: AsyncClient,
+    ) -> None:
+        """Sanity-pin: Pydantic accepted ``paused`` as a valid Literal
+        value at the route's request-body parsing step. A 422 here
+        would mean we forgot to update the Literal in routes/jobs.py.
+        """
+        j1_id = _seed_id_for("j_1")
+        r = await seeded_jobs.patch(
+            f"/api/jobs/{j1_id}/status",
+            json={"status": "paused"},
+        )
+        assert r.status_code == 200, r.text
 
 
 # ---------------------------------------------------------------------

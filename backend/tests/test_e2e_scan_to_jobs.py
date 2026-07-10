@@ -240,7 +240,11 @@ class TestScanFundingEndToEnd:
         # schema is the same the React ``JobsReview`` page expects.
         winner = await _fetch_winner("scan-201-above")
         assert winner is not None
-        assert winner.status == "in_review"
+        # Single-threshold rule: above-threshold winners land as
+        # ``approved`` directly (apply worker picks them up on the
+        # next tick). No ``in_review`` intermediate — the LLM
+        # scoring decision IS the approval decision.
+        assert winner.status == "approved"
         assert winner.ats_type == "funding"
         assert winner.title == "Funding Round — Series B for AI Infra Co"
         assert winner.company_name == "Acme AI"
@@ -565,7 +569,10 @@ class TestScanBoardsEndToEnd:
         assert winner is not None
         # ``ats_type`` must round-trip as ``"boards"`` so future ops can
         # filter winners by their source scanner.
-        assert winner.status == "in_review"
+        # Single-threshold rule: above-threshold winners land as
+        # ``approved`` directly, not ``in_review`` — see the
+        # funding test's matching assertion for the rationale.
+        assert winner.status == "approved"
         assert winner.ats_type == "boards"
         assert winner.title == "Senior AI Engineer"
         assert winner.company_name == "Acme AI"

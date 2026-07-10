@@ -162,7 +162,10 @@ class TestPersistAboveThreshold(_ScoringTestCase):
             rows = (await session.execute(stmt)).scalars().all()
         self.assertEqual(len(rows), 1)
         row = rows[0]
-        self.assertEqual(row.status, "in_review")
+        # Single-threshold rule: above-threshold winners land as
+        # ``approved`` directly (apply worker picks them up on its
+        # next polling tick). No ``in_review`` intermediate.
+        self.assertEqual(row.status, "approved")
         self.assertAlmostEqual(row.ai_fit_score, 0.85, places=4)
         self.assertEqual(row.ai_fit_reasoning, "Strong match")
         self.assertEqual(row.ats_type, "boards")

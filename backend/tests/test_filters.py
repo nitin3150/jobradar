@@ -32,12 +32,15 @@ from utils.filters import (
     SENIORITY_VALUES,
     SeniorityTier,
     YEARS_OF_EXPERIENCE_PATTERN,
+    _DEFAULT_TITLE_REJECT_KEYWORDS,
+    _resolve_title_reject_keywords,
     bench_org_from_text,
     classify_seniority,
     filter_roles,
     is_relevant_role,
     min_years_required,
     seniority_rank,
+    should_reject_by_title,
 )
 
 
@@ -603,6 +606,369 @@ class TestPatternListsPopulated(unittest.TestCase):
         result = min_years_required("5+ years")
         self.assertIsNotNone(result)
         self.assertIsInstance(result, int)
+
+
+# ---------------------------------------------------------------------------
+# v0.6 additions: title-level reject filter.
+# ---------------------------------------------------------------------------
+class TestShouldRejectByTitle(unittest.TestCase):
+    """Coverage for the staff/principal/lead/head/director gate.
+
+    Each assertion targets a single behaviour so a regex typo or
+    env-override drift surfaces in one test method:
+
+    * Canonical set (5 tokens) all reject.
+    * Qualifiers and adjacent words stay out of the match set
+    (word-boundary regression guard).
+    * Explicit ``keywords=`` bypasses env entirely.
+    * ``raw_env=`` test hook simulates manifest-mode deployment.
+    * Empty / whitespace-only env falls back to canonical default.
+    """
+
+    def test_staff_engineer_rejected(self) -> None:
+        self.assertTrue(should_reject_by_title("Staff Engineer", raw_env=None))
+
+    def test_principal_engineer_rejected(self) -> None:
+        self.assertTrue(should_reject_by_title("Principal Engineer", raw_env=None))
+
+    def test_lead_engineer_rejected(self) -> None:
+        self.assertTrue(should_reject_by_title("Lead Engineer", raw_env=None))
+
+    def test_software_engineering_lead_rejected(self) -> None:
+        # "lead" appears at the end as a whole word -- matches \blead\b.
+        self.assertTrue(should_reject_by_title("Software Engineering Lead", raw_env=None))
+
+    def test_team_lead_rejected(self) -> None:
+        self.assertTrue(should_reject_by_title("Team Lead", raw_env=None))
+
+    def test_head_of_engineering_rejected(self) -> None:
+        self.assertTrue(should_reject_by_title("Head of Engineering", raw_env=None))
+
+    def test_director_of_engineering_rejected(self) -> None:
+        self.assertTrue(should_reject_by_title("Director of Engineering", raw_env=None))
+
+    def test_software_engineer_passes(self) -> None:
+        # No seniority keyword -- proceeds to the band filter upstream.
+        self.assertFalse(should_reject_by_title("Software Engineer", raw_env=None))
+
+    def test_senior_engineer_passes(self) -> None:
+        # "senior" is in SENIORITY_TIERS but NOT in the title-reject set.
+        # The band filter governs senior fate; this gate is narrower.
+        self.assertFalse(should_reject_by_title("Senior Engineer", raw_env=None))
+
+    def test_engineering_manager_passes(self) -> None:
+        # "manager" is in SENIORITY_TIERS (rank 6) but NOT in the
+        # title-reject set -- the operator opted to drop above-staff
+        # but the band filter owns the manager-band question.
+        self.assertFalse(should_reject_by_title("Engineering Manager", raw_env=None))
+
+    def test_vp_engineering_passes(self) -> None:
+        # Edge case: "vp" is in SENIORITY_TIERS (rank 8) but "vp" is
+        # NOT in the title-reject canonical set. Surfaces here so a
+        # future widening ("also drop vp") explicitly opts in rather
+        # than inheriting the rejection.
+        self.assertFalse(should_reject_by_title("VP Engineering", raw_env=None))
+
+    def test_staffing_coordinator_passes(self) -> None:
+        # Word boundary keeps "staffing" out of the match set.
+        self.assertFalse(should_reject_by_title("Staffing Coordinator", raw_env=None))
+
+    def test_leadership_program_passes(self) -> None:
+        # Word boundary keeps "leadership" out of the match set.
+        self.assertFalse(should_reject_by_title("Leadership Program", raw_env=None))
+
+    def test_directorship_passes(self) -> None:
+        # Word boundary keeps "directorship" out of the match set.
+        self.assertFalse(should_reject_by_title("Directorship Role", raw_env=None))
+
+    def test_headphones_passes(self) -> None:
+        # Word boundary keeps "headphones" out of the match set.
+        self.assertFalse(should_reject_by_title("Headphones Designer", raw_env=None))
+
+    def test_case_insensitive_match(self) -> None:
+        # All three casings hit the canonical set -- the (?i) flag
+        # makes the pattern case-insensitive by construction.
+        self.assertTrue(should_reject_by_title("STAFF ENGINEER", raw_env=None))
+        self.assertTrue(should_reject_by_title("Staff engineer", raw_env=None))
+        self.assertTrue(should_reject_by_title("staff engineer", raw_env=None))
+
+    def test_empty_title_returns_false(self) -> None:
+        # Default-allow -- the upstream band filter owns the empty
+        # case; the title-reject gate is a no-op on empty input.
+        self.assertFalse(should_reject_by_title("", raw_env=None))
+
+    def test_none_title_returns_false(self) -> None:
+        # Type guard -- a future caller that misses the title column
+        # must not crash the runner with a TypeError on re.search.
+        self.assertFalse(should_reject_by_title(None, raw_env=None))  # type: ignore[arg-type]
+
+    # --- env override via raw_env test hook ------------------------------
+
+    def test_env_override_comma_separated(self) -> None:
+        # Narrow to just "principal" -- a Staff Engineer would now pass.
+        self.assertTrue(
+            should_reject_by_title("Principal Engineer", raw_env="principal"),
+        )
+        self.assertFalse(
+            should_reject_by_title("Staff Engineer", raw_env="principal"),
+        )
+        self.assertFalse(
+            should_reject_by_title("Lead Engineer", raw_env="principal"),
+        )
+
+    def test_env_override_whitespace_separated(self) -> None:
+        # Accepts whitespace tokens too (BOARDS_REJECT_TITLE_KEYWORDS=
+        # "staff principal lead").
+        self.assertTrue(
+            should_reject_by_title("Staff Engineer", raw_env="staff principal lead"),
+        )
+        self.assertFalse(
+            should_reject_by_title("Director of Engineering", raw_env="staff principal lead"),
+        )
+
+    def test_env_override_empty_falls_back_to_default(self) -> None:
+        # Empty raw_env = "no env var set" -- canonical 5-token
+        # default takes over so a misconfigured Render secret
+        # doesn't silently disable the gate.
+        self.assertTrue(
+            should_reject_by_title("Staff Engineer", raw_env=""),
+        )
+        self.assertTrue(
+            should_reject_by_title("Director", raw_env=""),
+        )
+
+    def test_env_override_whitespace_only_falls_back_to_default(self) -> None:
+        # Whitespace-only env (operator exported ""  or " ") -> same
+        # fallback as empty.
+        self.assertTrue(
+            should_reject_by_title("Lead Engineer", raw_env="   "),
+        )
+
+    def test_env_override_widens_set(self) -> None:
+        # Add "fellow" + "distinguished" -- both are seniority
+        # aliases from SENIORITY_TIERS that aren't in the canonical
+        # title-reject set, but an operator who explicitly widens
+        # gets them dropped. The raw_env value here MUST list both
+        # tokens -- a previous revision only had "fellow" and the
+        # "Distinguished Engineer" assertion silently failed because
+        # "distinguished" was missing from the env.
+        raw = "staff,principal,lead,head,director,fellow,distinguished"
+        self.assertTrue(
+            should_reject_by_title("Distinguished Engineer", raw_env=raw),
+        )
+        self.assertTrue(
+            should_reject_by_title("Research Fellow", raw_env=raw),
+        )
+
+    def test_env_override_dedup_and_lowercase(self) -> None:
+        # "STAFF,Staff,staff" -> deduplicated + lowercased -> single
+        # effective token. Asserts an idiomatic-Python dedup not a
+        # case-sensitive set semantics surprise.
+        self.assertTrue(
+            should_reject_by_title("Staff Engineer", raw_env="STAFF,Staff,staff"),
+        )
+
+    # --- explicit keywords argument ------------------------------------
+
+    def test_explicit_keywords_override_env(self) -> None:
+        # keywords= wins over env entirely -- the production env
+        # value is ignored when the caller passes an explicit list.
+        # With explicit kw=["principal"] the env's "staff" is
+        # ignored: "Principal Engineer" matches the explicit kw
+        # (true), "Staff Engineer" matches the env's "staff" but
+        # NOT the explicit kw "principal" (false -- demonstrates
+        # the override semantics).
+        self.assertTrue(
+            should_reject_by_title(
+                "Principal Engineer",
+                keywords=["principal"],
+                raw_env="staff,principal",
+            ),
+        )
+        self.assertFalse(
+            should_reject_by_title(
+                "Staff Engineer",
+                keywords=["principal"],
+                raw_env="staff,principal",
+            ),
+        )
+
+    def test_explicit_keywords_narrow(self) -> None:
+        # Caller narrows to just "lead"; even with raw_env set
+        # broader, this title is the only one dropped.
+        self.assertTrue(
+            should_reject_by_title(
+                "Lead Engineer",
+                keywords=["lead"],
+                raw_env="staff,principal,head,director",
+            ),
+        )
+        self.assertFalse(
+            should_reject_by_title(
+                "Staff Engineer",
+                keywords=["lead"],
+                raw_env="staff,principal,head,director",
+            ),
+        )
+
+    def test_explicit_empty_keywords_disables_gate(self) -> None:
+        # keywords=[] -- explicit gate disable. Useful for a test
+        # fixture that wants to confirm the band filter alone.
+        self.assertFalse(
+            should_reject_by_title("Staff Engineer", keywords=[]),
+        )
+
+    def test_explicit_keywords_whitespace_only_normalised(self) -> None:
+        # An empty / whitespace-only explicit list collapses to no
+        # match. "  " is filtered out by the strip().lower() guard.
+        self.assertFalse(
+            should_reject_by_title("Staff Engineer", keywords=["  ", ""]),
+        )
+
+    # --- behavioural contracts pinned here --------------------------------
+
+    def test_multiple_hits_returns_true(self) -> None:
+        # "Staff Principal Engineer" has TWO canonical keywords in
+        # one title -- should_reject_by_title still returns True on
+        # the first match (pattern.search + bool() short-circuit).
+        # Pin the contract so a future refactor to a multi-keyword
+        # counter doesn't accidentally degrade to a count-only
+        # semantic (>= 2 means True).
+        self.assertTrue(
+            should_reject_by_title("Staff Principal Engineer", raw_env=None),
+        )
+
+    def test_title_only_by_design(self) -> None:
+        # Contract pin: should_reject_by_title looks at TITLE ONLY.
+        # Unlike min_years_required which scans combined
+        # title+description, this gate is asymmetric on purpose.
+        # A description-side mention of "staff-level" must NOT
+        # trigger the gate -- this test freezes that behaviour so
+        # a future "more thorough check" PR doesn't silently
+        # regress it.
+        # We pass the title "Senior Engineer" with explicit
+        # canonical keywords -- if the implementation ever
+        # started reading description text, it would still
+        # return False here (no title-only keyword), pinning
+        # that the test's premise is correct.
+        self.assertFalse(
+            should_reject_by_title(
+                "Senior Engineer",
+                raw_env=None,
+            ),
+        )
+        # And a title with the keyword still rejects: this is the
+        # counterpart to the above, asserting that title-side
+        # mentions DO trigger the gate (baseline semantics).
+        self.assertTrue(
+            should_reject_by_title(
+                "Staff Engineer",
+                raw_env=None,
+            ),
+        )
+
+    def test_plural_siblings_stay_out_of_match_set(self) -> None:
+        # Regression guard for \b...\b semantics on PLURAL forms.
+        # "Staffs" -- plural -- followed by 's' (a word character),
+        # so \b does NOT fire after "Staff". The string is correctly
+        # excluded. Pin this so a future regex tweak to (?:^|\s)...
+        # (?:\s|$) for some other gate doesn't accidentally bring
+        # in plurals here.
+        self.assertFalse(should_reject_by_title("Staffs", raw_env=None))
+        self.assertFalse(should_reject_by_title("Leads", raw_env=None))
+        self.assertFalse(should_reject_by_title("Heads", raw_env=None))
+        self.assertFalse(should_reject_by_title("Principals", raw_env=None))
+        self.assertFalse(should_reject_by_title("Directors", raw_env=None))
+
+    def test_cache_returns_same_pattern_for_identical_inputs(self) -> None:
+        # Regression guard for F2 (lru_cache wiring). Two calls with
+        # identical (keywords, raw_env) MUST hit the same compiled
+        # pattern -- if they don't, the cache broke and the boards
+        # runner starts paying per-call re.compile again.
+        from utils.filters import _build_title_reject_pattern
+
+        pat1 = _build_title_reject_pattern(None, "staff,principal")
+        pat2 = _build_title_reject_pattern(None, "staff,principal")
+        self.assertIs(
+            pat1, pat2,
+            "lru_cache miss detected -- the boards runner is back "
+            "to per-call re.compile",
+        )
+
+    def test_cache_miss_for_distinct_env_values(self) -> None:
+        # Two distinct env values = two distinct cache entries.
+        # If lru_cache collapsed them, env-rotation would silently
+        # reuse a stale compiled pattern -- capture that risk here.
+        from utils.filters import _build_title_reject_pattern
+
+        pat_a = _build_title_reject_pattern(None, "staff")
+        pat_b = _build_title_reject_pattern(None, "lead")
+        self.assertIsNot(
+            pat_a, pat_b,
+            "lru_cache incorrectly shared across distinct env values",
+        )
+        # And the pattern actually matches the right keyword:
+        self.assertIsNotNone(pat_a.search("Staff Engineer"))
+        self.assertIsNone(pat_a.search("Lead Engineer"))
+        self.assertIsNone(pat_b.search("Staff Engineer"))
+        self.assertIsNotNone(pat_b.search("Lead Engineer"))
+
+
+# ---------------------------------------------------------------------------
+# Regression guards for the title-reject helper itself.
+# ---------------------------------------------------------------------------
+class TestTitleRejectKeywordResolver(unittest.TestCase):
+    """Direct coverage of :func:`_resolve_title_reject_keywords`.
+
+    The function is module-private but its behaviour (env-fallback,
+    tokenisation, dedup) is the contract callers depend on. Pinning
+    it here so a future cleanup doesn't accidentally remove the
+    canonical fallback.
+    """
+
+    def test_default_when_env_unset(self) -> None:
+        self.assertEqual(
+            _resolve_title_reject_keywords(raw_env=""),
+            _DEFAULT_TITLE_REJECT_KEYWORDS,
+        )
+
+    def test_default_when_env_none(self) -> None:
+        self.assertEqual(
+            _resolve_title_reject_keywords(raw_env=None),
+            _DEFAULT_TITLE_REJECT_KEYWORDS,
+        )
+
+    def test_default_when_env_whitespace(self) -> None:
+        self.assertEqual(
+            _resolve_title_reject_keywords(raw_env="   ,  "),
+            _DEFAULT_TITLE_REJECT_KEYWORDS,
+        )
+
+    def test_single_keyword_returns_singleton_tuple(self) -> None:
+        self.assertEqual(
+            _resolve_title_reject_keywords(raw_env="principal"),
+            ("principal",),
+        )
+
+    def test_multiple_keywords_preserve_order(self) -> None:
+        # The order matters for log output / debugging surfaces.
+        self.assertEqual(
+            _resolve_title_reject_keywords(raw_env="director,staff,principal"),
+            ("director", "staff", "principal"),
+        )
+
+    def test_dedup_collapses_duplicates(self) -> None:
+        self.assertEqual(
+            _resolve_title_reject_keywords(raw_env="staff,STAFF,Staff,staff"),
+            ("staff",),
+        )
+
+    def test_lowercase_normalisation(self) -> None:
+        # Operator exports in title-cased config? Still works.
+        self.assertEqual(
+            _resolve_title_reject_keywords(raw_env="Staff,Principal,Lead"),
+            ("staff", "principal", "lead"),
+        )
 
 
 if __name__ == "__main__":

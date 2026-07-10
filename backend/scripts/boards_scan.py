@@ -76,14 +76,16 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import hashlib
 import json
 import os
 import sys
 import time
 import traceback
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from uuid import NAMESPACE_URL, uuid5
+from uuid import NAMESPACE_URL, uuid4, uuid5
 
 # Make ``backend/`` importable so ``from pipeline...`` etc. resolves
 # regardless of the working directory GHA invokes the script with.
@@ -396,84 +398,337 @@ def _persist_winners(
     return inserted
 
 
+# ----------------------------------------------------------------------
+# Boards-scan audit logging
+# ----------------------------------------------------------------------
+# Every invocation of ``main()`` opens a ``scanner_runs`` row at
+# start and closes it in a ``finally`` block so the postmortem
+# timeline can be reconstructed from SQL alone — not from the GHA run
+# log (which is per-run_id and ephemeral). The three new columns
+# (``tier``, ``env_hash``, ``jobs_persisted``) were added in
+# migration 0005 specifically so this module has somewhere to write
+# its per-invocation audit rope. See that migration's docstring for
+# the schema rationale; the helpers here implement the writer side.
+#
+# Failure-mode design (best-effort, NOT strict):
+#   * If :func:`record_audit_open` fails (Supabase 401, network blip,
+#     table doesn't exist), we log a WARN and continue. The scan
+#     still lands its jobs in the ``jobs`` table; only the audit
+#     row is missing. A postmortem that asks "did the cron fire?"
+#     for that one tick returns "no audit row exists" rather than
+#     "the script crashed" — a low-stakes answer.
+#   * If :func:`record_audit_close` fails, we log a WARN and the
+#     row stays at ``state='running'``. A separate cleanup cron
+#     can sweep stuck-running rows (the operator can run
+#     ``UPDATE scanner_runs SET state='error' WHERE state='running'
+#     AND started_at < NOW() - INTERVAL '1 hour'`` in the Supabase
+#     Studio to do this manually today).
+#
+# This is deliberately best-effort because the production data path
+# (the ``jobs`` table) is more valuable than the audit trail —
+# losing one audit row is recoverable from GHA logs; losing the
+# daily scraped-job inserts is not.
+# ----------------------------------------------------------------------
+
+
+def _compute_env_hash() -> str:
+    """sha256-hex digest of the env vars that govern this run's behavior.
+
+    Same env → same hash; any change to a contributing var produces
+    a different hash so a postmortem can ``GROUP BY env_hash`` over
+    the last 30 days and instantly see "which config change first
+    produced zero writes".
+
+    Excluded on purpose:
+    * Secret-carrying env vars (``*_API_KEY``, ``*_TOKEN``,
+      ``SUPABASE_SERVICE_ROLE_KEY``, etc.) — even a hash of a
+      secret is a privilege-escalation risk if the GH repo or this
+      DB is later compromised (a known chain is enough to narrow the
+      brute-force space).
+    * Drift-prone vars (``PATH``, ``HOME``, ``USER``, ``LANG``,
+      ``SHELL``, ``PWD``) — same operator + same binary + different
+      shell environment would otherwise produce different hashes
+      for no observable behavior change.
+    * Variables set by the Python interpreter (``VIRTUAL_ENV``,
+      ``PYTHONPATH``, ``OLDPWD``) — same reasoning.
+
+    >>> os.environ.update({"BOARDS_DELTA_HOURS": "24"})
+    >>> h1 = _compute_env_hash()
+    >>> os.environ["JOB_FIT_THRESHOLD"] = "0.7"
+    >>> _compute_env_hash() == h1  # var outside our list ⇒ unchanged
+    True
+    """
+    keys = [
+        "BOARDS_DELTA_HOURS",
+        "BOARDS_LIMIT",
+        "BOARDS_BOARDS",
+        "BOARDS_HTTP_TIMEOUT",
+        "BOARDS_SKIP_TIMEOUTS",
+        "BOARDS_PROFILE_PATH",
+        "JOB_FIT_THRESHOLD",
+        "TARGET_ROLES",
+        "LLM_PROVIDER",
+        "LLM_MODEL",
+        "GITHUB_SHA",
+        "GITHUB_REF",
+    ]
+    # ``strip()`` so a whitespace-only value is treated as "not set"
+    # — the operator might export an empty value during a misconfig
+    # experiment and we don't want that to perturb the hash.
+    parts = [
+        f"{k}={os.environ.get(k, '').strip()}"
+        for k in keys
+        if os.environ.get(k, "").strip()
+    ]
+    # Sort for determinism — same env content in any `os.environ`
+    # iteration order produces the same hash.
+    canonical = "\n".join(sorted(parts))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def record_audit_open(sb: Client) -> str | None:
+    """Insert a ``scanner_runs`` row at script start.
+
+    Returns the row's UUID string on success, or ``None`` if the
+    INSERT failed (in which case :func:`record_audit_close` will
+    no-op rather than try to update a non-existent row). Logs WARN
+    on failure but does NOT raise — losing the audit row is
+    recoverable from GHA run logs; raising here would lose the
+    scan's ``jobs`` writes alongside the audit row.
+    """
+    env_hash = _compute_env_hash()
+    tier = os.environ.get("BOARDS_TIER") or "manual"
+    audit_id = str(uuid4())
+
+    # Render the start timestamp with a trailing ``Z`` rather than
+    # ``+00:00`` so a JSONB-shaped ``scanner_runs`` row matches the
+    # same wire format the FastAPI ``_iso_utc`` helper already uses
+    # for ``jobs.posted_at``. Self-consistency matters more here
+    # than absolute ISO strictness — both are valid ISO 8601.
+    started_at_iso = (
+        datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    )
+
+    row = {
+        "id": audit_id,
+        "scanner": "boards",
+        "tier": tier,
+        "state": "running",
+        "started_at": started_at_iso,
+        "env_hash": env_hash,
+        "items_found": 0,
+        "error_count": 0,
+        "error_summary": None,
+        "jobs_persisted": 0,
+    }
+    try:
+        sb.table("scanner_runs").insert(row).execute()
+        # Truncate the env_hash log line — the full hex is
+        # retrievable from the DB; the first 8 chars are enough for
+        # the operator to confirm "is this the same env as the
+        # previous run?" while reading the GHA log.
+        log(
+            f"audit open: id={audit_id} tier={tier} "
+            f"env_hash={env_hash[:8]}…"
+        )
+        return audit_id
+    except Exception as exc:  # noqa: BLE001 — best-effort audit
+        log(
+            f"WARN audit_open failed: {exc} "
+            f"(scan continues without the audit row)"
+        )
+        return None
+
+
+def record_audit_close(
+    sb: Client,
+    audit_id: str | None,
+    *,
+    items_found: int,
+    jobs_persisted: int,
+    state: str,
+    error_summary: str | None,
+) -> None:
+    """Update the open ``scanner_runs`` row with closing state.
+
+    No-op when :func:`record_audit_open` returned ``None`` (the
+    open failed; there's no row to close). Best-effort on the
+    UPDATE itself — NEVER raises because the close always runs from
+    a ``finally`` block and a raised exception here would mask the
+    actual script's success/failure for the operator reading the
+    GHA workflow log.
+    """
+    if audit_id is None:
+        return  # no row opened; nothing to close
+
+    # The schema column ``error_summary`` is sized INTENTIONALLY
+    # small (1 KB) so a single wild exception can't blow the row
+    # out of the Postgres TOAST chunk; truncate defensively rather
+    # than rely on the DB to reject. Strip empty-string None.
+    finished_at_iso = (
+        datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    )
+    finish = {
+        "state": state,
+        "finished_at": finished_at_iso,
+        "items_found": items_found,
+        "jobs_persisted": jobs_persisted,
+        "error_count": 1 if error_summary else 0,
+        "error_summary": (
+            (error_summary or "")[:1000] or None
+        ),
+    }
+    try:
+        sb.table("scanner_runs").update(finish).eq(
+            "id", audit_id
+        ).execute()
+        log(
+            f"audit close: id={audit_id} state={state} "
+            f"items_found={items_found} jobs_persisted={jobs_persisted} "
+            f"errors={'yes' if error_summary else 'no'}"
+        )
+    except Exception as exc:  # noqa: BLE001 — best-effort audit
+        log(
+            f"WARN audit_close failed: {exc} "
+            f"(row may be stuck at state=running; "
+            f"sweep with: UPDATE scanner_runs SET state='error' "
+            f"WHERE state='running' AND started_at < NOW() - INTERVAL '1 hour')"
+        )
+
+
+# ----------------------------------------------------------------------
+# main()
+# ----------------------------------------------------------------------
+
+
 def main() -> int:
     args = _parse_args()
-    started = time.monotonic()
+    started_wall = time.monotonic()
 
-    # ---- 1. Run the boards runner ----------------------------------------
-    log(
-        f"starting: delta_hours={args.delta_hours} boards={args.boards} "
-        f"limit={args.limit or 'none'} threshold={args.threshold} "
-        f"dry_run={args.dry_run}"
-    )
-    try:
-        jobs = run_all(
-            delta_hours=args.delta_hours,
-            boards=args.boards,
-            limit=args.limit if args.limit > 0 else None,
-        )
-    except Exception as exc:
-        log(f"ERROR boards runner crashed: {exc}")
-        traceback.print_exc()
-        return 1
-    log(f"runner returned {len(jobs)} relevant jobs in {time.monotonic() - started:.1f}s")
-
-    if not jobs:
-        log("no relevant jobs to score — exiting cleanly")
-        return 0
-
-    # ---- 2. Build the profile + spin up the LLM client ------------------
-    # Resolve the profile from profile.yml (primary), TARGET_ROLES
-    # env var (fallback), or --target-roles CLI flag (one-off
-    # override). ``cli_target_roles`` is None when the flag wasn't
-    # passed (or when it was passed as empty), which signals
-    # "don't override" to _resolve_profile.
-    cli_target_roles = (
-        [r.strip() for r in args.target_roles.split(",") if r.strip()]
-        if args.target_roles is not None
-        else None
-    )
-    profile = _resolve_profile(cli_target_roles)
-
-    try:
-        llm = LLMClient.from_env()
-    except RuntimeError as exc:
-        log(f"ERROR LLM client init: {exc}")
-        return 1
-
-    # ---- 3. Score every job, filter by threshold ------------------------
-    log(f"scoring {len(jobs)} jobs (threshold >= {args.threshold})")
-    try:
-        scored = asyncio.run(_score_all(llm, profile, jobs))
-    except Exception as exc:
-        log(f"ERROR scoring crashed: {exc}")
-        traceback.print_exc()
-        return 1
-    winners = [(j, s, r) for j, s, r in scored if s >= args.threshold]
-    log(
-        f"winners: {len(winners)}/{len(jobs)} above threshold "
-        f"(mean score {sum(s for _, s, _ in winners) / max(1, len(winners)):.3f})"
-    )
-
-    if not winners or args.dry_run:
-        if args.dry_run:
-            log("dry-run: skipping Supabase insert")
-        return 0
-
-    # ---- 4. Persist winners via the Supabase REST API -------------------
+    # ---- 0. Supabase auth — required for BOTH audit + persist ----------
+    # Required up-front rather than just before persist so the
+    # audit-row open call uses the same client (one HTTP connection
+    # to PostgREST, one TLS handshake). The historical exit code 2
+    # ("Supabase env missing") is preserved — meaning unchanged
+    # even though the location moved.
+    # A misconfigured GHA cron that bails here costs <1s vs the old
+    # 100s+ of setup-time + boards-runner scraping before the
+    # persist path discovered the misconfig. The boards-scan's
+    # ~$0.20 of LLM cost is also preserved by the fail-fast.
     supabase_url = os.environ.get("SUPABASE_URL", "").rstrip("/")
     supabase_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
     if not supabase_url or not supabase_key:
-        log("ERROR SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are required for persist")
+        log("ERROR SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are required")
         return 2
 
     sb = create_client(supabase_url, supabase_key)
-    inserted = _persist_winners(sb, winners)
-    log(
-        f"persisted {inserted}/{len(winners)} winners to Supabase "
-        f"(total wall-clock: {time.monotonic() - started:.1f}s)"
-    )
-    return 0
+    audit_id = record_audit_open(sb)  # best-effort; ``None`` on failure
+
+    # Local state captured across the try/finally — defaults are
+    # ``state='error'`` so a KeyboardInterrupt or unhandled
+    # BaseException that bypasses the ``except Exception`` branches
+    # STILL records ``state='error'`` rather than the misleading
+    # ``state='idle'``. The five success-path ``return`` statements
+    # each explicitly overwrite ``final_state = 'idle'`` before
+    # returning; the two error-path ``return`` statements keep
+    # ``final_state = 'error'`` and write ``error_summary``.
+    items_found = 0
+    jobs_persisted = 0
+    final_state = "error"
+    error_summary = None
+
+    try:
+        # ---- 1. Run the boards runner ------------------------------------
+        log(
+            f"starting: delta_hours={args.delta_hours} "
+            f"boards={args.boards} limit={args.limit or 'none'} "
+            f"threshold={args.threshold} dry_run={args.dry_run}"
+        )
+        try:
+            jobs = run_all(
+                delta_hours=args.delta_hours,
+                boards=args.boards,
+                limit=args.limit if args.limit > 0 else None,
+            )
+        except Exception as exc:
+            log(f"ERROR boards runner crashed: {exc}")
+            traceback.print_exc()
+            error_summary = f"boards runner: {type(exc).__name__}: {exc}"
+            return 1
+
+        items_found = len(jobs)
+        log(
+            f"runner returned {items_found} relevant jobs in "
+            f"{time.monotonic() - started_wall:.1f}s"
+        )
+
+        if not jobs:
+            log("no relevant jobs to score — exiting cleanly")
+            final_state = "idle"  # ran end-to-end, found nothing
+            return 0
+
+        # ---- 2. Build the profile + spin up the LLM client --------------
+        cli_target_roles = (
+            [r.strip() for r in args.target_roles.split(",") if r.strip()]
+            if args.target_roles is not None
+            else None
+        )
+        profile = _resolve_profile(cli_target_roles)
+
+        try:
+            llm = LLMClient.from_env()
+        except RuntimeError as exc:
+            log(f"ERROR LLM client init: {exc}")
+            error_summary = f"LLM init: {exc}"
+            return 1
+
+        # ---- 3. Score every job, filter by threshold --------------------
+        log(f"scoring {items_found} jobs (threshold >= {args.threshold})")
+        try:
+            scored = asyncio.run(_score_all(llm, profile, jobs))
+        except Exception as exc:
+            log(f"ERROR scoring crashed: {exc}")
+            traceback.print_exc()
+            error_summary = f"scoring: {type(exc).__name__}: {exc}"
+            return 1
+
+        winners = [(j, s, r) for j, s, r in scored if s >= args.threshold]
+        log(
+            f"winners: {len(winners)}/{items_found} above threshold "
+            f"(mean score {sum(s for _, s, _ in winners) / max(1, len(winners)):.3f})"
+        )
+
+        if not winners or args.dry_run:
+            if args.dry_run:
+                log("dry-run: skipping Supabase insert")
+            final_state = "idle"
+            return 0
+
+        # ---- 4. Persist winners via the Supabase REST API --------------
+        inserted = _persist_winners(sb, winners)
+        jobs_persisted = inserted
+        log(
+            f"persisted {inserted}/{len(winners)} winners to Supabase "
+            f"(total wall-clock: {time.monotonic() - started_wall:.1f}s)"
+        )
+        final_state = "idle"
+        return 0
+    finally:
+        # ALWAYS close the audit row — even on KeyboardInterrupt /
+        # SIGTERM — so a postmortem query never sees
+        # ``state='running'`` for a row whose process has died. The
+        # close itself is best-effort (warns on failure, never
+        # raises) so an exception here cannot mask the script's
+        # actual success/failure code that the operator sees in the
+        # GHA workflow log.
+        record_audit_close(
+            sb,
+            audit_id,
+            items_found=items_found,
+            jobs_persisted=jobs_persisted,
+            state=final_state,
+            error_summary=error_summary,
+        )
 
 
 if __name__ == "__main__":

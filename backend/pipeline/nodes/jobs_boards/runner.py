@@ -29,6 +29,7 @@ from utils.filters import (
     filter_roles,
     is_relevant_role,
     min_years_required,
+    should_reject_by_title,
 )
 from utils.http import build_client
 from utils.seen import load_file, save_seen
@@ -423,6 +424,32 @@ def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
                         description = (
                             job.get("description") or job.get("content") or ""
                         )
+                        # Title-level reject: the operator's experience
+                        # does not align with staff/principal/lead/head/
+                        # director roles regardless of the band filter
+                        # outcome. should_reject_by_title reads
+                        # BOARDS_REJECT_TITLE_KEYWORDS for env-driven
+                        # narrowing; the default 5-token set matches
+                        # the per-profile reject list. The debug log
+                        # surfaces a *truncated* title (some ATS
+                        # payloads interpolate PII into the title
+                        # field -- e.g. hiring-manager names -- and
+                        # GHA logs are world-readable to anyone with
+                        # the repo on Actions). Runs BEFORE the
+                        # years-floor gate because the title-reject
+                        # regex is cheaper than the longer combined
+                        # title+description scan in
+                        # :func:`utils.filters.min_years_required`:
+                        # skipping that scan on already-rejected
+                        # jobs saves wall-clock on the hot loop.
+                        if should_reject_by_title(title):
+                            # Truncate to 80 chars to bound log
+                            # output and reduce PII surface.
+                            logger.debug(
+                                "drop %s/%s: title reject (seniority keyword in %r)",
+                                board_name, slug, title[:80],
+                            )
+                            continue
                         # 6+ years → drop the role only (per operator
                         # request: "discard the roles"). We DO NOT
                         # bench the whole company on a 6+-years match —

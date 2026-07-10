@@ -280,6 +280,13 @@ jobs:
       # bigger org set doesn't drown the review queue; tune
       # here, NOT in the script.
       JOB_FIT_THRESHOLD: "0.7"
+      # Boards-scan audit row writer. The ``scripts/boards_scan.py``
+      # GHA entry point records one ``scanner_runs`` row per
+      # invocation; ``BOARDS_TIER`` distinguishes which cron fired
+      # it so a postmortem can ``SELECT … WHERE tier='active' ORDER
+      # BY started_at DESC`` and read the hourly-active history
+      # isolated from the daily-dormant stream.
+      BOARDS_TIER: "active"
       # Supabase REST auth — supabase-py reads these from the process
       # env at startup; missing or wrong values make every REST write
       # 401 with "Invalid API key" (PostgREST layer). The actual
@@ -468,6 +475,11 @@ jobs:
       BOARDS_BOARDS: "ashby greenhouse lever"
       BOARDS_LIMIT: "0"
       JOB_FIT_THRESHOLD: "0.7"
+      # Boards-scan audit row writer — companion to the active
+      # tier's ``BOARDS_TIER: 'active'``. Both tiers share the
+      # same ``scanner_runs`` table; the ``tier`` column is what
+      # separates them in a postmortem query.
+      BOARDS_TIER: "dormant"
       # Larger per-request timeout window for the daily slow-org
       # re-attempt. The active tier sets ``BOARDS_SKIP_TIMEOUTS=1``
       # so the same orgs get skipped on the hourly ticks; the

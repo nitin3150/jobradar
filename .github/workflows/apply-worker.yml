@@ -1,0 +1,361 @@
+# .github/workflows/apply-worker.yml
+#
+# JobRadar apply-worker orchestrator — runs the apply worker
+# from inside the GitHub Actions cron. No backend/host cron
+# required.
+#
+# Why GHA instead of Render / Always Free ARM
+# -------------------------------------------
+# JobRadar has applied <100 jobs in its first six months and
+# grew faster on operator review queues than on auto-apply
+# throughput. A free GHA cron (2,000 min/month on private repos,
+# unlimited on public) is comfortably enough to cover an hourly
+# drain at ~50 s / run-of-ten-rows, and removes the operator-side
+# systemd / Render-Cron complexity. Migrate to ARM if:
+#   1. Azure IP space starts tripping ATS bot detection (the
+#      Cloudflare + lever.co combo is the known offender).
+#   2. The queue grows past ~50 approved rows / hour — single
+#      hourly cron hits its drain timeout and backlogs.
+#   3. Environment-secret rotation gets painful via GHA's UI.
+#
+# Drain loop
+# ----------
+# `python scripts/apply_worker_tick.py` (see the script's
+# docstring) opens ONE asyncpg session, loops
+# ``run_one_tick(session, llm)`` until the queue returns IDLE OR
+# the wall-clock deadline fires. The drain amortizes the
+# per-invocation GHA setup overhead (~80 s with Playwright cache
+# hit) over as many rows as the queue holds — the boards-scan
+# workflow's "one invocation per run" pattern would burn that
+# overhead on every approved row.
+#
+# Concurrency
+# -----------
+# ``concurrency.group: apply-worker-singleton`` keeps two cron
+# ticks of this workflow from overlapping if a previous run
+# stalls. ``cancel-in-progress: false`` waits for the in-flight
+# drain to finish rather than killing it mid-tick — half-fliping
+# an ``approved → applied`` row is the SAFER failure mode than
+# killing the runner while the session has the FOR UPDATE SKIP
+# LOCKED lock held. (The script's per-tick exception handler
+# also surfaces unhandled exceptions via exit 1 — GHA's
+# failure-email then alerts the operator.)
+#
+# Budget (private repo, free tier: 2,000 min/month)
+# -------------------------------------------------
+# 1 cron/hour × 24 hr × 30 d = 720 invocations / month.
+# Per-invocation wall-clock: ~80 s (cache-hit setup) + drain
+# duration (IDLE on empty queue = ~5 s; 10 rows = ~80 s).
+# 720 × 85 s ≈ 1,020 min / month base cost.
+# Headroom: 2,000 - 1,020 = 980 min / month, or ~14 min /
+# invocation. Comfortable for the queued-row case; well under
+# the ceiling when the queue is empty.
+#
+# Required GitHub Actions secrets
+# --------------------------------
+# (Configure at the repo or org level — the workflow FAIL-FASTS
+# on the first 4xx if any of the first three are missing.)
+#
+#   DATABASE_URL                  - postgresql+asyncpg://... DSN.
+#                                   service-role-key-bypass is not
+#                                   needed here: this workflow reads
+#                                   + writes via asyncpg against
+#                                   Supabase directly, and the
+#                                   service-role key is used for the
+#                                   Storage upload path.
+#   SUPABASE_URL                  - https://<project>.supabase.co
+#                                   (no trailing slash). SOFT-required
+#                                   for screenshot uploads.
+#   SUPABASE_SERVICE_ROLE_KEY     - service_role secret from the
+#                                   Supabase project settings.
+#                                   SOFT-required.
+#   NVIDIA_API_KEY and/or GROQ_API_KEY
+#                                 - The qa_matcher uses the LLM as a
+#                                   fallback pass on field-label
+#                                   disambiguation. AT LEAST ONE is
+#                                   required; both unlocks the
+#                                   doubled-RPM throughput described
+#                                   in services/llm_client
+#                                   (two NVIDIA keys get a 2x RPM
+#                                   bucket).
+#   NVIDIA_API_KEY_2              - optional second NIM key.
+#                                   Boosts the apply worker's
+#                                   per-process RPM budget; if
+#                                   missing, the LLM client falls
+#                                   back to the single-NVIDIA-or-
+#                                   Groq chain.
+#   STATUS_WEBHOOK_URL            - optional receiver for the
+#                                   per-tier notify payload
+#                                   (Slack-compatible
+#                                   incoming-webhook URL, or any
+#                                   HTTPS endpoint that accepts a
+#                                   JSON POST and returns 2xx).
+#
+# Single-threshold rule notes
+# ---------------------------
+# The boards-scan workflow lands new rows in
+# ``status='approved'``. The apply-worker dequeues them with
+# ``SELECT ... WHERE status='approved' ORDER BY created_at ASC
+# LIMIT 1 FOR UPDATE SKIP LOCKED``. No intermediate review
+# gate. Operator-side veto is the existing PendingReviewWidget
+# "Pause" + "Resume" buttons, which flip
+# ``approved ↔ paused`` without touching this workflow's logic.
+
+name: apply-worker
+
+on:
+  schedule:
+    # Hourly drain. 02:00 UTC keeps it off-peak relative to the
+    # boards-scan crons, which run 0, 02:20, and 04:20 — this
+    # tick at 03:00 fires between the dormant (02:20) and the
+    # cleanup (04:20) so the queue is freshly populated by the
+    # time we drain.
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+# Concurrency: an in-flight drain blocks the next cron tick of
+# the SAME workflow (so we never overlap a long drain with a
+# long drain), but doesn't block other workflows (so a boards-
+# scan cron's setup doesn't wait on ours).
+concurrency:
+  group: apply-worker-singleton
+  cancel-in-progress: false
+
+# Zero-trust GHM token scope: the workflow has no
+# ``actions/checkout`` consumer beyond the default, and we
+# explicitly grant nothing so a future maintainer who adds a
+# writeable step will need to opt in.
+permissions: {}
+
+jobs:
+  drain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      # Pass-through the Supabase REST + Storage keys for
+      # ``storage.supabase.upload_application_screenshot``.
+      # SOFT-required: the form_filler's screenshot upload
+      # tolerates a missing client and persists
+      # ``submission_screenshot_path=NULL`` instead.
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      # Fail-fast: lint the required secrets BEFORE checkout so a
+      # misconfigured repo fails in ~2 s instead of ~80 s of
+      # checkout + pip install + Playwright cache restore.
+      # ``toJson(secrets)`` produces an object keyed by every
+      # SET secret with values masked to "***"; unset secrets
+      # simply don't appear, so ``jq has($n)`` is the right
+      # probe. Secret VALUES never appear in ``::error::``
+      # annotations — only the named MISSING list.
+      #
+      # Lint rules:
+      # 1. DATABASE_URL: required (tick script exits 1 without it).
+      # 2. SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY: soft-required
+      #    (still surfaced as errors so the operator notices the
+      #    missing audit trail; if you want screenshots you need
+      #    both).
+      # 3. NVIDIA_API_KEY + GROQ_API_KEY: at-least-one — the
+      #    qa_matcher LLM fallback needs at least one provider.
+      #    OPERATORS_WHO_SET_BOTH get the doubled-RPM bonus.
+      # 4. NVIDIA_API_KEY_2: optional bonus — emits a warning, not
+      #    an error. Same pattern as boards-scan.yml.
+      - name: Lint required secrets
+        id: secrets-lint
+        timeout-minutes: 1
+        env:
+          SECRETS_JSON: ${{ toJson(secrets) }}
+        run: |
+          set -euo pipefail
+          MISSING=()
+          for NAME in DATABASE_URL SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY; do
+            if ! echo "$SECRETS_JSON" | jq -e --arg n "$NAME" 'has($n)' > /dev/null; then
+              MISSING+=("$NAME")
+            fi
+          done
+          # LLM provider: AT LEAST ONE of NVIDIA_API_KEY / GROQ_API_KEY.
+          HAS_NVIDIA=$(echo "$SECRETS_JSON" | jq -e 'has("NVIDIA_API_KEY")' > /dev/null && echo yes || echo no)
+          HAS_GROQ=$(echo "$SECRETS_JSON" | jq -e 'has("GROQ_API_KEY")' > /dev/null && echo yes || echo no)
+          if [ "$HAS_NVIDIA" != "yes" ] && [ "$HAS_GROQ" != "yes" ]; then
+            MISSING+=("NVIDIA_API_KEY or GROQ_API_KEY (at least one)")
+          fi
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            {
+              echo "::error title=Missing required GHA secrets::${MISSING[*]}"
+              for M in "${MISSING[@]}"; do
+                echo "::error::  - $M"
+              done
+              echo "::error::Add them at: https://github.com/${GITHUB_REPOSITORY}/settings/secrets/actions"
+            } >&2
+            exit 1
+          fi
+          # Optional secrets — warn (don't error) so the operator
+          # notices the bonus they're missing without failing the
+          # drain. NVIDIA_API_KEY_2 doubles the apply worker's
+          # per-process RPM throughput.
+          OPTIONAL=("NVIDIA_API_KEY_2")
+          for NAME in "${OPTIONAL[@]}"; do
+            if ! echo "$SECRETS_JSON" | jq -e --arg n "$NAME" 'has($n)' > /dev/null; then
+              echo "::warning title=Optional GHA secret not set::$NAME (qa_matcher LLM fallback will use the single-key chain; add at https://github.com/${GITHUB_REPOSITORY}/settings/secrets/actions for doubled RPM throughput)"
+            fi
+          done
+          # ``echo HAS_NVIDIA=yes HAS_GROQ=yes/BOTH`` so the log
+          # surfaces which provider chain fired. Useful for cost
+          # forensics when one provider goes down.
+          if [ "$HAS_NVIDIA" = "yes" ] && [ "$HAS_GROQ" = "yes" ]; then
+            echo "LLM provider chain: NVIDIA + Groq"
+          elif [ "$HAS_NVIDIA" = "yes" ]; then
+            echo "LLM provider chain: NVIDIA only"
+          else
+            echo "LLM provider chain: Groq only"
+          fi
+          echo "All required secrets are set."
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          # ``pip install -e .`` honours ``pyproject.toml`` and
+          # pulls every dep the apply worker needs (SQLAlchemy +
+          # asyncpg + Playwright SDK + openai SDK + supabase-py).
+          # An editable install is load-bearing because the tick
+          # script imports ``apply_worker.*`` and ``services.*``
+          # by their package names.
+          pip install -e .
+          # Explicitly install the Playwright Python SDK so the
+          # editable install doesn't depend on a transitive
+          # declaration. The ``--with-deps`` on the next step
+          # pulls the system-level shared libraries.
+          pip install playwright
+
+      # Cache the Playwright Chromium binary across cron ticks.
+      # The download is ~150 MB; without this cache every cron
+      # tick would pay ~30 s for the install step alone. Cache
+      # key is keyed on ``pyproject.toml`` + this workflow
+      # + the ubuntu-latest runner OS so a workflow bump
+      # (cache-key change) invalidates stale binaries.
+      - name: Cache Playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: apply-worker-playwright-${{ runner.os }}-${{ hashFiles('backend/pyproject.toml', '.github/workflows/apply-worker.yml') }}
+          restore-keys: apply-worker-playwright-${{ runner.os }}-
+
+      - name: Install Playwright Chromium + system deps
+        # ``--with-deps`` installs the browser binary AND the
+        # apt packages Playwright requires (libnss3,
+        # libatk-bridge2.0-0, libgtk-3-0, libgbm1, ...). Without
+        # ``--with-deps`` the install step succeeds but the
+        # browser refuses to launch inside the headless runner.
+        # ``--only-shell`` would skip the apt step; here we
+        # want both because the GHA ``ubuntu-latest`` runner
+        # image is minimal.
+        working-directory: backend
+        run: |
+          set -euo pipefail
+          playwright install chromium --with-deps
+
+      - name: Drain apply queue
+        id: drain
+        working-directory: backend
+        # ONE ``env:`` block. GHA's YAML mapping semantics are
+        # last-key-wins, so a second ``env:`` block at the same
+        # nesting level would silently OVERWRITE the first and the
+        # first would be lost. The earlier draft of this workflow
+        # had a duplicate ``env:`` (one for plumb-through secrets,
+        # one for ``APPLY_WORKER_TIMEOUT_SECONDS`` from
+        # workflow-level vars); the reviewer caught it via a code
+        # review before the workflow ever ran on a real cron tick,
+        # so the production blast radius was zero. Keep them merged
+        # here so a future maintainer doesn't introduce the same
+        # bug. ``APPLY_WORKER_TIMEOUT_SECONDS`` falls back to ``3000``
+        # (50 min) when the workflow-level ``vars.`` map is unset.
+        env:
+          # Re-plumb the env pass-through at the step level so the
+          # step log shows the exact values used. Same rationale
+          # as the boards-scan workflow — secrets don't appear in
+          # the ``if:`` context, so the step-level ``env:`` block is
+          # the right isolation.
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          # Optional second NVIDIA NIM key — see services/llm_client
+          # for the dedupe + bucket sizing (two keys → 2x RPM).
+          # Unset secret (resolves to empty string in env) is
+          # filtered by the LLM client's ``if value:`` guard so
+          # operators without the bonus key get the single-key
+          # chain unchanged.
+          NVIDIA_API_KEY_2: ${{ secrets.NVIDIA_API_KEY_2 }}
+          # ``PYTHONUNBUFFERED=1`` so the script's
+          # ``print(..., flush=True)`` reaches the GHA run
+          # log incrementally rather than buffering until
+          # job end. Without this, an early crash on
+          # configured-but-broken secrets would not surface
+          # its traceback until the process exited.
+          PYTHONUNBUFFERED: "1"
+          # ``JOBRADAR_TEST_DB`` deliberately NOT set — production
+          # uses the pooled asyncpg engine from db.session.
+          # ``APPLY_WORKER_TIMEOUT_SECONDS`` is workflow-level
+          # ``vars.`` so operators can extend the drain budget on
+          # staging ramps without editing the workflow file.
+          # Falls back to 3000 s (50 min) when unset.
+          APPLY_WORKER_TIMEOUT_SECONDS: ${{ vars.APPLY_WORKER_TIMEOUT_SECONDS || '3000' }}
+        run: |
+          set -euo pipefail
+          # The drain loop's --timeout-seconds CLI arg matches the
+          # APPLY_WORKER_TIMEOUT_SECONDS env above; default 3000 s
+          # (50 min) leaves GHA a 5-min cleanup window before its
+          # 55-min job timeout fires. Override via the workflow
+          # input on manual triggers.
+          python scripts/apply_worker_tick.py \
+            --timeout-seconds "${APPLY_WORKER_TIMEOUT_SECONDS:-3000}"
+
+      - name: Notify status
+        # Same webhook-empty skip pattern as the boards-scan
+        # workflow — bash-side ``exit 0`` rather than a step-
+        # level ``if:`` because the ``secrets`` context is
+        # unavailable in ``if:`` expressions.
+        if: always()
+        env:
+          STATUS_WEBHOOK_URL: ${{ secrets.STATUS_WEBHOOK_URL }}
+          # ``steps.drain.conclusion`` is one of success /
+          # failure / cancelled / skipped. The receiver
+          # (Slack / Discord / n8n) treats ``failure`` as
+          # the canonical "did it work?" signal because the
+          # drain step may exit 1 before emitting a
+          # GITHUB_OUTPUT line.
+          DRAIN_CONCLUSION: ${{ steps.drain.conclusion }}
+          # ``github.run_attempt`` for cron retries (currently
+          # 1 since the workflow doesn't pin a retry strategy —
+          # add ``on.workflow_call`` later if the operator
+          # wants auto-retry on transient network errors).
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          if [ -z "${STATUS_WEBHOOK_URL:-}" ]; then
+            echo "STATUS_WEBHOOK_URL is unset; skipping notify."
+            exit 0
+          fi
+          payload=$(jq -n \
+            --arg     workflow    "${{ github.workflow }}" \
+            --arg     conclusion  "${DRAIN_CONCLUSION}" \
+            --arg     run_id      "${RUN_ID}" \
+            --arg     attempt     "${RUN_ATTEMPT}" \
+            '{workflow: $workflow, conclusion: $conclusion, run_id: $run_id, run_attempt: $attempt}')
+          curl -sS -X POST \
+            -H "Content-Type: application/json" \
+            -d "${payload}" \
+            "${STATUS_WEBHOOK_URL}"

@@ -15,7 +15,7 @@ Three categories of heuristic block implemented here:
   ("security clearance required", "TS/SCI", "DoD contract", ITAR/EAR,
   etc). Same apply-or-skip contract as visa patterns — hard-drops
   anything matching.
-* :data:`SENIORITY_TIERS` (new) — ladder from ``intern`` → ``vp``` with
+* :data:`SENIORITY_TIERS` (new) — ladder from ``intern`` -> ``vp``` with
   per-tier regex. The relevant range is bounded at runtime by the
   ``min_seniority`` / ``max_seniority`` knobs that come from the
   Preferences singleton (see :mod:`routes.settings`).
@@ -25,14 +25,14 @@ Seniority classification algorithm
 
 :class:`classify_seniority` returns the **highest-rank** tier whose
 regex matches the title. "Senior Staff Engineer" matches both "senior"
-(rank 3) and "staff" (rank 4), returning ``"staff"``. "Senior Director"
+(rank 3) and "staff" (rank 4), returning ``"staff"``.. "Senior Director"
 matches both "senior" and "director" — returns ``"director"``. "Lead"
 sits at rank 5 (peers with ``principal``) because IC-leadership and
 principal are interchangeable in many leveling rubrics; the operator's
 band shouldn't surprise on that boundary.
 
 Implicit mid-rank for unclassifiable titles
--------------------------------------------
+------------------------------------------
 
 Titles like ``"Software Engineer"`` (no seniority hint) do not match
 any tier in the ladder. The :func:`is_relevant_role` band check treats
@@ -43,7 +43,41 @@ With ``min=mid, max=staff`` an unmarked "Software Engineer" passes;
 with ``min=senior`` it fails. Sensible defaults and keeps the operator
 in control.
 
-Pipeline order in :func:`is_relevant_role`
+Title-reject gate (separate from :func:`is_relevant_role`)
+-----------------------------------------------------------
+
+:func:`should_reject_by_title` is a STAND-ALONE gate that the
+boards runner invokes at the per-job loop entry point. It is
+NOT inside :func:`is_relevant_role` -- it runs first and
+short-circuits on title-only keyword matches for the
+``{staff, principal, lead, head, director}`` canonical set.
+
+Band-knob override (read this before changing max_seniority)
+------------------------------------------------------------
+
+Because the title-reject gate runs BEFORE the band filter, it
+**overrides** the operator's ``max_seniority`` setting for the
+five canonical tokens. Concretely: even when an operator sets
+``max_seniority="staff"`` (which would normally let ``"Staff
+Engineer"`` pass the band check), the title-reject gate still
+drops it. An operator who wants ``"Staff Engineer"`` roles
+visible must narrow ``BOARDS_REJECT_TITLE_KEYWORDS`` (e.g.
+``BOARDS_REJECT_TITLE_KEYWORDS="principal,lead,head,director"``).
+The module-level ``_DEFAULT_TITLE_REJECT_KEYWORDS`` tuple is
+the source of truth for the env-fallback path.
+
+Pipeline order in the boards runner
+-----------------------------------
+
+1. **Title reject** -- :func:`should_reject_by_title`. First
+   gate; drops on title-only keyword match.
+2. **Years floor** -- :func:`min_years_required` >= 6+ drop.
+3. **Citizenship / clearance org bench** -- ``bench_org_from_text``
+   + :data:`CLEARANCE_PATTERNS`. Benches the whole org.
+4. **Band + relevant-keyword pipeline** -- :func:`is_relevant_role`
+   (see its ordering docstring below).
+
+Within :func:`is_relevant_role`
 -----------------------------------------
 
 1. **Visa / clearance hard drops** — operator hasn't sponsored or
@@ -60,6 +94,8 @@ Pipeline order in :func:`is_relevant_role`
 """
 from __future__ import annotations
 
+import functools
+import os
 import re
 from typing import Iterable, Literal, Optional
 
@@ -127,7 +163,7 @@ def min_years_required(text: str) -> int | None:
     """Pull the minimum years-of-experience number from a job description.
 
     Returns the lowest positive integer where the LLM-style hint appears.
-    Used by the boards runner to drop roles that hard-require ≥6 years
+    Used by the boards runner to drop roles that hard-require >=6 years
     (the user wants those discarded before the LLM sees them). Returns
     ``None`` when no minimum-years pattern matches — the absence of a
     number is interpreted as "no explicit floor" and the role PROCEEDS.
@@ -224,7 +260,7 @@ SENIORITY_TIERS: list[tuple[str, int, str]] = [
     ("staff",     4, r"\b(?:staff|level[\s-]?4|iv|l4|e[56]|ic4|p4)\b"),
     # ``staff+``/``staff plus`` is a Stripe-style "above staff" alias.
     # We can't put a trailing ``\b`` on the literal ``staff+`` because
-    # ``+`` is a non-word character and so is the trailing space —
+    # ``+`` is a non-word character and so is the trailing space --
     # ``\b`` only fires between a word and a non-word character, so a
     # trailing ``\b`` here would never match. The literal ``+`` itself
     # is the disambiguator (no other tier spells ``staff+``), so a
@@ -234,7 +270,7 @@ SENIORITY_TIERS: list[tuple[str, int, str]] = [
     # engineering lead / group lead. A bare "Lead" at the start of a
     # title (e.g. "Lead Generation Specialist") matches \blead\b but
     # that title is also surfaced by the positive-relevant-match check
-    # in is_relevant_role, which fails on it — so a "Lead Generation
+    # in is_relevant_role, which fails on it -- so a "Lead Generation
     # Specialist" still gets dropped. We require a qualifier to keep
     # the band-check unambiguous; the un-qualified "Lead Engineer" can
     # ask the operator to clarify if they want it.
@@ -244,19 +280,19 @@ SENIORITY_TIERS: list[tuple[str, int, str]] = [
     ("vp",        8, r"\b(?:vp|vice\s+president|svp|senior\s+vice\s+president|chief)\b"),
 ]
 
-# Public rank lookup and value tuple — used by the Preferences singleton
+# Public rank lookup and value tuple -- used by the Preferences singleton
 # to widen its Literal in lockstep. :func:`seniority_rank` returns -1
 # for ``None``/unknown.
 SENIORITY_VALUES: tuple[str, ...] = tuple(name for name, _, _ in SENIORITY_TIERS)
 SENIORITY_RANKS: dict[str, int] = {name: rank for name, rank, _ in SENIORITY_TIERS}
 
 # Implicit rank assigned to titles that don't classify into any tier
-# when the operator opted in to a band (sensible mid default — see
+# when the operator opted in to a band (sensible mid default -- see
 # module docstring).
 IMPLICIT_MID_RANK = 2
 
 
-# Typed alias — the Preferences singleton consumes this ``Literal``,
+# Typed alias -- the Preferences singleton consumes this ``Literal``,
 # which widens in lockstep with :data:`SENIORITY_TIERS`. Python 3.12+
 # accepts the dynamic unpacking form (the project's
 # ``pyproject.toml`` declares ``requires-python = ">=3.12"``).
@@ -264,17 +300,6 @@ SeniorityTier = Literal[*SENIORITY_VALUES]  # type: ignore[valid-type]
 
 
 def classify_seniority(title: str) -> Optional[str]:
-    """Return the highest-rank tier whose regex matches the title.
-
-    Ties (e.g. "Senior Staff Engineer" matches both ``senior`` and
-    ``staff``): the higher rank wins so the operator's bound treats
-    ambiguous titles as the more senior cohort — better to over-include
-    than silently drop "Senior Staff" when ``min_seniority=staff``.
-
-    Returns ``None`` for unclassifiable titles ("Software Engineer"
-    alone has no seniority hint). :func:`is_relevant_role` reads that
-    as :data:`IMPLICIT_MID_RANK` under band-filter mode.
-    """
     if not title:
         return None
     lowered = title.lower()
@@ -289,7 +314,7 @@ def classify_seniority(title: str) -> Optional[str]:
 
 
 def seniority_rank(name: Optional[str]) -> int:
-    """Map a tier name → its rank. ``-1`` for ``None``/unknown.
+    """Map a tier name -> its rank. ``-1`` for ``None``/unknown.
 
     Stable across module reloads because the lookup reads
     :data:`SENIORITY_RANKS` (built once at import time from
@@ -314,7 +339,7 @@ def is_relevant_role(
     See module docstring for the full pipeline order. With both
     ``min_seniority`` and ``max_seniority`` ``None`` (the default),
     seniority filtering is a no-op and the legacy keyword behaviour
-    is preserved bit-for-bit — so the refactor is wire-compatible
+    is preserved bit-for-bit -- so the refactor is wire-compatible
     with the existing scan / scoring endpoints.
     """
     if not title:
@@ -332,7 +357,7 @@ def is_relevant_role(
         if re.search(pattern, text_to_check):
             return False
 
-    # 2. Seniority band — only when the operator opted in.
+    # 2. Seniority band -- only when the operator opted in.
     if min_seniority is not None or max_seniority is not None:
         classified = classify_seniority(lowered_title)
         rank = (
@@ -342,14 +367,14 @@ def is_relevant_role(
         )
         if rank < 0:
             # Defensive: shouldn't happen with IMPLICIT_MID_RANK above,
-            # but a -1 here means "explicitly unknown" — exclude.
+            # but a -1 here means "explicitly unknown" -- exclude.
             return False
         if min_seniority is not None and rank < seniority_rank(min_seniority):
             return False
         if max_seniority is not None and rank > seniority_rank(max_seniority):
             return False
 
-    # 3. Positive relevant match — wins outright.
+    # 3. Positive relevant match -- wins outright.
     relevant_patterns = list(extra_relevant_patterns or []) + DEFAULT_RELEVANT_PATTERNS
     if any(re.search(pattern, lowered_title) for pattern in relevant_patterns):
         return True
@@ -375,7 +400,7 @@ def filter_roles(
 
     Keyword-only ``min_seniority`` / ``max_seniority`` thread the
     band through every per-job :func:`is_relevant_role` call. The
-    legacy positional callers keep working unchanged — the new
+    legacy positional callers keep working unchanged -- the new
     arguments are keyword-only on both functions.
     """
     return [
@@ -390,3 +415,208 @@ def filter_roles(
             max_seniority=max_seniority,
         )
     ]
+
+
+# ---------------------------------------------------------------------------
+# Title-level reject filter.
+#
+# Independent of the seniority band: the operator's profile explicitly does
+# not align with roles promoted by ``staff`` / ``principal`` / ``lead`` /
+# ``head`` / ``director`` regardless of the band filter outcome. The
+# canonical 5-token set matches the "above-staff" tier names in
+# :data:`SENIORITY_TIERS` plus two common adjacent titles (``head``,
+# ``director``) -- the per-experience rationale lives in the operator's
+# profile rather than the band knobs.
+#
+# Why this gate is separate from :func:`is_relevant_role`
+# --------------------------------------------------------
+#
+# :func:`is_relevant_role` honours ``min_seniority`` / ``max_seniority``.
+# Setting ``max_seniority="staff"`` keeps ``"Staff Engineer"`` in the
+# queue but drops ``"Principal Engineer"`` -- that's the *band* contract.
+# The title-reject contract is sharper: the operator's profile says
+# "I don't interview for staff roles at all" regardless of the band
+# knobs. So the gate runs BEFORE the band check, at the boards runner's
+# per-job loop entry point, and short-circuits on the title alone.
+#
+# Env-override path
+# -----------------
+#
+# ``BOARDS_REJECT_TITLE_KEYWORDS`` accepts comma- OR whitespace-separated
+# tokens (e.g. ``"staff,principal"`` or ``"staff principal lead"``).
+# Empty / missing / whitespace-only env falls back to the canonical
+# 5-token default -- a misconfigured Render secret doesn't silently
+# disable the gate. Tokens are deduplicated and lowercased so an
+# operator who exports ``"STAFF,Staff"`` gets the same set as
+# ``"staff"``.
+#
+# Word-boundary semantics
+# -----------------------
+#
+# ``\b`` keeps ``Staffing`` / ``Leadership`` / ``Directorship`` out of
+# the match set: those titles aren't seniority prompts, they're
+# department / role-family names. The downside is that a "Lead
+# Generation Marketer" title *does* hit "lead" -- but a Lead
+# Generation Marketer doesn't match the positive-relevant keyword
+# bucket either, so it would be dropped downstream by
+# :func:`is_relevant_role` anyway; saving the LLM tokens is a net win.
+# ---------------------------------------------------------------------------
+_DEFAULT_TITLE_REJECT_KEYWORDS: tuple[str, ...] = (
+    "staff",
+    "principal",
+    "lead",
+    "head",
+    "director",
+)
+
+
+def _resolve_title_reject_keywords(
+    raw_env: Optional[str] = None,
+) -> tuple[str, ...]:
+    """Resolve the effective keyword set from BOARDS_REJECT_TITLE_KEYWORDS.
+
+    Accepts comma- OR whitespace-separated tokens. Empty / unset /
+    whitespace-only env returns the canonical default so a missing
+    or whitespace-only secret is non-destructive (the gate stays
+    enabled).
+
+    ``raw_env`` is exposed for tests so the suite can simulate
+    ``os.environ`` mutations without polluting the real env.
+    """
+    raw = raw_env if raw_env is not None else os.environ.get(
+        "BOARDS_REJECT_TITLE_KEYWORDS", ""
+    )
+    if not raw:
+        return _DEFAULT_TITLE_REJECT_KEYWORDS
+    tokens: list[str] = []
+    for piece in re.split(r"[,\s]+", raw):
+        piece = piece.strip().lower()
+        if piece and piece not in tokens:
+            tokens.append(piece)
+    if not tokens:
+        return _DEFAULT_TITLE_REJECT_KEYWORDS
+    return tuple(tokens)
+
+
+@functools.lru_cache(maxsize=128)
+def _build_title_reject_pattern(
+    keywords_tuple: Optional[tuple[str, ...]],
+    raw_env: Optional[str],
+) -> "re.Pattern[str]":
+    """Compile the title-reject regex, cached on (keywords, env).
+
+    Cache key is ``(keywords_tuple, raw_env)``: identical inputs
+    return the SAME compiled pattern across calls. The production
+    path (no explicit ``keywords=``, ``raw_env=None``) hits ONE
+    cache slot per env-rotation -- the boards runner's hot loop
+    pays a single ``re.compile`` cost for the whole scan instead
+    of two-thousand.
+
+    Test path varies ``raw_env=`` per case to exercise both
+    cached-reuse and cache-miss paths without polluting
+    ``os.environ``. ``maxsize=128`` is generous (a 200-job scan
+    might see 8-12 distinct env values from GHA's pre-deploy
+    steps; tests routinely exceed that during parametrized runs).
+
+    Empty / all-whitespace keyword tuple returns a never-match
+    sentinel (``(?!)``) so callers don't have to special-case
+    empty input -- ``pattern.search("anything")`` returns
+    ``None`` cleanly.
+    """
+    if keywords_tuple is not None:
+        effective = keywords_tuple
+    else:
+        effective = _resolve_title_reject_keywords(raw_env=raw_env)
+    if not effective:
+        # Never-match sentinel: (?!) is a negative lookahead with
+        # an empty assertion -- it always fails, so .search() on
+        # any input returns None. Alternative ``\b\B`` would also
+        # work but is less readable.
+        return re.compile(r"(?!)")
+    return re.compile(
+        r"(?i)\b(?:" + "|".join(re.escape(k) for k in effective) + r")\b"
+    )
+
+
+def should_reject_by_title(
+    title: str,
+    *,
+    keywords: Optional[Iterable[str]] = None,
+    raw_env: Optional[str] = None,
+) -> bool:
+    """True when ``title`` contains any of the seniority-promotion keywords.
+
+    Implementation note
+    -------------------
+    The regex is COMPILED ONCE per ``(keyword-set, env-value)`` pair
+    via :func:`_build_title_reject_pattern`'s ``lru_cache``. The
+    production path hits one cache slot per env-rotation -- the
+    boards runner scans 200-2000 jobs per tick and we don't want a
+    per-job ``re.compile``. Tests vary ``raw_env=`` per case to
+    exercise cache-hit, cache-miss, and the env-fallback path
+    deterministically.
+
+    Parameters
+    ----------
+    title
+        Job title text. Empty / falsy returns ``False`` (default
+        allow) so the upstream band filter owns the call.
+    keywords
+        Optional explicit keyword list. When ``None`` (the
+        default), reads ``BOARDS_REJECT_TITLE_KEYWORDS`` via
+        :func:`_resolve_title_reject_keywords` and falls back to
+        the canonical 5-token set on unset / empty env. Useful
+        for unit tests that want to lock the keyword set without
+        mutating ``os.environ``.
+    raw_env
+        Test hook -- pass the env-var value directly without
+        touching ``os.environ``. In production this stays
+        ``None``. Takes precedence over the live env when set.
+
+    Returns
+    -------
+    bool
+        ``True`` when the title matches at least one keyword as a
+        case-insensitive whole word; ``False`` otherwise (including
+        empty title / empty keyword list -- both are no-ops).
+
+    Match semantics
+    ---------------
+    Word-boundary matches are case-insensitive. ``"Staff Engineer"``
+    and ``"staff engineer"`` both return ``True``; ``"Staffing
+    Coordinator"`` and ``"Leadership Program"`` return ``False``.
+
+    Why this gate is separate from :func:`is_relevant_role`
+    -------------------------------------------------------
+    Setting ``max_seniority="staff"`` keeps ``"Staff Engineer"``
+    in the queue (band contract). The title-reject contract is
+    sharper: the operator's profile says "I don't interview
+    for staff roles at all" regardless of the band knobs -- so
+    the gate runs BEFORE :func:`is_relevant_role` at the boards
+    runner's per-job loop entry point and short-circuits on the
+    title alone. Concretely: even if an operator sets
+    ``max_seniority="staff"``, this gate still drops
+    ``"Staff Engineer"`` -- the band knob does NOT override the
+    title-reject gate.
+
+    Title-only by design
+    --------------------
+    Unlike :func:`min_years_required` which scans the COMBINED
+    ``"{title} {description}"`` text, this gate inspects the
+    TITLE ONLY. The rationale: a description-side mention of
+    "staff-level" is ambiguous (could be the role's level, could
+    be a disambiguating phrase). The operator's intent is "if the
+    TITLE says staff, drop it".
+    """
+    if not title:
+        return False
+    if keywords is not None:
+        kw_tuple = tuple(
+            piece.strip().lower()
+            for piece in keywords
+            if piece and piece.strip()
+        )
+    else:
+        kw_tuple = None
+    pattern = _build_title_reject_pattern(kw_tuple, raw_env)
+    return bool(pattern.search(title))

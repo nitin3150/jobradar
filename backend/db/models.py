@@ -434,6 +434,20 @@ class ScannerRun(Base):
     Captures the wall-clock duration, item count, and per-run error
     summary so an on-call engineer can answer "what did the funding
     scanner see yesterday at 9 AM?" from SQL alone.
+
+    Boards-Scan metadata columns
+    ----------------------------
+
+    ``tier`` / ``env_hash`` / ``jobs_persisted`` were added in
+    migration 0005 to give the boards-scan GHA cron a per-run audit
+    trail that doesn't depend on the operator grepping workflow run
+    logs. Pre-migration runs of every scanner leave these columns
+    NULL — the field set is intentionally additive so a backfill
+    from old runs is impossible/forbidden (cron logs are the source
+    of truth for pre-2026-07-10 invocations). All three are nullable
+    so the funding / remote / ngos / oss scanners can leave them
+    NULL — they're boards-scan-only metadata today; a future scanner
+    can opt in by populating them.
     """
 
     __tablename__ = "scanner_runs"
@@ -463,8 +477,42 @@ class ScannerRun(Base):
     )
     error_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
 
+    # Boards-Scan-only metadata. NULL for funding / remote / ngos /
+    # oss invocations; populated by ``scripts/boards_scan.py`` when
+    # invoked via the GHA cron in the active or dormant tier.
+    #
+    # ``tier`` is the GHA-job that fired the run: ``active`` (hourly
+    # 1h lookback, BOARDS_LIMIT=200), ``dormant`` (daily 24h
+    # lookback, BOARDS_LIMIT=0), or ``cleanup`` (weekly dry-run of
+    # missing-org probes — emitted by ``cleanup_missing_orgs.py``,
+    # not boards_scan.py directly). Free-text rather than Postgresql
+    # ENUM so a future tier (``burst``, ``manual``) lands without an
+    # ALTER TYPE migration; the Python ``from_env`` contract
+    # validates the wire form before INSERT.
+    tier: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # ``env_hash`` is a sha256-hex digest of the env vars + GITHUB_SHA
+    # that govern the run's behaviour. Lets the run-history query
+    # "which cron tick first dropped the HTTP_TIMEOUT to 10s" answer
+    # itself in a single ``GROUP BY env_hash`` rather than scraping
+    # GHA logs by run_id.
+    env_hash: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # ``jobs_persisted`` is the number of rows the boards-scan
+    # SUCCESSFULLY wrote to ``jobs`` on this run; ``items_found``
+    # is the total jobs the runner RETURNED for scoring (so
+    # ``items_found >= jobs_persisted`` always; the diff is "scored
+    # but below threshold"). Keeping both columns is deliberate —
+    # they answer different operational questions (lossy vs scored
+    # vs persisted).
+    jobs_persisted: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
     __table_args__ = (
         Index("idx_scanner_runs_scanner_started", "scanner", text("started_at DESC")),
+        # Per-tier history at-a-glance. (tier, started_at DESC)
+        # means a single ``ORDER BY started_at DESC`` over a tier
+        # filter returns the most recent runs of that tier without
+        # sorting. Filter-only tier queries drop to an index-only
+        # scan since the tier is the leading column.
+        Index("idx_scanner_runs_tier_started", "tier", text("started_at DESC")),
     )
 
 

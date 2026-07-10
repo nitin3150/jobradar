@@ -1,3 +1,20 @@
+[build-system]
+# PEP 517/621 build backend declaration. Without this block pip falls back
+# to setuptools's legacy flat-layout auto-discovery, which auto-finds every
+# directory containing an ``__init__.py`` and refuses to build when more than
+# one top-level package is on the wire (the error Render hit with pip 25.x:
+# "Multiple top-level packages discovered in a flat-layout"). Pinning
+# ``setuptools.build_meta`` here makes pip use the modern backend that
+# respects the explicit ``[tool.setuptools.packages.find]`` block.
+#
+# ``setuptools>=64`` is the floor for full PEP 621 support with the strict
+# auto-discovery safety checks; older ``61.x`` builds still tolerate the
+# legacy flat-layout heuristic. ``wheel`` is included so ``pip wheel .``
+# (which Render does internally for the build cache) doesn't fall back to
+# the legacy auto-discovery path.
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "jobradar-backend"
 version = "0.1.0"
@@ -167,14 +184,53 @@ asyncio_default_fixture_loop_scope = "function"
 # an implicit namespace package and ``from models.X import Y`` resolves.
 # Setuptools may emit a ``UserWarning`` about the missing ``__init__.py``
 # — that's cosmetic, NOT a build failure.
-# ---------------------------------------------------------------------------[tool.setuptools]
-packages = [
-    "apply_worker",
-    "cache",
-    "db",
-    "models",
-    "pipeline",
-    "routes",
-    "services",
-    "utils",
+# ---------------------------------------------------------------------------
+# Build configuration.
+#
+# Dynamic-discovery form via ``[tool.setuptools.packages.find]`` — REQUIRED
+# because pip 25.x + setuptools ≥64 fire the "Multiple top-level packages
+# discovered in a flat-layout" safety check BEFORE consulting the older
+# ``[tool.setuptools].packages = [...]`` form. Listing ``include`` + ``exclude``
+# directories explicitly bypasses the safety check and is the recommended
+# shape for flat layouts in 2024+.
+#
+# OMITTED (via ``exclude``):
+#   * data    — JSON state files; not code
+#   * tests   — pytest modules; not part of distribution
+#   * scripts — ad-hoc entry points (boots via ``python scripts/X.py``)
+#   * storage — directory exists locally but is UNTRACKED in this branch,
+#     so the GHA clone doesn't have it and setuptools would refuse to
+#     install with ``package directory 'storage' does not exist``. Nothing
+#     in the runtime closure imports from ``storage`` today — once a
+#     separate PR ships its contents, remove ``storage*`` from ``exclude``.
+#
+# ``models`` is included even though it lacks ``__init__.py`` because
+# ``pipeline/nodes/merge.py`` and ``pipeline/graph.py`` do
+# ``from models.graph_state import PipelineState``. PEP 420 namespace
+# packaging handles it: the directory is installed as an implicit
+# namespace package and ``from models.X import Y`` resolves. Setuptools
+# may emit a ``UserWarning`` about the missing ``__init__.py`` — that's
+# cosmetic, NOT a build failure.
+# ---------------------------------------------------------------------------
+[tool.setuptools.packages.find]
+where = ["."]
+include = [
+    "apply_worker*",
+    "cache*",
+    "db*",
+    "models*",
+    "pipeline*",
+    "routes*",
+    "services*",
+    "utils*",
+]
+exclude = [
+    "data",
+    "data*",
+    "scripts",
+    "scripts*",
+    "tests",
+    "tests*",
+    "storage",
+    "storage*",
 ]  

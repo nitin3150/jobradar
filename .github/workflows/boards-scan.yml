@@ -60,31 +60,63 @@
 # setup-python + pip install) BEFORE the scan starts. With the
 # defaults below, the realistic monthly breakdown is:
 #
-#   active  (hourly, ``--limit 50``)
-#     24 jobs/day × ~125s (100s setup + 25s scan+score+persist)
-#     = ~50 min/day ≈ 1,500 min/month
-#   dormant (daily 02:20, ``--limit 500``)
-#     1 job/day × ~210s (100s setup + 110s scan+score+persist)
-#     = ~3.5 min/day ≈ 105 min/month
+#   active  (hourly, ``--limit 0``)
+#     24 jobs/day × variable wall-clock (100s setup + full per-board
+#     list scrape + LLM scoring, unbounded per-tick but pre-empted
+#     at the next :00 if still running). Per-tick ceiling is
+#     ``timeout-minutes: 30``; pre-emption yields at next :00.
+#     Realistic range: 5-30 min/tick. Worst-case 30 min/tick =
+#     720 min/day ≈ 21,600 min/month; realistic 10-15 min/tick
+#     = ~7,000-10,000 min/month.
+#     = WILL exhaust the 2,000 GHA free-tier minute budget within
+#       days (not weeks). See the per-job fence comment above for
+#       the persistent-disk migration note, and the LLM rate-limit
+#       ceiling in the ``Headroom`` section below.
+#   dormant (daily 02:20, ``--limit 0``)
+#     1 job/day × variable wall-clock (100s setup + full per-board
+#     list scrape + LLM scoring with a longer 30s HTTP timeout for
+#     slow-org recovery; ``timeout-minutes: 60`` ceiling). Realistic
+#     range: 10-50 min/tick — daily cadence keeps monthly budget
+#     feasible even with no cap.
+#     = ~300-1,500 min/month at realistic mid-range. Meaningful,
+#       but once-a-day cadence stays under the 60-min ceiling
+#       rather than exhausting mid-tick (unlike active).
 #   cleanup (weekly Sunday, dry-run probe)
 #     1 job/week × ~700s (100s setup + 600s probe of all
 #     missing slugs across three boards) ≈ 50 min/month
 #     (12 min/week × ~4.3 weeks/month)
 #   ---------------------------------------------
-#   total                              ≈ 1,655 min/month
+#   total                              ≈ 7,500-23,000 min/month
+#                                       — WILL exceed the 2,000
+#                                       GHA free-tier minute
+#                                       cap within days.
 #
-# Headroom is ~300 min/month. To stay safely under:
+# Both tiers now run with ``BOARDS_LIMIT: \"0\"`` (no per-board
+# cap), so the historical ``~300 min/month`` headroom figure
+# no longer applies — the active tier WILL exhaust the 2,000
+# GHA free-tier minute budget within days. To stay safely under:
 #
-#   - Bumping ``BOARDS_LIMIT`` for active past 200 starts to
-#     blow the budget — the setup is fixed, the scan scales
-#     linearly.
-#   - Bumping the cron to every-30-minutes doubles the
-#     active-minute cost and goes over immediately.
-#   - The free-tier Groq limit is 30 LLM req/min — at
-#     ``--limit 50`` an hourly cron uses 50 req/hour, which
-#     is comfortably under. ``--limit 500`` daily uses 500
-#     req in a few seconds and is the binding ceiling for
-#     the dormant tier on a free Groq key.
+#   - Migrate from GHA to a persistent-disk host (Render paid,
+#     Oracle Cloud Always Free ARM) so ``seen.json`` dedupe
+#     survives across runs AND per-tick wall-clock isn't bound
+#     by the 30-min GHA ceiling — see the per-job fence comment
+#     above. With persistent disk, hourly ticks re-walk only NEW
+#     postings (typically a single-digit-percentage of the full
+#     org list), bringing per-tick wall-clock back to minutes
+#     rather than tens of minutes.
+#   - The free-tier Groq limit is 30 LLM req/min — boards_scan.py
+#     caps scoring concurrency at ``asyncio.Semaphore(8)`` and
+#     the boards runner caps fetcher concurrency at
+#     ``MAX_WORKERS=8``, so a full-org scrape can leave jobs
+#     queued at the LLM client waiting for RPM. With no-cap this
+#     is the binding ceiling WHEN the org list yields more than
+#     ~30 scoreable jobs/min, which happens routinely on the
+#     hourly cron's first iteration over the full org list. A
+#     Groq dev-tier key or a paid NVIDIA NIM key is recommended
+#     for the no-cap scrape to keep per-tick wall-clock bounded.
+#   - Bumping the active cron to every-30-minutes would only
+#     accelerate the budget exhaustion — the monthly math is
+#     already at the ceiling with 60-min cadence + no cap.
 #
 # Required GitHub Actions secrets (configure at the repo or org
 # level; the workflow will fail-fast on the first 4xx if any are
@@ -228,21 +260,23 @@ permissions: {}
 
 jobs:
   # -----------------------------------------------------------------
-  # Active tier — hourly, 1h lookback, capped per-board org count.
-  # Two scope-throttling knobs keep the hourly tick under the
-  # 30-min ``timeout-minutes``: ``BOARDS_LIMIT: "200"`` bounds
-  # the per-tick org count (200 per board x 3 boards = 600
-  # total fetches), and ``BOARDS_SKIP_TIMEOUTS: "1"`` excludes
+  # Active tier — hourly, 1h lookback, no per-board org cap.
+  # ``BOARDS_LIMIT: "0"`` scrapes the full per-board org list
+  # on every hourly tick. ``BOARDS_SKIP_TIMEOUTS: "1"`` excludes
   # orgs in ``<board>_timeout_orgs.json`` (the slow-org list
   # the daily dormant tier recovers with a longer timeout
-  # window). The operator's complaint of "sometimes running
-  # after 2 hours, sometimes 3 hours" was caused by
-  # ``BOARDS_LIMIT: "0"`` + ``cancel-in-progress: false``
-  # letting a single tick exceed timeout-minutes; the workflow
-  # file now keeps the active tier bounded AND pre-emptible
-  # (see the per-tier ``cancel-in-progress`` expression below)
-  # so a long scan yields to the next hourly cron instead of
-  # producing 2-3 hour gaps.
+  # window) so non-slow orgs get the full vCPU allocation;
+  # slow orgs are re-attempted daily. Per-tick wall-clock is
+  # unbounded — an hourly tick that exceeds 30 min OR is still
+  # running at the next :00 is pre-empted via
+  # ``cancel-in-progress: true`` on the active cron (see the
+  # concurrency block above) so the schedule keeps its
+  # hourly cadence rather than queuing the 2-3 hour gaps
+  # that the previous ``cancel-in-progress: false`` produced.
+  # NB: with no per-board cap, this WILL regularly burn the
+  # GHA free-tier minute budget; migrate to a persistent-disk
+  # host (Render paid, Oracle Cloud Always Free ARM) if
+  # that becomes binding.
   # -----------------------------------------------------------------
   scan-active:
     # Run on the matching hourly cron OR when ``workflow_dispatch``
@@ -257,16 +291,23 @@ jobs:
     env:
       BOARDS_DELTA_HOURS: "1"
       BOARDS_BOARDS: "ashby greenhouse lever"
-      # ``BOARDS_LIMIT: "200"`` => the script's ``limit > 0`` branch
-      # fires and caps each board to its first 200 slugs. Combined
-      # with ``BOARDS_SKIP_TIMEOUTS=1`` below, the per-tick active-tier
-      # scope is bounded to ``<(200 orgs per board minus any slow-org
-      # exclusions) x 3 boards>`` - well under ``timeout-minutes: 30``
-      # even with a heavy LLM rate-limit queue. The slow-org list
-      # is recovered by the daily dormant tier (``BOARDS_SKIP_TIMEOUTS``
-      # unset = default 0 + ``BOARDS_HTTP_TIMEOUT=30``) so
-      # cap-coverage isn't lost.
-      BOARDS_LIMIT: "200"
+      # ``BOARDS_LIMIT: "0"`` => the script's argparse flips to
+      # ``None`` (no per-board cap) so the active tier scrapes
+      # the FULL per-board org list on each hourly tick. The
+      # ``timeout-minutes: 30`` per-tick cap + ``cancel-in-progress:
+      # true`` on the active cron (see concurrency block above)
+      # keep cadence: an in-flight tick exceeding 30 min, OR
+      # still running at the next :00, yields to the new tick.
+      # ``BOARDS_SKIP_TIMEOUTS=1`` below still excludes the
+      # slow-org list so non-slow orgs get the full vCPU time;
+      # the daily dormant tier (``BOARDS_SKIP_TIMEOUTS`` unset
+      # + ``BOARDS_HTTP_TIMEOUT=30``) recovers any timed-out
+      # orgs. NB: with no per-board cap, the per-tick wall-clock
+      # is unbounded — expect the active tier to regularly burn
+      # the monthly free-tier minute budget; migrate to a
+      # persistent-disk host (Render paid, Oracle Cloud Always
+      # Free ARM) if that becomes a problem.
+      BOARDS_LIMIT: "0"
       # Skip orgs in ``<board>_timeout_orgs.json`` on the hourly
       # tick. ``load_orgs()`` reads the env var as a string and
       # treats ``"0"``/``"false"``/``""`` as falsy; ``"1"`` causes

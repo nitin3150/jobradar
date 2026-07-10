@@ -331,18 +331,54 @@ def _persist_winners(
     inserted = 0
     for job, score, reasoning in winners:
         url = job.get("url") or "(no url)"
+        # ``posted_at`` / ``source_updated_at`` are populated on
+        # the opp dict by ``run_all`` (look for
+        # ``job["posted_at"] = parsed`` near the parse_published_at
+        # call). They arrive as :class:`datetime.datetime` objects;
+        # the Supabase REST layer accepts ISO 8601 strings, so
+        # stringify here. ``None`` is fine — Supabase stores NULL
+        # and the route's OR-NULL ``posted_at IS NULL`` clause
+        # keeps the row in the result set even when the operator
+        # sets a date filter (the operator's "date filter is not
+        # working" complaint was caused by EVERY row being NULL
+        # posted_at under the old code path; with this rendered
+        # datetime, dated rows surface correctly).
+        posted_at = job.get("posted_at")
+        posted_at_iso = (
+            posted_at.isoformat() if hasattr(posted_at, "isoformat") else posted_at
+        )
+        source_updated_at = job.get("source_updated_at")
+        source_updated_at_iso = (
+            source_updated_at.isoformat()
+            if hasattr(source_updated_at, "isoformat")
+            else source_updated_at
+        )
+        # ``job["ats_type"]`` is set in ``run_all`` to the SPECIFIC
+        # board ("ashby" | "greenhouse" | "lever") — the operator
+        # reported "Board name is saying Board it should say the
+        # Boards name like lever, ashby or greenhouse" because the
+        # old hardcoded "boards" string title-cased to "Board".
+        # Fall back to "boards" only if the runner didn't inject
+        # (defensive — should never fire with the updated runner).
+        ats_type = job.get("ats_type") or "boards"
         row = {
             "id": _job_id(url),
             # Single-threshold rule: above ``--threshold`` ⇒
             # ``approved`` (auto-apply queue), below ⇒ not persisted.
             # See module docstring for the rationale.
             "status": "approved",
-            "ats_type": "boards",
+            "ats_type": ats_type,
             "title": (job.get("title") or "(untitled)")[:500],
+            # ``company_name`` is set by ``run_all`` from
+            # ``_display_name_for_slug(slug)`` when the fetcher
+            # didn't surface one. The fallback "(unknown)" only
+            # fires for jobs written before the runner fix.
             "company_name": (job.get("company_name") or "(unknown)")[:500],
             "url": url[:1000],
             "ai_fit_score": round(max(0.0, min(1.0, score)), 4),
             "ai_fit_reasoning": (reasoning or "")[:1000],
+            "posted_at": posted_at_iso,
+            "source_updated_at": source_updated_at_iso,
         }
         try:
             # ``ignore_duplicates=True`` is the supabase-py spelling

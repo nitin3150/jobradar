@@ -204,7 +204,20 @@ on:
 # mid-flight.
 concurrency:
   group: boards-scan-${{ github.event.schedule }}
-  cancel-in-progress: false
+  # ``cancel-in-progress: true`` on the active hourly cron means a
+  # long-running scan terminates at the next :00 even if it
+  # hasn't finished. The operator's complaint of "the Action is
+  # supposed to be running every 1 hour but it is running at
+  # random times like sometimes after 2 hours, sometimes 3 hours"
+  # was caused by ``cancel-in-progress: false`` + ``BOARDS_LIMIT=0``
+  # iterating all ~10K orgs: each tick could exceed the 30-min
+  # timeout-minutes and the next cron queued in series,
+  # producing the 2-3-hour gaps. Dormant + cleanup keep ``cancel-
+  # in-progress: false`` because they run once a day / week -
+  # no pre-emption needed and we don't want to lose in-flight
+  # slow-org recovery work. The expression compares the
+  # triggering cron string against the active hourly expression.
+  cancel-in-progress: ${{ github.event.schedule == '0 * * * *' }}
 
 # Zero-trust GHM token scope: the workflow has no
 # ``actions/checkout`` consumer beyond the default (and we
@@ -215,13 +228,21 @@ permissions: {}
 
 jobs:
   # -----------------------------------------------------------------
-  # Active tier — hourly, 1h lookback, no per-board org cap.
-  # ``BOARDS_LIMIT: "0"`` in the env block below means the
-  # script's ``limit > 0 else None`` branch fires and iterates
-  # every org in the per-board JSON files (~10K orgs total
-  # across ashby/greenhouse/lever). The 1h ``BOARDS_DELTA_HOURS``
-  # bounds only the per-org BOARD-API payload, not the LLM
-  # scoring + Supabase upsert which dominate the wall-clock.
+  # Active tier — hourly, 1h lookback, capped per-board org count.
+  # Two scope-throttling knobs keep the hourly tick under the
+  # 30-min ``timeout-minutes``: ``BOARDS_LIMIT: "200"`` bounds
+  # the per-tick org count (200 per board x 3 boards = 600
+  # total fetches), and ``BOARDS_SKIP_TIMEOUTS: "1"`` excludes
+  # orgs in ``<board>_timeout_orgs.json`` (the slow-org list
+  # the daily dormant tier recovers with a longer timeout
+  # window). The operator's complaint of "sometimes running
+  # after 2 hours, sometimes 3 hours" was caused by
+  # ``BOARDS_LIMIT: "0"`` + ``cancel-in-progress: false``
+  # letting a single tick exceed timeout-minutes; the workflow
+  # file now keeps the active tier bounded AND pre-emptible
+  # (see the per-tier ``cancel-in-progress`` expression below)
+  # so a long scan yields to the next hourly cron instead of
+  # producing 2-3 hour gaps.
   # -----------------------------------------------------------------
   scan-active:
     # Run on the matching hourly cron OR when ``workflow_dispatch``
@@ -236,12 +257,23 @@ jobs:
     env:
       BOARDS_DELTA_HOURS: "1"
       BOARDS_BOARDS: "ashby greenhouse lever"
-      # ``BOARDS_LIMIT: "0"`` means the script's ``limit > 0 else None``
-      # branch fires, iterating every org in the per-board JSON files
-      # (~10K orgs across ashby/greenhouse/lever). Combined with GHA's
-      # ephemeral ``seen.json`` this rescores the recent window every
-      # cron tick — expensive, but intentional for the operator.
-      BOARDS_LIMIT: "0"
+      # ``BOARDS_LIMIT: "200"`` => the script's ``limit > 0`` branch
+      # fires and caps each board to its first 200 slugs. Combined
+      # with ``BOARDS_SKIP_TIMEOUTS=1`` below, the per-tick active-tier
+      # scope is bounded to ``<(200 orgs per board minus any slow-org
+      # exclusions) x 3 boards>`` - well under ``timeout-minutes: 30``
+      # even with a heavy LLM rate-limit queue. The slow-org list
+      # is recovered by the daily dormant tier (``BOARDS_SKIP_TIMEOUTS``
+      # unset = default 0 + ``BOARDS_HTTP_TIMEOUT=30``) so
+      # cap-coverage isn't lost.
+      BOARDS_LIMIT: "200"
+      # Skip orgs in ``<board>_timeout_orgs.json`` on the hourly
+      # tick. ``load_orgs()`` reads the env var as a string and
+      # treats ``"0"``/``"false"``/``""`` as falsy; ``"1"`` causes
+      # the slow-org list to be merged into the per-board excluded
+      # set. The dormant tier restores the default 0 so its
+      # ``BOARDS_HTTP_TIMEOUT=30`` window re-attempts them.
+      BOARDS_SKIP_TIMEOUTS: "1"
       # Name matches the script's argparse read for
       # ``--threshold`` (``os.environ.get("JOB_FIT_THRESHOLD",
       # "0.6")``). Stricter than that 0.6 default so the
@@ -436,6 +468,15 @@ jobs:
       BOARDS_BOARDS: "ashby greenhouse lever"
       BOARDS_LIMIT: "0"
       JOB_FIT_THRESHOLD: "0.7"
+      # Larger per-request timeout window for the daily slow-org
+      # re-attempt. The active tier sets ``BOARDS_SKIP_TIMEOUTS=1``
+      # so the same orgs get skipped on the hourly ticks; the
+      # dormant tier leaves that flag unset (= default 0) and
+      # doubles the per-request timeout to 30s so a MongoDB-style
+      # 28-second first-byte response completes on the daily
+      # re-attempt. ``utils.http.build_client`` reads the env var;
+      # tests can still pass an explicit ``timeout`` kwarg.
+      BOARDS_HTTP_TIMEOUT: "30"
       # Supabase REST auth — supabase-py reads these from the process
       # env at startup; missing or wrong values make every REST write
       # 401 with "Invalid API key" (PostgREST layer). The actual

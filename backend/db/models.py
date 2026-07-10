@@ -132,6 +132,7 @@ COMPANY_STATUS_VALUES = (
 JOB_STATUS_VALUES = (
     "in_review",
     "approved",
+    "paused",
     "rejected",
     "applied",
     "flagged",

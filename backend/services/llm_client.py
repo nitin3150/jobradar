@@ -192,6 +192,37 @@ PROFILE_EXTRACTION_SYSTEM_PROMPT: Final = (
 # tokens.
 PROFILE_EXTRACTION_MAX_TOKENS: Final = 2500
 
+# System prompt for :meth:`LLMClient.pick_best_resume`. Strict-JSON
+# output shape with ``resume_id`` (``null`` declines cleanly) +
+# ``confidence`` (0.0-1.0) so the matcher can read it with
+# ``_parse_resume_pick_response`` without prose-in-prose regex
+# fallback. Reasoning is at most 400 chars to keep NVIDIA budget
+# honest when the apply worker scans hundreds of jobs per hour.
+_PICK_RESUME_SYSTEM_PROMPT: Final = (
+    "You are a resume-matcher assistant. Given a single job posting "
+    "and a lean list of candidate resumes (id + name + tags + is_default "
+    "flag only — full resume text was stripped to control token cost), "
+    "pick the single resume that best matches the role. Output strict "
+    "JSON, no markdown, no preamble:\n\n"
+    '{"resume_id": "<one of the candidate ids>", "confidence": <0.0-1.0>, '
+    '"reasoning": "<at most 400 chars>"}\n\n'
+    "Match logic:\n"
+    "1. If the job's role family matches a candidate's tags (e.g. "
+    "'production-ai' tag on an 'AI Platform Engineer' job), pick that "
+    "resume even with low tag-overlap count — the operator spent the "
+    "time curating tags precisely for this match.\n"
+    "2. If multiple resumes have matching tags, prefer the one whose "
+    "name is most clearly aligned with the job title.\n"
+    "3. If NO resume has matching tags AND the job is for a domain "
+    "the candidate doesn't appear to work in, return "
+    '{"resume_id": null, "confidence": 0.0, "reasoning": "..."} so the '
+    "operator can manually pick a resume via the QABank UI rather than "
+    "submitting with a wrong fit.\n\n"
+    "Never force a match if no candidate is genuinely aligned. "
+    "Returning null is preferred over a forced match that doesn't "
+    "actually fit."
+)
+
 # JSON object extractor — fallback when the model hands back prose around
 # the JSON. Captures the first ``{...}`` mentioning both ``score`` and
 # ``reasoning`` keys.
@@ -797,6 +828,179 @@ class LLMClient:
         content = (resp.choices[0].message.content or "").strip()
         return parse_profile_response(content)
 
+    async def pick_best_resume(
+        self,
+        job_payload: dict,
+        resume_payloads: list[dict],
+    ) -> tuple[str | None, float]:
+        """Ask the LLM which resume best matches a single job posting.
+
+        Used by :mod:`apply_worker.resume_picker` as the tag-match
+        fallback. Returns ``(resume_id, confidence)`` where
+        ``resume_id`` is the chosen resume's ``id`` string, or
+        ``None`` when the LLM declines (returns ``{"resume_id":
+        null, ...}``). ``confidence`` is the model's 0.0-1.0 self-
+        reported confidence, clamped.
+
+        Each provider is tried once with the standard transient-vs-
+        permanent error taxonomy (:attr:`_unique_rate_limiters` is
+        consumed once per unique bucket to keep the NVIDIA RPM
+        budget honest on the two-key case). Permanently-broken
+        responses (e.g. ``BadRequest``) advance to the next
+        provider; transient failures retry once, then advance.
+
+        Cost ceiling: ``len(providers) * 2`` LLM calls per job —
+        same as :meth:`score_opportunity`. Expected hot path is
+        the GHA boards-scan worker picking resumes for hundreds
+        of fresh ASBY / Lever / Greenhouse wins per hour, so the
+        cost stays within the operator's 40-RPM free tier when the
+        per-job tag-match rate stays >50%.
+        """
+        user_prompt = json.dumps(
+            {
+                "job": job_payload,
+                "resumes": [
+                    {
+                        "id": r.get("id"),
+                        "name": r.get("name"),
+                        "tags": r.get("tags") or [],
+                        "is_default": bool(r.get("is_default", False)),
+                    }
+                    for r in resume_payloads
+                ],
+            },
+            indent=2,
+        )
+        last_exc: Exception | None = None
+        for bucket in _unique_rate_limiters(self.providers):
+            await bucket.acquire()
+        for provider in self.providers:
+            client = self._clients[provider.name]
+            for attempt in (1, 2):
+                try:
+                    content = await self._pick_resume_once(
+                        client, provider.model, user_prompt
+                    )
+                    parsed = _parse_resume_pick_response(
+                        content, expected_ids=[str(r["id"]) for r in resume_payloads]
+                    )
+                    return parsed
+                except _PermanentError as exc:
+                    last_exc = exc
+                    break  # unrecoverable on this provider; advance
+                except Exception as exc:  # noqa: BLE001 — transient
+                    last_exc = exc
+                    if attempt == 1:
+                        await asyncio.sleep(0.5)
+                    # else: fall through to next provider
+        raise RuntimeError(
+            f"all LLM providers failed on pick_best_resume; last error "
+            f"type={type(last_exc).__name__}"
+        ) from last_exc
+
+    async def _pick_resume_once(
+        self,
+        client: AsyncOpenAI,
+        model: str,
+        user_prompt: str,
+    ) -> str:
+        """One non-retrying pick_best_resume call.
+
+        ``max_tokens=300`` because the response is bounded: a single
+        JSON object with ``resume_id`` + ``confidence`` is at most
+        ~80 tokens. Bounding the cap defends against a model that
+        streams analysis prose before the JSON.
+        """
+        try:
+            resp = await client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": _PICK_RESUME_SYSTEM_PROMPT},
+                    {"role": "user", "content": user_prompt},
+                ],
+                temperature=0.0,
+                max_tokens=300,
+            )
+        except (AuthenticationError, BadRequestError, NotFoundError) as exc:
+            raise _PermanentError(f"{type(exc).__name__}: {exc}") from exc
+        except (
+            APIConnectionError,
+            APITimeoutError,
+            InternalServerError,
+            RateLimitError,
+        ):
+            raise  # transient; caller decides retry vs advance
+        return (resp.choices[0].message.content or "").strip()
+
+    async def run_json_prompt(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        *,
+        max_tokens: int = 600,
+        temperature: float = 0.0,
+    ) -> tuple[str, str]:
+        """Generic system+user chat-completions call with provider-chain retry.
+
+        Surface for callers that need the retry-then-fallback contract
+        but with their OWN system prompt (and don't want to add a new
+        ``_xxx_once`` method per use case). Currently used by
+        :mod:`apply_worker.qa_matcher` to run its batched JSON map
+        prompt — the matcher calls this with ``max_tokens=600`` (its
+        response shape is ``len(unmatched_fields)`` JSON entries, ~150
+        chars total at 5 unmatched fields) and ``temperature=0`` for
+        strict JSON determinism.
+
+        Returns ``(content, model_used)``. Raises :class:`RuntimeError`
+        when every provider fails — same contract as
+        :meth:`score_opportunity`. ``max_tokens`` is plumbed through
+        because the default ``600`` would be wasteful for tiny jobs
+        (a 60-token pick) and would be a soft cap for bigger jobs
+        (a 1200-token profile extraction) — let the caller size it.
+        """
+        last_exc: Exception | None = None
+        for bucket in _unique_rate_limiters(self.providers):
+            await bucket.acquire()
+        for provider in self.providers:
+            client = self._clients[provider.name]
+            for attempt in (1, 2):
+                try:
+                    try:
+                        resp = await client.chat.completions.create(
+                            model=provider.model,
+                            messages=[
+                                {"role": "system", "content": system_prompt},
+                                {"role": "user", "content": user_prompt},
+                            ],
+                            temperature=temperature,
+                            max_tokens=max_tokens,
+                        )
+                    except (AuthenticationError, BadRequestError, NotFoundError) as exc:
+                        raise _PermanentError(
+                            f"{type(exc).__name__}: {exc}"
+                        ) from exc
+                    except (
+                        APIConnectionError,
+                        APITimeoutError,
+                        InternalServerError,
+                        RateLimitError,
+                    ):
+                        raise  # transient; caller decides retry vs advance
+                    content = (resp.choices[0].message.content or "").strip()
+                    return content, provider.model
+                except _PermanentError as exc:
+                    last_exc = exc
+                    break
+                except Exception as exc:  # noqa: BLE001 — transient
+                    last_exc = exc
+                    if attempt == 1:
+                        await asyncio.sleep(0.5)
+                    # else: fall through to next provider
+        raise RuntimeError(
+            f"all LLM providers failed on run_json_prompt; last error "
+            f"type={type(last_exc).__name__}"
+        ) from last_exc
+
 
 def build_prompt(profile_summary: str, opportunity: dict) -> str:
     """Render the user-side prompt: profile + salient opportunity fields."""
@@ -907,6 +1111,65 @@ def _coerce_score(data: dict) -> tuple[float, str]:
     return score, reasoning
 
 
+def _parse_resume_pick_response(
+    content: str,
+    *,
+    expected_ids: list[str],
+) -> tuple[str | None, float]:
+    """Parse the strict-JSON ``{resume_id, confidence, reasoning}`` envelope.
+
+    Hallucinated ids (``resume_id`` not in ``expected_ids``) collapse
+    to ``(None, 0.0)`` so the apply worker surfaces the no-match as
+    "operator must pick manually" rather than submitting with an id
+    the matcher can't validate.
+
+    Markdown code fences (``\\`\\`\\`json ... \\`\\`\\```) are stripped
+    first, then ``json.loads`` is attempted, then string-sliced to
+    the outermost ``{...}`` as a last-ditch fallback. The same
+    parse path is used for :func:`parse_score_response` /
+    :func:`parse_profile_response` so the operator's template
+    prompt repo is the single source of truth for "what JSON shape
+    do I expect from the model".
+    """
+    text = (content or "").strip()
+    if text.startswith("```"):
+        text = text.strip("`\n ")
+        if text.lower().startswith("json"):
+            text = text[4:]
+        text = text.strip()
+    allowed = set(expected_ids)
+    try:
+        data = json.loads(text)
+    except (json.JSONDecodeError, TypeError, ValueError):
+        start = text.find("{")
+        end = text.rfind("}")
+        if start == -1 or end == -1 or end <= start:
+            raise _PermanentError(
+                f"could not parse pick_best_resume envelope: {content[:200]!r}"
+            )
+        try:
+            data = json.loads(text[start : end + 1])
+        except (json.JSONDecodeError, TypeError, ValueError) as exc:
+            raise _PermanentError(
+                f"could not parse pick_best_resume envelope: {content[:200]!r}"
+            ) from exc
+    if not isinstance(data, dict):
+        raise _PermanentError(
+            f"pick_best_resume response was not a JSON object: {content[:200]!r}"
+        )
+    raw_id = data.get("resume_id")
+    if raw_id is None:
+        confidence = float(data.get("confidence", 0.0) or 0.0)
+        return None, max(0.0, min(1.0, confidence))
+    if not isinstance(raw_id, str) or raw_id not in allowed:
+        # Hallucinated id or non-string — collapse to None so the
+        # apply worker treats it as a clean refusal rather than a
+        # match against an arbitrary external id.
+        return None, 0.0
+    confidence = float(data.get("confidence", 0.0) or 0.0)
+    return raw_id, max(0.0, min(1.0, confidence))
+
+
 # ---------------------------------------------------------------------------
 # Interview-Prep "deep research" surface.
 #
@@ -986,7 +1249,7 @@ def build_research_prompt(
 
 # ``max_tokens`` for the research brief is larger than the score call
 # because a five-section Markdown brief can easily run 700-1200 tokens.
-RESEARCH_MAX_TOKENS = 1500
+RESEARCH_MAX_TOKENS: Final = 1500
 
 
 __all__ = [
@@ -1009,4 +1272,4 @@ __all__ = [
     "parse_profile_response",
     "_unique_rate_limiters",
     "_make_nvidia_bucket",
-]
+]  

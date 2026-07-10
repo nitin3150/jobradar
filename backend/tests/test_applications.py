@@ -343,6 +343,48 @@ class TestCreateApplicationFromJob:
         assert r.status_code == 409, r.text
         assert "'flagged'" in r.json()["detail"]
 
+    async def test_post_for_paused_job_returns_409_with_recovery_hint(
+        self, seeded_jobs_and_applications: AsyncClient,
+    ) -> None:
+        """v0.6 operator-veto path: a paused row blocks manual apply
+        with a 409 whose detail message tells the operator exactly
+        how to recover (resume → approved → retry), rather than the
+        generic ``only 'approved' can be marked as applied`` message.
+        Without the specialised branch, an operator who paused a
+        row to skim a relocation clause would have to grep the
+        codebase to remember that PATCH /status back to 'approved'
+        is the recovery action.
+        """
+        client = seeded_jobs_and_applications
+
+        # Pause j_3 (the seeded approved row).
+        await client.patch(
+            f"/api/jobs/{J_3_ID}/status",
+            json={"status": "paused", "source": "user", "note": "visa"},
+        )
+
+        # POST /api/applications must 409 with the recovery hint.
+        r = await client.post(
+            "/api/applications", json={"job_id": J_3_ID},
+        )
+        assert r.status_code == 409, r.text
+        detail = r.json()["detail"]
+        assert "paused" in detail
+        assert "resume" in detail.lower()
+        assert J_3_ID in detail
+        # The recovery hint names the exact endpoint + status payload.
+        assert "PATCH" in detail and "'approved'" in detail
+
+        # Resume j_3, then retry — the second POST now succeeds.
+        await client.patch(
+            f"/api/jobs/{J_3_ID}/status",
+            json={"status": "approved", "source": "user", "note": "resumed"},
+        )
+        retry = await client.post(
+            "/api/applications", json={"job_id": J_3_ID},
+        )
+        assert retry.status_code == 201, retry.text
+
     async def test_post_writes_job_status_history_row(
         self, seeded_jobs_and_applications: AsyncClient,
     ) -> None:

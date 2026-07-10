@@ -1,45 +1,67 @@
 import { useCreateApplication } from '../hooks/useApplications';
-import { useApproveJob, useJobs, useRejectJob } from '../hooks/useJobs';
+import { useJobStatus, useJobs } from '../hooks/useJobs';
 
 // ---------------------------------------------------------------------------
 // ``PendingReviewWidget`` — a compact job-lifecycle panel that surfaces the
-// actionable subset of the ``jobs`` table directly on the Dashboard:
+// actionable subset of the ``jobs`` table directly on the Dashboard.
 //
-// * ``status == 'in_review'``: AI-scored winners dropped in by the hourly
-//   boards scan that need a human Approve/Reject decision before the
-//   review_deadline expires (matching the badges the Navbar already shows).
-// * ``status == 'approved'``: decisions the operator has already made —
-//   one click on the primary CTA opens the posting in a new tab AND
-//   fires ``POST /api/applications`` (see ``handleApply``) so the row
-//   lands in ApplicationTracker with status='submitted'.
+// After the single-threshold simplification (board-scan and the scoring
+// service both write ``status='approved'`` directly when a job clears the
+// operator's ``JOB_FIT_THRESHOLD``), the ``in_review`` intermediate no longer
+// receives fresh scans — it is reserved for any operator-driven status flips
+// of already-archived rows. The widget now mirrors the apply queue itself:
 //
-// The widget hides when there is nothing to act on so a quiet Dashboard
-// (all jobs decided + applied) stays scanner-focused instead of showing
-// an empty card with zero rows. The two visual sub-sections ("To review"
-// vs "Ready to apply") split the two action surface areas so the Apply
-// CTA — the operator's main hot path — sits below the rejection bucket.
+// * ``status == 'approved'``: AI-scored + threshold-passing winners, queued
+//   for the auto-apply worker. The operator sees top-N here (matching the
+//   Navbar badge) and can fire the manual Apply CTA as a "skip the worker,
+//   submit now" override — same semantics as the merged JobBoard page.
+//   A **Pause** button sits beside Apply so the operator can park a
+//   row before the worker fires (relocation, equity, visa, comp floor)
+//   without leaving the Dashboard.
 //
-// Data sourcing: TWO parallel ``useJobs`` queries (one per status). We do
-// not filter server-side for ``score DESC`` here because the backend's
-// default ordering is good enough for top-N review (the AI-fit score is
-// surfaced inline per row so the operator can sort by eye if they want).
+// * ``status == 'paused'``: operator-vetoed rows from the same scoring
+//   pool. A **Resume** button restores the row to ``approved`` so the
+//   worker can pick it up again. Rendered as a quieter sub-list so the
+//   approved queue stays the visual primary surface.
+//
+// The widget hides its entire body (NOT just the rows) when BOTH the
+// approved queue and the paused sub-list are empty — a quiet Dashboard
+// (no fresh scans / no approved / no paused) stays scanner-focused.
+//
+// Data sourcing: TWO ``useJobs`` queries (status='approved' and
+// status='paused'). We do not filter server-side for ``score DESC`` here
+// because the backend's default ordering (''deadline_asc'' +
+// ``ai_fit_score DESC`` secondary) is good enough for top-N review, and
+// the AI-fit score is surfaced inline per row so the operator can sort
+// by eye if they want.
 // ---------------------------------------------------------------------------
 
 const MAX_VISIBLE_PER_STATUS = 5;
 
-// Mirror JobsReview's STATUS_COLORS so a card moving from widget to
-// /jobs review page never changes appearance. Centralizing here would
-// force a tiny utility module for two consumers; the duplication is
-// intentional until a third consumer materializes.
+// Mirror JobCard's STATUS_COLORS so a card moving from widget to the
+// /jobs page never changes appearance. Centralizing here would force a
+// tiny utility module for two consumers; the duplication is intentional
+// until a third consumer materializes.
 const STATUS_COLORS = {
   in_review: 'bg-yellow-100 text-yellow-800',
   approved: 'bg-green-100 text-green-800',
+  // slate/gray for paused — reads as "parked / inactive" without
+  // clashing with the traffic-light palette. Same colour used in
+  // JobCard.jsx + FilterBar.jsx so a paused row renders the same
+  // pill regardless of where it appears.
+  paused: 'bg-slate-100 text-slate-800',
   rejected: 'bg-red-100 text-red-800',
   applied: 'bg-blue-100 text-blue-800',
   flagged: 'bg-orange-100 text-orange-800',
 };
 
 function TimeRemaining({ deadline }) {
+  // Deadline widget kept around for any future operator-inserted
+  // ``in_review`` row that still carries a ``review_deadline`` from
+  // the pre-simplification flow. Today it almost never renders —
+  // the widget surface is ``approved`` rows now — but a one-off
+  // operator reclassification (drop a row back to ``in_review``)
+  // would activate the badge. Cheap to keep.
   if (!deadline) return null;
   const ms = new Date(deadline) - new Date();
   if (ms <= 0) return <span className="text-red-500 text-xs">Expired</span>;
@@ -52,13 +74,14 @@ function TimeRemaining({ deadline }) {
   );
 }
 
-// ``Apply`` CTA — identical semantics to JobsReview's ``handleMarkAsApplied``:
+// ``Apply`` CTA — same semantics as JobBoard's ``handleMarkAsApplied``:
 // opens the job URL in a new tab (setTimeout defers the open so popup
 // blockers don't suppress it) AND fires the ``POST /api/applications``
-// mutation that atomically flips the Job to status='applied' and creates
-// the Application(submitted) row. The mutation's ``onSuccess`` invalidates
-// the ['jobs'] cache so this card disappears from the widget on the next
-// paint and reappears in the ApplicationTracker page.
+// mutation that atomically flips the Job to status='applied' and
+// creates the Application(submitted) row. The mutation's ``onSuccess``
+// invalidates the ['jobs'] cache so this card disappears from the
+// widget on the next paint and reappears in the ApplicationTracker
+// page.
 function handleApply(job, createApplication) {
   if (!job?.url) return;
   setTimeout(() => {
@@ -67,23 +90,17 @@ function handleApply(job, createApplication) {
   createApplication.mutate({ jobId: job.id, notes: null });
 }
 
-function CompactJobRow({
-  job,
-  approve,
-  reject,
-  createApplication,
-}) {
-  // Per-section disable — match JobsReview.jsx: rely on the global
+function CompactJobRow({ job, createApplication, setStatus }) {
+  // Per-section disable — match JobBoard.jsx: rely on the global
   // mutation's ``isPending`` flag (no per-row variables lookup).
-  // ``useMutation.variables`` is not guaranteed to clear to undefined
-  // on settle across react-query v5 patches, so a ``variables ===
-  // job.id`` check can briefly show a stale "Applying…" badge on the
-  // wrong row during the post-mutation refetch window. The global
-  // check is the conservative choice and the operator only mutates
-  // one row at a time in practice.
+  // ``useMutation.variables`` is not guaranteed to clear to
+  // undefined on settle across react-query v5 patches, so a
+  // ``variables === job.id`` check can briefly show a stale
+  // "Applying…" badge on the wrong row during the post-mutation
+  // refetch window. The global check is the conservative choice
+  // and the operator only mutates one row at a time in practice.
   const isApplyPending = createApplication.isPending;
-  const isApprovePending = approve.isPending;
-  const isRejectPending = reject.isPending;
+  const isSetStatusPending = setStatus.isPending;
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex items-center gap-4 hover:shadow-sm transition-shadow">
@@ -111,32 +128,59 @@ function CompactJobRow({
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
-        {job.status === 'in_review' && (
+        {/* Per-status affordances. The single-threshold
+            simplification removed the human-review gate; approved
+            jobs are queued for the auto-apply worker. Apply is the
+            "skip the worker, submit now" override. Pause parks the
+            row BEFORE the worker fires (relocation / equity / visa
+            / comp floor) so the operator has a veto path. Other
+            statuses get no actions here — a freshly-`rejected` or
+            `flagged` row sits in the widget silently until the
+            operator navigates to the Job Board link. */}
+        {job.status === 'approved' && (
           <>
             <button
-              onClick={() => approve.mutate(job.id)}
-              disabled={isApprovePending || isRejectPending}
-              className="px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
+              onClick={() =>
+                setStatus.mutate({
+                  id: job.id,
+                  status: 'paused',
+                  source: 'user',
+                  note: 'paused from PendingReviewWidget',
+                })
+              }
+              disabled={isSetStatusPending}
+              title="Park this job so the apply worker skips it. Use when relocation, equity, visa, or comp is a deal-breaker."
+              aria-label={`Pause ${job.title} at ${job.company_name}`}
+              className="px-3 py-1.5 bg-white text-slate-700 text-xs font-medium rounded-md border border-slate-300 hover:bg-slate-50 disabled:opacity-50 transition-colors"
             >
-              {isApprovePending ? '…' : 'Approve'}
+              {isSetStatusPending ? 'Pausing…' : 'Pause'}
             </button>
             <button
-              onClick={() => reject.mutate(job.id)}
-              disabled={isApprovePending || isRejectPending}
-              className="px-3 py-1.5 bg-red-100 text-red-700 text-xs font-medium rounded-md hover:bg-red-200 disabled:opacity-50 transition-colors"
+              onClick={() => handleApply(job, createApplication)}
+              disabled={isApplyPending}
+              title="Opens the posting in a new tab and records this as a submitted application."
+              className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-md hover:bg-indigo-700 disabled:opacity-50 transition-colors"
             >
-              {isRejectPending ? '…' : 'Reject'}
+              {isApplyPending ? 'Applying…' : 'Apply ↗'}
             </button>
           </>
         )}
-        {job.status === 'approved' && (
+        {job.status === 'paused' && (
           <button
-            onClick={() => handleApply(job, createApplication)}
-            disabled={isApplyPending}
-            title="Opens the posting in a new tab and records this as a submitted application."
-            className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-md hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+            onClick={() =>
+              setStatus.mutate({
+                id: job.id,
+                status: 'approved',
+                source: 'user',
+                note: 'resumed from PendingReviewWidget',
+              })
+            }
+            disabled={isSetStatusPending}
+            title="Return this row to the auto-apply queue."
+            aria-label={`Resume ${job.title} at ${job.company_name}`}
+            className="px-3 py-1.5 bg-slate-700 text-white text-xs font-medium rounded-md hover:bg-slate-800 disabled:opacity-50 transition-colors"
           >
-            {isApplyPending ? 'Applying…' : 'Apply ↗'}
+            {isSetStatusPending ? 'Resuming…' : 'Resume'}
           </button>
         )}
       </div>
@@ -164,7 +208,7 @@ function SectionHeader({ label, count, totalCount, linkTo = '/jobs' }) {
           href={linkTo}
           className="text-xs text-indigo-500 hover:underline"
         >
-          + {hiddenCount} more on Review page →
+          + {hiddenCount} more on Job Board →
         </a>
       )}
     </div>
@@ -176,96 +220,94 @@ function SkeletonRow() {
 }
 
 export default function PendingReviewWidget() {
-  // Two parallel queries — one per actionable status. ``staleTime: 30s``
-  // + ``refetchInterval: 60s`` come from the hook; mutations invalidate
-  // the ['jobs'] cache on success so an Approve click flips this row
-  // over to the "apply" section on the next render without a refetch.
-  const { data: inReviewData, isLoading: inReviewLoading } = useJobs({
-    status: 'in_review',
-    page_size: MAX_VISIBLE_PER_STATUS,
-  });
+  // Two queries — ``status='approved'`` rows ready for the auto-apply
+  // worker AND ``status='paused'`` rows the operator vetoed. Both
+  // share the React Query cache keyed by ``['jobs', filters]`` so
+  // mutations invalidate them on success and a Pause click pops the
+  // row out of the top half into the bottom half on the next render
+  // without a refetch.
   const { data: approvedData, isLoading: approvedLoading } = useJobs({
     status: 'approved',
     page_size: MAX_VISIBLE_PER_STATUS,
   });
-  const approve = useApproveJob();
-  const reject = useRejectJob();
+  const { data: pausedData, isLoading: pausedLoading } = useJobs({
+    status: 'paused',
+    page_size: MAX_VISIBLE_PER_STATUS,
+  });
   const createApplication = useCreateApplication();
+  // Single ``useJobStatus`` mutation, reused twice with different
+  // ``status`` arguments (pause = set status='paused'; resume = set
+  // status='approved'). Both go through the canonical PATCH
+  // ``/api/jobs/{id}/status`` endpoint so the job_status_history
+  // audit-trail row is written in the same transaction, same source
+  // default ('user'), and same note shape. No third hook needed.
+  //
+  // ``onError`` surfaces a 4xx/5xx failure as a console warning
+  // (the row stays in the same status — the operator can retry or
+  // use the JobBoard dropdown to recover). Without an explicit
+  // handler React Query logs the rejection silently and the
+  // operator sees a stuck "Pausing…" button for the duration of
+  // the in-flight window.
+  const setStatus = useJobStatus({
+    onError: (err, variables) => {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `Failed to set job ${variables?.id} → ${variables?.status}:`,
+        err?.message || err,
+      );
+    },
+  });
 
-  const inReviewJobs = inReviewData?.jobs ?? [];
   const approvedJobs = approvedData?.jobs ?? [];
-  const inReviewTotal = inReviewData?.total ?? 0;
   const approvedTotal = approvedData?.total ?? 0;
-  const bannerCount = inReviewTotal + approvedTotal;
+  const pausedJobs = pausedData?.jobs ?? [];
+  const pausedTotal = pausedData?.total ?? 0;
+  const bannerCount = approvedTotal;
+  const pausedVisible = pausedTotal > 0;
 
-  // Hide widget entirely when both lists are confirmed empty. While either
-  // query is still loading we render a skeleton so the widget doesn't
-  // flash on/off as the network settles on initial mount.
-  const isLoading = inReviewLoading || approvedLoading;
-  if (!isLoading && bannerCount === 0) return null;
-
-  const widgetBorder = approvedTotal > 0
-    ? 'border-indigo-200 bg-gradient-to-b from-indigo-50/40'
-    : 'border-gray-200';
+  // Hide widget entirely when BOTH the approved queue AND the
+  // paused sub-list are confirmed empty. While either query is
+  // still loading we render a skeleton so the widget doesn't flash
+  // on/off as the network settles on initial mount.
+  if (!approvedLoading && !pausedLoading && bannerCount === 0 && !pausedVisible) return null;
 
   return (
     <section
-      aria-label="Pending job review"
-      className={`mb-6 border ${widgetBorder} rounded-xl p-4`}
+      aria-label="Auto-apply queue"
+      className="mb-6 border border-indigo-200 bg-gradient-to-b from-indigo-50/40 rounded-xl p-4"
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-base font-bold text-gray-900">Pending review</h2>
+          <h2 className="text-base font-bold text-gray-900">Auto-apply queue</h2>
           {bannerCount > 0 && (
             <span className="text-xs bg-indigo-600 text-white px-2 py-0.5 rounded-full font-semibold">
               {bannerCount}
             </span>
           )}
+          {pausedVisible && (
+            <span className="text-xs bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-medium">
+              {pausedTotal} paused
+            </span>
+          )}
         </div>
         <a href="/jobs" className="text-xs text-indigo-500 hover:underline">
-          Open Review queue →
+          Open Job Board →
         </a>
       </div>
 
-      {/* "To review" — in_review jobs that need an Approve/Reject decision. */}
-      <div className="mb-4">
-        <SectionHeader
-          label="📋 To review"
-          count={isLoading ? 0 : inReviewJobs.length}
-          totalCount={inReviewTotal}
-        />
-        <div className="space-y-2">
-          {isLoading && inReviewLoading && (
-            <>
-              <SkeletonRow />
-              <SkeletonRow />
-            </>
-          )}
-          {!inReviewLoading && inReviewJobs.length === 0 && (
-            <p className="text-xs text-gray-400 px-1 py-1">No jobs waiting on a decision.</p>
-          )}
-          {!inReviewLoading &&
-            inReviewJobs.map((job) => (
-              <CompactJobRow
-                key={job.id}
-                job={job}
-                approve={approve}
-                reject={reject}
-                createApplication={createApplication}
-              />
-            ))}
-        </div>
-      </div>
-
-      {/* "Ready to apply" — approved jobs waiting for the manual-apply handoff. */}
+      {/* Auto-apply queue — approved jobs waiting for (or already
+          being processed by) the playwright apply worker. Manual
+          Apply button here is a "skip the worker" override. Pause
+          button here is the operator veto path so a row with a
+          deal-breaker doesn't get auto-submitted. */}
       <div>
         <SectionHeader
-          label="🚀 Ready to apply"
-          count={isLoading ? 0 : approvedJobs.length}
+          label="🚀 Approved · queued for auto-apply"
+          count={approvedLoading ? 0 : approvedJobs.length}
           totalCount={approvedTotal}
         />
         <div className="space-y-2">
-          {isLoading && approvedLoading && (
+          {approvedLoading && (
             <>
               <SkeletonRow />
               <SkeletonRow />
@@ -273,7 +315,7 @@ export default function PendingReviewWidget() {
           )}
           {!approvedLoading && approvedJobs.length === 0 && (
             <p className="text-xs text-gray-400 px-1 py-1">
-              Approve a job above and it will appear here ready for one-click apply.
+              No approved jobs in the queue. The next boards scan will land more rows.
             </p>
           )}
           {!approvedLoading &&
@@ -281,13 +323,43 @@ export default function PendingReviewWidget() {
               <CompactJobRow
                 key={job.id}
                 job={job}
-                approve={approve}
-                reject={reject}
                 createApplication={createApplication}
+                setStatus={setStatus}
               />
             ))}
         </div>
       </div>
+
+      {/* Paused sub-list — operator-vetoed rows from the same
+          scoring pool. Resume button restores a row to ``approved``
+          so the worker can pick it up again. Only renders when the
+          paused pool is non-empty so the widget doesn't gain a
+          useless second section when nothing is parked.
+
+          Rendered AFTER (not alongside) the approved queue so the
+          approved queue stays the visual primary surface; the
+          pause action is the exception path. */}
+      {pausedVisible && (
+        <div className="mt-4 pt-4 border-t border-slate-200">
+          <SectionHeader
+            label="⏸ Paused · waiting for your call"
+            count={pausedLoading ? 0 : pausedJobs.length}
+            totalCount={pausedTotal}
+          />
+          <div className="space-y-2">
+            {pausedLoading && <SkeletonRow />}
+            {!pausedLoading &&
+              pausedJobs.map((job) => (
+                <CompactJobRow
+                  key={job.id}
+                  job={job}
+                  createApplication={createApplication}
+                  setStatus={setStatus}
+                />
+              ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

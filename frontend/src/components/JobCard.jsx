@@ -9,6 +9,11 @@ import Modal from './Modal';
 const STATUS_COLORS = {
   in_review: 'bg-yellow-100 text-yellow-800 border-yellow-200',
   approved: 'bg-green-100 text-green-800 border-green-200',
+  // slate/gray for paused — reads as "inactive / parked" without
+  // clashing with the traffic-light palette. Same colour also
+  // mirrors :data:`background-color` in the React PendingReviewWidget
+  // so a paused row popped up there renders the same pill.
+  paused: 'bg-slate-100 text-slate-800 border-slate-200',
   rejected: 'bg-red-100 text-red-800 border-red-200',
   applied: 'bg-blue-100 text-blue-800 border-blue-200',
   flagged: 'bg-orange-100 text-orange-800 border-orange-200',
@@ -44,7 +49,12 @@ function boardLabel(atsType) {
 // coded here to avoid a roundtrip on first render. Kept in sync
 // intentionally — the JobBoardStatusDropdown is the only writer and
 // validates against this list before POSTing.
-const JOB_STATUSES = ['in_review', 'approved', 'rejected', 'applied', 'flagged'];
+// Six valid statuses — ``JobStatus`` Literal in the backend (post-v0.6
+// single-threshold + paused-state transition). Hard-coded here to
+// avoid a roundtrip on first render. Kept in sync intentionally —
+// the JobBoardStatusDropdown is the only writer and validates
+// against this list before POSTing.
+const JOB_STATUSES = ['in_review', 'approved', 'paused', 'rejected', 'applied', 'flagged'];
 
 const ATS_SOURCE_OPTIONS = ['', 'ashby', 'greenhouse', 'lever'];  // most common; backend returns the full set
 

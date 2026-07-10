@@ -7,7 +7,12 @@ the previous in-memory version; :class:`Job` etc. still match what
 * ``GET /api/jobs?status=in_review&page_size=50`` →
   ``{\"jobs\": [...], \"total\": int, \"page\": int, \"page_size\": int}``.
 * ``GET /api/jobs/pending-count`` → ``{\"count\": int}`` — number of
-  jobs in ``status == \"in_review\"``.
+  jobs in ``status == \"approved\"``. Drives the Navbar badge (the
+  approved pool is the auto-apply queue the future worker dequeues
+  from). After the v0.6 single-threshold scoring flip, no rows
+  land in ``\"in_review\"`` — winners go straight to ``\"approved\"``
+  so this route is the source of truth for "how many jobs still
+  need an application submitted".
 * ``POST /api/jobs/{job_id}/approve`` — flips ``status`` to
   ``\"approved\"`` and clears ``review_deadline``. Bus-compat shim;
   writes a job_status_history row.
@@ -64,7 +69,8 @@ require_database_configured()
 # ----------------------------------------------------------------------
 # Enums + Pydantic wire shape
 # ----------------------------------------------------------------------
-JobStatus = Literal["in_review", "approved", "rejected", "applied", "flagged"]
+JobStatus = Literal["in_review", "approved", "paused", "rejected", "applied", "flagged"]
+
 
 # Single source of truth: read the Literal's string members at import
 # time so a future ``JobStatus`` expansion automatically widens this
@@ -377,9 +383,25 @@ async def _seed_job_rows(session: AsyncSession) -> None:
 async def get_pending_count(
     session: AsyncSession = Depends(get_session),
 ) -> PendingCountResponse:
-    """Number of jobs in the ``in_review`` queue — drives the Navbar badge."""
+    """Number of jobs in the auto-apply queue (status == "approved") —
+    drives the Navbar badge.
+
+    After the v0.6 single-threshold scoring flip, no rows land in
+    ``"in_review"`` from the scorer — winners go straight to
+    ``"approved"`` so this counter measures "how many jobs the
+    future apply worker has to chew through", not the (now-empty)
+    manual review queue.
+
+    Note that ``"applied"`` rows are deliberately excluded: an
+    approved job that has already been auto-submitted (or marked
+    applied by the operator) is no longer in the queue, so the
+    badge drops as the worker drains the pool. Critically, this
+    means ``before == after`` of a ``POST /applications`` call
+    that flips approved → applied should be reflected here within
+    the 30 s ``useApprovedCount`` refetch interval.
+    """
     count = await session.scalar(
-        select(func.count(db_models.Job.id)).where(db_models.Job.status == "in_review")
+        select(func.count(db_models.Job.id)).where(db_models.Job.status == "approved")
     )
     return PendingCountResponse(count=int(count or 0))
 

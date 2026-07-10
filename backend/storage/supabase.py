@@ -9,7 +9,8 @@ handler would block the event loop for the duration of the HTTPS
 round-trip — unacceptable on a request-per-task backend.
 
 This module owns the SDK client (singleton, lazy-initialised from env)
-and exposes two async helpers used by the resume route:
+and exposes async helpers used by the resume route AND the
+``apply_worker`` form-filler:
 
 * :func:`upload_resume_bytes` — uploads bytes to the ``resumes`` bucket
   under a path of the form ``<resume_id>.<ext>``; returns the storage
@@ -17,6 +18,12 @@ and exposes two async helpers used by the resume route:
 * :func:`download_resume_bytes` — fetches bytes back so the
   ``GET /api/resumes/{id}/download`` route returns a real file body,
   not a 410 Gone against seeded metadata.
+* :func:`delete_resume_bytes` — used by ``DELETE /api/resumes/{id}``
+  so the upload+view flow round-trips cleanly.
+* :func:`upload_application_screenshot` — uploads PNG screenshots of
+  the apply page (taken by :mod:`apply_worker.form_filler`) to the
+  ``apply-screenshots`` bucket; returns the storage path the
+  orchestrator persists on ``applications.submission_screenshot_path``.
 
 Configuration
 =============
@@ -34,13 +41,21 @@ which uses this key on behalf of the operator.
 Bucket layout
 =============
 
-* Single ``resumes`` bucket (private).
-* Objects stored as ``<resume_id>.<ext>`` so the on-the-wire
-  ``resumes.id`` (a UUID) is the object name and the ``storage_path``
-  column round-trips back to ``<resume_id>.<ext>`` on read.
-* RLS is **off** at the Storage layer for the same reason it's off at
-  the Postgres layer (single-user demo). The helper goes through the
-  service-role key which bypasses Storage policies by design.
+* ``resumes`` bucket (private) — PDF/DOCX/TXT/Markdown resume objects
+  stored as ``<resume_id>.<ext>`` so the on-the-wire ``resumes.id``
+  (a UUID) is the object name and the ``storage_path`` column
+  round-trips back to ``<resume_id>.<ext>`` on read.
+* ``apply-screenshots`` bucket (private) — PNG screenshots of the
+  apply page captured by :mod:`apply_worker.form_filler` after
+  clicking Submit. Stored as ``<job_id>.png`` so the on-the-wire
+  ``applications.job_id`` (a UUID) is the object name. Kept in a
+  separate bucket so a future privacy review of the resume download
+  policy doesn't accidentally also lock down screenshots (or vice
+  versa).
+* RLS is **off** at the Storage layer for both buckets for the
+  same reason it's off at the Postgres layer (single-user demo).
+  The helper goes through the service-role key which bypasses
+  Storage policies by design.
 
 SDK API used
 ============
@@ -106,6 +121,19 @@ if (
 # Bucket name — single private bucket for resume objects. Exposed as a
 # constant so the route layer doesn't pass a string literal every call.
 RESUMES_BUCKET: Final[str] = "resumes"
+
+# New private bucket for apply-worker screenshots. The form_filler
+# captures a full-page PNG of the apply page AFTER submit, uploads
+# it here, and persists the storage path on
+# ``applications.submission_screenshot_path`` via the orchestrator.
+# The render of the screenshot at ``GET /api/applications/{id}/screenshot``
+# is a followup — the bytes live in Supabase Storage today and the
+# route handler can stream them once a ``Storage ADMIN`` policy
+# passes an audit. Keeping this bucket separate from ``resumes``
+# keeps Storage RLS reviews scoped: a future privacy review that
+# wants to tighten resume downloads doesn't accidentally also lock
+# out screenshot reads (or vice versa).
+APPLY_SCREENSHOTS_BUCKET: Final[str] = "apply-screenshots"
 
 
 def _ensure_client() -> Client:
@@ -219,9 +247,55 @@ async def delete_resume_bytes(storage_path: str) -> None:
     return await run_in_threadpool(_do_delete)
 
 
+async def upload_application_screenshot(
+    job_id: str,
+    png_bytes: bytes,
+    *,
+    filename: str | None = None,
+) -> str:
+    """Upload a PNG screenshot of the apply page to the ``apply-screenshots`` bucket.
+
+    Used by :func:`apply_worker.form_filler.fill_form` after
+    ``page.screenshot(full_page=True)``. Returns the storage
+    path (``<job_id>.png``) that the orchestrator persists on
+    ``applications.submission_screenshot_path`` so
+    :class:`db.models.Application` round-trips back to the bytes
+    via ``GET /api/applications/{id}/screenshot`` (a future route).
+
+    The upload is idempotent (``upsert=true``) — re-running the
+    worker on the same job overwrites the prior screenshot rather
+    than 409-ing. The :class:`RuntimeError` from ``_ensure_client``
+    propagates so the orchestrator can park the row on a missing
+    configuration rather than silently dropping the bytes.
+    """
+    client = _ensure_client()
+    extension = ".png"
+    path = filename or f"{job_id}{extension}"
+
+    def _do_upload() -> str:
+        client.storage.from_(APPLY_SCREENSHOTS_BUCKET).upload(
+            file=png_bytes,
+            path=path,
+            file_options={
+                "content-type": "image/png",
+                # supabase-py ≥2.4 expects a boolean here, not the string
+                # form. The earlier ``"true"`` recompiles fine on recent
+                # versions but is silently ignored — the upload then
+                # 409s instead of overwriting. Same pattern as
+                # ``upload_resume_bytes``.
+                "upsert": True,
+            },
+        )
+        return path
+
+    return await run_in_threadpool(_do_upload)
+
+
 __all__ = [
     "RESUMES_BUCKET",
+    "APPLY_SCREENSHOTS_BUCKET",
     "upload_resume_bytes",
     "download_resume_bytes",
     "delete_resume_bytes",
+    "upload_application_screenshot",
 ]

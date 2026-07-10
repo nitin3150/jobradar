@@ -22,9 +22,31 @@ MAX_RETRIES = 3
 BACKOFF_BASE = 1.0
 BACKOFF_CAP = 30.0
 
+# Default per-request timeout. ``BOARDS_HTTP_TIMEOUT`` overrides from
+# the boards runner / boards_scan.py so the daily slow-org tier can
+# spend up to 30s on a sluggish org without burning the hourly 10s
+# budget on the same org. Read at module-import time so the boards
+# runner picks it up before ``build_client()`` is called.
+DEFAULT_HTTP_TIMEOUT = 10.0
 
-def build_client(timeout: float = 10.0) -> httpx.Client:
-    """A pooled, thread-safe client shared across scanner threads."""
+
+def build_client(timeout: float | None = None) -> httpx.Client:
+    """A pooled, thread-safe client shared across scanner threads.
+
+    ``timeout`` defaults to ``BOARDS_HTTP_TIMEOUT`` if set, else
+    :data:`DEFAULT_HTTP_TIMEOUT` (10s). The boards runner calls
+    ``build_client()`` with no arg so the env var drives the runtime
+    value; tests can still pass an explicit float.
+    """
+    if timeout is None:
+        raw = os.environ.get("BOARDS_HTTP_TIMEOUT", "").strip()
+        if raw:
+            try:
+                timeout = float(raw)
+            except ValueError:
+                timeout = DEFAULT_HTTP_TIMEOUT
+        else:
+            timeout = DEFAULT_HTTP_TIMEOUT
     return httpx.Client(
         timeout=timeout,
         follow_redirects=True,

@@ -635,7 +635,14 @@ class LLMClient:
         model: str,
         prompt: str,
     ) -> str:
-        """One non-retrying research call. Same error taxonomy as _score_once."""
+        """One non-retrying research call. Same error taxonomy as ``_score_once``.
+
+        ``RateLimitError`` is treated as PERMANENT on the current
+        provider so the chain advances immediately without the 0.5s
+        ``asyncio.sleep`` retry — see :meth:`_score_once` for the full
+        rationale (the same fix that makes both NVIDIA keys walk
+        the chain without burning sleep against exhausted buckets).
+        """
         try:
             resp = await client.chat.completions.create(
                 model=model,
@@ -646,13 +653,12 @@ class LLMClient:
                 temperature=0.2,  # slightly creative\u2014the brief has prose sections
                 max_tokens=RESEARCH_MAX_TOKENS,
             )
-        except (AuthenticationError, BadRequestError, NotFoundError) as exc:
+        except (AuthenticationError, BadRequestError, NotFoundError, RateLimitError) as exc:
             raise _PermanentError(f"{type(exc).__name__}: {exc}") from exc
         except (
             APIConnectionError,
             APITimeoutError,
             InternalServerError,
-            RateLimitError,
         ):
             raise  # transient; caller decides retry vs advance
         return (resp.choices[0].message.content or "").strip()
@@ -714,6 +720,18 @@ class LLMClient:
         profile_summary: str,
         opportunity: dict,
     ) -> tuple[float, str]:
+        """One non-retrying score call.
+
+        ``RateLimitError`` is treated as PERMANENT on the current
+        provider so the chain advances immediately without the 0.5s
+        ``asyncio.sleep`` retry — a key whose bucket is exhausted
+        won't recover in 0.5s, and the burning sleep just delays
+        the failover to ``nvidia_2`` / ``groq`` in the chain. With
+        two NVIDIA keys configured (``NVIDIA_API_KEY`` +
+        ``NVIDIA_API_KEY_2``), this turns the operator's reported
+        ``all LLM providers failed; last error type=RateLimitError``
+        into a fast walk across both keys before the chain gives up.
+        """
         prompt = build_prompt(profile_summary, opportunity)
         try:
             resp = await client.chat.completions.create(
@@ -725,13 +743,12 @@ class LLMClient:
                 temperature=0.0,
                 max_tokens=300,
             )
-        except (AuthenticationError, BadRequestError, NotFoundError) as exc:
+        except (AuthenticationError, BadRequestError, NotFoundError, RateLimitError) as exc:
             raise _PermanentError(f"{type(exc).__name__}: {exc}") from exc
         except (
             APIConnectionError,
             APITimeoutError,
             InternalServerError,
-            RateLimitError,
         ):
             raise  # transient; caller decides retry vs advance
         content = (resp.choices[0].message.content or "").strip()
@@ -801,7 +818,8 @@ class LLMClient:
         Mirrors :meth:`_score_once` / :meth:`_research_once`: same
         error taxonomy, same retry-vs-advance contract, but a higher
         ``max_tokens`` ceiling because the LLM has to render a full
-        profile JSON (typically 1-3 KB).
+        profile JSON (typically 1-3 KB). ``RateLimitError`` advances
+        immediately (treated as permanent — see ``_score_once``).
         """
         try:
             resp = await client.chat.completions.create(
@@ -816,13 +834,12 @@ class LLMClient:
                 temperature=0.0,
                 max_tokens=PROFILE_EXTRACTION_MAX_TOKENS,
             )
-        except (AuthenticationError, BadRequestError, NotFoundError) as exc:
+        except (AuthenticationError, BadRequestError, NotFoundError, RateLimitError) as exc:
             raise _PermanentError(f"{type(exc).__name__}: {exc}") from exc
         except (
             APIConnectionError,
             APITimeoutError,
             InternalServerError,
-            RateLimitError,
         ):
             raise  # transient; caller decides retry vs advance
         content = (resp.choices[0].message.content or "").strip()
@@ -909,7 +926,9 @@ class LLMClient:
         ``max_tokens=300`` because the response is bounded: a single
         JSON object with ``resume_id`` + ``confidence`` is at most
         ~80 tokens. Bounding the cap defends against a model that
-        streams analysis prose before the JSON.
+        streams analysis prose before the JSON. ``RateLimitError``
+        advances immediately (treated as permanent — see
+        ``_score_once``).
         """
         try:
             resp = await client.chat.completions.create(
@@ -921,13 +940,12 @@ class LLMClient:
                 temperature=0.0,
                 max_tokens=300,
             )
-        except (AuthenticationError, BadRequestError, NotFoundError) as exc:
+        except (AuthenticationError, BadRequestError, NotFoundError, RateLimitError) as exc:
             raise _PermanentError(f"{type(exc).__name__}: {exc}") from exc
         except (
             APIConnectionError,
             APITimeoutError,
             InternalServerError,
-            RateLimitError,
         ):
             raise  # transient; caller decides retry vs advance
         return (resp.choices[0].message.content or "").strip()
@@ -975,7 +993,11 @@ class LLMClient:
                             temperature=temperature,
                             max_tokens=max_tokens,
                         )
-                    except (AuthenticationError, BadRequestError, NotFoundError) as exc:
+                    except (AuthenticationError, BadRequestError, NotFoundError, RateLimitError) as exc:
+                        # ``RateLimitError`` advances immediately
+                        # instead of wasting 0.5s on a retry that
+                        # will hit the same exhausted bucket — see
+                        # ``_score_once`` for the full rationale.
                         raise _PermanentError(
                             f"{type(exc).__name__}: {exc}"
                         ) from exc
@@ -983,7 +1005,6 @@ class LLMClient:
                         APIConnectionError,
                         APITimeoutError,
                         InternalServerError,
-                        RateLimitError,
                     ):
                         raise  # transient; caller decides retry vs advance
                     content = (resp.choices[0].message.content or "").strip()

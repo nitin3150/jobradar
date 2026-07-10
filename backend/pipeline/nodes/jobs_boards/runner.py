@@ -253,11 +253,35 @@ def load_orgs(board_name):
     with open(path, "r") as handle:
         orgs = json.load(handle)
 
+    excluded: set[str] = set()
     missing_path = DATA_DIR / f"{board_name}_missing_orgs.json"
     if missing_path.exists():
         with open(missing_path, "r") as handle:
-            missing = set(json.load(handle))
-        return [slug for slug in orgs if slug not in missing]
+            excluded.update(json.load(handle))
+    # ``BOARDS_SKIP_TIMEOUTS=1`` excludes orgs in
+    # ``<board>_timeout_orgs.json`` — the hourly active tier sets
+    # this so the slow-org list (timed-out orgs the dormant tier
+    # didn't recover) doesn't burn the hourly budget. The dormant
+    # tier sets it to 0 (the default) so the daily run re-attempts
+    # those orgs with a longer per-request timeout window
+    # (BOARDS_HTTP_TIMEOUT=30), removing them from the slow list on
+    # a successful fetch. Strict whitelist of truthy strings
+    # (``"1"``/``"true"``/``"yes"``) so an accidental
+    # ``BOARDS_SKIP_TIMEOUTS=2024`` (or any other random string)
+    # doesn't accidentally enable skip mode and silently shrink
+    # coverage. Comparison is lowercased to match YAML/GHA env-var
+    # boolean conventions.
+    _skip_value = os.environ.get("BOARDS_SKIP_TIMEOUTS", "0").strip().lower()
+    if _skip_value in ("1", "true", "yes"):
+        timeout_path = DATA_DIR / f"{board_name}_timeout_orgs.json"
+        if timeout_path.exists():
+            with open(timeout_path, "r") as handle:
+                try:
+                    excluded.update(json.load(handle))
+                except (json.JSONDecodeError, TypeError):
+                    pass
+    if excluded:
+        return [slug for slug in orgs if slug not in excluded]
     return orgs
 
 
@@ -304,8 +328,16 @@ def execute_fetch(fetcher, board_name, slug, since, seen_ids, client):
             print(f"HTTP error while scraping {board_name}/{slug}: {exc}")
         return {"board": board_name, "slug": slug, "outcome": outcome, "jobs": [], "new_ids": {}, "latest": None}
     except httpx.TimeoutException:
+        # Distinct ``outcome="timeout"`` so ``run_all`` can promote
+        # the slug to ``<board>_timeout_orgs.json`` after repeated
+        # timeouts WITHOUT triggering the failure-threshold bench.
+        # The hourly active tier sets ``BOARDS_SKIP_TIMEOUTS=1`` so
+        # these orgs are excluded from the next run; the daily
+        # dormant tier sets ``BOARDS_SKIP_TIMEOUTS=0`` and
+        # ``BOARDS_HTTP_TIMEOUT=30`` so it re-attempts them with
+        # room to breathe, removing them on success.
         print(f"Request timed out while scraping {board_name}/{slug}")
-        return {"board": board_name, "slug": slug, "outcome": "error", "jobs": [], "new_ids": {}, "latest": None}
+        return {"board": board_name, "slug": slug, "outcome": "timeout", "jobs": [], "new_ids": {}, "latest": None}
     except Exception as exc:
         print(f"Scraper error for {board_name}/{slug}: {exc}")
         return {"board": board_name, "slug": slug, "outcome": "error", "jobs": [], "new_ids": {}, "latest": None}
@@ -340,6 +372,13 @@ def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
     org_last_posted = {}
     newly_missing = {board: set() for board in boards}
     recovered = {board: set() for board in boards}
+    # Slow-org tracking: each (board, slug) that timed out on this run
+    # lands here. ``run_all`` writes ``<board>_timeout_orgs.json`` after
+    # the fetch loop so the next run (with ``BOARDS_SKIP_TIMEOUTS=1``
+    # on the hourly tier) skips it. The daily tier runs without that
+    # env var set, so it re-attempts the slow orgs with a longer
+    # ``BOARDS_HTTP_TIMEOUT`` and unfreezes them on success.
+    newly_timeout = {board: set() for board in boards}
     # Clearance/6+-years gate attributes these to the underlying
     # (board, slug) so we can append them to <board>_missing_orgs.json
     # after the fetch loop closes. Two distinct triggers:
@@ -448,6 +487,20 @@ def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
                         # returns a real company_name from being clobbered.
                         if "company_name" not in job or not job["company_name"]:
                             job["company_name"] = _display_name_for_slug(slug)
+                        # Inject the SPECIFIC board ("ashby" | "greenhouse"
+                        # | "lever") on every job — the boards_scan.py
+                        # GHA persist path used to write a hardcoded
+                        # "boards" string, which the React JobCard
+                        # title-cased to "Board" (the operator's reported
+                        # "Board name is saying Board it should say the
+                        # Boards name like lever, ashby or greenhouse").
+                        # Setting it here keeps the value consistent
+                        # across both persist paths (Supabase REST via
+                        # boards_scan + SQLAlchemy via scoring_service).
+                        # The ``not in`` guard preserves any future fetcher
+                        # that already populates ``ats_type``.
+                        if "ats_type" not in job or not job.get("ats_type"):
+                            job["ats_type"] = board_name
                         kept_after_gates.append(job)
                     results.extend(kept_after_gates)
                     for job_id, stamp in r["new_ids"].items():
@@ -462,11 +515,50 @@ def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
                     board_failures[slug] = board_failures.get(slug, 0) + 1
                     if board_failures[slug] >= MISSING_THRESHOLD:
                         newly_missing[board_name].add(slug)
+                elif outcome == "timeout":
+                    # Track the slug on the per-board timeout list so
+                    # the next hourly run (BOARDS_SKIP_TIMEOUTS=1) skips
+                    # it. The daily dormant tier re-attempts without the
+                    # skip flag and with BOARDS_HTTP_TIMEOUT=30 to give
+                    # the slow orgs room to breathe. Successful fetch
+                    # removes the slug from the file (see writeback
+                    # below).
+                    newly_timeout[board_name].add(slug)
                 # "error" -> transient; leave failure count untouched, don't bench
     finally:
         client.close()
 
     _write_missing_lists(boards, newly_missing, recovered)
+    # Slow-org writeback: merge freshly-timed-out slugs into
+    # ``<board>_timeout_orgs.json`` and drop any that came back to
+    # life on this run (the ``recovered`` set carries all
+    # ``outcome="ok"`` slugs). The hourly active tier sets
+    # ``BOARDS_SKIP_TIMEOUTS=1`` so ``load_orgs`` filters these out
+    # on the next tick; the daily dormant tier leaves the flag at 0
+    # so it re-attempts them with BOARDS_HTTP_TIMEOUT=30. A slug that
+    # succeeds on the daily tier gets removed from the file here.
+    for board_name in boards:
+        timeout_path = DATA_DIR / f"{board_name}_timeout_orgs.json"
+        previous_timeouts: set[str] = set()
+        if timeout_path.exists():
+            with open(timeout_path, "r") as handle:
+                try:
+                    previous_timeouts = set(json.load(handle))
+                except (json.JSONDecodeError, TypeError):
+                    previous_timeouts = set()
+        combined_timeouts = (
+            previous_timeouts
+            | newly_timeout.get(board_name, set())
+        ) - recovered.get(board_name, set())
+        if combined_timeouts:
+            with open(timeout_path, "w") as handle:
+                json.dump(sorted(combined_timeouts), handle, indent=2)
+            logger.info(
+                "slow-org list for board %r: %d org(s) skipped on next hourly run: %s",
+                board_name,
+                len(combined_timeouts),
+                sorted(combined_timeouts),
+            )
     # Org benches triggered by clearance/citizenship text on a single
     # job merge into the same `<board>_missing_orgs.json` file the
     # failure-threshold path writes to. Two distinct write paths

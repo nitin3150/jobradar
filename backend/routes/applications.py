@@ -392,6 +392,21 @@ async def create_application_from_job(
         )
 
     # 3. State machine guard — only approved jobs can transition to applied.
+    # ``paused`` is a special case so the error message tells the
+    # operator exactly how to fix it (un-park the job first) rather
+    # than generically rejecting with "wrong status". Without this
+    # branch an operator who paused a row to read a relocation clause
+    # sees "wrong status" and has to grep the codebase to remember
+    # the recovery is PATCH /api/jobs/{id}/status back to "approved".
+    if job_row.status == "paused":
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"job {payload.job_id!r} is paused; "
+                f"resume it to status 'approved' before marking it applied "
+                f"(PATCH /api/jobs/{payload.job_id}/status with status='approved')"
+            ),
+        )
     if job_row.status != "approved":
         raise HTTPException(
             status_code=409,

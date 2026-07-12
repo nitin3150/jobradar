@@ -33,7 +33,9 @@ from services.profile_service import reset_cache
 
 from services.scoring_service import (
     _score_and_persist_async,
+    apply_visa_calibration,
     build_profile_summary,
+    extract_visa_flag,
 )
 
 
@@ -304,6 +306,282 @@ class TestLLMFailureForOneOpportunity(_ScoringTestCase):
         self.assertNotIn("https://x/boom", by_url)
         self.assertIn("https://y/ok", by_url)
         self.assertEqual(by_url["https://y/ok"].title, "Ok")
+
+
+
+
+# ---------------------------------------------------------------------
+class TestExtractVisaFlag(unittest.TestCase):
+    """``extract_visa_flag`` strips the ``visa_flag:X`` prefix the LLM
+    prefixes onto its ``reasoning`` value.
+
+    The regex anchors at the START of the string and tolerates any
+    separator between the tag and the prose (``-``, `` ``, em/en dash,
+    ``:``). Case-insensitive on the keyword + value.
+    """
+
+    def test_positive_with_em_dash_separator(self) -> None:
+        flag, body = extract_visa_flag(
+            "visa_flag:positive \u2014 job explicitly says we will sponsor"
+        )
+        self.assertEqual(flag, "positive")
+        self.assertEqual(body, "job explicitly says we will sponsor")
+
+    def test_positive_with_hyphen_separator(self) -> None:
+        flag, body = extract_visa_flag(
+            "visa_flag:positive - we sponsor visas for the right candidate"
+        )
+        self.assertEqual(flag, "positive")
+        self.assertEqual(body, "we sponsor visas for the right candidate")
+
+    def test_negative_with_colon_separator(self) -> None:
+        flag, body = extract_visa_flag(
+            "visa_flag:negative: posting says no sponsorship available"
+        )
+        self.assertEqual(flag, "negative")
+        self.assertEqual(body, "posting says no sponsorship available")
+
+    def test_ambiguous_and_none_values(self) -> None:
+        self.assertEqual(
+            extract_visa_flag("visa_flag:ambiguous - status may be considered")[0],
+            "ambiguous",
+        )
+        self.assertEqual(
+            extract_visa_flag("visa_flag:none - description lacks any mention")[0],
+            "none",
+        )
+
+    def test_case_insensitive_keyword_and_value(self) -> None:
+        flag, _ = extract_visa_flag("VISA_FLAG:POSITIVE - uppercased prefix")
+        self.assertEqual(flag, "positive")
+        flag, _ = extract_visa_flag("Visa_Flag:Negative - mixed case")
+        self.assertEqual(flag, "negative")
+
+    def test_no_prefix_returns_none_and_unchanged_reasoning(self) -> None:
+        # No ``visa_flag:`` prefix at start -> identity mapping.
+        flag, body = extract_visa_flag(
+            "Strong role fit but the posting mentions \"we will sponsor\"."
+        )
+        self.assertIsNone(flag)
+        self.assertEqual(
+            body,
+            "Strong role fit but the posting mentions \"we will sponsor\".",
+        )
+
+    def test_empty_input(self) -> None:
+        self.assertEqual(extract_visa_flag(""), (None, ""))
+
+    def test_visa_flag_in_middle_of_string_does_not_match(self) -> None:
+        # Only the START of the reasoning counts. A model that put
+        # the tag mid-sentence would need to re-format its output,
+        # not retrofit an out-of-band interpretation. Anchor honesty.
+        flag, body = extract_visa_flag(
+            "Mid-sentence prefix visa_flag:positive - trailing prose"
+        )
+        self.assertIsNone(flag)
+        self.assertEqual(body, "Mid-sentence prefix visa_flag:positive - trailing prose")
+
+
+# ---------------------------------------------------------------------
+class TestApplyVisaCalibration(unittest.TestCase):
+    """``apply_visa_calibration`` is the deterministic post-processor
+    that hardens the LLM's score against visa-signal drift.
+
+    The matrix is small (3 visa_status classes x 4 visa_flag values)
+    but each branch is a candidate-regression site, so each branch
+    is pinned by its own test method.
+    """
+
+    def test_negative_flag_for_needy_candidate_is_clamped_to_floor(self) -> None:
+        # Candidate needs sponsorship, LLM emitted negative flag,
+        # LLM score 0.85 (model over-estimated). Cap at 0.2.
+        self.assertAlmostEqual(
+            apply_visa_calibration(0.85, "negative", "No sponsorship"),
+            0.2,
+            places=4,
+        )
+
+    def test_negative_flag_low_score_stays_low(self) -> None:
+        # Already below the floor; clamp should not raise it.
+        self.assertAlmostEqual(
+            apply_visa_calibration(0.1, "negative", "No sponsorship"),
+            0.1,
+            places=4,
+        )
+
+    def test_positive_flag_for_needy_candidate_is_boosted(self) -> None:
+        # Candidate needs sponsorship, LLM emitted positive flag.
+        self.assertAlmostEqual(
+            apply_visa_calibration(0.7, "positive", "No sponsorship"),
+            0.75,
+            places=4,
+        )
+
+    def test_positive_flag_boost_is_capped(self) -> None:
+        # Already near 1.0; boost must not overflow above 0.95.
+        self.assertAlmostEqual(
+            apply_visa_calibration(0.93, "positive", "No sponsorship"),
+            0.95,
+            places=4,
+        )
+
+    def test_ambiguous_flag_for_needy_candidate_leaves_score(self) -> None:
+        # LLM couldn't tell \u2014 don't move the score on visa alone.
+        self.assertAlmostEqual(
+            apply_visa_calibration(0.85, "ambiguous", "No sponsorship"),
+            0.85,
+            places=4,
+        )
+
+    def test_none_flag_for_needy_candidate_leaves_score(self) -> None:
+        # LLM saw no visa signal \u2014 don't move the score on visa alone.
+        self.assertAlmostEqual(
+            apply_visa_calibration(0.85, "none", "No sponsorship"),
+            0.85,
+            places=4,
+        )
+
+    def test_authorized_candidate_is_unaffected_by_any_flag(self) -> None:
+        # ``No sponsorship needed`` (e.g. US citizen / GC holder)
+        # means visa clauses are informational only. Score stands.
+        for flag in ("positive", "negative", "ambiguous", "none"):
+            with self.subTest(flag=flag):
+                self.assertAlmostEqual(
+                    apply_visa_calibration(0.85, flag, "No sponsorship needed"),
+                    0.85,
+                    places=4,
+                )
+
+    def test_unknown_visa_status_leaves_score(self) -> None:
+        # Operator hasn't filled in a visa_status yet \u2014 the scorer
+        # shouldn't pretend to know.
+        self.assertAlmostEqual(
+            apply_visa_calibration(0.85, "negative", None),
+            0.85,
+            places=4,
+        )
+
+    def test_unknown_flag_leaves_score(self) -> None:
+        # LLM hygiene failure: tag missing or unparseable.
+        self.assertAlmostEqual(
+            apply_visa_calibration(0.85, None, "No sponsorship"),
+            0.85,
+            places=4,
+        )
+
+    def test_both_unknown_leaves_score(self) -> None:
+        self.assertAlmostEqual(
+            apply_visa_calibration(0.85, None, None),
+            0.85,
+            places=4,
+        )
+
+    def test_score_outside_unit_interval_is_clamped(self) -> None:
+        # Belt-and-suspenders guards; the LLM is told 0.0-1.0 but if
+        # it produces 1.5 we still cap at 1.0 on the way out.
+        self.assertAlmostEqual(
+            apply_visa_calibration(1.5, "none", "No sponsorship"),
+            1.0,
+            places=4,
+        )
+        self.assertAlmostEqual(
+            apply_visa_calibration(-0.5, "negative", "No sponsorship"),
+            0.0,
+            places=4,
+        )
+
+
+# ---------------------------------------------------------------------
+class TestScoreOneVisaWiring(_ScoringTestCase):
+    """The visa_flag wiring inside ``_score_one`` must:
+
+    * extract the tag from the LLM reasoning,
+    * apply the calibration matrix,
+    * persist the cleaned (tag-stripped) reasoning to the DB.
+
+    This class mocks ``LLMClient.score_opportunity`` to return a
+    realistic raw LLM response with ``visa_flag:`` prefix and asserts
+    the persisted column is the cleaned reasoning (no tag) and that
+    the score is calibrated.
+    """
+
+    @patch("services.scoring_service.LLMClient.from_env")
+    async def test_negative_flag_clamped_persisted_row_uses_cleaned_reasoning(
+        self, from_env_mock
+    ):
+        fake_client = AsyncMock()
+        # LLM incorrectly returned 0.85 for a job that EXPLICITLY
+        # blocks sponsorship. The wiring must:
+        # 1) extract visa_flag:negative
+        # 2) apply_visa_calibration clamps the score to 0.20
+        # Threshold is 0.6 (default), so the row is dropped on
+        # threshold grounds \u2014 confirm 0 rows persisted.
+        fake_client.score_opportunity = AsyncMock(
+            return_value=(
+                0.85,
+                "visa_flag:negative - this role requires US citizenship.",
+            )
+        )
+        from_env_mock.return_value = fake_client
+
+        result = await _score_and_persist_async(
+            [
+                {
+                    "title": "Senior ML Engineer",
+                    "company_name": "CitizensOnlyCorp",
+                    "url": "https://citizensonly.co/jobs/1",
+                }
+            ],
+            ats_type="boards",
+        )
+        self.assertEqual(result, 0)
+        self.assertEqual(
+            await _row_count_for_url("https://citizensonly.co/jobs/1"), 0
+        )
+
+    @patch("services.scoring_service.LLMClient.from_env")
+    async def test_positive_flag_boosted_persisted_row_uses_cleaned_reasoning(
+        self, from_env_mock
+    ):
+        fake_client = AsyncMock()
+        # LLM returned 0.70 for a job with visa_flag:positive and the
+        # calibration matrix boosts the score by 0.05 (cap 0.95).
+        # After boost = 0.75, which is above the 0.6 default threshold,
+        # so the row persists. The persisted ai_fit_reasoning must be
+        # the cleaned string (no tag prefix).
+        fake_client.score_opportunity = AsyncMock(
+            return_value=(
+                0.70,
+                "visa_flag:positive - we will sponsor visas for this role.",
+            )
+        )
+        from_env_mock.return_value = fake_client
+
+        result = await _score_and_persist_async(
+            [
+                {
+                    "title": "Senior ML Engineer",
+                    "company_name": "SponsorCo",
+                    "url": "https://sponsor.co/jobs/1",
+                }
+            ],
+            ats_type="boards",
+        )
+        self.assertEqual(result, 1)
+
+        async with AsyncSessionLocal() as session:
+            stmt = select(db_models.Job).where(
+                db_models.Job.url == "https://sponsor.co/jobs/1"
+            )
+            rows = (await session.execute(stmt)).scalars().all()
+        self.assertEqual(len(rows), 1)
+        row = rows[0]
+        # Calibration boosted 0.70 -> 0.75. Allow ±0.0001 rounding.
+        self.assertAlmostEqual(row.ai_fit_score, 0.75, places=4)
+        # The persisted reasoning has the visa_flag prefix STRIPPED
+        # \u2014 the operator sees only the prose when filtering on it.
+        self.assertNotIn("visa_flag:", row.ai_fit_reasoning)
+        self.assertIn("we will sponsor visas for this role", row.ai_fit_reasoning)
 
 
 if __name__ == "__main__":

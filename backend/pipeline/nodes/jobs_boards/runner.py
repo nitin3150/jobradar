@@ -281,6 +281,38 @@ def load_orgs(board_name):
                     excluded.update(json.load(handle))
                 except (json.JSONDecodeError, TypeError):
                     pass
+    # ``BOARDS_USE_ENRICHED_PROFILES=1`` consults the per-board
+    # ``_skip_list.json`` written by
+    # ``scripts/enrich_org_profiles.py`` — a one-time LLM pass over
+    # every org's board response, classifying them as
+    # "dead for 6+ months" / "sponsorship-blocked" / "confidently
+    # non-tech", which we drop from hourly cron to keep the
+    # per-run wall-clock and LLM cost bounded. Same truthy-string
+    # whitelist as ``BOARDS_SKIP_TIMEOUTS`` above so a typo doesn't
+    # silently disable the gate. The file may be missing (the
+    # enrichment script hasn't run yet) or malformed (partial
+    # refresh) — both fall through to current behavior rather
+    # than crashing the cron, since dropping hours of work over a
+    # file-parse bug is worse than doing one extra HTTP fetch.
+    _enriched_value = os.environ.get("BOARDS_USE_ENRICHED_PROFILES", "0").strip().lower()
+    if _enriched_value in ("1", "true", "yes"):
+        enriched_skip_path = DATA_DIR / "enriched" / board_name / "_skip_list.json"
+        if enriched_skip_path.exists():
+            with open(enriched_skip_path, "r") as handle:
+                try:
+                    skip_payload = json.load(handle)
+                    # ``_skip_list.json`` shape: ``{"slugs": [...], "schema_version": N, ...}``.
+                    # A list at the top is also accepted (older shape, tests).
+                    if isinstance(skip_payload, list):
+                        excluded.update(skip_payload)
+                    elif isinstance(skip_payload, dict):
+                        excluded.update(skip_payload.get("slugs") or [])
+                except (json.JSONDecodeError, TypeError, ValueError) as exc:
+                    logger.warning(
+                        "could not read enriched skip list for board %r at %s: %s; "
+                        "falling back to current behavior",
+                        board_name, enriched_skip_path, exc,
+                    )
     if excluded:
         return [slug for slug in orgs if slug not in excluded]
     return orgs

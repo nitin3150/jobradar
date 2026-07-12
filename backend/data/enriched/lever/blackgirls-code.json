@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "slug": "blackgirls-code",
+  "board": "lever",
+  "decision_at": "2026-07-11T01:13:26.120865+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

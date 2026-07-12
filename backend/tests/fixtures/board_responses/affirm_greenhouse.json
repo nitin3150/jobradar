@@ -1,0 +1,61 @@
+{
+  "meta": { "total": 4 },
+  "jobs": [
+    {
+      "id": 7767436003,
+      "internal_job_id": 5778864003,
+      "title": "Accounting Lead",
+      "updated_at": "2026-06-12T13:33:06-04:00",
+      "first_published": "2026-06-12T13:33:06-04:00",
+      "requisition_id": "JR104015",
+      "absolute_url": "https://job-boards.greenhouse.io/affirm/jobs/7767436003",
+      "company_name": "Affirm",
+      "location": { "name": "Remote US" },
+      "metadata": [
+        { "name": "External Department", "value": "Accounting", "value_type": "single_select" }
+      ]
+    },
+    {
+      "id": 7778204003,
+      "internal_job_id": 5783242003,
+      "title": "AI Solutions Engineer",
+      "updated_at": "2026-07-01T19:13:35-04:00",
+      "first_published": "2026-07-01T19:13:35-04:00",
+      "requisition_id": "JR104057",
+      "absolute_url": "https://job-boards.greenhouse.io/affirm/jobs/7778204003",
+      "company_name": "Affirm",
+      "location": { "name": "Remote US" },
+      "metadata": [
+        { "name": "External Department", "value": "Engineering", "value_type": "single_select" }
+      ]
+    },
+    {
+      "id": 7705604003,
+      "internal_job_id": 5752582003,
+      "title": "Director, Software Engineering (Loans Lifecycle)",
+      "updated_at": "2026-04-23T12:04:00-04:00",
+      "first_published": "2026-04-23T12:04:00-04:00",
+      "requisition_id": "JR103824",
+      "absolute_url": "https://job-boards.greenhouse.io/affirm/jobs/7705604003",
+      "company_name": "Affirm",
+      "location": { "name": "Remote US" },
+      "metadata": [
+        { "name": "External Department", "value": "Engineering", "value_type": "single_select" }
+      ]
+    },
+    {
+      "id": 7782357003,
+      "internal_job_id": 5785268003,
+      "title": "Compensation Lead",
+      "updated_at": "2026-06-29T13:31:17-04:00",
+      "first_published": "2026-06-29T13:31:17-04:00",
+      "requisition_id": "JR104024",
+      "absolute_url": "https://job-boards.greenhouse.io/affirm/jobs/7782357003",
+      "company_name": "Affirm",
+      "location": { "name": "Remote US" },
+      "metadata": [
+        { "name": "External Department", "value": "People", "value_type": "single_select" }
+      ]
+    }
+  ]
+}

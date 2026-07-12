@@ -1,0 +1,13 @@
+# This directory holds per-org OrgProfile JSON written by
+# ``backend/scripts/enrich_org_profiles.py``. The script writes one
+# file per (board, slug) and ONE meta file per board:
+#
+#     data/enriched/<board>/<slug>.json      # org profile (or status envelope)
+#     data/enriched/<board>/_skip_list.json  # slugs to skip on hourly cron
+#
+# The opt-in ``BOARDS_USE_ENRICHED_PROFILES=1`` env var on the boards
+# runtime makes the runner consult ``_skip_list.json`` at ``load_orgs()``
+# time. Default 0 keeps behavior unchanged for existing operators.
+#
+# See ``scripts/enrich_org_profiles.py`` and the OrgProfile schema in
+# its module docstring for the full shape.

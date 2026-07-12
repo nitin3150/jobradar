@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "slug": "sentibio",
+  "board": "lever",
+  "decision_at": "2026-07-11T01:14:02.155587+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "slug": "wristcheck",
+  "board": "lever",
+  "decision_at": "2026-07-11T01:14:14.312541+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

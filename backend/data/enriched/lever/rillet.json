@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "slug": "rillet",
+  "board": "lever",
+  "decision_at": "2026-07-11T01:14:00.919842+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

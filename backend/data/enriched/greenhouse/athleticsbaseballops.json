@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "slug": "athleticsbaseballops",
+  "board": "greenhouse",
+  "decision_at": "2026-07-11T01:12:30.179575+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

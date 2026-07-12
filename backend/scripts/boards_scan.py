@@ -379,6 +379,23 @@ def _persist_winners(
             "url": url[:1000],
             "ai_fit_score": round(max(0.0, min(1.0, score)), 4),
             "ai_fit_reasoning": (reasoning or "")[:1000],
+            # ``description`` is fetched by ``run_all`` (Greenhouse's
+            # ``content``, Lever's ``descriptionPlain``/``description``,
+            # Ashby's ``descriptionPlain``/``description`` — see
+            # ``pipeline/nodes/jobs_boards/{greenhouse,lever,ashby}.py``)
+            # and is preserved in the ``job`` dict through scoring + this
+            # persist call. The column exists on ``jobs`` (TEXT, nullable)
+            # from migration ``0003_add_job_description``. The previous
+            # version of this script omitted ``description`` from the row
+            # dict — every DB row persisted by the GHA cron therefore had
+            # ``description IS NULL`` and any post-hoc regex / full-text
+            # query against the queue was useless. Mirroring the
+            # SQLAlchemy persist path's behaviour in
+            # ``services.scoring_service._opportunity_to_job_fields``:
+            # ``or None`` so empty/missing fetches land as SQL NULL
+            # rather than an empty-string sentinel, which keeps the
+            # schema consistent across both persist paths.
+            "description": job.get("description") or None,
             "posted_at": posted_at_iso,
             "source_updated_at": source_updated_at_iso,
         }

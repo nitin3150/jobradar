@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "slug": "jdpower",
+  "board": "greenhouse",
+  "decision_at": "2026-07-11T01:12:46.180096+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

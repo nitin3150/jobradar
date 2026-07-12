@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "status": "skipped",
+  "slug": "goodeggs",
+  "board": "lever",
+  "decision_at": "2026-07-11T01:13:41.700814+00:00",
+  "reason": "fewer_than_3_jobs",
+  "source_jobs_count": 1
+}

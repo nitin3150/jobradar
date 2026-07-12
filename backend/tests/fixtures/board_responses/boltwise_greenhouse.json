@@ -1,0 +1,17 @@
+{
+  "meta": { "total": 1 },
+  "jobs": [
+    {
+      "id": 5000189004,
+      "internal_job_id": 4575429004,
+      "title": "Founding Engineer (BoltWise)",
+      "updated_at": "2026-02-27T21:10:21-05:00",
+      "first_published": "2023-10-16T19:10:53-04:00",
+      "requisition_id": null,
+      "absolute_url": "https://job-boards.greenhouse.io/applytoboltwise/jobs/5000189004",
+      "company_name": "BoltWise",
+      "location": { "name": "USA" },
+      "metadata": null
+    }
+  ]
+}

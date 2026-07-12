@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "slug": "smartertechnologies",
+  "board": "greenhouse",
+  "decision_at": "2026-07-11T01:13:06.711788+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

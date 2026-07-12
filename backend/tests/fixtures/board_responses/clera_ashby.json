@@ -1,0 +1,21 @@
+{
+  "jobs": [
+    {
+      "id": "00167254-63e1-4367-ac04-4c5538a9470f",
+      "title": "Founding Engineer ($3M pre-seed)",
+      "department": "Engineering",
+      "team": "Engineering",
+      "employmentType": "FullTime",
+      "location": "Denver",
+      "secondaryLocations": [],
+      "publishedAt": "2026-03-23T23:27:53.406+00:00",
+      "isListed": true,
+      "isRemote": true,
+      "workplaceType": "Remote",
+      "address": { "postalAddress": { "addressRegion": "Colorado", "addressCountry": "United States", "addressLocality": "Denver" } },
+      "jobUrl": "https://jobs.ashbyhq.com/clera/00167254-63e1-4367-ac04-4c5538a9470f",
+      "applyUrl": "https://jobs.ashbyhq.com/clera/00167254-63e1-4367-ac04-4c5538a9470f/application",
+      "descriptionPlain": "We're building the future of recruiting with AI … engineer #4 on the founding team … TypeScript, React, Supabase, Prisma."
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "slug": "sonymusiccanada",
+  "board": "greenhouse",
+  "decision_at": "2026-07-11T01:13:07.370085+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "status": "skipped",
+  "slug": "quincus",
+  "board": "lever",
+  "decision_at": "2026-07-11T01:13:59.703632+00:00",
+  "reason": "fewer_than_3_jobs",
+  "source_jobs_count": 2
+}

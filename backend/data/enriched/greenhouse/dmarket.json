@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "slug": "dmarket",
+  "board": "greenhouse",
+  "decision_at": "2026-07-11T01:12:38.208046+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

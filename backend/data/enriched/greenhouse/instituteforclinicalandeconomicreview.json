@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "status": "skipped",
+  "slug": "instituteforclinicalandeconomicreview",
+  "board": "greenhouse",
+  "decision_at": "2026-07-11T01:12:45.497862+00:00",
+  "reason": "fewer_than_3_jobs",
+  "source_jobs_count": 1
+}

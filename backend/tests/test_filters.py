@@ -971,5 +971,154 @@ class TestTitleRejectKeywordResolver(unittest.TestCase):
         )
 
 
+# ---------------------------------------------------------------------------
+# v0.7 additions: extended hyphen / contraction / alt-phrasing coverage for
+# NO_SPONSORSHIP_PATTERNS (drop-the-role) and HARD_BENCH_TRIGGER_PATTERNS
+# (bench-the-org). Each test pins a single phrase so a regex typo in one
+# of the new patterns fails loudly with a single failing test method.
+# Guard tests at the end confirm "we will sponsor" still passes (false-
+# positive safety) and "right to work from home" still passes (geographic
+# context is REQUIRED to avoid the remote-work-policy false-positive).
+# ---------------------------------------------------------------------------
+class TestVisaExtended(unittest.TestCase):
+    """New hyphen / contraction / alt-phrasing variants."""
+
+    def test_no_hyphenated_sponsorship_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="Role has no-sponsorship available."))
+
+    def test_no_hyphenated_visa_support_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="This role has no-visa-support."))
+
+    def test_cant_sponsor_contraction_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="We can't sponsor candidates."))
+
+    def test_wont_sponsor_contraction_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="We won't sponsor candidates."))
+
+    def test_cannot_hyphenated_sponsor_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="We cannot-sponsor at this time."))
+
+    def test_will_not_hyphenated_sponsor_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="Will-not-sponsor candidates."))
+
+    def test_sponsorship_unavailable_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="Sponsorship unavailable for this role."))
+
+    def test_sponsorship_not_offered_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="Sponsorship not offered at this time."))
+
+    def test_sponsorship_is_unavailable_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="Sponsorship is unavailable for this position."))
+
+    def test_sponsorship_not_provided_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="Sponsorship not provided for this role."))
+
+    def test_not_eligible_to_sponsor_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="Not eligible to sponsor."))
+
+    def test_isnt_eligible_to_sponsor_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="Role isn't eligible to sponsor."))
+
+    def test_arenot_eligible_for_sponsorship_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="We aren't eligible for sponsorship."))
+
+    def test_not_open_to_sponsorship_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="Not open to sponsorship at this time."))
+
+    def test_authorised_to_work_in_uk_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="Must be authorised to work in the UK."))
+
+    def test_authorized_to_work_in_us_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="Must be authorized to work in the US."))
+
+    def test_legally_authorised_to_work_us_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="Must be legally authorised to work in the United States."))
+
+    def test_h1b_not_sponsored_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="H1B not sponsored."))
+
+    def test_h_dash_1b_not_offered_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="H-1B not offered."))
+
+    def test_us_citizens_only_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="US citizens only."))
+
+    def test_us_citizen_only_drops(self) -> None:
+        self.assertFalse(is_relevant_role("Senior Engineer", description="US citizen only."))
+
+    # False-positive guards: phrases that LOOK like no-sponsorship but
+    # actually mean the company does (or might) sponsor the candidate.
+    def test_we_will_sponsor_passes(self) -> None:
+        # Guard: the positive sponsorship signal must NOT trigger the
+        # drop. The operator (Nitin) is non-US and relies on these
+        # roles landing in the queue.
+        self.assertTrue(is_relevant_role("Senior Engineer", description="We will sponsor visas."))
+
+    def test_sponsor_community_events_passes(self) -> None:
+        # Guard: non-visa "sponsor" usage must NOT trigger.
+        self.assertTrue(is_relevant_role("Senior Engineer", description="We sponsor community events."))
+
+    def test_right_to_work_from_home_passes(self) -> None:
+        # Guard: remote-work policy phrasing must NOT trigger the
+        # work-authorisation drop. The pattern requires explicit
+        # UK/US country context.
+        self.assertTrue(is_relevant_role("Senior Engineer", description="right to work from home in any country."))
+
+    def test_senior_citizens_academy_passes(self) -> None:
+        # Guard: "Citizens X only" pattern must not fire on the
+        # unrelated "Senior Citizens Academy" phrasing (no US-prefix,
+        # no "only" trailing anchor).
+        self.assertTrue(is_relevant_role("Senior Engineer", description="Senior Citizens Academy program."))
+
+    def test_citizens_bank_passes(self) -> None:
+        # Guard: "Citizens Bank" (a real bank name) must NOT trigger
+        # the US citizens-only pattern.
+        self.assertTrue(is_relevant_role("Senior Engineer", description="Citizens Bank is hiring engineers."))
+
+
+class TestHardBenchExtended(unittest.TestCase):
+    """New org-bench variants: contractions + concatenated phrasing."""
+
+    def test_cant_sponsor_benches(self) -> None:
+        self.assertTrue(bench_org_from_text("We can't sponsor candidates at this time."))
+
+    def test_wont_sponsor_benches(self) -> None:
+        self.assertTrue(bench_org_from_text("We won't sponsor candidates at this time."))
+
+    def test_provide_sponsor_contraction_benches(self) -> None:
+        self.assertTrue(bench_org_from_text("We can't provide sponsorship."))
+
+    def test_us_citizens_and_gc_holders_only_benches(self) -> None:
+        self.assertTrue(bench_org_from_text("US citizens and green card holders only."))
+
+    def test_us_citizen_and_gc_holder_only_benches(self) -> None:
+        # Singular form via citizens? / holders? alternation.
+        self.assertTrue(bench_org_from_text("US citizen and green card holder only."))
+
+    def test_us_citizens_or_gc_holders_only_benches(self) -> None:
+        # "or" alternation also matches.
+        self.assertTrue(bench_org_from_text("US citizens or green card holders only."))
+
+    def test_official_policy_not_to_sponsor_benches(self) -> None:
+        self.assertTrue(bench_org_from_text("Our official policy is not to sponsor."))
+
+    def test_official_policy_not_to_sponsor_no_copula_benches(self) -> None:
+        # Pattern accepts both "is not" and bare "not".
+        self.assertTrue(bench_org_from_text("Official policy not to sponsor at this company."))
+
+    # False-positive guards.
+    def test_we_will_sponsor_does_not_bench(self) -> None:
+        # Critical guard: the org-bench gate must NOT fire on positive
+        # sponsorship language, otherwise an org with even one
+        # "we will sponsor" posting gets benched for everyone.
+        self.assertFalse(bench_org_from_text("We will sponsor the right candidate."))
+
+    def test_sponsor_community_does_not_bench(self) -> None:
+        self.assertFalse(bench_org_from_text("We sponsor community events in San Francisco."))
+
+    def test_citizens_bank_does_not_bench(self) -> None:
+        self.assertFalse(bench_org_from_text("Citizens Bank is hiring engineers."))
+
+
 if __name__ == "__main__":
     unittest.main()

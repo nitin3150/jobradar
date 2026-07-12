@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "slug": "morningconsult",
+  "board": "lever",
+  "decision_at": "2026-07-11T01:13:53.548354+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

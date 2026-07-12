@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "slug": "genuine",
+  "board": "greenhouse",
+  "decision_at": "2026-07-11T01:12:42.312577+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

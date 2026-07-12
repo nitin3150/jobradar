@@ -131,6 +131,27 @@ HARD_BENCH_TRIGGER_PATTERNS: list[str] = [
     r"must\s+be\s+(?:a\s+)?(?:us|u\.s\.?)\s+citizen|cannot\s+sponsor|"
     r"will\s+not\s+sponsor|no\s+sponsorship\s+will\s+be\s+(?:provided|available)|"
     r"no\s+visa\s+sponsorship\s+available)\b",
+    # v0.7 additions — contractions and concatenated citizenship phrases
+    # that ATS copy uses interchangeably with the formal patterns above.
+    # Same bench-the-org semantic: a single match in any posting from
+    # the company removes the entire org from the hourly queue.
+    #
+    # Contractions of "cannot / will not sponsor". ``can'?t`` /
+    # ``won'?t`` accept the apostrophe OR its omission so ATS
+    # paste-strip artefacts ("cant sponsor") still match. Same
+    # scope rationale as the existing "cannot sponsor" /
+    # "will not sponsor" alternation — a single company-wide
+    # prohibition is implied rather than a per-role choice.
+    r"(?i)\b(?:can'?t|won'?t)\s+(?:provide\s+)?sponsor(?:ship)?\b",
+    # Concatenated "US citizens + green card holders only".
+    # Plural-aware (``citizens?`` / ``holders?``) covers both
+    # singular and array-form copy. Specific enough to keep
+    # "Citizens Bank is hiring" / "Citizens of country X welcome"
+    # out of the match set via the ``US`` prefix + ``only`` anchor.
+    r"(?i)\b(?:us|u\.s\.?)\s+citizens?\s+(?:and|or)\s+green\s+card\s+holders?\s+only\b",
+    # "Official policy (is) not to sponsor" — corporate-policy
+    # phrasing that implies org-wide scope rather than a per-role note.
+    r"(?i)\bofficial\s+policy\s+(?:is\s+)?not\s+to\s+sponsor\b",
 ]
 
 
@@ -221,6 +242,36 @@ NO_SPONSORSHIP_PATTERNS = [
     r"(?i)\b(citizenship required|must be a us citizen|must be a citizen|us citizenship required|u\.?s\.? citizenship required|permanent resident required|green card required|green card holder)\b",
     # H-1B specific phrasings.
     r"(?i)\b(h1b not provided|h-?1b not provided)\b",
+    # v0.7 additions. Looser contract than HARD_BENCH_TRIGGER_PATTERNS:
+    # a match here DROPS THE ROLE but does NOT bench the whole org,
+    # because a hyphenated/contracted mention is often per-role copy
+    # rather than company-wide policy. Operator can flip a wrongly
+    # dropped row back to "approved" via the JobBoard status dropdown.
+    #
+    # Hyphen-tolerant "no sponsorship" / "no visa support".
+    r"(?i)\bno[\s-](?:sponsorship|visa[\s-]support)\b",
+    # Hyphenated + contracted cannot-sponsor / will-not-sponsor /
+    # can't / won't sponsor. Apostrophe optional ("cant sponsor"
+    # ATS paste-strip artefact still matches).
+    r"(?i)\b(?:can\'?t|won\'?t|cannot|will[\s-]+not)[\s-]sponsor\b",
+    # Sponsorship alternates: "sponsorship unavailable" /
+    # "sponsorship (is) not offered / not provided".
+    r"(?i)\bsponsorship\s+(?:is\s+)?(?:unavailable|not\s+(?:offered|provided))\b",
+    # Eligibility negations: "not eligible to sponsor" /
+    # "isn't / aren't eligible for sponsorship".
+    r"(?i)\b(?:isn\'?t|aren\'?t|not)\s+eligible\s+(?:to|for)\s+sponsor(?:ship)?\b",
+    # "not open to sponsorship".
+    r"(?i)\bnot\s+open\s+to\s+sponsorship\b",
+    # UK + US work-authorisation phrasings. Geographic context
+    # REQUIRED so "right to work from home" does NOT false-positive.
+    r"(?i)\b(?:must\s+be\s+(?:legally\s+)?)?(?:authorised|authorized)\s+to\s+work\s+in\s+(?:the\s+)?(?:uk|u\.k\.?|united\s+kingdom|us|u\.s\.?|united\s+states)\b",
+    # H-1B alternates ("not sponsored", "not offered") alongside the
+    # already-covered "not provided".
+    r"(?i)\bh-?1b\s+(?:not\s+sponsored|not\s+offered)\b",
+    # "US citizens only" / "US citizen only" (narrowed with US prefix
+    # + "only" anchor so "Senior Citizens Academy" / "Citizens Bank"
+    # stay out of the match set).
+    r"(?i)\b(?:us|u\.s\.?)\s+citizens?\s+only\b",
 ]
 
 

@@ -43,6 +43,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 from typing import Any
 from uuid import NAMESPACE_URL, uuid5
 
@@ -66,6 +67,157 @@ logger = logging.getLogger("jobradar.scoring")
 # hundreds of open ``await client.score_opportunity(...)`` calls on
 # the same event loop. 8 is empirically enough to saturate a 40-RPM
 # NVIDIA key without overwhelming the loop scheduler.
+
+
+# -----------------------------------------------------------------------
+# v0.7.x visa-flag detection helpers.
+#
+# The LLM scoring prompt (:data:`services.llm_client.SYSTEM_PROMPT`) tells
+# the model to prefix its `reasoning` JSON value with one of four canonical
+# tags (``visa_flag:positive``, ``visa_flag:negative``,
+# ``visa_flag:ambiguous``, ``visa_flag:none``) so downstream code can
+# extract the visa signal deterministically without parsing free-form
+# English. We do that twice: once here, once via real-time clamping in
+# :func:`apply_visa_calibration`.
+# -----------------------------------------------------------------------
+
+
+_VISA_FLAG_RE = re.compile(
+    r"""^\s*visa_flag\s*:\s*
+        (?P<flag>positive|negative|ambiguous|none)\b
+        \s*[\-:\u2013\u2014\s]*       # optional separator: - \u2013 \u2014 : space
+    """,
+    re.IGNORECASE | re.VERBOSE,
+)
+
+
+def extract_visa_flag(reasoning: str) -> tuple[str | None, str]:
+    """Pull the ``visa_flag:X`` prefix off an LLM ``reasoning`` value.
+
+    Returns ``(flag, cleaned_reasoning)`` where ``flag`` is one of
+    ``"positive"`` / ``"negative"`` / ``"ambiguous"`` / ``"none"``
+    (lowercased) when the prefix is present, else ``None``.
+    ``cleaned_reasoning`` is the input with the prefix (and any
+    trailing separator characters) stripped and re-stripped; the
+    identity mapping when no prefix is present.
+
+    Why the prefix: the JSON envelope is fixed-shape
+    (``{"score": float, "reasoning": str}``); injecting a third key
+    would break ``_JSON_OBJ_RE`` in :mod:`services.llm_client`. Putting
+    the flag at the start of reasoning is parseable by a single
+    anchored regex, modeled on the production-standard
+    ``Sent: 2026-01-01 08:00 ...`` style.
+    """
+    if not reasoning:
+        return None, ""
+    match = _VISA_FLAG_RE.match(reasoning)
+    if not match:
+        return None, reasoning
+    flag = match.group("flag").lower()
+    cleaned = reasoning[match.end():].strip()
+    return flag, cleaned
+
+
+# Cap values used by ``apply_visa_calibration`` are intentionally
+# conservative: optimistic boosts cap at 0.95 and pessimistic clamps
+# floor at 0.2. Both come from the SYSTEM_PROMPT clause 6 calibration
+# guidance ("score 0.0-0.2 for hard-mismatch, nudge +0.05 for positive
+# signal cap 0.95"). They mirror the same boundaries the LLM is told
+# to apply, so when the LLM already calibrated we don't fight it.
+_VISA_CALIBRATION_POSITIVE_CAP = 0.95
+_VISA_CALIBRATION_NEGATIVE_FLOOR = 0.2
+_VISA_CALIBRATION_POSITIVE_BOOST = 0.05
+
+
+def apply_visa_calibration(
+    score: float, visa_flag: str | None, visa_status: str | None
+) -> float:
+    """Belt-and-suspenders score adjustment based on visa_flag x visa_status.
+
+    The LLM is told (and we have heuristics on the description doing the
+    same job) what to do with each combination, but models err. This
+    post-processor clamps the LLM's output deterministically so a
+    runaway phrase like "should sponsor your visa" can't smuggle a
+    mismatch past the threshold, AND so the LLM can't smuggle an
+    out-of-range score (1.5 / -0.5) past the DB clamp.
+
+    Calibration matrix:
+
+    * Candidate ``visa_status`` says "needs sponsor" (e.g.
+      ``"No sponsorship"`` or any lowercase variant containing
+      ``"no sponsorship"``) AND
+        * LLM-issued flag is ``"negative"``    -> score floored at 0.2.
+        * LLM-issued flag is ``"positive"``    -> score boosted by 0.05,
+          capped at 0.95 (avoid overweighting a single signal).
+    * Candidate ``visa_status`` says "doesn't need sponsor" (e.g.
+      ``"No sponsorship needed"``) AND any flag -> score unchanged.
+    * Either side unknown / None -> score unchanged.
+
+    Returns the calibrated score clamped to ``[0.0, 1.0]``.
+    """
+    if visa_flag is None or visa_status is None:
+        return max(0.0, min(1.0, score))
+
+    # Strip whitespace so an operator's stray newline or tab in their
+    # profile.yml doesn't silently drop the calibration (SHOULD-FIX #1
+    # from the 2026-07 code review).
+    visa_status = visa_status.strip()
+
+    candidate_needs_sponsor = (
+        "no sponsorship" in visa_status.lower()
+        and "needed" not in visa_status.lower()
+    )
+    candidate_has_sponsor = "needed" in visa_status.lower()
+
+    flag = visa_flag.lower()
+
+    if candidate_has_sponsor:
+        # The candidate is already authorised. Visa clauses are not
+        # material to the score; let the LLM's reasoning stand.
+        calibrated = score
+    elif candidate_needs_sponsor:
+        if flag == "negative":
+            # Hard mismatch ceiling per the SYSTEM_PROMPT clause 6.
+            calibrated = min(_VISA_CALIBRATION_NEGATIVE_FLOOR, score)
+        elif flag == "positive":
+            calibrated = min(
+                _VISA_CALIBRATION_POSITIVE_CAP,
+                score + _VISA_CALIBRATION_POSITIVE_BOOST,
+            )
+        else:
+            # ``ambiguous`` and ``none`` are informational only — we
+            # don't move the score on visa factors alone.
+            calibrated = score
+    else:
+        calibrated = score
+
+    # Final clamp: an LLM that returned 1.5 or -0.5 should still 
+    return max(0.0, min(1.0, calibrated))
+
+def _get_candidate_visa_status() -> str | None:
+    """Read the candidate's ``visa_status`` from the loaded profile, or None.
+
+    Sync helper so :func:`_score_and_persist_async` can apply
+    :func:`apply_visa_calibration` without awaiting. The profile
+    service caches the loaded profile at module level so repeated
+    calls within one scan are cheap.
+
+    Returns ``None`` when no profile is configured (the scorer
+    already passes ``"(no profile configured)"`` to the LLM in that
+    case) so the calibration step becomes a no-op via its own guard.
+    """
+    try:
+        profile = profile_service.load_profile(use_cache=True)
+    except Exception as exc:  # noqa: BLE001 — disk / parse failure
+        logger.debug("could not load profile for visa_status: %s", exc)
+        return None
+    if profile is None:
+        return None
+    location = getattr(profile, "location", None)
+    if location is None:
+        return None
+    return getattr(location, "visa_status", None)
+
 MAX_SCORE_CONCURRENCY = 8
 
 
@@ -214,6 +366,9 @@ async def _score_and_persist_async(
 
     threshold = float(_PREFS_STATE.get("data", {}).get("job_fit_threshold", 0.6))
     profile = build_profile_summary()
+    # v0.7.x: cache the candidate's visa_status once per scan so every
+    # per-opportunity calibration call doesn't hit the YAML cache.
+    _candidate_visa_status = _get_candidate_visa_status()
 
     try:
         client = LLMClient.from_env()
@@ -229,6 +384,15 @@ async def _score_and_persist_async(
         async with semaphore:
             try:
                 score, reasoning = await client.score_opportunity(profile, opp)
+                # v0.7.x: pull the LLM-issued visa_flag tag off the
+                # reasoning prefix and apply the deterministic
+                # calibration matrix (belt-and-suspenders to the LLM
+                # which already calibrated per the SYSTEM_PROMPT).
+                visa_flag, clean_reasoning = extract_visa_flag(reasoning)
+                score = apply_visa_calibration(
+                    score, visa_flag, _candidate_visa_status,
+                )
+                reasoning = clean_reasoning
             except (RuntimeError, asyncio.CancelledError, asyncio.TimeoutError) as exc:
                 # Catch operational failures only — LLM transient errors
                 # (RuntimeError raised by score_opportunity when all
@@ -244,6 +408,7 @@ async def _score_and_persist_async(
                 return None
             return opp, score, reasoning
 
+    
     results = await asyncio.gather(*[_score_one(opp) for opp in opportunities])
     winners = [r for r in results if r is not None]
 
@@ -291,6 +456,8 @@ def score_and_persist(
 
 __all__ = [
     "build_profile_summary",
+    "extract_visa_flag",
+    "apply_visa_calibration",
     "score_and_persist",
     "_score_and_persist_async",
 ]

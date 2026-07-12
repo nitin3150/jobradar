@@ -23,6 +23,13 @@ from pipeline.nodes.jobs_boards.lever import fetch as lever_fetch
 # pull ``job_fit_threshold`` — keeps the singleton the single source of
 # truth without leaking route-layer modules into the runner.
 from routes.settings import _PREFS_STATE
+# Persistent, Postgres-backed dedupe store. Replaces the legacy
+# on-disk ``backend/data/seen.json`` (ephemeral in GHA) so the
+# ``seen_ids`` snapshot the runner hands to the fetchers
+# survives between cron ticks. ``_postgres_backend_enabled``
+# internally decides between the table and an on-disk fallback
+# for local dev without Supabase env.
+from services import board_seen
 from services.profile_service import get_all_target_roles, load_profile
 from utils.filters import (
     bench_org_from_text,
@@ -32,7 +39,6 @@ from utils.filters import (
     should_reject_by_title,
 )
 from utils.http import build_client
-from utils.seen import load_file, save_seen
 from utils.time_check import parse_published_at
 
 DATA_DIR = BACKEND_ROOT / "data"
@@ -391,8 +397,20 @@ def _write_missing_lists(boards, newly_missing, recovered):
 
 def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
     boards = validate_boards(boards or list(ORG_INDEX.keys()))
-    seen = load_file()
-    seen_ids = frozenset(seen.keys())  # read-only snapshot for worker threads
+    # Persistent-seen: load per-board. The Postgres-backed
+    # ``load_seen_for_board`` returns composite ``"<board>:<url>"`` keys
+    # matching the formula :func:`services.scoring_service._job_id`
+    # uses to derive the ``jobs.id`` UUID5 PK. The fetcher's own
+    # ``seen_ids`` filter is a no-op against these keys (the fetcher
+    # filters on raw ATS IDs) — the real pre-LLM dedupe is enforced
+    # in the result-merge loop below, where we add a composite-key
+    # check BEFORE passing the job to the scorer. Loading here on a
+    # per-board basis keeps each BoardSeenJob query O(1) (a single
+    # ``idx_board_seen_board_last_seen`` lookup) rather than a full
+    # table scan per ``run_all`` invocation.
+    # NOTE: the legacy ``seen`` dict is removed entirely — there is no
+    # backwards-compat layer for raw ATS ID keys; a fresh deploy
+    # pays a one-time re-walk cost on the first cron tick.
     failure_counts = load_failure_counts()
 
     last_run_state = load_last_run_state()
@@ -405,6 +423,15 @@ def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
     org_last_posted = {}
     newly_missing = {board: set() for board in boards}
     recovered = {board: set() for board in boards}
+    # Per-board dedupe state. ``seen_ids_by_board`` is the
+    # read-fetch snapshot (frozenset, consumed by the threading
+    # loop); ``newly_marked_by_board`` accumulates the dedupe
+    # tuples we hand to :func:`board_seen.record_seen_batch` at
+    # the end.
+    seen_ids_by_board: dict[str, frozenset[str]] = {}
+    newly_marked_by_board: dict[str, list[tuple[str, str]]] = {
+        board: [] for board in boards
+    }
     # Slow-org tracking: each (board, slug) that timed out on this run
     # lands here. ``run_all`` writes ``<board>_timeout_orgs.json`` after
     # the fetch loop so the next run (with ``BOARDS_SKIP_TIMEOUTS=1``
@@ -437,9 +464,23 @@ def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
                 if limit is not None:
                     orgs = orgs[:limit]
                 fetcher = ORG_INDEX[board_name][1]
+                # Snapshot the *already-seen* composite keys for this
+                # board ONCE before submitting futures so the
+                # per-thread pool only sees an immutable frozenset.
+                # The keys are ``"<board>:<url>"`` (see
+                # :func:`services.board_seen.dedupe_key`); the
+                # fetcher's ``seen_ids`` parameter accepts raw ATS
+                # IDs, so this snapshot will look mostly empty to the
+                # fetcher's check — that's intentional, the real
+                # pre-LLM dedupe happens in the result-merge loop
+                # below.
+                seen_ids_by_board[board_name] = (
+                    board_seen.load_seen_for_board(board_name)
+                )
+                seen_ids_for_fetch = seen_ids_by_board[board_name]
                 for slug in orgs:
                     futures.append(
-                        executor.submit(execute_fetch, fetcher, board_name, slug, since, seen_ids, client)
+                        executor.submit(execute_fetch, fetcher, board_name, slug, since, seen_ids_for_fetch, client)
                     )
 
             # Merge in the main thread only -> no concurrent mutation of shared state.
@@ -452,6 +493,26 @@ def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
                     kept_after_gates: list[dict] = []
                     slug_bench_reasons: set[str] = set()
                     for job in r["jobs"]:
+                        # Pre-LLM composite-key dedupe. The fetcher's
+                        # own ``seen_ids`` filter checks raw ATS IDs
+                        # which don't match our persistent
+                        # ``"<board>:<url>"`` keys, so we MUST add
+                        # this check here BEFORE any LLM scoring cost
+                        # is incurred. Otherwise every cron tick would
+                        # re-score every job the runner has ever seen
+                        # (the operator reported LLM cost symptom on
+                        # the GHA backfill tick).
+                        job_url = job.get("url") or ""
+                        composite_key = board_seen.dedupe_key(
+                            board_name, job_url
+                        )
+                        seen_set = seen_ids_by_board.get(board_name)
+                        if seen_set is not None and composite_key in seen_set:
+                            logger.debug(
+                                "skip %s/%s: already-seen composite key %s",
+                                board_name, slug, composite_key,
+                            )
+                            continue
                         title = job.get("title") or ""
                         description = (
                             job.get("description") or job.get("content") or ""
@@ -562,10 +623,51 @@ def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
                             job["ats_type"] = board_name
                         kept_after_gates.append(job)
                     results.extend(kept_after_gates)
-                    for job_id, stamp in r["new_ids"].items():
-                        seen[job_id] = stamp
+                    # Record the composite keys of jobs that
+                    # SURVIVED the gate filter — these are the
+                    # dedupe keys we'll persist to ``board_seen_jobs``
+                    # at the end of the run. We deliberately only
+                    # record keys for jobs that made it past
+                    # ``kept_after_gates``; bench/timeout/error
+                    # outcomes don't generate new dedupe keys
+                    # because the next run's per-org fetch will
+                    # re-emit them via the since-filter anyway.
+                    for job in kept_after_gates:
+                        job_url = job.get("url") or ""
+                        if not job_url:
+                            continue
+                        composite_key = board_seen.dedupe_key(
+                            board_name, job_url
+                        )
+                        # Latest observation timestamp — prefer the
+                        # parsed posted_at (the immutable first-post
+                        # date), fall back to the raw ``new_ids``
+                        # stamp the fetcher produced.
+                        posted_dt = job.get("posted_at")
+                        stamp_iso = (
+                            posted_dt.astimezone(timezone.utc).isoformat()
+                            if isinstance(posted_dt, datetime)
+                            else None
+                        )
+                        if stamp_iso is None:
+                            # Use the first raw-ATS-id stamp the
+                            # fetcher gave us as the secondary
+                            # timestamp source. ``r["new_ids"]`` is
+                            # keyed on raw ATS IDs; we have no
+                            # obvious lookup, so fall back to the
+                            # largest stamp in the dict (newest
+                            # observed).
+                            stamps = [
+                                s for s in r["new_ids"].values() if s
+                            ]
+                            if stamps:
+                                stamp_iso = max(stamps)
+                        if stamp_iso:
+                            newly_marked_by_board[board_name].append(
+                                (composite_key, stamp_iso)
+                            )
                     if r.get("latest"):
-                        org_last_posted[slug] = r["latest"]
+                        org_last_posted[slug] = r["latest"] 
                     board_failures.pop(slug, None)  # reset failure streak
                     if slug_bench_reasons:
                         newly_cleared_or_seniority_blocked[board_name].add(slug)
@@ -650,7 +752,31 @@ def run_all(delta_hours=DEFAULT_DELTA_HOURS, boards=None, limit=None):
         )
 
     save_failure_counts(failure_counts)
-    save_seen(seen)
+    # Persist the dedupe state via
+    # :func:`services.board_seen.record_seen_batch`. One call per
+    # board so errors are localised and the operator log lines
+    # surface the failing board name. We swallow write failures
+    # here so the boards-scan cron doesn't crash the runner just
+    # because the dedupe-store INSERT slipped — the LLM scoring
+    # already gave the operator the value they wanted via the
+    # ``results`` list; losing one dedupe iteration is recoverable
+    # via next-tick re-walk.
+    for board_name in boards:
+        items = newly_marked_by_board.get(board_name) or []
+        if not items:
+            continue
+        try:
+            written = board_seen.record_seen_batch(board_name, items)
+            logger.info(
+                "board_seen: recorded %d new dedupe keys for board %r",
+                written, board_name,
+            )
+        except Exception as exc:  # noqa: BLE001 — best-effort persist
+            logger.warning(
+                "board_seen: failed to record dedupe keys for board %r (%s); "
+                "next tick will re-walk this batch.",
+                board_name, type(exc).__name__,
+            )
     save_last_run_state({
         "last_run": datetime.now(timezone.utc).isoformat(),
         "org_last_posted": org_last_posted,

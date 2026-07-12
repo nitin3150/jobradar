@@ -304,8 +304,30 @@ def _opportunity_to_job_fields(
     }
 
 
+# UPSERT_UPDATE_COLUMNS deliberately omits ``status``.
+#
+# Why status is NOT in the update-set
+# ===================================
+# The single-threshold ``status='approved'`` decision is correct on a
+# FRESH insert — every above-threshold winner lands directly in the
+# apply-queue pool, no ``in_review`` intermediate. But the SECOND
+# time a job is scored (e.g. a local UI re-scan via
+# ``POST /api/scan/boards``, or any future path that re-sends an
+# existing winner through the LLM), the SQLAlchemy path's
+# ``INSERT ... ON CONFLICT (id) DO UPDATE`` would otherwise force
+# ``status='approved'`` onto a row the operator may have already
+# triaged to ``rejected``, ``applied``, ``paused``, ``flagged``, or
+# any other terminal/in-flight state. That silent flip is the bug
+# the operator reported: today's run "deletes" yesterday's triage
+# by force-resetting every None-``approved`` row back to ``approved``.
+#
+# Fix: only update content/scoring columns on conflict. ``status``
+# is set ONCE at insert time (from :func:`_opportunity_to_job_fields`)
+# and never touched again. The operator's triage decisions survive
+# any number of subsequent scoring runs. The route-level
+# approve/reject endpoints (``PATCH /api/jobs/{id}/status`` etc.)
+# remain the only writer of the ``status`` column post-insert.
 UPSERT_UPDATE_COLUMNS = (
-    "status",
     "ats_type",
     "title",
     "company_name",

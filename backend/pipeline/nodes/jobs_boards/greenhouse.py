@@ -41,9 +41,20 @@ def fetch(slug: str, *, client, since=None, seen_ids=frozenset()):
     on date X" semantics while still respecting the "did I miss
     an update?" gate.
     """
+    # ``?content=true`` IS load-bearing. Without it, Greenhouse's
+    # public boards API drops the ``content`` field (the full job
+    # body / responsibilities HTML) from every response. The fetcher's
+    # ``job.get("content")`` then silently returns ``""`` and the LLM
+    # downstream classifies every Greenhouse org from titles alone.
+    # Adding ``?content=true`` matches the documented Greenhouse
+    # endpoint shape and is also what the public Greenhouse web UI's
+    # own XHR hits when it boots the board. The parameter is per-
+    # board, not per-org, so sibling fetchers (Lever uses
+    # ``?mode=json``, Ashby returns the body by default) don't need
+    # the same treatment.
     data = get_json(
         client,
-        f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs",
+        f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs?content=true",
     )
 
     latest_timestamp = None

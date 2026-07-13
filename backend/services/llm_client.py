@@ -352,9 +352,58 @@ class AsyncTokenBucket:
                 wait_seconds = deficit / self._refill
             await asyncio.sleep(wait_seconds)
 
+    def drain(self) -> None:
+        """Force ``self._tokens`` to ``0.0`` AND refresh ``self._last`` synchronously.
+
+        Used by :class:`LLMClient` chain methods on a 429 from upstream — the
+        bucket normally starts full (``capacity`` tokens available immediately),
+        so without this short-circuit a fail-fast storm (every chain slot 429s
+        and frees the semaphore in <100 ms) drains the full burst allowance in
+        <1 second. Draining forces the next :meth:`acquire` to block for the
+        steady-state refill (~1.5s at 0.667 tokens/s) instead of letting the
+        initial full burst budget fire.
+
+        CRITICAL: also resetting ``self._last`` to ``time.monotonic()`` here.
+        The bucket's refill formula credits ``(now - self._last) * refill`` so
+        without the ``_last`` reset a long quiet tick between drain() and the
+        next acquire() silently credits the elapsed time back into the bucket
+        and undoes the back-pressure. Resetting ``_last`` makes the next
+        acquire()'s elapsed-refill calc start from drain-time, so drain is
+        actually drain.
+
+        Safety: ``acquire()`` only awaits outside its ``async with self._lock``
+        block — the asyncio single-threaded event loop guarantees ``drain()``'s
+        float assignment cannot interleave with the lock-held bucket math.
+        """
+        self._tokens = 0.0
+        self._last = time.monotonic()
+
 
 class _PermanentError(Exception):
     """Won't help to retry or fall back: bad input, auth, or unparseable response."""
+
+
+class _RateLimitedError(_PermanentError):
+    """``RateLimitError`` (HTTP 429) from the upstream provider.
+
+    Same advance-to-next-provider semantics as :class:`_PermanentError`,
+    plus the *trigger* for the caller's bucket-drain back-off: forcing
+    the local :class:`AsyncTokenBucket` to zero on this exception type
+    prevents the fail-fast storm that an un-throttled
+    :meth:`AsyncTokenBucket.acquire()` would otherwise allow.
+
+    Why a distinct subclass
+    -----------------------
+
+    ``_PermanentError`` is also raised for ``AuthenticationError`` /
+    ``BadRequestError`` / ``NotFoundError`` — none of which should
+    drain the bucket (a bad API key isn't a budget issue and shouldn't
+    freeze subsequent well-formed calls). The subclass lets each of
+    the 5 chain methods (``score_opportunity``, ``research_opportunity``,
+    ``extract_profile``, ``pick_best_resume``, ``run_json_prompt``)
+    distinguish "real 429, throttle the local budget" from "permanent
+    on this provider, advance while leaving the budget intact".
+    """
 
 
 # Module-level rate-limiter cache so the 40-RPM budget is process-global,
@@ -506,8 +555,24 @@ class LLMClient:
         # the underlying SDK holds an ``httpx.AsyncClient`` bound to the asyncio
         # loop at construction time. Re-using across loops causes warnings — we
         # avoid the footgun by keeping the count small (≤ 2 providers in v1).
+        # ``max_retries=0`` disables the SDK's own retry-on-429 loop so the
+        # operator-side :class:`AsyncTokenBucket` is the SINGLE source of
+        # pacing. Without this, each 429 from the gateway triggers an extra
+        # retry inside the SDK before our retry/advance chain sees it,
+        # doubling the per-call request count and busting the per-key RPM
+        # budget under load (we measured a ≥6× burst factor in
+        # :mod:`scripts.enrich_org_profiles` 100-batch runs that crossed
+        # 70 LLM calls / 90 sec, far above NVIDIA's 40-RPM-per-key ceiling).
+        # Transient errors that ARE worth retrying (timeout, 5xx,
+        # ConnectError) are retried once at our layer with a 0.5s sleep
+        # before advancing to the next provider — see :meth:`score_opportunity`
+        # for the same contract.
         self._clients: dict[str, AsyncOpenAI] = {
-            p.name: AsyncOpenAI(api_key=p.api_key, base_url=p.base_url)
+            p.name: AsyncOpenAI(
+                api_key=p.api_key,
+                base_url=p.base_url,
+                max_retries=0,
+            )
             for p in providers
         }
 
@@ -653,6 +718,17 @@ class LLMClient:
                     )
                     return content, provider.model
                 except _PermanentError as exc:
+                    # ``_RateLimitedError`` carries the upstream 429;
+                    # drain the local token bucket(s) so the next
+                    # acquire blocks for the steady-state refill (~1.5s
+                    # at 0.667/s) instead of letting the fail-fast
+                    # sem-release / sem-acquire storm drain the initial
+                    # full burst allowance in <1 second. See
+                    # :class:`_RateLimitedError` and :meth:`AsyncTokenBucket.drain`
+                    # for the full rationale.
+                    if isinstance(exc, _RateLimitedError):
+                        for b in _unique_rate_limiters(self.providers):
+                            b.drain()
                     last_exc = exc
                     break  # unrecoverable on this provider; advance
                 except Exception as exc:  # noqa: BLE001 \u2014 transient
@@ -690,6 +766,8 @@ class LLMClient:
                 max_tokens=RESEARCH_MAX_TOKENS,
             )
         except (AuthenticationError, BadRequestError, NotFoundError, RateLimitError) as exc:
+            if isinstance(exc, RateLimitError):
+                raise _RateLimitedError(f"{type(exc).__name__}: {exc}") from exc
             raise _PermanentError(f"{type(exc).__name__}: {exc}") from exc
         except (
             APIConnectionError,
@@ -733,6 +811,17 @@ class LLMClient:
                         client, provider.model, profile_summary, opportunity
                     )
                 except _PermanentError as exc:
+                    # ``_RateLimitedError`` carries the upstream 429;
+                    # drain the local token bucket(s) so the next
+                    # acquire blocks for the steady-state refill (~1.5s
+                    # at 0.667/s) instead of letting the fail-fast
+                    # sem-release / sem-acquire storm drain the initial
+                    # full burst allowance in <1 second. See
+                    # :class:`_RateLimitedError` and :meth:`AsyncTokenBucket.drain`
+                    # for the full rationale.
+                    if isinstance(exc, _RateLimitedError):
+                        for b in _unique_rate_limiters(self.providers):
+                            b.drain()
                     last_exc = exc
                     break  # unrecoverable on this provider; advance
                 except Exception as exc:  # noqa: BLE001 — transient
@@ -780,6 +869,8 @@ class LLMClient:
                 max_tokens=300,
             )
         except (AuthenticationError, BadRequestError, NotFoundError, RateLimitError) as exc:
+            if isinstance(exc, RateLimitError):
+                raise _RateLimitedError(f"{type(exc).__name__}: {exc}") from exc
             raise _PermanentError(f"{type(exc).__name__}: {exc}") from exc
         except (
             APIConnectionError,
@@ -831,6 +922,17 @@ class LLMClient:
                         client, provider.model, resume_text
                     ), provider.model
                 except _PermanentError as exc:
+                    # ``_RateLimitedError`` carries the upstream 429;
+                    # drain the local token bucket(s) so the next
+                    # acquire blocks for the steady-state refill (~1.5s
+                    # at 0.667/s) instead of letting the fail-fast
+                    # sem-release / sem-acquire storm drain the initial
+                    # full burst allowance in <1 second. See
+                    # :class:`_RateLimitedError` and :meth:`AsyncTokenBucket.drain`
+                    # for the full rationale.
+                    if isinstance(exc, _RateLimitedError):
+                        for b in _unique_rate_limiters(self.providers):
+                            b.drain()
                     last_exc = exc
                     break  # unrecoverable on this provider; advance
                 except Exception as exc:  # noqa: BLE001 — transient
@@ -871,6 +973,8 @@ class LLMClient:
                 max_tokens=PROFILE_EXTRACTION_MAX_TOKENS,
             )
         except (AuthenticationError, BadRequestError, NotFoundError, RateLimitError) as exc:
+            if isinstance(exc, RateLimitError):
+                raise _RateLimitedError(f"{type(exc).__name__}: {exc}") from exc
             raise _PermanentError(f"{type(exc).__name__}: {exc}") from exc
         except (
             APIConnectionError,
@@ -939,6 +1043,17 @@ class LLMClient:
                     )
                     return parsed
                 except _PermanentError as exc:
+                    # ``_RateLimitedError`` carries the upstream 429;
+                    # drain the local token bucket(s) so the next
+                    # acquire blocks for the steady-state refill (~1.5s
+                    # at 0.667/s) instead of letting the fail-fast
+                    # sem-release / sem-acquire storm drain the initial
+                    # full burst allowance in <1 second. See
+                    # :class:`_RateLimitedError` and :meth:`AsyncTokenBucket.drain`
+                    # for the full rationale.
+                    if isinstance(exc, _RateLimitedError):
+                        for b in _unique_rate_limiters(self.providers):
+                            b.drain()
                     last_exc = exc
                     break  # unrecoverable on this provider; advance
                 except Exception as exc:  # noqa: BLE001 — transient
@@ -977,6 +1092,8 @@ class LLMClient:
                 max_tokens=300,
             )
         except (AuthenticationError, BadRequestError, NotFoundError, RateLimitError) as exc:
+            if isinstance(exc, RateLimitError):
+                raise _RateLimitedError(f"{type(exc).__name__}: {exc}") from exc
             raise _PermanentError(f"{type(exc).__name__}: {exc}") from exc
         except (
             APIConnectionError,
@@ -1034,6 +1151,10 @@ class LLMClient:
                         # instead of wasting 0.5s on a retry that
                         # will hit the same exhausted bucket — see
                         # ``_score_once`` for the full rationale.
+                        if isinstance(exc, RateLimitError):
+                            raise _RateLimitedError(
+                                f"{type(exc).__name__}: {exc}"
+                            ) from exc
                         raise _PermanentError(
                             f"{type(exc).__name__}: {exc}"
                         ) from exc
@@ -1046,6 +1167,18 @@ class LLMClient:
                     content = (resp.choices[0].message.content or "").strip()
                     return content, provider.model
                 except _PermanentError as exc:
+                    # ``_RateLimitedError`` carries the upstream 429; drain
+                    # the local token bucket(s) so the next acquire blocks
+                    # for the steady-state refill (~1.5s at 0.667/s) instead
+                    # of letting the fail-fast sem-release / sem-acquire
+                    # storm accidentally free the initial full burst
+                    # allowance in <1 second. Same contract as the 4 other
+                    # chain methods — ``run_json_prompt`` was the only one
+                    # missing this leg, causing 0/19 cascade under the
+                    # 2-NVIDIA-key setup.
+                    if isinstance(exc, _RateLimitedError):
+                        for b in _unique_rate_limiters(self.providers):
+                            b.drain()
                     last_exc = exc
                     break
                 except Exception as exc:  # noqa: BLE001 — transient

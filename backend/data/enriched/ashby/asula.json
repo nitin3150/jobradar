@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "asula",
+  "board": "ashby",
+  "enriched_at": "2026-07-12T20:57:35.744065+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2025-10-20T22:02:55.209000+00:00",
+  "source_jobs": [
+    {
+      "title": "Senior Protocol Engineer",
+      "description": "ABOUT US\n\nAsula is a bitcoin company focused on building the next generation of financial products at the intersection of blockchains, bitcoin, stablecoins and finance.\n\nCurrently we\u2019re working on Dawn, our mobile interface that allows users to save and grow their assets through bitcoin and stablecoins. Beyond Dawn, we're working on making bitcoin swaps and credit available to holders of all sizes through onchain protocols.\n\n\n\n\nROLE\n\nFor this role we're seeking protocol-focused engineers who can work across the blockchain stack to ship new protocols while balancing speed and safety. The core expectations from a candidate in this role would be to:\n\n - Develop and maintain smart contracts for the SVM.\n\n - Develop and maintain schemes for collateral management on bitcoin where expressivity is limited.\n\n - Design fundamentally sound protocols for lending and insurance.\n\n\n\n\nQUALIFICATIONS\n\n - 3+ years of experience designing protocols for financial applications like decentralized exchanges and lending markets.\n\n - Solid understanding of consensus, blockchain architecture and virtual machine concepts (especially as they pertain to Solana).\n\n - Experience with audits, deployment and maintenance of onchain protocols.\n\n\n\n\nNICE TO HAVES\n\n - Prior experience building on top of bitcoin.\n\n - Prior experience building application-specific blockchains from consensus and networking to business logic.",
+      "location": "",
+      "first_published": "2025-04-30T22:47:17.069000+00:00",
+      "url": "https://jobs.ashbyhq.com/asula/3a61ab20-99c1-46a9-9c7b-4ad8c2d0bc16"
+    },
+    {
+      "title": "Senior Software Engineer ",
+      "description": "ABOUT US\n\nAsula is a bitcoin company focused on building the next generation of financial products at the intersection of bitcoin, blockchains, stablecoins and finance.\n\nCurrently we\u2019re working on Dawn, our mobile interface that allows users to save and grow their assets through bitcoin and stablecoins. Beyond Dawn, we're working on making bitcoin swaps and credit available to holders of all sizes through onchain protocols.\n\n\n\n\nROLE\n\nFor this role we're seeking a generalist who can work across the backend stack to bring our products to life. A candidate in this role would be expected to:\n\n - Design and implement backend systems that power both user-facing applications (like Dawn) and core protocol components.\n\n - Architect scalable and resilient services: APIs, stateful services, and blockchain data pipelines that can handle real-world demand.\n\n - Drive large-scale architectural improvements to the codebase and develop best practices in a nascent organization.\n\n - Mentor the rest of the team to improve long-term architecture and code quality.\n\n\n\n\nQUALIFICATIONS\n\n - 3+ years of experience as a systems engineer who has designed and operated production services with real traffic, ideally in finance, trading, or blockchain environments.\n\n - A deep understanding of distributed systems, data modeling, and network architecture \u2014 you think in terms of latency, throughput, and fault tolerance.\n\n - Fluent in at least one strongly-typed backend language (Rust, Go or C++) and comfortable working across frameworks, APIs, and infrastructure.\n\n - An interest in bitcoin, blockchains and onchain finance.\n   \n\n\nNICE TO HAVES\n\n - Prior experience using stablecoins and/or bitcoin in your daily life.\n\n - Prior experience building low-latency systems for trading.",
+      "location": "",
+      "first_published": "2025-04-30T18:39:40.745000+00:00",
+      "url": "https://jobs.ashbyhq.com/asula/c3b43b8f-fd0f-44cc-b0ea-40b80e8e4a55"
+    },
+    {
+      "title": "Software Engineer: Intern/New Grad",
+      "description": "ABOUT US\n\nAsula is a bitcoin company focused on building the next generation of financial products at the intersection of bitcoin, blockchains, stablecoins and finance.\n\nCurrently we\u2019re working on Dawn, our mobile interface that allows users to save and grow their assets through bitcoin and stablecoins. Beyond Dawn, we're working on making bitcoin swaps and credit available to holders of all sizes through onchain protocols.\n\n\n\n\nROLE\n\nFor this role we're seeking high horsepower individuals who are interested in ramping up on onchian finance and crypto. Responsibilities for this role would include:\n\n - Design new product features and services in collaboration with other engineers on the team.\n\n - Implement scalable and resilient services: APIs, stateful services, and blockchain data pipelines that can handle real-world demand.\n\n - Deploy services end-to-end including maintenance, monitoring and real-world testing.\n\n\n\n\nQUALIFICATIONS\n\n - Fluent in at least one strongly-typed backend language (Rust, Go or C++) and comfortable working across frameworks, APIs, and infrastructure.\n\n - Strong understanding of CS fundamentals like algorithms, data structures, networking and operating systems.\n\n - Capacity to learn fast and take ownership.\n\n - Excited about bitcoin, open finance, and the idea of building a new financial stack from first principles.\n\n\n\n\nNICE TO HAVES\n\n - Prior experience with cloud providers specifically AWS.\n\n - Prior experience using DeFi protocols and deploying onchain smart contracts.\n\n",
+      "location": "",
+      "first_published": "2025-10-20T22:02:55.209000+00:00",
+      "url": "https://jobs.ashbyhq.com/asula/ef6a983e-6c8c-4344-a4b4-7b05874128ee"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 1.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Bitcoin-focused company with a strong engineering core.",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

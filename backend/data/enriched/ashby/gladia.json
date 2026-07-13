@@ -1,9 +1,9 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "skipped",
   "slug": "gladia",
   "board": "ashby",
-  "decision_at": "2026-07-11T01:12:09.171919+00:00",
+  "decision_at": "2026-07-12T20:07:23.740451+00:00",
   "reason": "fewer_than_3_jobs",
   "source_jobs_count": 1
 }

@@ -2,9 +2,9 @@
   "schema_version": 1,
   "slug": "stripe",
   "board": "greenhouse",
-  "enriched_at": "2026-07-11T01:22:01.700333+00:00",
-  "source_jobs_count": 510,
-  "source_last_published": "2026-07-11T00:00:37+00:00",
+  "enriched_at": "2026-07-12T17:08:23.456483+00:00",
+  "source_jobs_count": 511,
+  "source_last_published": "2026-07-12T06:54:27+00:00",
   "primary_function": "sales_heavy",
   "estimated_stage": "series_c_plus",
   "hiring_volume_estimate": "gt_1000",
@@ -20,5 +20,6 @@
   "volatility_signal": 0.2,
   "notes": "Stripe's job board is dominated by sales roles, with a focus on account executives and product sales.",
   "overall_confidence": 0.8,
-  "model_used": "meta/llama-3.1-70b-instruct"
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
 }

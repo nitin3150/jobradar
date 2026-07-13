@@ -1,9 +1,9 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "skipped",
   "slug": "citadel-ai",
   "board": "ashby",
-  "decision_at": "2026-07-11T01:12:05.326793+00:00",
+  "decision_at": "2026-07-12T20:07:18.014289+00:00",
   "reason": "fewer_than_3_jobs",
   "source_jobs_count": 1
 }

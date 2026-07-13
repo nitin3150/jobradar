@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "slug": "sustainablewestchester",
+  "board": "greenhouse",
+  "decision_at": "2026-07-12T16:59:39.420014+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

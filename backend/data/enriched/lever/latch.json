@@ -1,9 +1,9 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "skipped",
   "slug": "latch",
   "board": "lever",
-  "decision_at": "2026-07-11T01:13:47.578632+00:00",
+  "decision_at": "2026-07-12T20:09:01.724789+00:00",
   "reason": "fewer_than_3_jobs",
   "source_jobs_count": 2
 }

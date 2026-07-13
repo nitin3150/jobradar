@@ -62,6 +62,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import httpx
+
 # ``scripts/X.py`` boot path — make ``backend/`` importable so
 # ``from pipeline...`` / ``from services...`` resolves, matching the
 # pattern in ``scripts/boards_scan.py``.
@@ -83,7 +85,31 @@ PROFILE_DIR = DATA_DIR / "enriched"
 # changes the runner's contract (it should refuse to consume lists
 # from mismatched versions). v0 (no version) profiles are treated as
 # failed/missing by the skip-list writer, forcing a re-enrich.
-SCHEMA_VERSION = 1
+#
+# Version history
+# ---------------
+#   v1 (initial):  OrgProfile only — classification fields, no raw
+#                  job data. Descriptions flowed into the LLM call
+#                  but were discarded after the run, so re-running
+#                  for different profiles lost all the description
+#                  signal.
+#   v2 (current):  Adds ``source_jobs: list[SourceJob]`` carrying each
+#                  LLM-visible job's title / description / location /
+#                  first_published / url. The Greenhouse fetcher's
+#                  URL was also flipped to ``?content=true`` in the
+#                  same change so v2 descriptions actually contain
+#                  text for Greenhouse-sourced orgs (Lever + Ashby
+#                  already returned the body by default). The
+#                  skip-existing gate preserves existing profiles
+#                  (v1 OR v2) by default and forces a re-enrich
+#                  of the v1 subset ONLY when the operator sets
+#                  the opt-in env ``ENRICH_MIGRATE_V1_TO_V2=1``
+#                  (truthy-string whitelist like the existing
+#                  ``BOARDS_SKIP_TIMEOUTS``; default safe) — without
+#                  the flag, a routine re-run preserves v1 on-disk
+#                  profiles and avoids the ~$30-50 NVIDIA cost of
+#                  blanket-re-enriching 10K orgs.
+SCHEMA_VERSION = 2
 
 # Skip rules — kept inline (no env override) so the behavior is
 # one-line interpretable. Tunable later if the operator measures
@@ -97,13 +123,61 @@ SKIP_CONFIDENCE_THRESHOLD = 0.7
 # Concurrency — mirrors boards_runner.MAX_WORKERS for fetches and
 # boards_scan._score_all for the LLM signature.
 MAX_FETCH_WORKERS = 8
-LLM_CONCURRENCY = 8
+# ``LLM_CONCURRENCY`` is env-driven so an operator with a higher-tier
+# NVIDIA key (or one willing to accept the cascade risk on a free-tier
+# key) can opt up without changing code. Default 2 keeps the in-flight
+# request count small enough that the 8-thread fetch above does NOT
+# race past NVIDIA's per-key 40 RPM ceiling (2 keys × 40 = 80 RPM
+# combined). Higher values (4–8) genuinely work *only* if the operator
+# paired this with ``max_retries=0`` on the AsyncOpenAI client in
+# :mod:`services.llm_client` to remove the SDK's silent 429 retries.
+# See ``scripts/enrich_org_profiles`` issue history for the cascade
+# diagnostic that motivated this default.
+try:
+    _LLM_CONCURRENCY_ENV: int = int(os.environ.get("LLM_CONCURRENCY", "2").strip() or "2")
+except ValueError:
+    _LLM_CONCURRENCY_ENV = 2
+# Upper clamp ``max(1, …, 32)`` so a typo (e.g. ``LLM_CONCURRENCY=9999``)
+# doesn't silently re-introduce the cascade this knob exists to prevent.
+# 32 is well above the operator-side use-case (1-8 typical) and matches
+# the original hardcoded ``MAX_FETCH_WORKERS`` scale; the cap is
+# enforced here rather than relying on the LLMClient's ``AsyncTokenBucket``
+# to do all the work because huge fan-out spends memory on asyncio
+# frames before the bucket can pace them down.
+LLM_CONCURRENCY: int = max(1, min(32, _LLM_CONCURRENCY_ENV))
+
+# ``sdk_retries`` mirrors the value passed to ``AsyncOpenAI(..., max_retries=N)``
+# inside ``services.llm_client``. Keeping it as a module constant makes the
+# startup diagnostic able to report it without re-reading the SDK source.
+# Bump in tandem with changes to ``LLMClient.__init__``.
+LLM_SDK_MAX_RETRIES: int = 0
 
 # LLM input caps. Boards fetcher returns up to a few hundred jobs
 # per org; we cap to keep the prompt under ~2.5K input tokens so
 # NVIDIA/Groq are both cheap.
 MAX_JOBS_TO_LLM = 30
 MAX_DESCRIPTION_CHARS = 600
+# On-disk source-jobs cap. Distinct from ``MAX_DESCRIPTION_CHARS``
+# because the LLM-prompt path wants to keep input tokens tight
+# while the on-disk path wants the operator to see the full body
+# of the posting when they ``jq`` a profile. 4000 chars comfortably
+# fits a typical Greenhouse job's responsibilities + qualifications
+# section; full-body retention beyond that is rare.
+# Disk budget (per-org): 30 jobs × ~4100 json-escaped bytes ≈
+# 125 KB; plus the OrgProfile metadata envelope ≈ 5 KB. Total
+# ≈ 130 KB/org. Across the *full* sweep of all three boards
+# (10K orgs each, 30K total) the cumulative cost is roughly
+# **~4 GB** of new disk on ``data/enriched/`` — comparable to a
+# medium-sized data dump, fine for Render paid instances / Oracle
+# Always Free (200 GB quota), but worth knowing because GitHub's
+# GHA ephemeral runner has a 14 GB total quota and the
+# ``backend/data/`` directory is NOT in ``.gitignore`` for the
+# jobradar repo. Operators who care about repo size should add
+# ``data/enriched/<board>/<slug>.json`` to ``.gitignore`` (the
+# meta ``_skip_list.json`` and this script's ``enrich`` outputs
+# are reproducible and don't need version control). Same
+# ``MAX_JOBS_TO_LLM`` guard above the trim as ``MAX_DESCRIPTION_CHARS``.
+SOURCE_DESCRIPTION_MAX_CHARS = 4000
 
 logger = logging.getLogger("jobradar.enrich")
 
@@ -111,6 +185,32 @@ logger = logging.getLogger("jobradar.enrich")
 # ---------------------------------------------------------------------------
 # On-disk schema
 # ---------------------------------------------------------------------------
+class SourceJob(BaseModel):
+    """A single job as captured during the enrichment pass.
+
+    Mirrors the trimmed payload the LLM sees (``title`` / ``description`` /
+    ``location`` / ``first_published``) PLUS ``url`` so a downstream
+    consumer can deep-link the role without re-running the board
+    fetch. Description is bounded to ``MAX_DESCRIPTION_CHARS`` — the
+    same cap ``_build_source_jobs`` applies — so the on-disk JSON
+    size stays predictable (~5-15 KB per org with 30 jobs).
+
+    Fields are deliberately minimal: anything the LLM did NOT reason
+    over (e.g. ``required_skills`` parsed out of the description, the
+    ATS-native ``absolute_url`` shape differences, Greenhouse's
+    ``metadata`` array of department tags) is intentionally dropped
+    here so the schema doesn't drift if we later swap fetchers. Add
+    fields here ONLY if the runner or a downstream consumer actually
+    reads them.
+    """
+
+    title: str
+    description: str
+    location: str = ""
+    first_published: str = ""
+    url: str = ""
+
+
 class OrgProfile(BaseModel):
     """Per-org LLM classification. Single source of truth for the
     shape written to ``data/enriched/<board>/<slug>.json`` AND for the
@@ -127,6 +227,14 @@ class OrgProfile(BaseModel):
     enriched_at: str
     source_jobs_count: int
     source_last_published: str | None = None
+
+    # Raw job context the LLM saw during classification. v2+ on-disk
+    # profiles carry up to MAX_JOBS_TO_LLM entries; consumers that
+    # want the *full* board re-fetch from the active ATS endpoint.
+    # Description-truncation matches the LLM-visible trim (see
+    # ``_build_source_jobs``) so on-disk size mirrors prompt-input
+    # size; no surprise-large-JSONs.
+    source_jobs: list[SourceJob] = Field(default_factory=list)
 
     # Strict categorical — the runner branches on these directly.
     primary_function: str
@@ -239,6 +347,13 @@ def _trim_jobs_for_prompt(jobs: list[dict]) -> list[dict]:
     description, ...). For org classification we only need the
     fields the LLM actually reasons over. Trim before the LLM call
     so the prompt stays well under the ~3K input-token budget.
+
+    Contract pinned by ``TestTrimJobsForPrompt``: the returned dicts
+    contain EXACTLY the four keys ``{title, description, location,
+    first_published}``. ``url`` is intentionally absent here — the
+    LLM doesn't need it, and adding it would push the prompt past
+    the input-trim budget on the long-tail orgs. ``url`` IS
+    persisted on the on-disk profile via ``_build_source_jobs``.
     """
     trimmed: list[dict] = []
     for j in jobs[:MAX_JOBS_TO_LLM]:
@@ -257,6 +372,95 @@ def _trim_jobs_for_prompt(jobs: list[dict]) -> list[dict]:
             }
         )
     return trimmed
+
+
+def _build_source_jobs(jobs: list[dict]) -> list[SourceJob]:
+    """Build the ``source_jobs`` list persisted into the on-disk profile.
+
+    Mirrors :func:`_trim_jobs_for_prompt`'s field selection so the
+    LLM sees exactly what later consumers see (one source of truth
+    for the trimmed shape). Adds ``url`` so a downstream consumer —
+    the React JobDetail view, a future post-mortem tool, anything
+    reading the on-disk JSON — can deep-link the role without
+    re-fetching the board.
+
+    Description is truncated to ``MAX_DESCRIPTION_CHARS`` (same cap
+    the LLM trim applies) so on-disk size mirrors prompt-input size.
+    Greenhouse's ``content`` field is HTML in some orgs — Pydantic
+    coerces it to ``str`` via :class:`SourceJob.description`'s
+    declaration; the HTML tags land in on-disk JSON verbatim. A
+    future ``--strip-html`` flag could clean that up; not done here
+    because the LLM classification prompt sees the same HTML and
+    the operators reading the on-disk JSON can pick out what they
+    need.
+
+    ``location`` is stringified defensively: Greenhouse returns a
+    plain string ("Remote US"), Lever returns a string, Ashby
+    sometimes returns a ``{"name": "...", "country": "..."}`` dict.
+    ``str(dict)`` produces a noisy but truthful repr like
+    ``"{'name': 'Remote', 'country': 'US'}"``; consumers that want
+    normalized location fields can add a structured field later.
+
+    Capped at ``MAX_JOBS_TO_LLM`` so the persisted list matches the
+    LLM-visible cardinality. A profiling export that wants the full
+    board should re-fetch rather than rely on this list.
+    """
+    out: list[SourceJob] = []
+    for j in jobs[:MAX_JOBS_TO_LLM]:
+        title = j.get("title") or ""
+        # ``SOURCE_DESCRIPTION_MAX_CHARS`` (4000) intentionally LARGER
+        # than the LLM's ``MAX_DESCRIPTION_CHARS`` (600) — the prompt
+        # path wants tight token budget; the on-disk path wants the
+        # operator to see the full body. Without this split, every
+        # org-profile JSON has truncated 600-char descriptions that
+        # cut off qualification sections.
+        description = (
+            j.get("description") or j.get("content") or ""
+        )[:SOURCE_DESCRIPTION_MAX_CHARS]
+        # Ashby's posting API returns ``location`` as a nested dict
+        # ``{"name": "Remote", "country": "US"}``; Greenhouse + Lever
+        # return a plain string. ``str(dict)`` would produce a noisy
+        # repr (``"{'name': 'Remote', 'country': 'US'}"``) that
+        # breaks simple ``jq .location`` downstream. Prefer the
+        # dict's ``name`` field. When ``name`` is absent (Ashby
+        # sometimes returns only ``country`` / ``city``), fall
+        # back to a compact "country=US" / "city=Foo,country=US"
+        # form rather than empty string — the operator gets *some*
+        # signal to filter on instead of an indistinguishable
+        # empty value. ``sorted`` the non-name keys so the on-disk
+        # wire format is stable across ATS responses that emit
+        # dict keys in different orders — downstream ``grep`` and
+        # ``jq --arg`` queries can rely on the format.
+        location_raw = j.get("location")
+        if isinstance(location_raw, dict):
+            name = location_raw.get("name")
+            if name:
+                location = str(name)
+            else:
+                non_name = [
+                    f"{k}={v}"
+                    for k, v in sorted(location_raw.items())
+                    if k != "name" and v
+                ]
+                location = ",".join(non_name)
+        elif isinstance(location_raw, str):
+            location = location_raw
+        else:
+            location = ""
+        published = j.get("published_at") or ""
+        if hasattr(published, "isoformat"):
+            published = published.isoformat()
+        url = j.get("url") or ""
+        out.append(
+            SourceJob(
+                title=title,
+                description=description,
+                location=location,
+                first_published=published,
+                url=url,
+            )
+        )
+    return out
 
 
 def _build_user_prompt(board: str, slug: str, jobs: list[dict]) -> str:
@@ -402,6 +606,14 @@ async def _enrich_one_org(
     sys_prompt = ENRICHMENT_SYSTEM_PROMPT
     user_prompt = _build_user_prompt(board, slug, jobs)
     latest = _latest_iso_published(jobs)
+    # Build the on-disk ``source_jobs`` list NOW so we can hand it to
+    # the OrgProfile constructor as a single Pydantic-validated
+    # field. Building AFTER the LLM call would force a second
+    # iteration over ``jobs``; building BEFORE saves the small loop
+    # and keeps the trim logic single-sourced (``_build_source_jobs``
+    # uses the same MAX_JOBS_TO_LLM / MAX_DESCRIPTION_CHARS caps as
+    # ``_trim_jobs_for_prompt``).
+    source_jobs = _build_source_jobs(jobs)
 
     try:
         async with semaphore:
@@ -418,6 +630,7 @@ async def _enrich_one_org(
             enriched_at=datetime.now(timezone.utc).isoformat(),
             source_jobs_count=len(jobs),
             source_last_published=latest,
+            source_jobs=source_jobs,
             model_used=model,
             **parsed,
         )
@@ -511,8 +724,18 @@ def _compute_skip_for_profile(profile: dict, *, now: datetime) -> bool:
                     return True
             except (TypeError, ValueError):
                 pass
-    # Rule 2: explicit sponsor-block
-    if profile.get("sponsorship_open") is False:
+    # Rule 2: explicit sponsor-block OR US security clearance required.
+    # Both are disqualifying per the operator's stated GHA optimization:
+    # orgs that hard-block visa sponsorship OR require DOD/IC/TS-SCI
+    # eligibility burn LLM tokens + GHA wall-clock for zero applied
+    # yield. ``clearance_required`` was already in the JSON schema;
+    # adding it here makes the operator's 'remove these companies'
+    # intent actually trigger a skip.
+    # Note: pure US-citizenship-only (no security clearance) postings
+    # surface as ``sponsorship_open=False`` already, so they fall
+    # under the first branch of this OR. This branch is for the
+    # orthogonal DOD/IC subset.
+    if profile.get("sponsorship_open") is False or profile.get("clearance_required") is True:
         return True
     # Rule 3: confidently non-tech
     tech_ratio = profile.get("tech_role_ratio")
@@ -571,6 +794,193 @@ def _write_skip_list(board: str, slugs: list[str]) -> None:
         "slugs": sorted(slugs),
     }
     _atomic_write_json(out, payload)
+
+
+# ---------------------------------------------------------------------------
+# Startup observability — surface misconfigured LLM env before a run burns
+# tokens on a model id NVIDIA's catalogue doesn't know. Triggered
+# unconditionally (including ``--dry-run``) so an operator sees the
+# resolved config without reading the source.
+# ---------------------------------------------------------------------------
+def _log_resolved_llm_config() -> None:
+    """Print the resolved LLM env values so the operator can audit them at start.
+
+    Mirrors the same env-key order and defaulting language as
+    :meth:`services.llm_client.LLMClient.from_env` so the diagnostic
+    matches what the chain will actually use. Empty-string values are
+    coerced to the in-code defaults (matching :meth:`from_env`'s own
+    behaviour) rather than passed through as ``""`` which would cause
+    a ``BadRequest`` / 401 on the first chat-completion.
+    """
+    # Late import keeps the top-of-file dependency surface small and
+    # matches the pattern used by other helpers in this script that
+    # pull from ``services.llm_client`` lazily.
+    from services.llm_client import (
+        DEFAULT_GROQ_MODEL,
+        DEFAULT_NVIDIA_BASE,
+        DEFAULT_NVIDIA_MODEL,
+        DEFAULT_NVIDIA_RPM,
+    )
+
+    # Read raw values exactly as :meth:`LLMClient.from_env` will see
+    # them — no ``.strip() or DEFAULT`` silent fallback. ``os.environ.get
+    # ("X", DEFAULT)`` returns DEFAULT only when the key is *absent*,
+    # not when it's present-but-empty (``NVIDIA_MODEL=``); an empty value
+    # forwards ``""`` to AsyncOpenAI and produces a 401 on the first
+    # chat-completion. The diagnostic deliberately surfaces that mismatch.
+    nvidia_model = os.environ.get("NVIDIA_MODEL", DEFAULT_NVIDIA_MODEL)
+    nvidia_base = os.environ.get("NVIDIA_BASE_URL", DEFAULT_NVIDIA_BASE)
+    raw_rpm = os.environ.get("NVIDIA_RPM", str(DEFAULT_NVIDIA_RPM))
+    rpm_note = ""
+    try:
+        # Mirror :meth:`LLMClient.from_env` ``int(raw_rpm or DEFAULT)``:
+        # empty -> DEFAULT_NVIDIA_RPM (silent), malformed -> ValueError
+        # -> raise ``ValueError`` at import (we surface as -1 + inline note).
+        nvidia_rpm = int(raw_rpm.strip() or DEFAULT_NVIDIA_RPM)
+    except ValueError:
+        nvidia_rpm = -1
+        # Show the raw bad value alongside the sentinel so the
+        # operator staring at the diagnostic sees *what* failed
+        # without having to grep their shell history.
+        rpm_note = f" (raw={raw_rpm!r} UNPARSEABLE — LLMClient.from_env will raise ValueError at import)"
+    groq_model = os.environ.get("GROQ_MODEL", DEFAULT_GROQ_MODEL)
+
+    print(
+        "[enrich] resolved LLM config: "
+        f"NVIDIA_MODEL={nvidia_model!r} "
+        f"NVIDIA_BASE_URL={nvidia_base!r} "
+        f"NVIDIA_RPM={nvidia_rpm} "
+        f"GROQ_MODEL={groq_model!r}",
+        flush=True,
+    )
+
+    # Runtime-computed PACE LIMIT — same math as
+    # :meth:`services.llm_client.LLMClient.from_env` which builds the
+    # NVIDIA bucket: ``total_rpm = rpm_per_key * len(non-empty
+    # NVIDIA_API_KEY / _2)``. Compute ``key_suffix`` BEFORE the print so
+    # pluralization is human-readable; mirror the same
+    # ``os.environ.get("X", "").strip()`` read so the count matches what
+    # the bucket sees at request time. Operator with two NVIDIA keys and
+    # ``NVIDIA_RPM=40`` should see ``2 NIM keys * 40 RPM/key = 80 RPM
+    # total``; if they see ``1 NIM key * 40 RPM/key = 40 RPM total`` the
+    # second key is unset and they're at half their expected budget.
+    nvidia_keys = [
+        name for name in ("NVIDIA_API_KEY", "NVIDIA_API_KEY_2")
+        if os.environ.get(name, "").strip()
+    ]
+    nvidia_key_count = len(nvidia_keys)
+    key_suffix = "s" if nvidia_key_count != 1 else ""
+    rpm_per_key_str = str(nvidia_rpm) if nvidia_rpm >= 0 else "?"
+    runtime_total_rpm = nvidia_rpm * nvidia_key_count if nvidia_rpm >= 0 else 0
+    print(
+        "[enrich] pacing picture: "
+        + str(nvidia_key_count) + " NIM key" + key_suffix
+        + " * " + rpm_per_key_str + " RPM/key"
+        + " = " + str(runtime_total_rpm) + " RPM total "
+        + "(LLM_CONCURRENCY=" + str(LLM_CONCURRENCY)
+        + ", sdk_retries=" + str(LLM_SDK_MAX_RETRIES) + "; "
+        + "max in-flight ~= LLM_CONCURRENCY, burst above runtime_total_rpm "
+        + "will 429 the gateway).",
+        flush=True,
+    )
+
+
+def _verify_nvidia_model_present(*, http_timeout: float = 5.0) -> None:
+    """Single ``GET /v1/models`` against NVIDIA to confirm ``NVIDIA_MODEL`` is on the live catalogue.
+
+    Never raises. Failure modes are logged at INFO (the WARN is reserved
+    for the actual misconfig case the operator needs to act on):
+
+    * ``NVIDIA_API_KEY`` unset → skip the check (operator must opt in).
+    * ``GET /v1/models`` returns non-200 → skip + log status code.
+    * Network / timeout / JSON parse error → skip + log the exception class.
+
+    The successful path logs one of:
+    * ``NVIDIA_MODEL=... confirmed on NVIDIA catalogue (N models-listed).``
+    * ``WARN  NVIDIA_MODEL=... is NOT on the live NVIDIA catalogue ...``
+
+    The single GET hits only the catalogue endpoint (no chat-completions
+    spend), so it's safe to run on every invocation including cron.
+    """
+    from services.llm_client import (
+        DEFAULT_NVIDIA_BASE,
+        DEFAULT_NVIDIA_MODEL,
+    )
+
+    # Same raw read as :func:`_log_resolved_llm_config` — no
+    # ``.strip() or DEFAULT`` coercion; the catalogue check then matches
+    # the empty-string id against the catalogue (which it won't be) and
+    # raises the WARN, mirroring what will happen on the first chat call.
+    nvidia_model = os.environ.get("NVIDIA_MODEL", DEFAULT_NVIDIA_MODEL)
+    api_key = os.environ.get("NVIDIA_API_KEY", "").strip()
+    if not api_key:
+        print(
+            "[enrich] NVIDIA catalogue check skipped: NVIDIA_API_KEY is unset.",
+            flush=True,
+        )
+        return
+    base = os.environ.get("NVIDIA_BASE_URL", "").strip() or DEFAULT_NVIDIA_BASE
+    url = f"{base.rstrip('/')}/models"
+    try:
+        with httpx.Client(timeout=http_timeout) as client:
+            resp = client.get(
+                url,
+                headers={"Authorization": f"Bearer {api_key}"},
+            )
+        if resp.status_code != 200:
+            print(
+                f"[enrich] NVIDIA catalogue check skipped: GET {url} returned "
+                f"HTTP {resp.status_code}.",
+                flush=True,
+            )
+            return
+        try:
+            data = resp.json()
+        except (ValueError, json.JSONDecodeError) as exc:
+            print(
+                f"[enrich] NVIDIA catalogue check skipped: non-JSON reply — "
+                f"{type(exc).__name__}.",
+                flush=True,
+            )
+            return
+    except httpx.HTTPError as exc:
+        print(
+            f"[enrich] NVIDIA catalogue check skipped: HTTP error "
+            f"{type(exc).__name__} reaching {url}.",
+            flush=True,
+        )
+        return
+    except Exception as exc:  # noqa: BLE001 — guard rail, never crash
+        print(
+            f"[enrich] NVIDIA catalogue check skipped: "
+            f"{type(exc).__name__} reaching {url}.",
+            flush=True,
+        )
+        return
+
+    catalogue = data.get("data") if isinstance(data, dict) else None
+    if not isinstance(catalogue, list):
+        print(
+            "[enrich] NVIDIA catalogue check skipped: unexpected response "
+            "shape (no .data list).",
+            flush=True,
+        )
+        return
+    ids = {m.get("id") for m in catalogue if isinstance(m, dict) and isinstance(m.get("id"), str)}
+    if nvidia_model in ids:
+        print(
+            f"[enrich] NVIDIA_MODEL={nvidia_model!r} confirmed on NVIDIA catalogue "
+            f"({len(ids)} models-listed).",
+            flush=True,
+        )
+    else:
+        print(
+            f"[enrich] WARN  NVIDIA_MODEL={nvidia_model!r} is NOT on the live NVIDIA "
+            f"catalogue ({len(ids)} models-listed). Every NVIDIA call will 404 until "
+            f"NVIDIA_MODEL is set to a current id (e.g. "
+            f"'meta/llama-3.1-70b-instruct' or 'meta/llama-3.3-70b-instruct').",
+            flush=True,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -634,6 +1044,13 @@ def main() -> int:
         level=logging.INFO,
         format="[enrich] %(asctime)s %(levelname)s %(message)s",
     )
+    # Startup observability BEFORE any fetch / LLM work — a bad
+    # NVIDIA_MODEL id will hit 404 on every call otherwise. Both
+    # helpers are guard rails: they print to stdout (via ``print``,
+    # not :data:`logger`, so the lines appear even when the rest of
+    # the script is bufferred) and never raise.
+    _log_resolved_llm_config()
+    _verify_nvidia_model_present()
 
     boards: list[str]
     if args.board == "all":
@@ -700,9 +1117,66 @@ def main() -> int:
                     try:
                         with open(existing, "r") as f:
                             existing_profile = json.load(f)
-                        if existing_profile.get("status") == "ok":
-                            skipped_existing += 1
-                            continue
+                        if existing_profile.get("status") != "ok":
+                            # Not ``status: ok`` — failed/skipped
+                            # envelopes get rewritten unconditionally
+                            # so the on-disk state converges to ``ok``
+                            # after a successful run. No opt-in
+                            # needed: this rewrite doesn't burn LLM
+                            # budget (the new run will).
+                            pass
+                        else:
+                            # ``status: ok`` profile on disk. Default
+                            # behavior: trust it (skip re-enrich),
+                            # regardless of ``schema_version``. The
+                            # description-truncation gap between v1
+                            # and v2 is real but the LLM cost of
+                            # blanket re-enriching 10K orgs — ~$30-50
+                            # at NVIDIA free-tier pricing — is a worse
+                            # surprise than profile contents being
+                            # slightly stale.
+                            #
+                            # ``ENRICH_MIGRATE_V1_TO_V2=1`` flips the
+                            # behavior: it forces a re-enrich whenever
+                            # the on-disk ``schema_version`` doesn't
+                            # match ``SCHEMA_VERSION``, so an operator
+                            # who actually wants the v1→v2 migration
+                            # (with descriptions in source_jobs) can
+                            # opt in once and watch the runs roll
+                            # forward incrementally. Default-safe —
+                            # the env var is opt-in like
+                            # ``BOARDS_SKIP_TIMEOUTS`` so a typo
+                            # (``ENRICH_MIGRATE_V1_TO_V2=2``) doesn't
+                            # silently enable a $30 sweep.
+                            #
+                            # Truthy string whitelist:
+                            # ``"1"``/``"true"``/``"yes"`` (lowered).
+                            on_disk_version = existing_profile.get("schema_version")
+                            if on_disk_version == SCHEMA_VERSION:
+                                skipped_existing += 1
+                                continue
+                            _migrate_env = os.environ.get(
+                                "ENRICH_MIGRATE_V1_TO_V2", "0"
+                            ).strip().lower()
+                            if _migrate_env not in ("1", "true", "yes"):
+                                # Default: preserve existing v1
+                                # profile, don't burn LLM. The
+                                # ``status == "ok"`` check above
+                                # already filtered out failed/skipped
+                                # envelopes, so this branch only
+                                # sees healthy-but-stale v1 data.
+                                # Log at debug level so an operator
+                                # investigating the skip count can
+                                # see *why* the gate fired.
+                                logger.debug(
+                                    "skip v%d %s/%s profile (set "
+                                    "ENRICH_MIGRATE_V1_TO_V2=1 to re-enrich)",
+                                    on_disk_version, board, slug,
+                                )
+                                skipped_existing += 1
+                                continue
+                            # Explicit opt-in: fall through to
+                            # work_items (re-enrich will run).
                     except (json.JSONDecodeError, OSError):
                         pass  # Treat unreadable existing as "needs rewrite"
                 work_items.append((board, slug, jobs))

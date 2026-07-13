@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "slug": "paveakatroveinformationtechnologies",
+  "board": "greenhouse",
+  "decision_at": "2026-07-12T16:59:35.778080+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

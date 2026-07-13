@@ -11,6 +11,7 @@
       "absolute_url": "https://job-boards.greenhouse.io/affirm/jobs/7767436003",
       "company_name": "Affirm",
       "location": { "name": "Remote US" },
+      "content": "<div class=\"body\"><p>Lead the accounting close cycle, own monthly flux analysis, partner with FP&A on the GAAP-to-budget reconciliation, and manage a team of three senior accountants.</p></div>",
       "metadata": [
         { "name": "External Department", "value": "Accounting", "value_type": "single_select" }
       ]
@@ -25,6 +26,7 @@
       "absolute_url": "https://job-boards.greenhouse.io/affirm/jobs/7778204003",
       "company_name": "Affirm",
       "location": { "name": "Remote US" },
+      "content": "<div class=\"body\"><p>Partner with merchant risk and underwriting teams to ship ML-driven affordability products: feature pipelines, shadow-mode eval, monitoring. Strong Python, shipping ML to prod at scale.</p></div>",
       "metadata": [
         { "name": "External Department", "value": "Engineering", "value_type": "single_select" }
       ]
@@ -39,6 +41,7 @@
       "absolute_url": "https://job-boards.greenhouse.io/affirm/jobs/7705604003",
       "company_name": "Affirm",
       "location": { "name": "Remote US" },
+      "content": "<div class=\"body\"><p>Own the Loans Lifecycle engineering org (originations, servicing, repayment). Build a high-throughput platform team, partner with product on credit policy changes.</p></div>",
       "metadata": [
         { "name": "External Department", "value": "Engineering", "value_type": "single_select" }
       ]
@@ -53,6 +56,7 @@
       "absolute_url": "https://job-boards.greenhouse.io/affirm/jobs/7782357003",
       "company_name": "Affirm",
       "location": { "name": "Remote US" },
+      "content": "<div class=\"body\"><p>Run the compensation programs: base, bonus, equity refresh cycles. Partner with finance on accrual models and with legal on equity plan compliance.</p></div>",
       "metadata": [
         { "name": "External Department", "value": "People", "value_type": "single_select" }
       ]

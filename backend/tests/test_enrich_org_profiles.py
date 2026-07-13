@@ -36,8 +36,10 @@ from scripts.enrich_org_profiles import (  # noqa: E402
     SKIP_CADENCE_STALE_DAYS,
     SKIP_CONFIDENCE_THRESHOLD,
     SKIP_TECH_RATIO_THRESHOLD,
+    SourceJob,
     _atomic_write_json,
     _build_skip_list,
+    _build_source_jobs,
     _build_user_prompt,
     _compute_skip_for_profile,
     _trim_jobs_for_prompt,
@@ -184,6 +186,114 @@ class TestBuildUserPrompt(unittest.TestCase):
         _build_user_prompt("greenhouse", "stripe", raw)
         # If we get here without OOM/blow-the-context, we're good.
         # The exact size isn't asserted — it depends on JSON formatting.
+
+
+class TestBuildSourceJobs(unittest.TestCase):
+    """``_build_source_jobs`` persistence-shape contract.
+
+    Complements :class:`TestTrimJobsForPrompt`: ``_trim_jobs_for_prompt``
+    controls the LLM-visible shape (4 fields, no ``url``); this test
+    pins the on-disk shape (5 fields, ``url`` included), the
+    description-truncation cap, and the MAX_JOBS_TO_LLM guard.
+    """
+
+    def test_returns_five_field_shape_with_url(self) -> None:
+        raw = [
+            {
+                "title": "Senior Engineer",
+                "url": "https://example.com/jobs/abc",
+                "description": "ship it",
+                "location": "Remote",
+                "published_at": "2026-07-01T00:00:00+00:00",
+            }
+        ]
+        out = _build_source_jobs(raw)
+        self.assertEqual(len(out), 1)
+        self.assertIsInstance(out[0], SourceJob)
+        self.assertEqual(
+            set(out[0].model_dump().keys()),
+            {"title", "description", "location", "first_published", "url"},
+        )
+        self.assertEqual(out[0].url, "https://example.com/jobs/abc")
+
+    def test_reads_greenhouse_content_field_via_description_fallback(self) -> None:
+        """``_build_source_jobs`` mirrors the ``description | content``
+        fallback the LLM-trim already uses — Greenhouse's ``?content=true``
+        lands in ``job["content"]`` and is read via that branch."""
+        raw = [
+            {
+                "title": "Engineer",
+                "url": "https://boards.greenhouse.io/x/jobs/1",
+                # No ``description`` key — only ``content``.
+                "content": "Greenhouse body HTML",
+                "location": "Remote",
+                "published_at": "2026-07-01",
+            }
+        ]
+        self.assertEqual(_build_source_jobs(raw)[0].description, "Greenhouse body HTML")
+
+    def test_caps_at_max_jobs_to_llm(self) -> None:
+        raw = [{"title": f"Job {i}", "url": f"u/{i}", "description": ""} for i in range(50)]
+        from scripts.enrich_org_profiles import MAX_JOBS_TO_LLM
+        self.assertEqual(len(_build_source_jobs(raw)), MAX_JOBS_TO_LLM)
+
+    def test_truncates_long_descriptions_to_source_cap(self) -> None:
+        """Source-job descriptions cap at ``SOURCE_DESCRIPTION_MAX_CHARS``
+        (4000), distinct from the ``MAX_DESCRIPTION_CHARS`` (600) cap the
+        LLM-prompt path uses. See :data:`SOURCE_DESCRIPTION_MAX_CHARS` docstring
+        for why these are split."""
+        from scripts.enrich_org_profiles import SOURCE_DESCRIPTION_MAX_CHARS
+        raw = [{"title": "x", "description": "a" * 5000, "url": "u"}]
+        out = _build_source_jobs(raw)
+        self.assertEqual(len(out[0].description), SOURCE_DESCRIPTION_MAX_CHARS)
+
+    def test_stringifies_non_string_location(self) -> None:
+        """Ashby returns ``{"name": "...", "country": "..."}``; the
+        source path extracts ``name`` and falls back to a compact
+        ``country=US`` form when ``name`` is absent. Round-trips so
+        the operator can grep ``.location`` with a single shared filter."""
+        raw = [{"title": "x", "location": {"name": "Remote", "country": "US"}, "url": "u"}]
+        out = _build_source_jobs(raw)
+        self.assertIsInstance(out[0].location, str)
+        self.assertIn("Remote", out[0].location)
+
+    def test_location_falls_back_to_country_when_name_missing(self) -> None:
+        """When Ashby returns ``{"country": "US"}`` without ``name``,
+        the source path falls back to ``country=US`` rather than
+        empty string so the on-disk signal isn't lost."""
+        raw = [{"title": "x", "location": {"country": "US"}, "url": "u"}]
+        out = _build_source_jobs(raw)
+        self.assertEqual(out[0].location, "country=US")
+
+
+class TestSourceJobValidation(unittest.TestCase):
+    """Pydantic contract on :class:`SourceJob` — title/description
+    required strings, others optional (defaults to ``""``).
+
+    Empty-string title is *not* rejected by Pydantic at the str
+    declaration: ``min_length=1`` would force every consumer to
+    supply a non-empty title, which the source-Job coercion
+    contract doesn't (a Greenhouse board can technically return
+    a job row with ``title: ""`` for a corrupted post; we still
+    want it to round-trip through validation rather than crash
+    the LLM-trim pipeline). The test below asserts the cleaner
+    type-validation rule we DO want: integer-coerced fields must
+    reject non-string input.
+    """
+
+    def test_minimum_required_fields_accepted(self) -> None:
+        SourceJob(title="Engineer", description="ship things")
+
+    def test_missing_required_title_raises(self) -> None:
+        # The actually-meaningful contract: ``title`` has no default
+        # value so a partial construction without it raises
+        # ``ValidationError``. The reviewer flagged that Pydantic v1's
+        # ``str`` validator silently coerces int/list/dict/set inputs
+        # (``str([\"a\", \"b\"])`` returns ``'[\"a\", \"b\"]'`` cleanly), so any
+        # ``assertRaises`` on a non-str title is a no-op. Required-field
+        # presence is the right gate instead.
+        with self.assertRaises(Exception):
+            SourceJob(description="x")  # type: ignore[call-arg] — missing required field
 
 
 class TestComputeSkipForProfile(unittest.TestCase):

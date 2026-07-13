@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "slug": "zyngacareers",
+  "board": "greenhouse",
+  "decision_at": "2026-07-12T16:59:41.892856+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

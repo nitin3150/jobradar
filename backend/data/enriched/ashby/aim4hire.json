@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "slug": "aim4hire",
+  "board": "ashby",
+  "enriched_at": "2026-07-12T20:23:36.759328+00:00",
+  "source_jobs_count": 4,
+  "source_last_published": "2022-08-17T13:49:39.034000+00:00",
+  "source_jobs": [
+    {
+      "title": "Technical Product Manager",
+      "description": "Our Series-B funded Client is tackling complex problems in Ag-Tech space utilizing Computer Vision, ML & AI. Seeking a Sr. Product Manager to join their Austin office.\n\n\n\n\nRESPONSIBILITIES\n\n - Deeply understand our customers and partners, their needs, and the broader market through research, interviews, and beta testing of new products.\n\n - Build business and revenue models, to recommend new products and growth opportunities.\n\n - Plan a high-impact product strategy and roadmap.\n\n - Drive the full product life cycle, from planning and prioritization, through requirement definition and execution, to product roll-out and usage monitoring.\n\n\nREQUIREMENTS\n\n - Business analysis and strategic thinking capabilities\n\n - Experience in driving projects with cross-functional colleagues and partners\n\n - Ability to simplify complex feedback and technical data into crystal clear ideas\n\n - Creative and entrepreneurial\n\n - Independent and a leader\n\n - Excellent teamwork skills\n\n - Excellent presentation & communication skills in English, written and verbal\n\n - Passionate and target-oriented\n\n - 4+ years of experience in product management\n\n - Startup experience is a plus",
+      "location": "",
+      "first_published": "2022-08-17T13:49:39.034000+00:00",
+      "url": "https://jobs.ashbyhq.com/aim4hire/6b2aa0db-8551-4145-a715-099f7cf6b359"
+    },
+    {
+      "title": "AI Engineer",
+      "description": "Our VC-backed Client based in TX is seeking an AI Engineer (open to Remote).\n\n\n\nKey Responsibilities\n\n - Lead creation & implementation of RAG systems\n\n - Architect multi-agent systems that operate effectively within our platform\n\n - Build highly scalable LLM-powered systems that can handle enterprise-level workloads\n\n - LLM fine-tuning initiatives to customize models for specific business domains and use cases\n\n - Optimize LLM performance, cost, and reliability in production environments\n\n - Mentor and develop junior engineers in AI/ML best practices\n\n - Evaluate emerging AI technologies for potential adoption\n\nExperience\n\n - Bachelor's or Master's degree in Computer Science, Software Engineering, or a related field\n\n - 8+ years of backend engineering experience in Python\n\n - 3+ years of hands-on experience building and deploying machine learning systems\n\n - Experience building solutions at scale with large enterprise data",
+      "location": "",
+      "first_published": "2021-05-04T14:41:31.839000+00:00",
+      "url": "https://jobs.ashbyhq.com/aim4hire/8e955fa6-9164-483d-a190-33520c9b9250"
+    },
+    {
+      "title": "Lead Backend Developer",
+      "description": "Our Client is a Series C-funded Tech Startup based in Austin, TX seeking a Lead Backend Developer.\n\nRequirements:\n\n - 2+ Years managing web platform development projects and engagements\n\n - 5+ years of professional development experience (python), including writing and optimizing queries.\n\n - 3+ years of direct experience with database optimization techniques\n\n - 3+ years of experience developing and/or managing enterprise-scale PostgreSQL implementations\n\n - 3+ years of experience managing development teams and communicating\n\n - 2+ Years developing on Django ORM and Django REST Framework\n\n - Personality: driven, self-motivated, adaptable, empathetic, energetic, detail-oriented",
+      "location": "",
+      "first_published": "2021-05-11T18:43:56.083000+00:00",
+      "url": "https://jobs.ashbyhq.com/aim4hire/b85b8d36-fe59-486a-83a6-6ad137691502"
+    },
+    {
+      "title": "Product Designer",
+      "description": "Our Client is a FinTech startup seeking a Product Designer for a full-time position, fully-remote.\n\nIn this role you can expect to:\n\n - Design flows, wireframes and prototypes and review with the team\n\n - Extend, develop, and maintain the Bypass design language\n\n - Conduct research to help the product team better understand our users\n\n - Contribute to the working knowledge of user behavior in our product\n\n - Maintain working relationships with engineering, product managers, and product owners \u2022 Collaborate with engineering and test during the product development process\n\n - Design supplemental assets such as illustrations, icons and some marketing materials Basic\n\nQualifications:\n\n - 3+ years of Product Designer at B2B SaaS Company\n\n - Figma experience\n\n - Experience working with a team of engineers and product managers",
+      "location": "",
+      "first_published": "2022-04-04T21:29:56.799000+00:00",
+      "url": "https://jobs.ashbyhq.com/aim4hire/c3222889-b9f9-47b6-a3af-6e8cd7c150e7"
+    }
+  ],
+  "primary_function": "mixed",
+  "estimated_stage": "series_c_plus",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.75,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.5,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Small sample size, but diverse tech roles and startup-like language",
+  "overall_confidence": 0.6,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

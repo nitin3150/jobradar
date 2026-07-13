@@ -1,9 +1,9 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "skipped",
   "slug": "tortus",
   "board": "ashby",
-  "decision_at": "2026-07-11T01:12:22.717594+00:00",
+  "decision_at": "2026-07-12T20:07:43.653811+00:00",
   "reason": "fewer_than_3_jobs",
   "source_jobs_count": 1
 }

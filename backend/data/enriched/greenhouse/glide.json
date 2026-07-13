@@ -1,9 +1,9 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "skipped",
   "slug": "glide",
   "board": "greenhouse",
-  "decision_at": "2026-07-11T01:12:42.541363+00:00",
+  "decision_at": "2026-07-12T20:08:05.195466+00:00",
   "reason": "fewer_than_3_jobs",
   "source_jobs_count": 2
 }

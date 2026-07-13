@@ -1,9 +1,9 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "skipped",
   "slug": "txidigital",
   "board": "lever",
-  "decision_at": "2026-07-11T01:14:08.871922+00:00",
+  "decision_at": "2026-07-12T20:09:29.475294+00:00",
   "reason": "fewer_than_3_jobs",
   "source_jobs_count": 2
 }

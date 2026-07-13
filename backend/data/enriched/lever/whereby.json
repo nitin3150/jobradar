@@ -1,9 +1,9 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "status": "skipped",
   "slug": "whereby",
   "board": "lever",
-  "decision_at": "2026-07-11T01:14:13.823849+00:00",
+  "decision_at": "2026-07-12T20:09:34.510700+00:00",
   "reason": "fewer_than_3_jobs",
   "source_jobs_count": 1
 }

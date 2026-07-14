@@ -1,8 +1,0 @@
-{
-  "schema_version": 1,
-  "status": "failed",
-  "slug": "quant-aq",
-  "board": "ashby",
-  "decision_at": "2026-07-11T01:12:17.609829+00:00",
-  "reason": "fetch returned empty or errored (transient)"
-}

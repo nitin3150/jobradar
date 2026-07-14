@@ -1,0 +1,83 @@
+{
+  "schema_version": 2,
+  "slug": "alluxio",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:05:17.950928+00:00",
+  "source_jobs_count": 8,
+  "source_last_published": "2026-04-20T09:13:34.267000+00:00",
+  "source_jobs": [
+    {
+      "title": "Senior Software Engineer",
+      "description": "\nAbout Alluxio\nAlluxio powers the data layer for modern AI and analytics. Proven in production at eight of the top ten internet companies and seven of the ten highest-valued enterprises globally, Alluxio\u2019s data orchestration platform unifies data across storage systems, regions, and clouds providing a high-performance distributed caching layer built for large-scale AI workloads.\n\nSpun out of UC Berkeley\u2019s AMPLab by the creators of Tachyon and backed by Andreessen Horowitz, Hillhouse Capital, and Seven Seas Partners, Alluxio sits at the intersection of data, distributed systems, and AI infrastructure.\n\nOur technology is deployed at scale by organizations such as Meta, Uber, Tencent, TikTok, Alibaba, Expedia, Rakuten, Microsoft, and Walmart, orchestrating data for billions of operations per day. Learn more at alluxio.io or on Wikipedia.\n\nThe Role\nWe\u2019re looking for experienced distributed-systems engineers to join our Core Product team and advance the next generation of Alluxio\u2019s data-orchestration engine - the foundation for AI and analytics at global scale.\n\nAs a Senior Software Engineer, you\u2019ll work on high-impact systems problems such as: \n1. Optimizing metadata management, caching, and replication across thousands of nodes. \n2. Designing concurrent, fault-tolerant services for multi-region and multi-cloud environments. \n3. Evolving Alluxio\u2019s storage abstraction and scheduling layer to support large-scale AI/ML data pipelines. \n4. Collaborating with internal product teams to push the limits of distributed I/O performance.\n\nThis is a hands-on, architecture-plus-implementation role for engineers who love deep systems work and want visible impact in a small, senior, highly technical team.\n",
+      "location": "",
+      "first_published": "2024-11-18T21:17:52.976000+00:00",
+      "url": "https://jobs.lever.co/alluxio/1f58cf1a-9182-4f86-b51f-c5e7f3b9f938"
+    },
+    {
+      "title": "Software Engineer - Distributed Systems (Beijing)",
+      "description": "Are you interested in joining a group of highly talented engineers working on a open source project that is solving challenging problems across big data analytics, machine learning and artificial intelligence? As customers continuously push the envelope for ways to extract value from data, Alluxio is driving innovation in data access and management for large scale distributed systems. Alluxio (a.k.a Tachyon Nexus) a project from AMPLab like Apache Spark and Mesos is charging full steam to help customers navigate the digital transformation. . The Alluxio team includes leaders, innovators, explorers, and risk-takers with extensive industry experience from top tech companies including Google, Palantir and VMWare and alumni from top computer science programs including CMU, Stanford and UC Berkeley. The company is backed by Andreessen-Horowitz and has been named as top 10 hot startups for 2018.\n\u00a0\nAs a distributed systems engineer at Alluxio you will be responsible for evolving the state-of-the-art Alluxio ( also knows as Tachyon Nexus earlier) project. The work would involve solving challenging problems in the area of Distributed Data Services, Memory and data structure efficiency, Thread concurrency and locking optimizations, process coordination\nand caching policies and implementation. The role would include developing innovative solutions for scaling systems to thousands of node and providing Data Durability and High Availability.\n\u00a0\n",
+      "location": "",
+      "first_published": "2020-09-11T15:26:50.948000+00:00",
+      "url": "https://jobs.lever.co/alluxio/ad547017-b276-4c99-ae4e-4c5a073daf93"
+    },
+    {
+      "title": "Sr. Staff Software Engineer - Distributed System Development (Beijing)",
+      "description": "As a Sr. Staff Software Engineer \u2013 Distributed Systems at Alluxio, you will lead the end-to-end architecture and technical evolution of our next-generation distributed data platform. You will drive system-level design decisions that enable Alluxio to scale to thousands of nodes and exabytes of data, while maintaining performance, reliability, and simplicity for users.\nIn this role, you will operate as a technical architect and hands-on engineering leader, partnering closely with engineering teams and product management to translate complex requirements into scalable distributed system designs.\nWhat You Will Be Able To Build and Owner\uff1a\n1.Lead the end-to-end architecture and design of large-scale distributed systems powering the Alluxio platform.\n2.Drive technical strategy and architectural direction across multiple teams and components.\n3.Design systems that support high scalability, fault tolerance, performance optimization, and data durability.\n4.Provide hands-on development and deep technical guidance in critical areas of the system.\n5.Lead complex system design reviews and mentor senior engineers on distributed systems design.\n6.Identify and resolve system-level performance bottlenecks and reliability challenges.\n7.Collaborate with product management and engineering leadership to translate product goals into technical solutions.\n8.Influence the broader technical ecosystem through open-source contributions and architectural thought leadership.\n\nWho We Are Looking For:\u00a0\n1.Master or BS degree in Computer Science or related technical field, or equivalent practical experience.\n2.Proven experience of 2+ years in a technical leadership or architect role, driving system-level design and guiding engineering teams.\n3.Strong hands-on software development experience in one or more general-purpose programming languages, including but not limited to Java, C/C++, or Go.\n4.Deep architecting expertise in at least two of the following areas:\n1)Distributed and parallel systems\n2)Distributed storage systems\n3)Architecting large-scale software systems\n5.Demonstrated ability to design and implement high-quality, stable, and scalable end-to-end system architectures in production environments.\n6.Strong analytical thinking and complex problem-solving skills.\n7.Excellent communication skills and ability to influence technical direction across teams.\n\nWe Would Especially Appreciate If You Have:\n1.PhD in Computer Science, Distributed Systems, or related fields.\n2.Deep understanding of consensus algorithms, storage engines, or large-scale data systems.\n3.Experience building or operating cloud-native infrastructure platforms.\n4.Experience contributing to or maintaining open-source distributed systems projects.\n5.Track record of designing systems that operate at massive scale (thousands of nodes or higher).\n6.Passion for building high-performance infrastructure software.\n7.Contributions to Alluxio open-source community.\n",
+      "location": "",
+      "first_published": "2024-03-07T05:54:17.201000+00:00",
+      "url": "https://jobs.lever.co/alluxio/f997ed6c-941f-4873-b308-a1f33b6b78ef"
+    },
+    {
+      "title": "Staff Software Engineer",
+      "description": "About Alluxio\nAlluxio powers the data layer for modern AI and analytics. Proven in production at eight of the top ten internet companies and seven of the ten highest-valued enterprises globally, Alluxio\u2019s data orchestration platform unifies data across storage systems, regions, and clouds providing a high-performance distributed caching layer built for large-scale AI workloads.\n\nSpun out of UC Berkeley\u2019s AMPLab by the creators of Tachyon and backed by Andreessen Horowitz, Hillhouse Capital, and Seven Seas Partners, Alluxio sits at the intersection of data, distributed systems, and AI infrastructure.\n\nOur technology is deployed at scale by organizations such as Meta, Uber, Tencent, TikTok, Alibaba, Expedia, Rakuten, Microsoft, and Walmart, orchestrating data for billions of operations per day. Learn more at alluxio.io or on Wikipedia.\n\nThe Role\nWe\u2019re looking for experienced distributed-systems engineers to join our Core Product team and advance the next generation of Alluxio\u2019s data-orchestration engine - the foundation for AI and analytics at global scale.\n\nAs a Staff Software Engineer, you\u2019ll work on high-impact systems problems such as: \n1. Optimizing metadata management, caching, and replication across thousands of nodes. \n2. Designing concurrent, fault-tolerant services for multi-region and multi-cloud environments. \n3. Evolving Alluxio\u2019s storage abstraction and scheduling layer to support large-scale AI/ML data pipelines. \n4. Collaborating with internal product teams to push the limits of distributed I/O performance.\n\nThis is a hands-on, architecture-plus-implementation role for engineers who love deep systems work and want visible impact in a small, senior, highly technical team.\n",
+      "location": "",
+      "first_published": "2024-05-21T10:54:19.354000+00:00",
+      "url": "https://jobs.lever.co/alluxio/65f09933-df44-4f0d-b70d-7d4e6fd57330"
+    },
+    {
+      "title": "Staff Software Engineer-Distributed System Development\uff08Beijing/Shanghai\uff09",
+      "description": "",
+      "location": "",
+      "first_published": "2025-10-11T09:00:03.155000+00:00",
+      "url": "https://jobs.lever.co/alluxio/67793de5-7e03-4c72-9375-219d24d60d48"
+    },
+    {
+      "title": "Technical Product Manager",
+      "description": "About Alluxio:\nAlluxio powers the data layer for modern AI and analytics. Proven in production at eight of the top ten internet companies and seven of the ten highest-valued enterprises globally, Alluxio\u2019s open-source data-orchestration platform unifies data across storage systems, regions, and clouds \u2014 enabling memory-speed access for large-scale AI and analytics workloads.\n\nSpun out of UC Berkeley\u2019s AMPLab and backed by Andreessen Horowitz, Hillhouse Capital, and Seven Seas Partners, Alluxio sits at the intersection of data, distributed systems, and AI infrastructure.\n\nOur technology is deployed at scale by Meta, Uber, TikTok, Alibaba, Microsoft, and Salesforce, orchestrating data for billions of operations per day. \n\nLearn more at alluxio.io or on Wikipedia.\n\nThe Role\nWe\u2019re hiring a Technical Product Manager to define and execute Alluxio\u2019s AI systems strategy \u2014 spanning inference, training, and emerging agentic workloads.\n\nThis role bridges the worlds of AI infrastructure and distributed data systems, guiding how Alluxio evolves to serve next-generation model architectures and large-scale data flows.\n\nYou\u2019ll partner with engineering, research, and enterprise AI teams to build features that improve latency, throughput, and GPU efficiency for model inference and training \u2014 and design the data layer powering the shift toward autonomous, agentic AI systems.\n",
+      "location": "",
+      "first_published": "2025-08-22T19:18:49.298000+00:00",
+      "url": "https://jobs.lever.co/alluxio/e7e0f8a4-83ed-416b-9f95-7f3ed8abfa52"
+    },
+    {
+      "title": "\u552e\u524d\u89e3\u51b3\u65b9\u6848\u5de5\u7a0b\u5e08",
+      "description": "",
+      "location": "",
+      "first_published": "2026-04-20T09:13:34.267000+00:00",
+      "url": "https://jobs.lever.co/alluxio/dd221165-f15d-467d-8dcc-9c0c66c6a4bd"
+    },
+    {
+      "title": "\u9ad8\u7ea7\u5ba2\u6237\u7ecf\u7406",
+      "description": "",
+      "location": "",
+      "first_published": "2026-01-22T09:57:57.141000+00:00",
+      "url": "https://jobs.lever.co/alluxio/45aef5a1-d760-4677-8c44-1602a8cc024c"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_b",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "monthly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.875,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Alluxio is a data orchestration platform for AI and analytics, with a strong focus on distributed systems and engineering.",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

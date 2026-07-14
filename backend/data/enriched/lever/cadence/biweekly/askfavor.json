@@ -1,0 +1,90 @@
+{
+  "schema_version": 2,
+  "slug": "askfavor",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:15:44.429083+00:00",
+  "source_jobs_count": 9,
+  "source_last_published": "2026-07-09T13:50:54.831000+00:00",
+  "source_jobs": [
+    {
+      "title": "Account Manager I",
+      "description": "As an Account Manager I, you\u2019ll be responsible for building relationships with local and regional partners and growing their business with Favor\u2019s platforms. You will strive to become an expert on the various products and tools available. Promoting value through customer experience, you\u2019ll seek to understand the needs of each partner and recommend the products and packages that would most benefit their business. We are looking for a candidate who has working experience growing a book of business utilizing excellent selling techniques and first class customer service. \u00a0\n",
+      "location": "",
+      "first_published": "2026-05-19T15:54:34.680000+00:00",
+      "url": "https://jobs.lever.co/askfavor/3667de36-cc8d-46f2-b70c-176c1677ff93"
+    },
+    {
+      "title": "Community Growth Specialist",
+      "description": "<div><span style=\"font-size: 10pt; font-family: 'Proxima Nova', sans-serif;\">We are looking for a Community Growth Specialist with a passion for brand advocacy and community engagement to join our team. As a Community Growth Specialist at Favor, you are the face of the brand. Your primary responsibility will be to drive brand awareness and generate new customers through community partnerships and local events. You will engage directly with potential customers in the community, educating them on the value of Favor's on-demand delivery services. This role requires a dynamic individual who can pivot seamlessly between selling, meet &amp; greets, and brand representation. You will partner with the Sales &amp; Marketing leadership teams to execute localized strategies that grow our customer base and solidify Favor's presence in the Austin market.</span></div>",
+      "location": "",
+      "first_published": "2026-07-08T19:36:40.652000+00:00",
+      "url": "https://jobs.lever.co/askfavor/e925b85a-328b-4b71-bdf8-81d629f3ddd8"
+    },
+    {
+      "title": "Engineering Manager",
+      "description": "Favor\u2019s mission is \u2018Anything Delivered\u2019. Our engineers make high-touch logistics happen. The Favor technology platform is the engine behind the business, enabling millions of Favors. Our technology efficiently manages the real-time assignment of Runners to Favors, facilitates communication between customers, Runners, and support, keeps thousands of customer and Runner mobile applications in sync, and more.\u00a0\n\nAs the Engineering Manager, you will help create the tools and applications necessary to connect customers, Runners, merchants, and support teams. You will lead a team of engineers who build applications, services, and cloud infrastructure for Favor's \u00a0product portfolio across multiple platforms including microservices, web, iOS, and Android and work closely with engineering and product leadership to instill a culture of quality and iterative development across all engineering disciplines and increase the quality, confidence, and reliability of everything Favor builds.\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-29T18:37:38.840000+00:00",
+      "url": "https://jobs.lever.co/askfavor/de9aa67b-011c-4e0f-ba47-1c42bc963129"
+    },
+    {
+      "title": "Marketing Operations Specialist",
+      "description": "Utilize data, complex logic and coding to develop, QA and execute one-off email/push communications and\nautomated marketing campaigns. Effectively set up and deploy promotions and offers for customers and\nRunners\n",
+      "location": "",
+      "first_published": "2026-05-19T20:17:41.737000+00:00",
+      "url": "https://jobs.lever.co/askfavor/1566e0bd-6a66-4bb8-81ef-548a4b93aefa"
+    },
+    {
+      "title": "Marketing Technology Systems Manager",
+      "description": "We are looking for a Marketing Technology Systems Manager to join our team as the primary custodian of our growth and consumer platform. This role is for a technical operator who thrives on the \"plumbing\" of marketing technology.\u00a0In this role, you will partner closely with the Director of Marketing Operations & Platform to translate our strategic vision into a high-functioning reality. You will lead the charge on data governance, system integrations, and tool enablement. From managing our customer data platform (CDP) event volume to architecting the signals that power our paid media spend, you will ensure the integrity, scalability, and technical excellence of our growth stack every day.\n",
+      "location": "",
+      "first_published": "2026-05-18T15:55:35.674000+00:00",
+      "url": "https://jobs.lever.co/askfavor/39424b84-bcc7-4c4a-838d-199fa83e04e1"
+    },
+    {
+      "title": "Merchandising Manager",
+      "description": "<div>Develop and execute data-driven merchandising strategies that enhance content structure,<br>category performance, and in-app product and merchant discoverability. Collaborate closely<br>with marketing and finance teams for planning and budgeting and business analytics team for<br>testing and optimization.</div>",
+      "location": "",
+      "first_published": "2026-07-06T16:25:13.618000+00:00",
+      "url": "https://jobs.lever.co/askfavor/1a856cf0-2c9c-4eef-8120-7b473f0ae0e8"
+    },
+    {
+      "title": "Senior Growth Marketing Manager - Paid Search & Mobile UA",
+      "description": "Favor is a Texas born-and-bred restaurant and grocery delivery company, and a proud member of the H-E-B family. Driving growth at Favor means working cross-functionally across media, creative, integrated marketing, product, and analytics to provide a best-in-class customer experience while continuously testing new channels and creative strategies. The Favor marketing team is responsible for driving both consumer and runner growth across the Lone Star State.\n\nAs the Sr. Growth Marketing Manager - Paid Search & Mobile UA, you will help expand Favor Delivery\u2019s performance marketing footprint across high impact acquisition channels. You will own the end-to-end strategy and execution of Google Search, Apple Search Ads, Google App Campaigns, and mobile user acquisition channels. This role will oversee both paid and organic growth opportunities. The ideal candidate is a data-driven, detail-oriented marketer with deep expertise in search (an appetite to learn ASO with a strong ability to collaborate cross-functionally with creative, martech, and analytics to optimize performance.\u00a0\n\u00a0\nLocation: Austin, TX (Hybrid)\u00a0\nReports To: Director, Growth & Brand Media\n",
+      "location": "",
+      "first_published": "2026-05-20T21:40:51.819000+00:00",
+      "url": "https://jobs.lever.co/askfavor/6d8b0add-4f2f-4aba-866f-b8d2b1e619c4"
+    },
+    {
+      "title": "Software Engineer II, iOS",
+      "description": "Favor\u2019s mission is \u2018Anything Delivered\u2019. Our engineers make high-touch logistics happen. The Favor technology platform is the engine behind the business, enabling millions of Favors. Our technology efficiently manages the real-time assignment of Runners to Favors, facilitates communication between customers, Runners, and support, keeps thousands of customer and Runner mobile applications in sync, and more.\u00a0\n\nAt Favor, we are committed to building a world-class team that shares a passion for products that make a difference with modern, clean code. Do you get a thrill when you make an impact on hundreds of thousands of users? Do you want to work for a purpose and value-driven company in a high-growth environment? As a Software Engineer II, iOS at Favor, you will create the tools and applications necessary to connect customers, Runners, merchants, and support \u00a0teams and work closely with product and operations teams to understand customer needs, build simple solutions to complex problems, and deliver delightful experiences to all users.\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-29T19:12:29.748000+00:00",
+      "url": "https://jobs.lever.co/askfavor/8c212241-6d8c-47e6-afe6-7b3c5d5768bd"
+    },
+    {
+      "title": "Technical Recruiter (Contract)",
+      "description": "Favor is looking for an experienced full-cycle Technical Recruiter to join our People Operations team! You will contribute to all areas of Talent Acquisition including writing job descriptions, sourcing, screening resumes, interviewing, and presenting offers. You will work closely with our People Operations team to build our employer brand, champion the candidate experience, and invest in our growing team here at Favor!\nYou'll work most closely across engineering, product, data and design. When needed, you may be asked to flex into more G&A roles as well. One week you might be building a search for a senior backend engineer. Next, you could be helping close a product manager or partnering with leadership on a new hiring initiative. You'll partner closely with hiring managers, provide market insight, help improve recruiting processes, and play a meaningful role in shaping how we build teams.\n\n\n",
+      "location": "",
+      "first_published": "2026-07-09T13:50:54.831000+00:00",
+      "url": "https://jobs.lever.co/askfavor/46be4571-69d9-4ba4-92e7-a05e3ed72a02"
+    }
+  ],
+  "primary_function": "mixed",
+  "estimated_stage": "series_c_plus",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "biweekly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": false,
+  "tech_role_ratio": 0.222,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.2,
+  "volatility_signal": 0.0,
+  "notes": "Favor Delivery is a logistics company with a mix of engineering, marketing, and operations roles.",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -457,10 +457,10 @@ class TestScanBoardsEndToEnd:
     ) -> None:
         client = seeded_jobs
         with patch(
-            "pipeline.nodes.jobs_boards.runner.load_file", return_value={}
+            "pipeline.nodes.jobs_boards.runner.board_seen._legacy_load_file", return_value={}
         ) as mock_seen_load, \
              patch(
-                 "pipeline.nodes.jobs_boards.runner.save_seen"
+                 "pipeline.nodes.jobs_boards.runner.board_seen._legacy_save_seen"
              ) as mock_seen_save, \
              patch(
                  "pipeline.nodes.jobs_boards.runner.load_orgs",

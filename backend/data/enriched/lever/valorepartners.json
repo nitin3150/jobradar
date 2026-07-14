@@ -1,8 +1,0 @@
-{
-  "schema_version": 1,
-  "status": "failed",
-  "slug": "valorepartners",
-  "board": "lever",
-  "decision_at": "2026-07-11T01:14:09.746886+00:00",
-  "reason": "fetch returned empty or errored (transient)"
-}

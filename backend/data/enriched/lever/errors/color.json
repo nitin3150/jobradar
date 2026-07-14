@@ -1,0 +1,8 @@
+{
+  "schema_version": 2,
+  "status": "failed",
+  "slug": "color",
+  "board": "lever",
+  "decision_at": "2026-07-11T01:13:31.940512+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

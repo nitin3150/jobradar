@@ -191,6 +191,14 @@ on:
     # is the binding per-tick budget, not the BUDGET
     # section's monthly projection.
     - cron: "20 2 * * *"
+    # Weekly probe — scans only the rare + dead cadence buckets
+    # so orgs the LLM classified as "post rarely" or "haven't
+    # posted in 6+ months" get a weekly re-probe without flooding
+    # the hourly active tier. 04:30 UTC starts ten minutes after
+    # the cleanup cron so the GHA concurrency group
+    # ``boards-scan-${{ github.event.schedule }}`` doesn't
+    # serialize the two weekly tiers into one slot.
+    - cron: "30 4 * * 0"
     # Weekly cleanup — re-probe missing-orgs slugs so a benign
     # outage that benched a slug doesn't keep it benched
     # forever. 04:20 UTC runs after the dormant scan. The
@@ -198,6 +206,8 @@ on:
     # doesn't support it — Sunday 04:20 UTC is the next
     # equivalent. Set to 0 0 * * 0 to shift to midnight.
     - cron: "20 4 * * 0"
+  # Manual trigger so we don't have to wait for the next :00
+  # UTC to verify the workflow after a config change. Picks
   # Manual trigger so we don't have to wait for the next :00
   # UTC to verify the workflow after a config change. Picks
   # the same three tiers the schedule trigger would fire; the
@@ -218,14 +228,16 @@ on:
         description: >-
           Tier to run. Mirrors which cron would fire this job
           (``active`` = hourly, ``dormant`` = daily 02:20 UTC,
-          ``cleanup`` = weekly Sunday 04:20 UTC). Picks the
-          matching job only — other tiers stay skipped.
+          ``probe`` = weekly Sunday 04:30 UTC, ``cleanup`` =
+          weekly Sunday 04:20 UTC). Picks the matching job
+          only — other tiers stay skipped.
         required: true
         default: 'active'
         type: choice
         options:
           - active
           - dormant
+          - probe
           - cleanup
 
 # Per-tier concurrency: an in-flight scan blocks the next cron
@@ -315,6 +327,20 @@ jobs:
       # set. The dormant tier restores the default 0 so its
       # ``BOARDS_HTTP_TIMEOUT=30`` window re-attempts them.
       BOARDS_SKIP_TIMEOUTS: "1"
+      # Per-cadence scan filter for the active (hourly) tier.
+      # ``load_orgs()`` reads ``BOARDS_CADENCES`` as a comma-
+      # separated list of cadence bucket names and returns slugs
+      # found under ``data/enriched/<board>/cadence/<name>/``
+      # (subdir names = filenames minus ``.json``). The active
+      # tier covers fast-moving orgs: hourly cadence catches
+      # daily/few_per_week/weekly/biweekly boards before their
+      # listings age out of the operator's review window.
+      # Slower-cadence orgs (``monthly``, ``quarterly``,
+      # ``unknown``) ride the dormant daily 02:20 UTC tier;
+      # rare/dead ride the probe weekly-Sun tier. See the
+      # :mod:`pipeline.nodes.jobs_boards.runner` BOARDS_CADENCES
+      # hook for the contract.
+      BOARDS_CADENCES: "daily,few_per_week,weekly,biweekly"
       # Name matches the script's argparse read for
       # ``--threshold`` (``os.environ.get("JOB_FIT_THRESHOLD",
       # "0.6")``). Stricter than that 0.6 default so the
@@ -530,6 +556,14 @@ jobs:
       # re-attempt. ``utils.http.build_client`` reads the env var;
       # tests can still pass an explicit ``timeout`` kwarg.
       BOARDS_HTTP_TIMEOUT: "30"
+      # Per-cadence scan filter for the dormant (daily) tier.
+      # The dormant 02:20 UTC tier covers slower-cadence orgs:
+      # ``monthly`` and ``quarterly`` orgs telegraph their hiring
+      # weeks in advance so a daily cron catches the surge;
+      # ``unknown`` (LLM couldn't classify the cadence) gets
+      # daily treatment until the next re-enrich settles it
+      # into a faster or slower bucket.
+      BOARDS_CADENCES: "monthly,quarterly,unknown"
       # Supabase REST auth — supabase-py reads these from the process
       # env at startup; missing or wrong values make every REST write
       # 401 with "Invalid API key" (PostgREST layer). The actual
@@ -658,6 +692,139 @@ jobs:
           fi
           payload=$(jq -n \
             --arg     tier          "dormant" \
+            --arg     conclusion    "${{ steps.scan.conclusion }}" \
+            --arg     workflow      "${{ github.workflow }}" \
+            --argjson run_id        "${{ github.run_id }}" \
+            --argjson run_attempt   "${{ github.run_attempt }}" \
+            '{tier: $tier, conclusion: $conclusion, workflow: $workflow, run_id: $run_id, run_attempt: $run_attempt}')
+          curl -sS -X POST \
+            -H "Content-Type: application/json" \
+            -d "${payload}" \
+            "${STATUS_WEBHOOK_URL}"
+
+  # -----------------------------------------------------------------
+  # Probe tier — weekly Sunday 04:20 UTC, 168h (1 week) lookback,
+  # no per-board org cap. Reads ONLY the rare + dead cadence
+  # buckets (``BOARDS_CADENCES=rare,dead``) so orgs the LLM
+  # classified as "post rarely" or "haven't posted in 6+ months"
+  # get a weekly re-probe instead of being marked permanently
+  # skipped. An org that recovers (starts posting fresh jobs)
+  # re-classifies on the next enrich_org_profiles.py run and is
+  # picked up by the active/dormant tiers naturally.
+  #
+  # The 168h lookback is wide on purpose: rare-cadence orgs
+  # post less than weekly, so a 24h delta_hours would routinely
+  # miss postings that landed between weekly probes. The weekly
+  # probe then matches the dead-cadence recovery budget — an org
+  # re-emerging from "dead" SHOULD land on the operator's review
+  # queue within one weekly tick rather than waiting for the
+  # next active tier to notice it (the active tier excludes
+  # ``cadence/dead`` by design via BOARDS_CADENCES).
+  # -----------------------------------------------------------------
+  scan-probe:
+    if: (github.event_name == 'schedule' && github.event.schedule == '30 4 * * 0') || (github.event_name == 'workflow_dispatch' && inputs.tier == 'probe')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BOARDS_DELTA_HOURS: "168"
+      BOARDS_BOARDS: "ashby greenhouse lever"
+      BOARDS_LIMIT: "0"
+      JOB_FIT_THRESHOLD: "0.7"
+      # Per-cadence scan filter — weekly probe covers only the
+      # slowest buckets. ``rare`` boards surface a job every few
+      # weeks; ``dead`` boards surface a job when they recover.
+      # ``BOARDS_HTTP_TIMEOUT`` stays at the script default (no
+      # override) because the probe tier doesn't have an active
+      # timeout-org recovery story — if a ``rare``/``dead`` slug
+      # has been timing out, it just produces another empty
+      # timeout-orgs row, which the dormant tier will recover
+      # the next day.
+      BOARDS_CADENCES: "rare,dead"
+      # Companion to the active+probe tiers' BOARDS_TIER
+      # values. The scanner_runs table key partition by tier
+      # makes postmortem queries a single ``WHERE tier='probe'``
+      # lookup.
+      BOARDS_TIER: "probe"
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - name: Lint required secrets
+        id: secrets-lint
+        timeout-minutes: 1
+        env:
+          SECRETS_JSON: ${{ toJson(secrets) }}
+        run: |
+          set -euo pipefail
+          MISSING=()
+          for NAME in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY GROQ_API_KEY NVIDIA_API_KEY; do
+            if ! echo "$SECRETS_JSON" | jq -e --arg n "$NAME" 'has($n)' > /dev/null; then
+              MISSING+=("$NAME")
+            fi
+          done
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            {
+              echo "::error title=Missing required GHA secrets::${MISSING[*]}"
+              for M in "${MISSING[@]}"; do
+                echo "::error::  - $M"
+              done
+              echo "::error::Add them at: https://github.com/${GITHUB_REPOSITORY}/settings/secrets/actions"
+            } >&2
+            exit 1
+          fi
+          OPTIONAL=("NVIDIA_API_KEY_2")
+          for NAME in "${OPTIONAL[@]}"; do
+            if ! echo "$SECRETS_JSON" | jq -e --arg n "$NAME" 'has($n)' > /dev/null; then
+              echo "::warning title=Optional GHA secret not set::$NAME (LLM client will use the single-key chain; add at https://github.com/${GITHUB_REPOSITORY}/settings/secrets/actions for doubled RPM throughput)"
+            fi
+          done
+          echo "All required secrets are set."
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Run boards scan (probe tier)
+        id: scan
+        working-directory: backend
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          NVIDIA_API_KEY_2: ${{ secrets.NVIDIA_API_KEY_2 }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          set -euo pipefail
+          python scripts/boards_scan.py \
+            --delta-hours "${BOARDS_DELTA_HOURS}" \
+            --boards ${BOARDS_BOARDS} \
+            --limit "${BOARDS_LIMIT}" \
+            --threshold "${JOB_FIT_THRESHOLD}"
+
+      - name: Notify status
+        if: always()
+        env:
+          STATUS_WEBHOOK_URL: ${{ secrets.STATUS_WEBHOOK_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${STATUS_WEBHOOK_URL:-}" ]; then
+            echo "STATUS_WEBHOOK_URL is unset; skipping notify."
+            exit 0
+          fi
+          payload=$(jq -n \
+            --arg     tier          "probe" \
             --arg     conclusion    "${{ steps.scan.conclusion }}" \
             --arg     workflow      "${{ github.workflow }}" \
             --argjson run_id        "${{ github.run_id }}" \

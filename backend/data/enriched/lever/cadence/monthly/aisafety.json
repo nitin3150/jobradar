@@ -1,0 +1,76 @@
+{
+  "schema_version": 2,
+  "slug": "aisafety",
+  "board": "lever",
+  "enriched_at": "2026-07-14T04:58:51.479906+00:00",
+  "source_jobs_count": 7,
+  "source_last_published": "2026-06-08T16:53:25.531000+00:00",
+  "source_jobs": [
+    {
+      "title": "Chief of Staff",
+      "description": "The Center for AI Safety (CAIS) is a leading research and advocacy organization focused on mitigating societal-scale risks from AI. We address AI's toughest challenges through technical research, field-building initiatives, and policy engagement, along with our sister organization in DC, Center for AI Safety Action Fund.\nCAIS operates across six core areas: Research, Publications, Public Engagement, Operations, Special Projects, and Federal, each moving at high speed against the most consequential technology shift of our time. As we scale, an emerging bottleneck is the operating fabric that translates the President's intent into shipped outcomes across the organization.\nWe're hiring a senior operator to serve as Chief of Staff to the President. This role is the connective tissue between the leadership team. You will run the operating cadence, protect executive attention, drive cross-functional execution, and represent the President internally and externally. You will report to the President.\n",
+      "location": "",
+      "first_published": "2026-05-15T02:16:44.316000+00:00",
+      "url": "https://jobs.lever.co/aisafety/6e096bf8-3589-48e0-bfd4-7cba55eb91a8"
+    },
+    {
+      "title": "Expression of Interest",
+      "description": "The Center for AI Safety (CAIS) is a leading research and advocacy organization focused on mitigating societal-scale risks from AI. We address AI\u2019s toughest challenges through technical research, field-building initiatives, and policy engagement, along with our affiliated organization, the Center for AI Safety Action Fund (CAISAF).\n\u00a0\nIf you\u2019re motivated to advance our mission but don\u2019t see a current opening that matches your background, we invite you to submit an expression of interest. This allows you to share your skills, experience, and ideas for how you might contribute to CAIS. We regularly review these submissions alongside our evolving priorities and may reach out if we see a strong fit.\n\u00a0\nIf you share our commitment to reducing catastrophic risks from AI and have ideas or expertise you could contribute, we'd like to hear from you.\n",
+      "location": "",
+      "first_published": "2025-08-14T07:07:29.100000+00:00",
+      "url": "https://jobs.lever.co/aisafety/9546f987-0b6a-40d4-b776-03471b898c92"
+    },
+    {
+      "title": "Principal, Special Projects",
+      "description": "The Center for AI Safety (CAIS) is a leading research and advocacy organization focused on mitigating societal-scale risks from AI. Some of our past achievements include: releasing the most widely used measure of AI capabilities used by all major AI companies, running a large compute cluster to facilitate AI safety research which has been cited over 16,000 times, and publishing a global statement on AI Risk signed by Geoffrey Hinton, Yoshua Bengio and top AI CEOs.\n\u00a0\nThe Role\nWe\u2019re hiring senior operators to own high-stakes projects and initiatives. You will identify high-impact opportunities, define strategy, and drive execution end-to-end. Above all, we need people who can operate autonomously: someone with the judgment to navigate complex decisions and the track record to be trusted with significant responsibility.\n\u00a0\nThe scope is broad by design. Example projects ongoing or prospective include: partnering with the team behind #TeamTrees to run a public campaign on AGI risk, supporting researchers in building benchmarks for deception and weaponization risk, finding ways to engage YouTubers and longform creators on AI safety, and standing up an AI safety hub in New York. What unites these is the need for someone with the judgment and ability to take an ambiguous mandate and turn it into a concrete outcome, without needing to be managed closely.\n\u00a0\nWho We're Looking For\nYou\u2019ve operated at a high level in fast-moving, high-stakes environments\u2014and have the track record to prove it. Example profiles we're looking for include former startup Founders and COOs\u2014people with both exceptional ability and judgment. Your specific background may look very different.\n",
+      "location": "",
+      "first_published": "2026-02-27T20:55:56.860000+00:00",
+      "url": "https://jobs.lever.co/aisafety/1d294768-31cd-4d00-a238-a3eded93c695"
+    },
+    {
+      "title": "Research Engineer",
+      "description": "The Center for AI Safety (CAIS) is a leading research and advocacy organization focused on mitigating societal-scale risks from AI. We address AI\u2019s toughest challenges through technical research, field-building initiatives, and policy engagement, along with our sister organization, Center for AI Safety Action Fund. \n\u00a0\nAs a Research Engineer here, you'll work at the intersection of cutting-edge ML research and reliable engineering. You'll design and run experiments on large language models, build the tooling needed to train and evaluate models at scale, and turn results into publishable research. You'll collaborate closely with CAIS researchers and external academic and commercial partners, using our compute cluster to run large-scale training and evaluation. The work spans areas like AI honesty, robustness, transparency, and trojan/backdoor behaviors, aimed at reducing real-world risks from advanced AI systems. \n",
+      "location": "",
+      "first_published": "2022-10-07T23:30:48.878000+00:00",
+      "url": "https://jobs.lever.co/aisafety/116247a4-2940-4dce-b7d5-a6190328fd4e"
+    },
+    {
+      "title": "Research Engineer Intern (Fall 2026)",
+      "description": "Introduction\nThe Center for AI Safety (CAIS) is a leading research and field-building organization on a mission to reduce societal-scale risks from AI. Alongside our sister organization, the CAIS Action Fund, we tackle the toughest AI issues with a mix of technical, societal and policy solutions. \n\u00a0\nAs a research engineer intern here, you will work very closely with our researchers on projects in areas such as AI security, machine ethics, AI alignment, and benchmarking AI risks. We will assign you a dedicated mentor throughout your internship, but we will ultimately be treating you as a colleague. By this we mean, you will have the opportunity to debate for your own experiments or projects, and defend their impact. You will plan and run experiments, conduct code reviews, and work in a small team to create a publication with outsized impact. You will leverage our internal compute cluster to run experiments at scale on large language models.\n\u00a0\nTiming\nThis application is for the full-time fall internship position. Applicants must be enrolled in university to be considered. Applications are due by July 31, 2026.\u00a0\n",
+      "location": "",
+      "first_published": "2026-03-05T04:22:05.698000+00:00",
+      "url": "https://jobs.lever.co/aisafety/e011814b-9a80-43d6-bb0c-cc153ea4bec4"
+    },
+    {
+      "title": "Research Scientist",
+      "description": "The Center for AI Safety (CAIS) is a leading research and advocacy organization focused on mitigating societal-scale risks from AI. We address AI\u2019s toughest challenges through technical research, field-building initiatives, and policy engagement, along with our sister organization, Center for AI Safety Action Fund. \n\u00a0\nAs a Research Scientist here, you will lead and execute high-impact research that advances the safety and reliability of frontier AI systems. You'll design and run experiments on large language models, build the tooling needed to train and evaluate models at scale, and turn results into publishable research. You'll collaborate closely with CAIS researchers and external academic and commercial partners, using our compute cluster to run large-scale training and evaluation. The work spans areas like AI honesty, robustness, transparency, and trojan/backdoor behaviors, aimed at reducing real-world risks from advanced AI systems. \n",
+      "location": "",
+      "first_published": "2023-11-14T00:36:37.085000+00:00",
+      "url": "https://jobs.lever.co/aisafety/0e911ab2-89e0-4936-83e6-034f7e2f8977"
+    },
+    {
+      "title": "Social Media & Community Manager",
+      "description": "The Center for AI Safety (CAIS) is a leading research and advocacy organization focused on mitigating societal-scale risks from AI. We address AI's toughest challenges through technical research, field-building initiatives, and policy engagement, along with our sister organization in DC, Center for AI Safety Action Fund.\n\u00a0\nPublic awareness remains the single biggest bottleneck in Al safety. Fortunately, the public's interest in Al safety is growing extremely quickly. Videos, articles, and social posts about Al safety are now reaching millions, and public curiosity is compounding by the week. Our growth depends on someone who shows up every day across platforms and actively works the comment sections, seeding the conversations that carry our ideas to the power-listeners and clippers who spread them.\n\u00a0\nWe're hiring a Social & Community Manager to run CAIS's daily presence across platforms, and to build the community and conversations that move our ideas through the culture. You will report to the Head of Public Engagement.\n",
+      "location": "",
+      "first_published": "2026-06-08T16:53:25.531000+00:00",
+      "url": "https://jobs.lever.co/aisafety/7c960ea7-2aba-4ec6-af72-5676cbf8305e"
+    }
+  ],
+  "primary_function": "mixed",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "monthly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.57,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Research-focused organization with a mix of technical and non-technical roles.",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

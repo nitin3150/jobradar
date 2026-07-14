@@ -1,0 +1,8 @@
+{
+  "schema_version": 2,
+  "status": "failed",
+  "slug": "launchsquad",
+  "board": "lever",
+  "decision_at": "2026-07-14T05:23:40.230767+00:00",
+  "reason": "RuntimeError: all LLM providers failed on run_json_prompt; last error type=_RateLimitedError"
+}

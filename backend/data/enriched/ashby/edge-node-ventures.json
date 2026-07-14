@@ -1,8 +1,0 @@
-{
-  "schema_version": 1,
-  "status": "failed",
-  "slug": "edge-node-ventures",
-  "board": "ashby",
-  "decision_at": "2026-07-11T01:12:07.321146+00:00",
-  "reason": "fetch returned empty or errored (transient)"
-}

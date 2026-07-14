@@ -1,0 +1,8 @@
+{
+  "schema_version": 2,
+  "status": "failed",
+  "slug": "oxylabs",
+  "board": "lever",
+  "decision_at": "2026-07-14T05:26:42.455363+00:00",
+  "reason": "RuntimeError: all LLM providers failed on run_json_prompt; last error type=_RateLimitedError"
+}

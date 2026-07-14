@@ -1,8 +1,0 @@
-{
-  "schema_version": 1,
-  "status": "failed",
-  "slug": "cloaked-app",
-  "board": "lever",
-  "decision_at": "2026-07-11T01:13:31.398630+00:00",
-  "reason": "fetch returned empty or errored (transient)"
-}

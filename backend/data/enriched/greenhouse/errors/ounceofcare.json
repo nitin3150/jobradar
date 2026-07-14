@@ -1,0 +1,8 @@
+{
+  "schema_version": 2,
+  "status": "failed",
+  "slug": "ounceofcare",
+  "board": "greenhouse",
+  "decision_at": "2026-07-14T19:19:41.410354+00:00",
+  "reason": "RuntimeError: all LLM providers failed on run_json_prompt; last error type=_RateLimitedError"
+}

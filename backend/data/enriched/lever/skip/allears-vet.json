@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "allears-vet",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:00:06.701543+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-04-13T16:41:07.417000+00:00",
+  "source_jobs": [
+    {
+      "title": "Associate Veterinarian (Exotics)",
+      "description": "All Ears Veterinary is a modern, independently-owned veterinary clinic focused on creating a happy, fulfilling work environment. We know that a team that feels respected and supported in every way leads to the best medicine. We encourage curiosity, stay flexible in how we do things, and listen to (and implement) ideas for how we can be better. Our philosophy for patient care is built around fear free and low stress practices and techniques, ensuring the best and safest experience for our patients and team. We are excited about affecting real change in the veterinary industry and we hope you are, too.\n\u00a0\nWe are looking for an experienced Associate Veterinarian (Exotics) to join our growing team. Candidates should have at least two years of experience practicing in exotics primary care, urgent care or emergency medicine and comfort working with exotics independently and without direct mentorship in exotic medicine. You would be the sole exotics veterinarian. This role has the potential to grow into a leadership position responsible for mentorship of other exotics veterinarians. We have a robust clientele of exotics patients. Experience with canine and feline medicine, or a desire to learn, is a plus, but not required.\u00a0\n\u00a0\n",
+      "location": "",
+      "first_published": "2026-04-13T16:41:07.417000+00:00",
+      "url": "https://jobs.lever.co/allears-vet/07a7f369-5d8c-4629-9093-c070233da0fa"
+    },
+    {
+      "title": "Associate Veterinarian (Part-Time)",
+      "description": "All Ears Veterinary is a modern, independently-owned veterinary clinic focused on creating a happy, fulfilling work environment. We know that a team that feels respected and supported in every way leads to the best medicine. We encourage curiosity, stay flexible in how we do things, and listen to (and implement) ideas for how we can be better. Our philosophy for patient care is built around fear free and low stress practices and techniques, ensuring the best and safest experience for our patients and team. We are excited about affecting real change in the veterinary industry and we hope you are, too.\n\u00a0\nWe are looking for a veterinarian to join our team on a part-time basis. The position would consist of two 9- or 10-hour shifts per week with occasional weeks of 3-4 shifts per week when other DVMs are out on vacation. The position would require 2 weekend shifts per month. While this position has no end date, candidates that are interested in a contract of a certain length will be considered. There is potential for this position to transition into a full-time role, after which additional benefits would be offered. Candidates should have at least one year of experience practicing in small animal primary care, urgent care or emergency medicine.\n\u00a0\n",
+      "location": "",
+      "first_published": "2025-12-09T18:40:03.821000+00:00",
+      "url": "https://jobs.lever.co/allears-vet/ae66e2b5-73dd-4576-8011-5e7173fd06bb"
+    },
+    {
+      "title": "Veterinary Assistant",
+      "description": "All Ears Veterinary is a modern, independently-owned veterinary clinic focused on creating a happy, fulfilling work environment. We know that a team that feels respected and supported in every way leads to the best medicine. We encourage curiosity, stay flexible in how we do things, and listen to (and implement) ideas for how we can be better. Our philosophy for patient care is built around fear free and low stress practices and techniques, ensuring the best and safest experience for our patients and team. We are excited about affecting real change in the veterinary industry and we hope you are, too.\n\u00a0\nWe are looking for a Veterinary Assistant to join our growing team. The ideal candidate has at least 1 year of experience.\n",
+      "location": "",
+      "first_published": "2021-08-25T16:57:12.255000+00:00",
+      "url": "https://jobs.lever.co/allears-vet/fd14f3fa-019a-4909-86a1-ed91fb95b78d"
+    }
+  ],
+  "primary_function": "non_tech_satellite",
+  "estimated_stage": "unknown",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": null,
+  "tech_role_ratio": 0.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.5,
+  "volatility_signal": 0.0,
+  "notes": "Veterinary clinic with no tech roles posted",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

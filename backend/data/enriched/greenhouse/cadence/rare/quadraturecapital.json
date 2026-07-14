@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "slug": "quadraturecapital",
+  "board": "greenhouse",
+  "enriched_at": "2026-07-14T19:55:28.036533+00:00",
+  "source_jobs_count": 4,
+  "source_last_published": "2026-07-07T14:11:33+00:00",
+  "source_jobs": [
+    {
+      "title": "Internships",
+      "description": "&lt;h2 class=&quot;two-col-illustration__title&quot;&gt;We offer students from a variety of different backgrounds the chance to apply their skills and curiosity to real-world, interesting problems&lt;/h2&gt;\n&lt;div class=&quot;two-col-illustration__paragraph&quot;&gt;\n&lt;p&gt;We believe that the learning and insights you gather through education set the tone for your early career and help you figure out what you want to do. We offer London and New York based, competitively paid summer internships to University students from across the globe.&amp;nbsp;&lt;/p&gt;\n&lt;h3 class=&quot;two-col__title&quot;&gt;Internships&lt;/h3&gt;\n&lt;div class=&quot;two-col__paragraph&quot;&gt;\n&lt;p&gt;We offer 11-week internships to undergraduate and postgrad students each summer. Our interns are introduced to the way we work and mentored closely during their time with us, delivering work that has real-world results. We proactively look for people that might not have considered a career in quantitative finance, so if you don\u2019t have experience with markets or our industry don\u2019t worry! Please note that programming experience is a must if you are applying to our Quant Developer internship. This is a paid internship and we provide accommodation in fully serviced apartments.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;PLEASE NOTE&lt;/strong&gt;: Our internship application process runs from August until December. If you send us your details outside of this time, your profile will be saved on our system, but we won&#39;t be actively monitoring applications.&amp;nbsp;&lt;/p&gt;\n&lt;/div&gt;\n&lt;/div&gt;",
+      "location": "",
+      "first_published": "2026-06-25T11:59:06+00:00",
+      "url": "https://job-boards.greenhouse.io/quadraturecapital/jobs/4255974"
+    },
+    {
+      "title": "Platform Engineer",
+      "description": "&lt;p&gt;At Quadrature, we&#39;re building the ultimate automated trading system: one that ingests data, forms views, executes in the market, and learns from the result to get better and faster. Every component - research infrastructure, low-latency stream processing, distributed data systems, trade execution, observability - is part of that system. The goal is for human effort to compound, rather than be spent solving the same problems again and again.&lt;/p&gt;\n&lt;p&gt;Platform Engineers run the internal developer platform that powers Quadrature&#39;s business-critical applications, giving engineering teams self-service tools to ship and operate their systems reliably.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;What we\u2019re looking for:&amp;nbsp;&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Strong hands-on experience running Kubernetes in production: administration, operations, and application deployment.&amp;nbsp;&lt;/li&gt;\n&lt;li&gt;Solid grounding in Linux and networking fundamentals, with proficiency in Go or Python.&amp;nbsp;&lt;/li&gt;\n&lt;li&gt;A track record of leading complex technical projects end-to-end: from requirements and architecture through to implementation and delivery.&amp;nbsp;&lt;/li&gt;\n&lt;li&gt;Proficiency with GitOps, Infrastructure-as-Code, configuration management, and modern observability stacks.&lt;/li&gt;\n&lt;li&gt;A pragmatic, adaptable mindset - equally comfortable building global infrastructure, advising other teams, and bringing in new tools and ideas where they add value.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;If you want to do the best work of your career, we&#39;d love to hear from you.&lt;/p&gt;\n&lt;p&gt;To see our benefits, check out &lt;a href=&quot;https://www.quadrature.ai/working-here/our-benefits/&quot;&gt;https://www.quadrature.ai/working-here/our-benefits/&lt;/a&gt;&amp;nbsp;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-06-25T11:59:22+00:00",
+      "url": "https://job-boards.greenhouse.io/quadraturecapital/jobs/8028013"
+    },
+    {
+      "title": "Quantitative Developer",
+      "description": "&lt;p&gt;At Quadrature, we&#39;re building the ultimate automated trading system: one that ingests data, forms views, executes in the market, and learns from the result to get better and faster. Every component - research infrastructure, low-latency stream processing, distributed data systems, trade execution, observability - is part of that system. The goal is for human effort to compound, rather than be spent solving the same problems again and again.&lt;/p&gt;\n&lt;p&gt;Our Quantitative developers work across all aspects of this system and we\u2019re always on the look out for exceptional quant developers and software engineers who want to help build it. Where you might join depends on your strengths and interests.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;What we&#39;re looking for&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Strong programming skills - we primarily work with Python, C++ and Rust, but we care more about how you think than the languages you&#39;ve used.&lt;/li&gt;\n&lt;li&gt;Sharp design instincts and experience building or operating distributed systems.&lt;/li&gt;\n&lt;li&gt;Genuine curiosity about how systems work: how they fail, how they&#39;re operated, and how they evolve.&lt;/li&gt;\n&lt;li&gt;Care for the people and code around you, and the drive to keep making both better.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;If you want to do the best work of your career, we&#39;d love to hear from you.&lt;/p&gt;\n&lt;p&gt;To see our benefits, check out &lt;a href=&quot;https://www.quadrature.ai/working-here/our-benefits/&quot;&gt;https://www.quadrature.ai/working-here/our-benefits/&lt;/a&gt;&amp;nbsp;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-07-07T14:11:33+00:00",
+      "url": "https://job-boards.greenhouse.io/quadraturecapital/jobs/8048585"
+    },
+    {
+      "title": "We're Hiring!",
+      "description": "&lt;p&gt;We&#39;re always looking for talented people to join our business, which is why we don&#39;t have specific roles on our careers page for people to apply to. If you are interested in learning more about opportunities at Quadrature, then send us your CV and a Cover Letter telling us more about what kind of work you&#39;d like to do. Note that we receive a high number of applications so we may not be able to respond individually to these. If your experience is relevant for us, a member of our talent team will reach out to organise an introduction call.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-06-25T11:59:06+00:00",
+      "url": "https://job-boards.greenhouse.io/quadraturecapital/jobs/3088156"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_b",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.75,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Small, engineering-heavy org with a focus on automated trading systems.",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -287,38 +287,74 @@ def load_orgs(board_name):
                     excluded.update(json.load(handle))
                 except (json.JSONDecodeError, TypeError):
                     pass
-    # ``BOARDS_USE_ENRICHED_PROFILES=1`` consults the per-board
-    # ``_skip_list.json`` written by
-    # ``scripts/enrich_org_profiles.py`` — a one-time LLM pass over
-    # every org's board response, classifying them as
-    # "dead for 6+ months" / "sponsorship-blocked" / "confidently
-    # non-tech", which we drop from hourly cron to keep the
-    # per-run wall-clock and LLM cost bounded. Same truthy-string
-    # whitelist as ``BOARDS_SKIP_TIMEOUTS`` above so a typo doesn't
-    # silently disable the gate. The file may be missing (the
-    # enrichment script hasn't run yet) or malformed (partial
-    # refresh) — both fall through to current behavior rather
-    # than crashing the cron, since dropping hours of work over a
-    # file-parse bug is worse than doing one extra HTTP fetch.
-    _enriched_value = os.environ.get("BOARDS_USE_ENRICHED_PROFILES", "0").strip().lower()
-    if _enriched_value in ("1", "true", "yes"):
-        enriched_skip_path = DATA_DIR / "enriched" / board_name / "_skip_list.json"
-        if enriched_skip_path.exists():
-            with open(enriched_skip_path, "r") as handle:
-                try:
-                    skip_payload = json.load(handle)
-                    # ``_skip_list.json`` shape: ``{"slugs": [...], "schema_version": N, ...}``.
-                    # A list at the top is also accepted (older shape, tests).
-                    if isinstance(skip_payload, list):
-                        excluded.update(skip_payload)
-                    elif isinstance(skip_payload, dict):
-                        excluded.update(skip_payload.get("slugs") or [])
-                except (json.JSONDecodeError, TypeError, ValueError) as exc:
-                    logger.warning(
-                        "could not read enriched skip list for board %r at %s: %s; "
-                        "falling back to current behavior",
-                        board_name, enriched_skip_path, exc,
-                    )
+    # ``BOARDS_CADENCES="a,b,c"`` narrows the org list to whatever
+    # lives under
+    # ``data/enriched/<board>/cadence/<a|b|c>/`` — the per-tier
+    # GHA workflow writes that env on the per-cron schedule
+    # (see ``.github/workflows/boards-scan.yml``: active hourly,
+    # dormant daily, probe weekly Sun). The per-cadence layout
+    # produced by :mod:`scripts.enrich_org_profiles` means the
+    # runner reads slugs as filenames (``Path.stem``), no JSON
+    # parse, so the per-tick overhead stays under ~1 ms even at
+    # the 10K-org scale.
+    #
+    # Missing cadence directories log a warning and contribute
+    # zero slugs; an all-empty ``BOARDS_CADENCES`` resolution
+    # logs a second warning so an operator chasing an empty
+    # queue understands "tier ran cleanly but has no orgs" rather
+    # than a phantom upstream failure. Both warnings are best-
+    # effort; ``load_orgs`` returns the (possibly empty) filtered
+    # list either way.
+    #
+    # The flat ``_skip_list.json`` reader that the deprecated
+    # ``BOARDS_USE_ENRICHED_PROFILES`` env previously opened was
+    # REMOVED — every org profile now lives in either
+    # ``cadence/<bucket>/`` (scanned) or ``skip/`` (never
+    # scanned) or ``errors/`` (operator inspection only). The
+    # ``skip/`` directory does not need an explicit exclusion:
+    # no GHA tier names it in ``BOARDS_CADENCES`` so it never
+    # shows up in an active scan.
+    #
+    # Unset ``BOARDS_CADENCES`` = legacy behavior (full board
+    # minus the missing/timeout ban lists above) so an
+    # unconfigured deployment keeps scanning every org.
+    _cadence_env = os.environ.get("BOARDS_CADENCES", "").strip()
+    if _cadence_env:
+        allowed_cadences = [
+            c.strip() for c in _cadence_env.split(",") if c.strip()
+        ]
+        enriched_root = DATA_DIR / "enriched" / board_name
+        allowed_slugs: set[str] = set()
+        for cadence in allowed_cadences:
+            cadence_dir = enriched_root / "cadence" / cadence
+            if not cadence_dir.exists():
+                logger.warning(
+                    "BOARDS_CADENCES named cadence %r for board %r "
+                    "but %s does not exist on disk; treating as zero-match",
+                    cadence, board_name, cadence_dir,
+                )
+                continue
+            for path in cadence_dir.glob("*.json"):
+                allowed_slugs.add(path.stem)
+        if not allowed_slugs:
+            # Surface a loud warning so an operator staring at
+            # an empty queue understands "this scan ran
+            # successfully but the cadence tier has nothing to
+            # fetch" rather than chasing a phantom upstream
+            # failure. ``run_all`` will log "no relevant jobs"
+            # and tidy-exit without writing a ``scanner_runs``
+            # ``state=error`` row.
+            logger.warning(
+                "BOARDS_CADENCES=%r resolved to zero slugs for board %r; "
+                "the scan will run end-to-end and produce zero writes",
+                _cadence_env, board_name,
+            )
+        # ``orgs`` is intersected with the allowed set BEFORE the
+        # ``if excluded:`` branch below so the missing-org /
+        # timeout-org ban lists still apply on top of the cadence
+        # filter (a slug that's both in the rare bucket AND has
+        # been timing out for a week gets dropped either way).
+        orgs = [slug for slug in orgs if slug in allowed_slugs]
     if excluded:
         return [slug for slug in orgs if slug not in excluded]
     return orgs

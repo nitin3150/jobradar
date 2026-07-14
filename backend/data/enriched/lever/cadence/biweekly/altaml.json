@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "slug": "altaml",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:04:32.474320+00:00",
+  "source_jobs_count": 6,
+  "source_last_published": "2026-06-24T19:29:30.405000+00:00",
+  "source_jobs": [
+    {
+      "title": "Accountant",
+      "description": "About the Role\nGot your bookkeeping basics down and ready to put them to work somewhere interesting? Brilliant Harvest is hiring an Accountant to support our Finance & Operations Manager across a broad mix of accounting, finance, and operations tasks \u2014 think monthly bookkeeping, payroll, invoicing, sales tax filings, and helping pull together reports for investors and the board. It's a varied role with real exposure to how a growing business runs, and a genuine stepping stone from bookkeeping into broader finance and business operations.\n\u00a0\nThis role is based in Calgary, AB and requires a certain level of in-office presence.\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-19T18:30:34.815000+00:00",
+      "url": "https://jobs.lever.co/altaml/84e6c221-50d4-4f35-9189-f3167ded741b"
+    },
+    {
+      "title": "Director, Client Success",
+      "description": "AltaML is seeking a Director, Client Success to own delivery outcomes, client relationships, and portfolio health across our most complex engagements. This is a senior leadership role that sits at the intersection of delivery, strategy, and customer success, accountable for ensuring that clients realise measurable value from everything AltaML builds and deploys.\nThe Director, Client Success retains the same strategic mandate, now aligned to industry-standard terminology that reflects what the role truly does: build enduring partnerships, drive adoption, and translate delivery insight into lasting client impact.\nReporting into the GM, Enterprise AI, the Director, Client Success is accountable for what happens once engagements begin: delivery quality, stakeholder satisfaction, and renewal.\n",
+      "location": "",
+      "first_published": "2026-06-04T20:09:02.086000+00:00",
+      "url": "https://jobs.lever.co/altaml/66d60dbc-112b-436b-af89-297eabc128aa"
+    },
+    {
+      "title": "Intermediate Full Stack Software Engineer",
+      "description": "About Us:\nAltaML is a leading North American applied AI company with extensive experience in building and operationalizing AI software solutions. \n\nWe are a company like no other \u2013 we believe in making small bets, failing fast, and being better together. We are looking for creative problem-solvers who obsess about the customer to find wins across different industries.\n\nWe don\u2019t hire for fit; we hire to add. We are looking for people who play our core values of being: Agile, Gritty Humble, and Happy. If you\u2019re passionate about AI/ML, thrive in a dynamic environment, and want to work with a diverse team of wickedly smart people, we want to hear from you!\n\n\nWe are looking for a Full Stack Software Engineer who builds software in an AI-native way \u2014 someone who treats Claude and the latest agentic coding tools as a core part of their craft, not a novelty. In this role, you will contribute to the technical delivery of ML-powered applications across cloud services, APIs, and modern front-end frameworks, with Claude Code, the Claude API, and agentic workflows woven into how you design, build, and ship.\nYou will be an active contributor within your project pod, shipping features end-to-end, participating in technical design discussions, and growing your ability to translate business requirements into well-engineered solutions. You will take ownership of your work \u2014 writing clean, reviewable code, contributing to shared internal frameworks, and continuously developing your fluency with AI-assisted development.\nYou will thrive in this role if you are a builder who leans on Claude Code to move fast without cutting corners. You write clear specs, review AI-generated code critically, and know when to delegate to an agent versus when to handcraft. You are curious about where LLMs fit (and where they don\u2019t), and you bring a practical, evidence-based instinct to that question.\n",
+      "location": "",
+      "first_published": "2026-05-20T22:22:32.788000+00:00",
+      "url": "https://jobs.lever.co/altaml/74efba24-9733-4308-903a-9757a80684ba"
+    },
+    {
+      "title": "Manager, Software Engineering",
+      "description": "About Us:\nAltaML is a leading North American applied AI company with extensive experience in building and operationalizing AI software solutions. \n\nWe are a company like no other \u2013 we believe in making small bets, failing fast, and being better together. We are looking for creative problem-solvers who obsess about the customer to find wins across different industries.\n\nWe don\u2019t hire for fit; we hire to add. We are looking for people who play our core values of being: Agile, Gritty Humble, and Happy. If you\u2019re passionate about AI/ML, thrive in a dynamic environment, and want to work with a diverse team of wickedly smart people, we want to hear from you!\n\n\nRole Summary\nThe Manager, Software Engineering leads multiple developers across delivery pods with accountability for both technical excellence and team health. This role owns the architectural integrity of solutions across teams, removes engineering blockers, and ensures delivery meets quality and timeline commitments. The Manager is equally responsible for growing a high-performing team and maintaining the trust of clients and internal stakeholders through transparent, reliable execution.\n",
+      "location": "",
+      "first_published": "2026-06-18T21:31:56.058000+00:00",
+      "url": "https://jobs.lever.co/altaml/fa344bd5-684e-465e-b784-5d5af002cf45"
+    },
+    {
+      "title": "Senior Account Executive, Architecture Engineering & Construction",
+      "description": "AltaML is looking for a Senior Account Executive to own the Architecture, Engineering & Construction (AEC) vertical across Canada and the U.S. You'll bring an existing executive network in Construction Tech, a track record of closing enterprise deals, and the credibility to walk into a conversation with a COO or VDC Director and immediately add value.\nThis is a net-new role. You won't be inheriting a patched-together territory. You'll be building something from the ground up, backed by existing AEC customers, proven AI solutions, and a company that's already earning its reputation in vertical AI.\n",
+      "location": "",
+      "first_published": "2026-06-24T19:29:30.405000+00:00",
+      "url": "https://jobs.lever.co/altaml/715d1127-41e2-4ea4-82d4-5e7cb4fe8c14"
+    },
+    {
+      "title": "Senior Full Stack Software Engineer",
+      "description": "We're looking for a Senior Full Stack Software Engineer who is passionate about building high-quality software in an AI-native way. Someone who treats Claude and the latest agentic coding tools as a core part of their craft, not a novelty. In this role, you will own technical delivery end-to-end, from shaping the architecture of ML-powered applications to leading implementation across cloud services, APIs, and modern front-end frameworks, with Claude Code, the Claude Agent SDK, and the Claude API woven into how you design, build, and ship.\nYou will act as the technical backbone of your project pod, balancing hands-on development with technical leadership, architectural decision-making, and client-facing collaboration. You'll lead epic-level solution design, mentor developers on how to get the most out of Claude in their day-to-day workflows, contribute to shared internal frameworks and skills/plugins, and help shape how we evaluate and deploy emerging AI engineering tooling.\n\nYou will thrive in this role if you are:\nA builder at heart who leans on Claude Code to spin up prototypes in hours and scale them into production-grade systems with confidence.\nFluent in agentic development patterns. Writing good specs for Claude, structuring repos so AI agents can navigate them, reviewing AI-generated code critically, and knowing when to delegate versus when to hand-code.\nA strong communicator who can translate between business requirements, technical realities, and what modern AI tooling actually makes feasible.\nA decision-maker who brings clarity to ambiguous technical challenges and can evaluate when an LLM-in-the-loop is the right solution versus traditional software.\nExcited by ML-enabled product development and eager to bridge software engineering with intelligent automation and agentic workflows.\n",
+      "location": "",
+      "first_published": "2026-04-22T21:30:02.672000+00:00",
+      "url": "https://jobs.lever.co/altaml/3731e215-cbad-4a2d-9bd2-3e60bb19096e"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_b",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "biweekly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.67,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "AltaML is a leading North American applied AI company with a strong focus on engineering and AI/ML solutions.",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

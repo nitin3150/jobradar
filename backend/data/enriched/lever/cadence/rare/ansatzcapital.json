@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "slug": "ansatzcapital",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:08:27.386089+00:00",
+  "source_jobs_count": 5,
+  "source_last_published": "2025-09-24T14:07:58.832000+00:00",
+  "source_jobs": [
+    {
+      "title": "Internship (No intern program at this time)",
+      "description": "Ansatz Capital does not have an internship program at this time. If you would like, you may submit a resume and we will keep your profile on file. Applicants should not expect a response. \n\nAnsatz Capital is a quantitative trading software firm based in downtown Manhattan. Our highly technical team believes in treating markets as an intellectual discipline\u2014something that can be studied, refined, and innovated upon.\n\nWe believe in the value in gathering a talented group of people together and letting them work together intelligently. By avoiding the bureaucracy inherent in larger firms, our group achieves more and more quickly than other industry leaders. Supported by world class technology, our team generates and implements unparalleled research ideas. Collaboration has been key to our success, and culture is a key driver of the collaboration.\n",
+      "location": "",
+      "first_published": "2025-09-24T14:07:58.832000+00:00",
+      "url": "https://jobs.lever.co/ansatzcapital/555c0f1a-ec57-49ff-a7df-944da3ee69e7"
+    },
+    {
+      "title": "Research Engineer",
+      "description": "We are looking for a\u00a0research engineer\u00a0to research, test, and deploy new trading strategies, as well as to design and build research infrastructure to test trading ideas.\n\nCandidates focusing on strategy development should be strong quantitative problem solvers interested in identifying and monetizing statistical patterns in the financial markets and also adept at implementing their ideas in Python. We are looking for someone who is both intellectually curious and also self-sufficient to help maintain and develop various trading strategies.\n\nCandidates with software implementation skills and comfort in implementing both performant code and designing user-friendly tools will also be strongly considered. We are looking for someone who is effective at building usable software quickly and correctly to extend the scope of our quantitative research and coverage of our trading strategies.\n\nCompensation consists of base salary, discretionary performance bonus, and possible participation in longer-term incentive schemes.\n",
+      "location": "",
+      "first_published": "2025-02-19T20:49:35.165000+00:00",
+      "url": "https://jobs.lever.co/ansatzcapital/b2ebfedc-528f-42ff-9a01-54aad291233c"
+    },
+    {
+      "title": "Research Engineer",
+      "description": "We are looking for a research engineer to research, test, and deploy new trading strategies, as well as to design and build research infrastructure to test trading ideas. \n\nCandidates focusing on strategy development should be strong quantitative problem solvers interested in identifying and monetizing statistical patterns in the financial markets and also adept at implementing their ideas in Python. We are looking for someone who is both intellectually curious and also self-sufficient to help maintain and develop various trading strategies. \n\nCandidates with  software implementation skills and comfort in implementing both performant code and designing user-friendly tools will also be strongly considered. We are looking for  someone who is effective at building usable software quickly and  correctly to extend the scope of our quantitative research and coverage of  our trading strategies.\n\nCompensation consists of base salary, discretionary performance bonus, and possible participation in longer-term incentive schemes.\n",
+      "location": "",
+      "first_published": "2016-05-25T16:16:34.997000+00:00",
+      "url": "https://jobs.lever.co/ansatzcapital/ff1fb5f8-854c-4ef8-9246-0c0c472ed95c"
+    },
+    {
+      "title": "Software Engineer",
+      "description": "We are looking for a software engineer to join a lean and technical quantitative trading startup. You\u2019ll be responsible for developing and maintaining scalable trading applications and infrastructure for many financial markets and assist with developing the full stack of infrastructure to support trading operations. \u00a0The role is fast paced, with daily or even more frequent release cycles, and requires a good sense of prioritization between longer and shorter term needs.\n\nWithin our systems, from hardware drivers to TCP/multicast handlers to Python interfaces, each layer requires custom optimization for latency, bandwidth, or both. An understanding of trade-offs in terms of clock cycles and CPU cache effects is a must. \u00a0Multi-core/multi-threaded communications using lock-free algorithms will be employed to increase the theoretical computational limit per unit time; consequently, the candidate should have a good grasp of run-time behavior, serialization delays, and asymptotic behavior in this environment. Compensation consists of base salary, discretionary performance bonus, and possible participation in longer-term incentive schemes.\n",
+      "location": "",
+      "first_published": "2016-05-24T16:36:41.615000+00:00",
+      "url": "https://jobs.lever.co/ansatzcapital/39609b59-4c21-44b8-bcaa-7209db6125cb"
+    },
+    {
+      "title": "Software Engineer (London)",
+      "description": "We are looking for a software engineer to join a lean and technical quantitative trading startup. You\u2019ll be responsible for developing and maintaining scalable trading applications and infrastructure for many financial markets and assist with developing the full stack of infrastructure to support trading operations. \u00a0The role is fast paced, with daily or even more frequent release cycles, and requires a good sense of prioritization between longer and shorter term needs.\n\nWithin our systems, from hardware drivers to TCP/multicast handlers to Python interfaces, each layer requires custom optimization for latency, bandwidth, or both. An understanding of trade-offs in terms of clock cycles and CPU cache effects is a must. \u00a0Multi-core/multi-threaded communications using lock-free algorithms will be employed to increase the theoretical computational limit per unit time; consequently, the candidate should have a good grasp of run-time behavior, serialization delays, and asymptotic behavior in this environment. Compensation consists of base salary, discretionary performance bonus, and possible participation in longer-term incentive schemes.\n",
+      "location": "",
+      "first_published": "2024-02-21T21:38:00.862000+00:00",
+      "url": "https://jobs.lever.co/ansatzcapital/cfe90d2c-b4c5-4200-80a2-d9f7c3b1ccd4"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.8,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.2,
+  "notes": "Quantitative trading software firm with a highly technical team",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

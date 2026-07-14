@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "ambergroup",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:04:44.430966+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2024-11-08T03:56:19.350000+00:00",
+  "source_jobs": [
+    {
+      "title": "Blockchain Developer (Algorithm) - Platform Trading - Global",
+      "description": "Amber Group is a leader in digital asset trading, products and infrastructure. We work with companies ranging from token issuers, banks and fintech firms, to sports teams, game developers, brands and creators. Operating at the center of markets, we act as liquidity providers, miners and validators on all major exchanges, applications, and networks. Across all products and categories, we have turned over >$1T in volumes since inception. Our mission is to make our digital future a reality and shape it to be fair, inclusive, and kind.\n\nOur people are both dreamers and doers - a self-driven, entrepreneurial community who are believers in the power of decentralized networks.\u00a0We collaborate across teams and regions, promoting a culture that is open, transparent, respectful and inclusive.\n\nOur businesses\n1.   Institutional financial services, helping 1,000+ asset managers, hedge funds, corporates, and family offices invest in digital assets via API and our OTC desk.\n2.   Consumer financial services with millions of customers investing in digital assets via our award-winning mobile app and web platforms.\n3.   The emerging digital creator economy including gaming tokens, digital art, sports collectibles, and social tokens.\n\nAt Amber Group, you will have the opportunity to work with innovative and entrepreneurial people, solve meaningful problems, accept challenges, and become experts in frontier fields. We strive to take care of our people, providing competitive incentives, benefits and rewards.",
+      "location": "",
+      "first_published": "2022-04-07T07:32:46.108000+00:00",
+      "url": "https://jobs.lever.co/ambergroup/04e8d429-cec9-46be-8a82-6525a8df4448"
+    },
+    {
+      "title": "Quant Intern",
+      "description": "\n",
+      "location": "",
+      "first_published": "2024-11-08T03:56:19.350000+00:00",
+      "url": "https://jobs.lever.co/ambergroup/a4df0b48-88f8-4cd9-9084-e211bdb0027e"
+    },
+    {
+      "title": "Quant Researcher - Statistical Arbitrage",
+      "description": "Amber Group is a leader in digital asset trading, products and infrastructure. We work with companies ranging from token issuers, banks and fintech firms, to sports teams, game developers, brands and creators. Operating at the center of markets, we act as liquidity providers, miners and validators on all major exchanges, applications, and networks. Across all products and categories, we have turned over >$1T in volumes since inception. Our mission is to make our digital future a reality and shape it to be fair, inclusive, and kind.\n\nOur people are both dreamers and doers - a self-driven, entrepreneurial community who are believers in the power of decentralized networks.\u00a0We collaborate across teams and regions, promoting a culture that is open, transparent, respectful and inclusive.\n\nOur businesses\n1.   Institutional financial services, helping 1,000+ asset managers, hedge funds, corporates, and family offices invest in digital assets via API and our OTC desk.\n2.   Consumer financial services with millions of customers investing in digital assets via our award-winning mobile app and web platforms.\n3.   The emerging digital creator economy including gaming tokens, digital art, sports collectibles, and social tokens.\n\nAt Amber Group, you will have the opportunity to work with innovative and entrepreneurial people, solve meaningful problems, accept challenges, and become experts in frontier fields. We strive to take care of our people, providing competitive incentives, benefits and rewards.",
+      "location": "",
+      "first_published": "2023-02-10T11:52:57.519000+00:00",
+      "url": "https://jobs.lever.co/ambergroup/b49b1bd3-75cf-45ee-9863-ff85e1bdf0fa"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_b",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 1.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Small sample size, but all postings are tech roles.",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "slug": "asapp-2",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:13:29.072081+00:00",
+  "source_jobs_count": 6,
+  "source_last_published": "2026-06-24T17:49:57.833000+00:00",
+  "source_jobs": [
+    {
+      "title": "Demo Engineer",
+      "description": "At ASAPP, our mission is simple: deliver the best AI-powered customer experience\u2014faster than anyone else. To achieve that, we\u2019re guided by principles that shape how we think, build, and execute. We value customer obsession, purposeful speed, ownership, and a relentless focus on outcomes. We work in tight, skilled teams, prioritize clarity over complexity, and continuously evolve through curiosity, data, and craftsmanship.\nWe\u2019re seeking technologists and problem solvers who thrive in fast-paced environments, love collaborating with great talent, and approach every day like it\u2019s Day 1. We're a globally diverse team with hubs in New York City, Mountain View, Latin America, and India\u2014embracing both hybrid and remote work to bring the best minds together, wherever they are. If you're driven by continuous learning, rapid pivots, and the challenges of building in a high-growth startup, we\u2019d love to talk.\nWe are hiring a Solutions Engineer to build the infrastructure ASAPP's Solution Engineering team uses to win deals. You will design and evolve the prototypes, sandboxes, and integrations that bring CXP and GenerativeAgent to life for prospects.\n\nMost of your time will go to advanced configuration of our Customer Experience Platform (CXP), our Agentic AI for customer service, and to full-stack code that makes demos compelling. You will lean heavily on AI-assisted development with Claude Code, the Anthropic API, MCP servers, and tool-use patterns. Your output is prototype-grade, but must feel real enough to anchor an enterprise buying conversation.\n\nYou may occasionally join customer meetings for a bespoke prototype, but customer-facing work is not the main expectation.\n\nThis role suits an exceptional early/mid-career engineer with about three years of experience, a strong record of shipping, and comfort with ambiguity.\n",
+      "location": "",
+      "first_published": "2026-05-28T13:34:36.156000+00:00",
+      "url": "https://jobs.lever.co/asapp-2/152c4868-2708-4817-a2eb-25fc4141398c"
+    },
+    {
+      "title": "Head of IT",
+      "description": "At ASAPP, our mission is simple: deliver the best AI-powered customer experience\u2014faster than anyone else. To achieve that, we\u2019re guided by principles that shape how we think, build, and execute. We value customer obsession, purposeful speed, ownership, and a relentless focus on outcomes. We work in tight, skilled teams, prioritize clarity over complexity, and continuously evolve through curiosity, data, and craftsmanship.\u00a0We\u2019re seeking technologists and problem solvers who thrive in fast-paced environments, love collaborating with great talent, and approach every day like it\u2019s Day 1. \n\u00a0\nWe're a globally diverse team with hubs in New York City, Mountain View, Latin America, and India\u2014to bring the best minds together. If you're driven by continuous learning, rapid pivots, and the challenges of building in a high-growth startup, we\u2019d love to talk. This is more than a job\u2014it\u2019s a journey. \nWe're looking for a hands-on IT Leader to own the end-to-end internal information technology function at ASAPP, reporting to the VP and Head of Security and Trust. The scope spans identity and access management, endpoint and device management, SaaS and AI platform administration, service desk, security and compliance operations support, and physical office infrastructure, supported by a team of 4 to 5 IT engineers.\nThis is a technical leadership role. The right candidate is equally comfortable driving strategy and getting into the details, whether that's reviewing an MDM configuration, building automation, managing the company's AI productivity stack, or partnering with the Security team on a SOC 2 audit cycle.\n This role has a hybrid schedule, with 3-days a week in our NYC office.\u00a0\n\n",
+      "location": "",
+      "first_published": "2026-06-11T21:48:14.722000+00:00",
+      "url": "https://jobs.lever.co/asapp-2/345bc8d7-f073-4721-a6ed-f4c45a099b01"
+    },
+    {
+      "title": "Lead AI/ML Engineer",
+      "description": "At ASAPP, our mission is simple: deliver the best AI-powered customer experience\u2014faster than anyone else. To achieve that, we\u2019re guided by principles that shape how we think, build, and execute. We value customer obsession, purposeful speed, ownership, and a relentless focus on outcomes. We work in tight, skilled teams, prioritize clarity over complexity, and continuously evolve through curiosity, data, and craftsmanship.\u00a0We\u2019re seeking technologists and problem solvers who thrive in fast-paced environments, love collaborating with great talent, and approach every day like it\u2019s Day 1. \n\u00a0\nWe're a globally diverse team with hubs in New York City, Mountain View, Latin America, and India\u2014embracing both hybrid and remote work to bring the best minds together, wherever they are. If you're driven by continuous learning, rapid pivots, and the challenges of building in a high-growth startup, we\u2019d love to talk. This is more than a job\u2014it\u2019s a journey.\n\u00a0\nYou will lead the design and delivery of end-to-end voice AI solutions, combining large language models with speech technologies such as speech-to-text, text-to-speech, and real-time streaming audio pipelines. This role requires a hands-on technical leader who can architect low-latency, highly reliable conversational voice systems and guide a team through ambiguity toward production excellence.\n\u00a0\nWe are looking for someone who understands the unique constraints of voice experiences, latency, turn-taking, interruption handling, streaming inference, and audio quality, and can translate these into scalable, enterprise-grade systems.\n\u00a0\nThis is a hybrid role with weekly in-person responsibilities. We have offices in New York City and Mountain View, CA\n",
+      "location": "",
+      "first_published": "2026-03-05T16:52:54.196000+00:00",
+      "url": "https://jobs.lever.co/asapp-2/5bc8eb75-4e7f-411d-8269-d6072c56e738"
+    },
+    {
+      "title": "Research Scientist, Conversational AI",
+      "description": "At ASAPP, our mission is simple: deliver the best AI-powered customer experience\u2014faster than anyone else. To achieve that, we\u2019re guided by principles that shape how we think, build, and execute. We value customer obsession, purposeful speed, ownership, and a relentless focus on outcomes. We work in tight, skilled teams, prioritize clarity over complexity, and continuously evolve through curiosity, data, and craftsmanship.\u00a0We\u2019re seeking technologists and problem solvers who thrive in fast-paced environments, love collaborating with great talent, and approach every day like it\u2019s Day 1. \n\u00a0\nWe're a globally diverse team with hubs in New York City, Mountain View, Latin America, and India\u2014embracing both hybrid and remote work to bring the best minds together, wherever they are. If you're driven by continuous learning, rapid pivots, and the challenges of building in a high-growth startup, we\u2019d love to talk. This is more than a job\u2014it\u2019s a journey.\n\u00a0\nPosition Overview: We are expanding our research team and looking for an experienced\u00a0Research Scientist specializing in Conversational AI & Machine Learning. In this role, you will work on solving scientific challenges related to Conversational AI to build domain-specific, real-world solutions. You will have the opportunity to leverage the massive amounts of data generated by our products to ask fundamental research questions, while deploying AI features into real-world applications.\n",
+      "location": "",
+      "first_published": "2026-04-17T19:04:59.787000+00:00",
+      "url": "https://jobs.lever.co/asapp-2/9e11dccf-fac6-4550-b818-91374c801102"
+    },
+    {
+      "title": "Senior Site Reliability Engineer",
+      "description": "At ASAPP, our mission is simple: deliver the best AI-powered customer experience\u2014faster than anyone else. To achieve that, we\u2019re guided by principles that shape how we think, build, and execute. We value customer obsession, purposeful speed, ownership, and a relentless focus on outcomes. We work in tight, skilled teams, prioritize clarity over complexity, and continuously evolve through curiosity, data, and craftsmanship.\u00a0We\u2019re seeking technologists and problem solvers who thrive in fast-paced environments, love collaborating with great talent, and approach every day like it\u2019s Day 1. \n\u00a0\nWe're a globally diverse team with hubs in New York City, Mountain View, Latin America, and India\u2014embracing both hybrid and remote work to bring the best minds together, wherever they are. If you're driven by continuous learning, rapid pivots, and the challenges of building in a high-growth startup, we\u2019d love to talk. This is more than a job\u2014it\u2019s a journey.\nSite Reliability Engineers (SREs) are responsible for the overall performance and reliability of ASAPP's infrastructure and products. The team owns the entire infrastructure stacks. SREs design and implement the tools that automate building reliable and performant systems. We emphasize building tools over manual processes. We implement, not administer.\u00a0 We\u2019re obsessed with automation, not repetition. Our job is to focus on building reliable infrastructure and tools for our product teams so that they can solve customer problems and deliver new features, not reinvent platforms.\n",
+      "location": "",
+      "first_published": "2026-05-14T13:57:04.043000+00:00",
+      "url": "https://jobs.lever.co/asapp-2/502a2f51-a940-4b51-a478-f9f84b040a3c"
+    },
+    {
+      "title": "Senior Technical Product Manager",
+      "description": "At ASAPP, our mission is simple: deliver the best AI-powered customer experience\u2014faster than anyone else. To achieve that, we\u2019re guided by principles that shape how we think, build, and execute. We value customer obsession, purposeful speed, ownership, and a relentless focus on outcomes. We work in tight, skilled teams, prioritize clarity over complexity, and continuously evolve through curiosity, data, and craftsmanship. We\u2019re seeking technologists and problem solvers who thrive in fast-paced environments, love collaborating with great talent, and approach every day like it\u2019s Day 1. \nWe're a globally diverse team with hubs in New York City, Mountain View, Latin America, and India. If you're driven by continuous learning, rapid pivots, and the challenges of building in a high-growth startup, we\u2019d love to talk. This is more than a job\u2014it\u2019s a journey.\nThis is not a coordination role. You will own the layer of ASAPP\u2019s platform that connects GenerativeAgent to the real world \u2014 integrations, SDKs, agent interoperability, voice channels, and the developer experience that underpins all of it. These are load-bearing systems: if they do not work, customers cannot deploy our solution and deals do not close.\nYou will set and execute the strategy for a product surface that spans API Connections (our integration hub), the developer SDKs, Agent-to-Agent (A2A) interoperability, MCP servers, workflows, and telephony integrations. You will work directly with engineering leads across these areas and will be the PM voice in conversations with customers, account teams, and executive stakeholders.\nThe scope will evolve as our AI architecture evolves, so the strongest candidates will be comfortable shaping a moving target \u2014 and will bring the technical depth to anticipate what the right target is.\n\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-24T17:49:57.833000+00:00",
+      "url": "https://jobs.lever.co/asapp-2/0dd290d9-6d5c-4163-82d6-e416531fd7cf"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_b",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "biweekly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.83,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "AI-powered customer experience company with a strong focus on engineering and technology.",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "arbitrumfoundation",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:12:12.871318+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2025-02-13T18:02:51.934000+00:00",
+  "source_jobs": [
+    {
+      "title": "Don't see the right role for you? Apply here!",
+      "description": "The Arbitrum Foundation is an organisation based in the Cayman Islands that is tasked with developing and nurturing the Arbitrum ecosystem. This includes Arbitrum One, an Optimistic Rollup, that instantly scales apps, reducing costs and increasing capacity, without sacrificing Ethereum's security and Arbitrum Nova, which allows for ultra-low cost fees by leveraging AnyTrust technology making it ideal for Social and Gaming applications. \n\nArbitrum today is the leading Ethereum scaling solution with dominant market share including hundreds of apps on the platform and over 50% of all rollup liquidity.\n\nWe tend to post the most pressing needs at the Arbitrum Foundation, but there are plenty of opportunities we can consider you for. If you don't see the right role for you on our careers site, please submit your resume here and we'll reach out if there's something coming up that we can explore now!\n",
+      "location": "",
+      "first_published": "2023-05-16T09:34:27.426000+00:00",
+      "url": "https://jobs.lever.co/arbitrumfoundation/2df96bea-02f9-4882-89a0-c9101256aced"
+    },
+    {
+      "title": "Head of Ecosystem Growth",
+      "description": "About Arbitrum Foundation\n\nThe Arbitrum Foundation is dedicated to scaling Ethereum through cutting-edge Layer 2 solutions. Our flagship product, Arbitrum One, an Optimistic Rollup, enables faster, more affordable transactions while maintaining Ethereum\u2019s security and decentralization. We empower developers to build decentralized applications (dApps) that are both scalable and secure, using Arbitrum chains, which offer flexibility in performance and cost. Our mission is to enhance the Ethereum ecosystem and drive the adoption of Web3 technology by delivering high-performance, open-source blockchain solutions. Arbitrum is already the leading Ethereum scaling solution with hundreds of dApps on the platform and over $13bn TVL.\n\nAt the Arbitrum Foundation, we value decentralization, innovation, and community. We are committed to shaping the future of decentralized finance and blockchain technology, and we\u2019re looking for passionate individuals to help us build the next generation of the Web.\n\n\nYour Role\n\nThe Arbitrum Foundation is seeking a Head of Ecosystem Growth to drive the adoption of Arbitrum\u2019s technologies and the expansion of its ecosystem. You will lead initiatives to grow and support a vibrant community of developers, partners, and users, ensuring the seamless integration of Arbitrum across various verticals, including DeFi, Gaming & AI. By building strategic partnerships and leading our Ecosystem Growth efforts, you\u2019ll drive the long-term success of Arbitrum as the leading Ethereum scaling solution.\n",
+      "location": "",
+      "first_published": "2025-02-13T11:55:43.921000+00:00",
+      "url": "https://jobs.lever.co/arbitrumfoundation/5c02b8eb-58c4-47e5-ab5f-34ac1820d4a9"
+    },
+    {
+      "title": "Head of Foundation",
+      "description": "About Arbitrum Foundation\n\nThe Arbitrum Foundation is dedicated to scaling Ethereum through cutting-edge Layer 2 solutions. Our flagship product, Arbitrum One, an Optimistic Rollup, enables faster, more affordable transactions while maintaining Ethereum\u2019s security and decentralization. We empower developers to build decentralized applications (dApps) that are both scalable and secure, using Arbitrum chains, which offer flexibility in performance and cost. Our mission is to enhance the Ethereum ecosystem and drive the adoption of Web3 technology by delivering high-performance, open-source blockchain solutions. Arbitrum is already the leading Ethereum scaling solution with hundreds of dApps on the platform and over $13bn TVL.\n\nAt the Arbitrum Foundation, we value decentralization, innovation, and community. We are committed to shaping the future of decentralized finance and blockchain technology, and we\u2019re looking for passionate individuals to help us build the next generation of the Web.\n\n\nYour Role\n\nThe Arbitrum Foundation is searching for a Head of Foundation, who will be at the forefront of driving the Arbitrum Foundation\u2019s mission and expanding its presence in Web3 and amongst competing blockchain ecosystems. This candidate will be highly influential in the future success of the Foundation, as they will uncover future growth opportunities while defining and executing a clear strategic vision for the Foundation.\n",
+      "location": "",
+      "first_published": "2025-02-13T18:02:51.934000+00:00",
+      "url": "https://jobs.lever.co/arbitrumfoundation/327855d4-3e0d-4495-8edf-8ee39336dda5"
+    }
+  ],
+  "primary_function": "mixed",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Limited job postings, but descriptions suggest a strong focus on blockchain and Web3 technology.",
+  "overall_confidence": 0.6,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

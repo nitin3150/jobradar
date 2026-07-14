@@ -1,0 +1,8 @@
+{
+  "schema_version": 2,
+  "status": "failed",
+  "slug": "housebuyersofamerica",
+  "board": "greenhouse",
+  "decision_at": "2026-07-14T09:09:19.985703+00:00",
+  "reason": "RuntimeError: all LLM providers failed on run_json_prompt; last error type=_RateLimitedError"
+}

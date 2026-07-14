@@ -1,8 +1,0 @@
-{
-  "schema_version": 1,
-  "status": "failed",
-  "slug": "grandrounds",
-  "board": "ashby",
-  "decision_at": "2026-07-11T01:12:10.031843+00:00",
-  "reason": "fetch returned empty or errored (transient)"
-}

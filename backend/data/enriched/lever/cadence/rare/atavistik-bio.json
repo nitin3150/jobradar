@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "atavistik-bio",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:14:07.765876+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-06-03T13:11:51.236000+00:00",
+  "source_jobs": [
+    {
+      "title": "Senior Manager, HR Operations",
+      "description": "Company Summary:\nAtavistik Bio is a privately-held clinical stage biotechnology company accelerating the discovery and development of transformative precision allosteric therapeutics to address serious unmet patient needs. Our proprietary AMPS\u2122 platform allows us to rapidly unlock functional cryptic pockets across a broad range of target classes to accelerate the development of groundbreaking medicines. We have rapidly established an emerging pipeline of allosteric therapeutics with the potential to achieve superior efficacy and tolerability profiles by leveraging the power of allostery.\u00a0\nAtavistik Bio is led by an experienced team of drug hunters with a proven track record of developing marketed small molecule therapies and supported by top-tier investors, including The Column Group, Nextech Invest, Lux Capital, Regeneron Ventures, and RA Capital Management.\u00a0\n\n\nThe Senior Manager, HR Operations will serve as the operational backbone of the HR function, ensuring efficient, compliant, and employee-centered processes across the entire employee lifecycle. This role will lead HR Operations for a high-growth biotechnology company, partnering across the organization to build scalable people programs, systems, and processes that support all areas of the business.\nThe ideal candidate combines hands-on HR execution with strategic workforce planning, compliance oversight, culture-building initiatives, and thrives in a fast-paced environment. As a trusted partner to employees and leaders alike, this individual will help shape an exceptional employee experience and demonstrate every day why Atavistik is a meaningful place to work, grow, and be part of an outstanding team.\n",
+      "location": "",
+      "first_published": "2026-05-30T11:40:32.156000+00:00",
+      "url": "https://jobs.lever.co/atavistik-bio/d7a82bbc-84f5-4611-b7e6-accaab9863d9"
+    },
+    {
+      "title": "Senior Scientist, DMPK",
+      "description": "Company Summary:\nAtavistik Bio is a privately-held clinical stage biotechnology company accelerating the discovery and development of transformative precision allosteric therapeutics to address serious unmet patient needs. Our proprietary AMPS\u2122 platform allows us to rapidly unlock functional cryptic pockets across a broad range of target classes to accelerate the development of groundbreaking medicines. We have rapidly established an emerging pipeline of allosteric therapeutics with the potential to achieve superior efficacy and tolerability profiles by leveraging the power of allostery.\u00a0\nAtavistik Bio is led by an experienced team of drug hunters with a proven track record of developing marketed small molecule therapies and supported by top-tier investors, including The Column Group, Nextech Invest, Lux Capital, Regeneron Ventures, and RA Capital Management.\u00a0\n",
+      "location": "",
+      "first_published": "2026-05-06T18:36:14.147000+00:00",
+      "url": "https://jobs.lever.co/atavistik-bio/bff9b637-feb6-4a8c-8642-13b95ea60f5a"
+    },
+    {
+      "title": "Sr. Director, Biostatistics",
+      "description": "Company Summary:\nAtavistik Bio is a privately-held clinical stage biotechnology company accelerating the discovery and development of transformative precision allosteric therapeutics to address serious unmet patient needs. Our proprietary AMPS\u2122 platform allows us to rapidly unlock functional cryptic pockets across a broad range of target classes to accelerate the development of groundbreaking medicines. We have rapidly established an emerging pipeline of allosteric therapeutics with the potential to achieve superior efficacy and tolerability profiles by leveraging the power of allostery.\u00a0\nAtavistik Bio is led by an experienced team of drug hunters with a proven track record of developing marketed small molecule therapies and supported by top-tier investors, including The Column Group, Nextech Invest, Lux Capital, Regeneron Ventures, and RA Capital Management.\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-03T13:11:51.236000+00:00",
+      "url": "https://jobs.lever.co/atavistik-bio/aefc857d-5da1-4c24-97ef-8d92029d9173"
+    }
+  ],
+  "primary_function": "ops_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Biotech company with ops-heavy job postings",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

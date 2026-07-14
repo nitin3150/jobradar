@@ -1,0 +1,237 @@
+{
+  "schema_version": 2,
+  "slug": "aeva",
+  "board": "lever",
+  "enriched_at": "2026-07-14T04:57:37.130186+00:00",
+  "source_jobs_count": 41,
+  "source_last_published": "2026-07-01T16:23:14.454000+00:00",
+  "source_jobs": [
+    {
+      "title": "Business Development Manager (Defense) - Remote",
+      "description": "Aeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-03T22:35:15.672000+00:00",
+      "url": "https://jobs.lever.co/aeva/f6a659ec-b0d4-4f70-8259-582765ef5773"
+    },
+    {
+      "title": "Director of Information Technology - Mountain View, CA",
+      "description": "About us:\n\u00a0\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\u00a0\n\u00a0\nRole Overview:\nAeva is looking for a Director of IT who leads from the front. This role owns IT, DevOps, and Information Security operations globally, serving as the functional CISO and senior escalation point for infrastructure, compliance, and platform reliability. You will lead a distributed team across the US, Europe, and Asia, and report directly to the CTO.\n\n",
+      "location": "",
+      "first_published": "2026-04-29T17:53:31.787000+00:00",
+      "url": "https://jobs.lever.co/aeva/d33b1fae-583f-4fb3-a490-ef921b72699e"
+    },
+    {
+      "title": "Director of Sales, Industrial-Precision",
+      "description": "Aeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\u00a0\n\u00a0\nRole Overview:\nWe are seeking an experienced Director of Sales to drive our growth in industrial automation, precision manufacturing, and factory automation markets. This role requires a strategic leader with deep expertise in laser displacement technology and high-precision sensing solutions for industrial applications. You will define market strategies, build key partnerships, and drive product adoption, working closely with engineering, sales, and marketing teams.\n",
+      "location": "",
+      "first_published": "2026-06-17T04:24:26.828000+00:00",
+      "url": "https://jobs.lever.co/aeva/10f39f12-49b0-4821-b4a9-29617d4248f8"
+    },
+    {
+      "title": "Director, Finance & Accounting",
+      "description": "About us:\nAeva (Nasdaq: AEVA) is a next-generation sensing and perception technology company transforming automation across automotive, industrial, and mobility markets. Built on its proprietary FMCW 4D LiDAR-on-chip technology, Aeva is enabling scalable, high-performance sensing solutions for global OEMs and enterprise customers.\n\u00a0\nRole Overview:\nAs Aeva scales globally and ramps production, we\u2019re investing in a world-class finance infrastructure built for speed, complexity, and public-company standards.\nTo support this, we\u2019re launching a Finance & Accounting Center of Excellence in Bangalore. This leader will hire and grow a 3\u20135 person team, own key global accounting processes, and work hand-in-hand with U.S. HQ and our international entities.\nThis is a high-impact, high-visibility role with direct access to U.S. leadership and global operations.\n",
+      "location": "",
+      "first_published": "2026-05-14T17:55:29.723000+00:00",
+      "url": "https://jobs.lever.co/aeva/53040a00-a896-48a7-81ee-a24cd94c91ed"
+    },
+    {
+      "title": "Director, Silicon Photonics Design",
+      "description": "Aeva is building the next generation of products for sensing, perception for autonomous vehicles and AI data centers. With its unique ability to measure instantaneous velocity for each pixel, long-range performance at high resolutions, while being free from LiDAR or sunlight interference, Aeva\u2019s 4D LiDAR is built from the ground up at silicon photonics scale for mass-market applications.\n",
+      "location": "",
+      "first_published": "2026-05-21T20:45:54.620000+00:00",
+      "url": "https://jobs.lever.co/aeva/bcb0e400-7ff5-4fd2-a476-8534a10fd65b"
+    },
+    {
+      "title": "Electrical Engineer, Verification & Validation",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\u00a0\n\u00a0\nRole Overview:\nAeva is seeking to hire a talented and motivated Verification and Validation (V&V) Engineer to join our EE Hardware Development Team. The EE HW team owns the design, build and bring-up of Aeva\u2019s mixed-signal PCBs. As a V&V Hardware Engineer, you will be expected to perform a wide range of tasks in PCBA or sub-circuit bringup, characterization, verification, and validation.\n\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-11T05:38:02.207000+00:00",
+      "url": "https://jobs.lever.co/aeva/9d14cd9b-d9b3-497b-9546-f4e753c11994"
+    },
+    {
+      "title": "Embedded SW Engineer",
+      "description": "Aeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\u00a0\n",
+      "location": "",
+      "first_published": "2026-01-08T02:56:07.750000+00:00",
+      "url": "https://jobs.lever.co/aeva/facc92b7-2837-4189-983a-80fa8a017c40"
+    },
+    {
+      "title": "Engineering Change Analyst",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\n\u00a0\nRole Overview:\nWe are seeking an EC analyst with TeamCenter experience to manage EC workflows and approval processes, ensuring the quality of Aeva documentation. As the EC analyst you will play a crucial role coordinating product releases from NPI to production; ensuring quality, accuracy and completeness of documentation. Your expertise in business processes and change control will be vital in driving our product releases towards excellence. You will ensure component specification comply with relevant Aeva and industry standards. Your leadership skills will be applied in shepherding engineering documentation into complete documentation packaging supporting procurement and production. You will develop and refine the change control business processes for the company.\n",
+      "location": "",
+      "first_published": "2025-10-22T07:01:05.813000+00:00",
+      "url": "https://jobs.lever.co/aeva/0cd4a7ea-5e51-4d3d-894b-a4f19a862ed3"
+    },
+    {
+      "title": "Global Commodity Manager - China",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\n\u00a0\nRole Overview:\nAeva is seeking an experienced and highly motivated Global Supply Manager (GSM) to take ownership of the strategic sourcing, supply base management, and overall continuity of supply for critical components and services used in our advanced Lidar systems.\n\u00a0\nThis role requires a proactive individual who can work independently to drive strategy, manage complex supplier relationships, and effectively collaborate cross- functionally with our Engineering, Manufacturing, and Quality teams to ensure we meet our aggressive product development and volume production goals.\n",
+      "location": "",
+      "first_published": "2026-06-30T17:36:06.546000+00:00",
+      "url": "https://jobs.lever.co/aeva/ec94f8a5-6eaa-4d81-96ff-09727011d9ec"
+    },
+    {
+      "title": "Global Commodity Manager - Mountain View, CA",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\n\u00a0\nRole Overview:\nAeva is seeking an experienced and highly motivated Global Supply Manager (GSM) to take ownership of the strategic sourcing, supply base management, and overall continuity of supply for critical components and services used in our advanced Lidar systems.\n\u00a0\nThis role requires a proactive individual who can work independently to drive strategy, manage complex supplier relationships, and effectively collaborate cross- functionally with our Engineering, Manufacturing, and Quality teams to ensure we meet our aggressive product development and volume production goals.\n",
+      "location": "",
+      "first_published": "2026-01-16T06:06:31.517000+00:00",
+      "url": "https://jobs.lever.co/aeva/690c8027-b23d-4c4a-9417-34bd007f17e4"
+    },
+    {
+      "title": "IT Specialist - Mountain View, CA & Milpitas, CA",
+      "description": "Aeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\u00a0\n",
+      "location": "",
+      "first_published": "2026-05-21T20:36:28.884000+00:00",
+      "url": "https://jobs.lever.co/aeva/87f2fbf5-f762-4b75-9a13-8d4631246d13"
+    },
+    {
+      "title": "LiDAR Characterization & Perception Data Engineer - Mountain View, CA",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\u00a0\n\u00a0\nRole Overview:\nWe're looking for a versatile engineer to serve as a critical bridge between our hardware, customer integration (FAE), and perception teams. As a shared resource, you will own the full lifecycle of our sensor data in the field. You will split your time between characterizing physical sensor performance, supporting customer deployments, and building the production-grade Python and C++ data pipelines required to ingest, validate, and label that data for our perception models.\n",
+      "location": "",
+      "first_published": "2026-06-30T21:07:50.496000+00:00",
+      "url": "https://jobs.lever.co/aeva/7207fe0e-dcc0-4119-9c4d-46400803860f"
+    },
+    {
+      "title": "Lidar Manufacturing Test Engineer (6-month contract) - Chihuahua City, MX",
+      "description": "Role overview:\nWe are seeking a Manufacturing Test Engineer to lead the deployment, validation and optimization of calibration & test for our next-generation LiDAR sensors. In this role, you will bridge the gap between R&D and high-volume production, ensuring our products meet superior quality standards, performance metrics, and cost targets. You will work closely with cross-functional teams to improve yield, optimize test and ensure timely product delivery to customers.\n",
+      "location": "",
+      "first_published": "2026-07-01T16:23:14.454000+00:00",
+      "url": "https://jobs.lever.co/aeva/8f4af37e-212d-4950-b3dc-6e7a2a97258a"
+    },
+    {
+      "title": "Lidar Verification and Validation Engineer",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\n\u00a0\nRole Overview:\nWe are seeking a highly skilled and motivated Verification and Validation (V&V) Engineer to join our team, focusing on the rigorous testing and quality assurance of our cutting-edge LiDAR products. This role is ideal for a hands-on engineer with strong programming skills, a passion for data analysis, and experience in building robust test solutions for complex systems.\n",
+      "location": "",
+      "first_published": "2025-12-10T06:17:15.871000+00:00",
+      "url": "https://jobs.lever.co/aeva/95c659f0-4909-4735-a664-6500170eb0c3"
+    },
+    {
+      "title": "Manufacturing Technical Project Manager",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\n\u00a0\nRole Overview:\nWe are seeking a skilled and experienced Manufacturing Technical Program Manager specializing in Lidar assembly and PCBA fabrication to join our dynamic team. As a Technical Program Manager you will play a crucial role coordinating with the test engineering team and contract manufacturers in ensuring the production lines for NPI and mass production meet product quality, delivery, cost and reliability of our Lidar product. Your expertise in mechanical assembly, adhesive dispense, SMT processes, optical assemblies, GR&R, equipment maintenance and calibration, failure analysis, OCAP, statistical process control and manufacturing execution system (MES) software will be vital in driving our manufacturing processes towards excellence.\n",
+      "location": "",
+      "first_published": "2026-03-13T14:59:51.893000+00:00",
+      "url": "https://jobs.lever.co/aeva/163b5726-ce6c-4075-9e7d-967be3fbd6d1"
+    },
+    {
+      "title": "Manufacturing Test Automation Engineer",
+      "description": "About us:\n\u00a0\nAeva is building the next generation of sensing and perception for autonomous vehicles and beyond. With its unique ability to measure instantaneous velocity for each pixel, long-range performance at high resolutions, while being free from LiDAR or sunlight interference, Aeva\u2019s 4D LiDAR is built from the ground up at silicon photonics scale for mass-market applications.\n\u00a0\nRole Overview:\n\u00a0\nWe are seeking a highly skilled and experienced Senior Test Automation Engineer specializing in photonics test and automation to join our dynamic team. You will play a crucial role in developing test and aligner station automation and manufacturing execution system (MES) integration.\n",
+      "location": "",
+      "first_published": "2026-01-20T18:08:41.826000+00:00",
+      "url": "https://jobs.lever.co/aeva/e57f4d5b-20c4-4a32-b74c-a1145c27886e"
+    },
+    {
+      "title": "Module Engineering Program Manager",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\u00a0\n\u00a0\nRole Overview:\nWe are looking for an Engineering Program Manager - Module, who has experience leading complex, technical development efforts including management of build/test activity and vendor relationships to deliver high-quality products on time. The candidate will need to have a strong understanding of high-volume manufacturing process flows with an ability to coordinate the release and delivery of products to ensure company milestones stay on schedule.\n",
+      "location": "",
+      "first_published": "2025-11-19T05:24:03.241000+00:00",
+      "url": "https://jobs.lever.co/aeva/c7d1ac3c-d5d1-4482-b23a-e863fe0bce0b"
+    },
+    {
+      "title": "NPI Alignment Engineer",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\u00a0\n\u00a0\nRole Overview:\nAeva is seeking to hire a talented and motivated NPI Alignment Engineer to work closely with our design teams and contract manufacturers in developing precision optoelectronic alignment equipment. This person should have in-depth experience in micro-optic assembly techniques and equipment with a heavy emphasis on active alignment.\n",
+      "location": "",
+      "first_published": "2026-03-25T10:55:42.962000+00:00",
+      "url": "https://jobs.lever.co/aeva/a01723ca-cd49-4129-b438-1ad5c8d836a4"
+    },
+    {
+      "title": "Operations Program Manager",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\n\u00a0\nRole Overview:\nWe are seeking a skilled and experienced Operations Program Manager with automotive experience, specializing in Lidar assembly and PCBA fabrication to join our dynamic team.\nAs an Operations Program Manager you will play a crucial role coordinating with Aeva cross-functional partners and contract manufacturers in ensuring the production lines for NPI and mass production meet product quality, delivery, cost and reliability of our Lidar product. You will manage detailed factory bring up schedules: identify critical path, track progress and identify and drive solutions to ensure program success. You will collaborate across operations teams to complete deliverables supporting Aeva\u2019s product development and release process (PLC). \u00a0\n",
+      "location": "",
+      "first_published": "2026-03-13T14:54:15.439000+00:00",
+      "url": "https://jobs.lever.co/aeva/c7fdbf0e-3d2d-4346-a8eb-688a6bb20736"
+    },
+    {
+      "title": "Optical Engineer",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\u00a0\n\u00a0\nRole Overview:\nAeva is looking to bring on an Optical Engineer to join our dynamic, fast-paced, and highly innovative environment. The position will contribute to the design, development, and testing of complex optical sub-components and systems used within Aeva\u2019s LiDAR coherent sensing system.\n",
+      "location": "",
+      "first_published": "2025-11-14T18:29:01.753000+00:00",
+      "url": "https://jobs.lever.co/aeva/26623c61-6587-400c-b2a8-91f9bdedc30d"
+    },
+    {
+      "title": "Photonics Layout and Design Automation Engineer",
+      "description": "Aeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\n\u00a0\n",
+      "location": "",
+      "first_published": "2025-12-19T23:46:39.428000+00:00",
+      "url": "https://jobs.lever.co/aeva/32bb892c-d239-447f-b246-0dbcb0b243ca"
+    },
+    {
+      "title": "Photonics Module Engineer",
+      "description": "Aeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\n\u00a0Role Overview:\nAs a Photonics Module Engineer you will be partnering with cross functional teams to deliver photonics based modules and FMCW lidar systems to the market.\u00a0 You will engage with the internal teams to model and analyze novel photonics solutions to deliver products to various lidar, depth sensing, and photonics markets.\u00a0 You will be a critical part of the development and demonstration of new photonics designs, advancing the capabilities of Aeva\u2019s product line.\n",
+      "location": "",
+      "first_published": "2026-06-11T21:33:37.520000+00:00",
+      "url": "https://jobs.lever.co/aeva/786936ab-943b-4c22-82ed-89d3e5675b56"
+    },
+    {
+      "title": "Product Inventory Specialist (6-month Contract)",
+      "description": "Aeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\u00a0\n\u00a0\nRole Overview:\nWe are seeking a detail-oriented and self-motivated Product Inventory Specialist to support inventory management and logistics operations. This role requires strong organizational skills, accuracy, and a proactive approach to maintaining efficient inventory processes\n",
+      "location": "",
+      "first_published": "2026-06-09T17:59:49.315000+00:00",
+      "url": "https://jobs.lever.co/aeva/49da097b-9318-4ee2-b40c-9190ad87671a"
+    },
+    {
+      "title": "R&D Technician",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\u00a0\n\u00a0\nRole Overview:\nWe are looking for an R&D Technician to join us on a 6-month contract. This is an R&D Electronic Technician position that will support manufacturing operations for testing, debugging, and assembling printed circuit boards. In this role, you will help to perform rework on PCBA\u2019s. You are required to follow procedures to test and debug PCB circuits, and possibly assemble PCB into our instruments in which optoelectronics/mechanical/software/firmware was integrated. You will help to load software/firmware and run prescribed test. You will also perform other work-related duties as assigned by a supervisor, such as debugging PCBA as needed.\n",
+      "location": "",
+      "first_published": "2026-04-23T16:25:49.076000+00:00",
+      "url": "https://jobs.lever.co/aeva/baf124d1-135d-4d56-95f3-3d01c190936a"
+    },
+    {
+      "title": "Senior Automotive Reliability & EMC Test engineer",
+      "description": "",
+      "location": "",
+      "first_published": "2026-02-24T08:05:42.566000+00:00",
+      "url": "https://jobs.lever.co/aeva/31f5a47c-a087-4680-a922-f86415973040"
+    },
+    {
+      "title": "Senior CAD Engineer",
+      "description": "Role Overview\n\nWe are looking for a Senior CAD Engineer to deploy and support our front end tools, to develop scripts to automate regression and debug flows, to work along with our design, implementation and verification teams.\n",
+      "location": "",
+      "first_published": "2025-04-04T07:28:57.622000+00:00",
+      "url": "https://jobs.lever.co/aeva/cecbba02-867c-486f-bd5b-b3add6386753"
+    },
+    {
+      "title": "Senior Customer Program Manager",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\u00a0\n\u00a0\nRole Overview:\nThe Senior Customer Program Manager is responsible for facilitating all program deliverables and serves as the day-to-day contact for key accounts, building trust and rapport while identifying and documenting areas of opportunity and highlighting best practices.\n",
+      "location": "",
+      "first_published": "2025-11-19T05:19:55.129000+00:00",
+      "url": "https://jobs.lever.co/aeva/4417a2f0-5740-437a-bbef-5d3ce27ee869"
+    },
+    {
+      "title": "Senior Electrical Engineer - Rochester, NY/ Mountainview, CA",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\u00a0\n\u00a0\nRole Overview:\nAeva is seeking to hire a talented and motivated Sr/Staff Hardware Engineer to join our EE HW team. The EE HW team owns the design, build and bring up of Aeva\u2019s mixed-signal PCBs. As a Hardware Engineer, you may be responsible to develop a System Architecture of our LiDAR system based on product requirements.\u00a0 You will be working closely with all EE engineers to define the individual PCBs, their function, and interconnections.\n",
+      "location": "",
+      "first_published": "2025-08-22T13:58:14.639000+00:00",
+      "url": "https://jobs.lever.co/aeva/6b5a6135-d57d-4413-9b92-2938ed080af8"
+    },
+    {
+      "title": "Senior Embedded Software Engineer - Bangalore, India",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\n\u00a0\nRole Overview:\nWe are looking for Software Development Engineers with emphasis on Embedded systems. You are a self-starter and comfortable working on designs from initial architecture through production.\n",
+      "location": "",
+      "first_published": "2025-11-12T19:33:35.739000+00:00",
+      "url": "https://jobs.lever.co/aeva/511bda52-6282-46a0-a06c-79785669e6e0"
+    },
+    {
+      "title": "Senior Perception Engineer",
+      "description": "About us:\nAeva\u2019s mission is to bring the next wave of perception to a broad range of applications from automated driving to industrial robotics, consumer electronics, consumer health, security, and beyond. Aeva is transforming autonomy with its groundbreaking sensing and perception technology that integrates all key LiDAR components onto a silicon photonics chip in a compact module. Aeva 4D LiDAR sensors uniquely detect instant velocity in addition to 3D position, allowing autonomous devices like vehicles and robots to make more intelligent and safe decisions.\u00a0\n\u00a0\nWe are looking for a Senior Perception Engineer to work on our classical perception algorithms stack. You will be part of a growing team focused on exploring how far Aeva\u2019s 4D FMCW LiDARs can push autonomous driving performance.\n",
+      "location": "",
+      "first_published": "2025-12-01T19:29:33.930000+00:00",
+      "url": "https://jobs.lever.co/aeva/982d5437-86da-4026-a02f-a92aa6219912"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_c_plus",
+  "hiring_volume_estimate": "50_200",
+  "posting_cadence": "weekly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.73,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.2,
+  "notes": "Aeva is a LiDAR technology company with a strong focus on engineering and product development. The company has a high volume of job postings, indicating rapid growth and expansion.",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

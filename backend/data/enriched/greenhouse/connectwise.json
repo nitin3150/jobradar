@@ -1,8 +1,0 @@
-{
-  "schema_version": 2,
-  "status": "failed",
-  "slug": "connectwise",
-  "board": "greenhouse",
-  "decision_at": "2026-07-13T20:18:22.065136+00:00",
-  "reason": "RuntimeError: all LLM providers failed on run_json_prompt; last error type=_RateLimitedError"
-}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "mwamevents",
+  "board": "greenhouse",
+  "enriched_at": "2026-07-14T18:02:05.301904+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-04-20T20:05:29+00:00",
+  "source_jobs": [
+    {
+      "title": "NYU / Marshall Wace - Technology Dept Coffee Chats",
+      "description": "&lt;p class=&quot;aorspca aorspc0&quot;&gt;&lt;span class=&quot;aorspck&quot;&gt;Join us on 28 April for a 15-minute coffee chat with our tech team.&lt;/span&gt;&lt;/p&gt;\n&lt;p class=&quot;aorspca aorspc0&quot;&gt;If you\u2019re a &lt;span class=&quot;aorspck&quot;&gt;sophomore or freshman&lt;/span&gt; interested in technology,&amp;nbsp; and it&#39;s application in finance, or exploring career paths, this is a great chance to hear directly from &lt;span class=&quot;aorspck&quot;&gt;recent graduates working in the tech team at a hedge fund&lt;/span&gt;.&lt;/p&gt;\n&lt;p class=&quot;aorspca aorspc0&quot;&gt;We&#39;re particularly interested in meeting individuals with existing technology experience, either from a Computer Science degree or related internships (Software / Infrastructure etc).&lt;/p&gt;\n&lt;p class=&quot;aorspca aorspc0&quot;&gt;During the session, you\u2019ll learn more about:&lt;/p&gt;\n&lt;ul class=&quot;aorspc8 aorspc6 aorspc0&quot;&gt;\n&lt;li class=&quot;aorspc9&quot;&gt;what it\u2019s like to work in the&amp;nbsp;&lt;span class=&quot;aorspck&quot;&gt;hedge fund industry&lt;/span&gt;&lt;/li&gt;\n&lt;li class=&quot;aorspc9&quot;&gt;the&amp;nbsp;&lt;span class=&quot;aorspck&quot;&gt;technology and tools&lt;/span&gt;&amp;nbsp;we use&lt;/li&gt;\n&lt;li class=&quot;aorspc9&quot;&gt;the&amp;nbsp;&lt;span class=&quot;aorspck&quot;&gt;programmes and opportunities&lt;/span&gt;&amp;nbsp;we offer&lt;/li&gt;\n&lt;li class=&quot;aorspc9&quot;&gt;how recent graduates made the transition from&amp;nbsp;&lt;span class=&quot;aorspck&quot;&gt;university to industry&lt;/span&gt;&lt;/li&gt;\n&lt;li class=&quot;aorspc9&quot;&gt;what skills and experiences can help you stand out when applying for future roles&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p class=&quot;aorspca aorspc0&quot;&gt;It\u2019s also a chance to ask questions in an informal setting, get practical advice on breaking into the industry, and hear first-hand what a career in tech at a hedge fund can look like.&lt;/p&gt;\n&lt;p class=&quot;aorspca aorspc0&quot;&gt;&lt;span class=&quot;aorspck&quot;&gt;Register below&lt;/span&gt; and we\u2019ll be in touch in the coming days to confirm your place.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-04-20T20:05:29+00:00",
+      "url": "https://job-boards.greenhouse.io/mwamevents/jobs/8507660002"
+    },
+    {
+      "title": "Tech Events ",
+      "description": "&lt;p&gt;Please register here to receive information on our opportunities when they open.&amp;nbsp;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-02-24T16:53:25+00:00",
+      "url": "https://job-boards.greenhouse.io/mwamevents/jobs/6949451002"
+    },
+    {
+      "title": "Yale Computer Society Event - 16th April - \"How to Prepare for the Industry\"",
+      "description": "&lt;p&gt;Join us on April 16th at 6pm for our \u201cHow to Prepare for the Industry\u201d Workshop. This event will be held on campus at Yale. Exact details will be shared in the invitation email.&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;br&gt;Engineers from Marshall Wace will be joining YCS to share their perspectives on what skills and expertise make for a highly impactful engineer. As AI opens up new frontiers in the field, many of the skills that have long been useful are becoming obsolete while others that have been unimportant are now crucial for productivity and success. The workshop will focus on personal projects and how they can best be used as a tool to help students recruit successfully and hit the ground running in their careers. Students will work with these engineers to ideate projects that will help them be successful both in getting hired and as new engineers in the workforce. In addition to this, attendees will learn about Marshall Wace, one of world&#39;s leading multi-strategy hedge funds, their Technology Internship, and Technology Graduate programs that will begin recruiting in the Fall.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Registrations close Sunday 12th.&lt;/strong&gt;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-03-31T15:45:41+00:00",
+      "url": "https://job-boards.greenhouse.io/mwamevents/jobs/8486856002"
+    }
+  ],
+  "primary_function": "mixed",
+  "estimated_stage": "unknown",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": null,
+  "tech_role_ratio": 0.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.5,
+  "startup_likelihood": 0.5,
+  "volatility_signal": 0.0,
+  "notes": "No explicit job postings, only event-related listings",
+  "overall_confidence": 0.3,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

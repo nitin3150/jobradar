@@ -1,0 +1,90 @@
+{
+  "schema_version": 2,
+  "slug": "arcadiascience",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:12:31.318606+00:00",
+  "source_jobs_count": 9,
+  "source_last_published": "2026-06-02T22:54:11.745000+00:00",
+  "source_jobs": [
+    {
+      "title": "Associate/Senior Optical Engineer, R&D",
+      "description": "",
+      "location": "",
+      "first_published": "2026-05-29T22:50:56.389000+00:00",
+      "url": "https://jobs.lever.co/arcadiascience/8e7fc1b9-def9-49ff-8063-ab1d65ca6958"
+    },
+    {
+      "title": "Evolutionary Cell Biology Fellow",
+      "description": "A Bit About Us\n\nWe are Arcadia Science, an evolutionary biology company founded and led by scientists. Our mission is to turn natural innovations into real-world solutions by developing systematic and quantitative approaches to leveraging biology for therapeutics R&D. We share our research as openly as possible to accelerate discovery and make our work broadly useful.\n\nThe Opportunity \n\nWe\u2019re closing the gap between biological data and biological understanding. Our Validation team does this by closing the design\u2013build\u2013test\u2013learn loop through lab validation across diverse organisms.\u00a0 Read more about our work through our publications.\n\nWe are seeking an Evolutionary Cell Biology Fellow to join our Validation team for a 3-month fellowship. This is an ideal opportunity for scientists in the final stages of their PhD or postdoc training who want to experience industry research in an open science environment working with diverse organisms, or for researchers excited to apply cell biology techniques across the tree of life.\n\nEvolutionary Cell Biology Fellows will generate phenotypic and genotypic data to compare cellular features across organisms. Because we use evolution to select the best organism to study each biological question, fellows will work with diverse, often non-traditional organisms and cell types. Fellows will contribute to a defined project with the goal of publishing their work openly by the end of the fellowship.\n\nAreas of Focus\n\nWe are looking for candidates with expertise in one or more of the following areas:\n\n- Cell-based or organism-based assay development and optimization\n- Live cell imaging, high-content screening, or other high-dimensional phenotyping approaches\n- Diverse cellular organism and system development and/or utilization (including non-model organisms)\n- Molecular biology techniques (cloning, transformation, PCR, genetic manipulation, protein detection)\n- Protocol development and adaptation for new organisms or cell types\n- Comparative analysis between species driven by evolutionary information\n- Quantitative approaches to phenotypic measurement\n",
+      "location": "",
+      "first_published": "2026-01-22T20:52:45.233000+00:00",
+      "url": "https://jobs.lever.co/arcadiascience/ac1216c3-31e0-4a7c-be95-f1c539bb6c98"
+    },
+    {
+      "title": "Imaging Specialist",
+      "description": "",
+      "location": "",
+      "first_published": "2026-05-22T23:03:03.581000+00:00",
+      "url": "https://jobs.lever.co/arcadiascience/eac0df4c-348d-4483-95f6-d035a65122e9"
+    },
+    {
+      "title": "Innovation Fellow",
+      "description": "A Bit About Us\n\nWe are Arcadia Science, an evolutionary biology company founded and led by scientists. Our mission is to turn natural innovations into real-world solutions by developing systematic and quantitative approaches to leveraging biology for therapeutics R&D. We share our research as openly as possible to accelerate discovery and make our work broadly useful.\n\nThe Opportunity \n\nWe\u2019re closing the gap between biological data and biological understanding. Our Pilots advance this work by rapidly testing new ways to measure, model, and interpret biology. What works becomes reusable tools for the rest of Arcadia and beyond. Pilots drive the adoption of new technology and research topics within Arcadia and may also be a source of IP, licensing, and spin-outs. Read more about our work through ourpublications.\n\nWe are seeking an Innovation Fellow to join our Pilots team for a 3-month fellowship. This is an ideal opportunity for scientists who are in the final stages of their PhD or postdoc training and want to experience doing fast-paced, high-risk research in an industry setting.\n\nInnovation Fellows will prototype tools or devise novel approaches for efficient scientific inquiry, using strategically chosen biological questions as a test bed. Fellows will scope pilot projects with clear decision points, with the goal of publishing their work openly by the end of the fellowship.\n\nAreas of Focus\n\nThe two most important qualities we're looking for are generativity (the ability to identify and develop new research projects) and strong scientific strategy to align your work with Arcadia's goals and efficiently de-risk ambitious research directions. Beyond that, we're looking for candidates with skills that span computational and experimental biology. This may include:\n\n - Tool and technology development for biological research\n - Independent experimental design and execution\n - Data analysis pipeline development\n - Novel assay development or adaptation\n - Integrating computational predictions with experimental validation\n - Working across diverse organisms and cell types\n",
+      "location": "",
+      "first_published": "2026-01-22T20:59:47.677000+00:00",
+      "url": "https://jobs.lever.co/arcadiascience/a4185bde-6952-49d2-85f5-d3295ca4fd47"
+    },
+    {
+      "title": "Mechanical Engineer, Scientific Instrumentation",
+      "description": "",
+      "location": "",
+      "first_published": "2026-06-02T16:25:19.927000+00:00",
+      "url": "https://jobs.lever.co/arcadiascience/6e77078b-a9e5-4f87-8311-4e9bc686a747"
+    },
+    {
+      "title": "Platform Fellow",
+      "description": "A Bit About Us\n\u00a0\nWe are Arcadia Science, an evolutionary biology company founded and led by scientists. Our mission is to turn natural innovations into real-world solutions by developing systematic and quantitative approaches to leveraging biology for therapeutics R&D. We share our research as openly as possible to accelerate discovery and make our work broadly useful.\n\u00a0\nThe Opportunity \n\u00a0\nWe\u2019re closing the gap between biological data and biological understanding. Our Platform team builds evolution-aware statistical and ML methods that use phylogeny as structure, making inference more reliable and more generalizable. The result is shared infrastructure that supports research across Arcadia. Read more about our work through our publications.\n\u00a0\nWe are seeking a Platform Fellow to join our Platform team for a 3-month fellowship. Platform uses phylogeny to guide the development of many of our statistical models, machine learning tools, and evolutionary frameworks, powering research across Arcadia. This is an ideal opportunity for scientists in the final stages of their PhD or postdoc training who want to experience industry research in an open science environment, or for researchers looking to apply their quantitative skills to evolutionary biology in new ways.\n\u00a0\nPlatform Fellows will work closely with our computational teams on projects at the intersection of machine learning, statistics, and evolutionary biology. Fellows will contribute to a defined project with the goal of publishing their work openly by the end of the fellowship.\n\u00a0\nAreas of Focus\n\u00a0\nWe are looking for candidates with expertise in one or more of the following areas:\n\u00a0\n- Probabilistic modeling and statistical inference\n- Supervised and unsupervised learning for high-dimensional biological data\n- Interpretability methods development for ML models\n- Phylogenetic inference and evolutionary modeling\n- Comparative and evolutionary genomics across species\n- Quantitative and population genetics, including human genetics\n- Analysis of natural selection, adaptation, and trait evolution\n- Statistical and machine learning approaches to quantitative genetics\n",
+      "location": "",
+      "first_published": "2026-01-22T20:45:42.512000+00:00",
+      "url": "https://jobs.lever.co/arcadiascience/545ca408-02fd-4e61-850b-51aa33780514"
+    },
+    {
+      "title": "Platform Scientist: Comparative Protein Evolution",
+      "description": "A Bit About Us:\u00a0\nWe're Arcadia Science, an evolutionary biology company founded and led by scientists. Our mission is to turn natural innovations into real-world solutions by developing systematic and quantitative approaches to leveraging biology for therapeutics R&D. We share our research as openly as possible to accelerate discovery and engage with the broader scientific community.\nThe Opportunity:\nArcadia is studying biology with evolution as our guide. Our tools, methods, and frameworks probe the tree of life to identify innovations, novelties, and organisms that accelerate our basic and translational research. We're seeking a scientist with deep experience in studying the evolution of natural protein variation using comparative approaches to substantially expand our platform.\n\nThe Platform Scientist will develop computational approaches to study how natural protein variation arises and is shaped over macroevolutionary timescales, integrating sequence, structure, and function to ask how, and why, proteins differ across the tree of life. These contributions will be instrumental in developing new computational tools, validating existing tools, testing novel hypotheses, identifying knowledge and dataset gaps, and driving the creation of new computational approaches for studying protein evolution at Arcadia. We're particularly interested in candidates whose background sits at the intersection of molecular evolution and biochemistry/biophysics/structural biology.\n\nTop candidates are inventive computational evolutionary biologists with deep experience addressing evolutionary questions related to protein characteristics to unlock novel insights. They're excited to explore new and challenging datasets, familiar with developing novel analysis pipelines, and thrive in collaborative, open research environments. Enthusiasm and participation in open science are also required as we routinely share our findings via our open-source pubs.\n",
+      "location": "",
+      "first_published": "2026-03-23T17:56:21.077000+00:00",
+      "url": "https://jobs.lever.co/arcadiascience/525f34ec-087e-4c50-87c6-00331df10940"
+    },
+    {
+      "title": "Protein Designer",
+      "description": "",
+      "location": "",
+      "first_published": "2026-04-14T16:51:24.831000+00:00",
+      "url": "https://jobs.lever.co/arcadiascience/2a10fb23-edcb-4e9d-8337-0934ac7aedb2"
+    },
+    {
+      "title": "Quantitative Biologist",
+      "description": "",
+      "location": "",
+      "first_published": "2026-06-02T22:54:11.745000+00:00",
+      "url": "https://jobs.lever.co/arcadiascience/9af2728c-563f-45ac-ba98-440912c42c7f"
+    }
+  ],
+  "primary_function": "product_heavy",
+  "estimated_stage": "series_b",
+  "hiring_volume_estimate": "10_50",
+  "posting_cadence": "weekly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.78,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.2,
+  "notes": "Biotech company with strong focus on R&D and scientific research",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "arable",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:11:21.332170+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-05-01T21:01:56.850000+00:00",
+  "source_jobs": [
+    {
+      "title": "Principal Hardware Engineer / Director of Hardware",
+      "description": "<div>\n<h2 style=\"margin-top: 18pt; margin-bottom: 4pt;\"><strong><span style=\"font-size: 17pt; font-family: Arial, sans-serif;\">About Arable</span></strong></h2>\n<p style=\"margin-top: 12pt; margin-bottom: 12pt;\"><span style=\"font-size: 11pt; font-family: Arial, sans-serif;\">At Arable, our goal is to connect all the world\u2019s farms to help optimize the global food system. This is an ambitious goal, but the need has never been greater to rethink how we will feed an ever-growing population while reducing our impact on natural resources. We believe the heart of the solution is digitizing the analog world with high-fidelity data to help food producers optimize their operations.</span></p>\n<p style=\"margin-top: 12pt; margin-bottom: 12pt;\"><span style=\"font-size: 11pt; font-family: Arial, sans-serif;\">We hope the impact of our work will improve the lives of farmers everywhere and contribute meaningfully to securing the global food supply for decades to come.</span></p>\n<p style=\"margin-top: 12pt; margin-bottom: 12pt;\"><strong><span style=\"font-size: 14pt; font-family: Arial, sans-serif;\">Examples of Our Work:</span></strong></p>\n<p style=\"margin-top: 12pt; margin-bottom: 12pt;\"><span style=\"font-size: 11pt; font-family: Arial, sans-serif;\">- Helping farmers maximize ROI through precision irrigation and data-driven water management.</span></p>\n<p style=\"margin-top: 12pt; margin-bottom: 12pt;\"><span style=\"font-size: 11pt; font-family: Arial, sans-serif;\">- Supporting leading agricultural and technology partners in meeting sustainability and climate resilience goals.</span></p>\n<p style=\"margin-top: 12pt; margin-bottom: 12pt;\"><span style=\"font-size: 11pt; font-family: Arial, sans-serif;\">- Equipping growers with the insights needed to improve decision-making, reduce waste, and enhance yields across diverse cropping systems.</span></p>\n<h2 style=\"margin-top: 18pt; margin-bottom: 4pt;\"><strong><span style=\"font-size: 17pt; font-family: Arial, sans-serif;\">The Role</span></strong></h2>\n<p style=\"margin-top: 12pt; margin-bottom: 12pt;\"><span style=\"font-size: 11pt; font-family: Arial, sans-serif;\">We are seeking a senior hardware leader to spearhead the development of our hardware ecosystem, including the Arable Mark 3 and future sensing platforms.</span></p>\n<p style=\"margin-top: 12pt; margin-bottom: 12pt;\"><span style=\"font-size: 11pt; font-family: Arial, sans-serif;\">This pivotal role will shape the future of our sensing platforms while ensuring exceptional agricultural technology solutions worldwide.</span></p>\n</div>",
+      "location": "",
+      "first_published": "2026-05-01T21:01:56.850000+00:00",
+      "url": "https://jobs.lever.co/arable/0bbab1b6-8480-44c5-ac2c-372ce6916eff"
+    },
+    {
+      "title": "Product Operations Manager",
+      "description": "Come work alongside some of the most talented minds in the agtech industry. We are a team of innovators who are accelerating the digitization and sustainability of our planet\u2019s food system. At Arable, you will have the unique opportunity to build something meaningful with an amazing group of people who care about each other and their work.\n\nWhat we do:\n\nAt Arable, our goal is to connect all the world\u2019s farms to help optimize the global food system. This is an ambitious goal, but the need has never been greater to rethink how we will feed an ever-growing population and reduce our impact on natural resources. We believe the heart of the solution is digitizing the analog world with high-fidelity data to help food producers optimize their operations. We hope the impact of our work will improve the lives of farmers everywhere and be a major contribution to securing the global food supply for decades to come.\nA few examples of the work we\u2019re doing today:\n\nHelping farmers in India and Mozambique adapt to the effects of climate change on their farms with novel data-driven crop insurance\nGiving produce growers in California the tools to optimize production and minimize waste\nHelping irrigated farms in Nebraska manage water more efficiently and sustainably to protect our water supply\n\nArable is redefining crop intelligence by uniting sensing technology, agronomic modeling, and machine learning into a single, powerful system that transforms raw field data into real-world decisions. We enable growers, agronomists, and global agriculture enterprises to optimize water use, enhance productivity, reduce risk, and scale sustainable practices with confidence. At Arable, we believe agriculture deserves tools as advanced and intuitive as the growers who depend on them. When hardware, data science, and software come together seamlessly, data becomes a source of clarity, not uncertainty. Our team works every day to make this future a reality.\n\u00a0\nWhat We Are Looking For\nThe Product Operations Manager plays a critical role in connecting field data, product strategy, and internal teams to ensure the successful delivery of high-value insights to customers. This role is responsible for managing operational workflows that transform complex agricultural and environmental data into clear, actionable reports and scalable product processes.This individual will work closely with agronomy, product, customer success, and engineering teams to ensure data integrity, operational efficiency, and continuous improvement of data-driven solutions that support growers and advance Arable\u2019s mission.\n",
+      "location": "",
+      "first_published": "2026-02-20T02:49:56.066000+00:00",
+      "url": "https://jobs.lever.co/arable/3b417430-b854-4995-a4d5-63ec0d1ee6b3"
+    },
+    {
+      "title": "Senior Product Manager",
+      "description": "Arable is redefining crop intelligence by uniting sensing technology, agronomic modeling, and machine learning into a single, powerful system that transforms raw field data into real-world decisions. We enable growers, agronomists, and global agriculture enterprises to optimize water use, enhance productivity, reduce risk, and scale sustainable practices with confidence.At Arable, we believe agriculture deserves tools as advanced and intuitive as the growers who depend on them. When hardware, data science, and software come together seamlessly, data becomes a source of clarity-not uncertainty. Our team works every day to make this future a reality.\n\u00a0\nRole Overview\nWe\u2019re seeking a Senior Agronomy Product Manager who thrives in fast-paced, multidisciplinary environments and enjoys solving complex challenges across agriculture, hardware, firmware, data science, and software. You\u2019ll drive end-to-end product execution, collaborating closely with cross-functional teams to deliver solutions that create real-world impact. If you\u2019re analytical, creative, adaptable, and passionate about agriculture and technology, this role is for you.\n",
+      "location": "",
+      "first_published": "2025-12-08T18:35:15.170000+00:00",
+      "url": "https://jobs.lever.co/arable/d39013a1-d6fd-47ca-bd0e-9168170433e6"
+    }
+  ],
+  "primary_function": "product_heavy",
+  "estimated_stage": "series_b",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.67,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Agriculture technology company with a focus on product and hardware development.",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

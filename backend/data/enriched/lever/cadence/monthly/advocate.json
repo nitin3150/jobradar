@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "slug": "advocate",
+  "board": "lever",
+  "enriched_at": "2026-07-14T04:56:36.096024+00:00",
+  "source_jobs_count": 6,
+  "source_last_published": "2026-02-03T15:45:41.548000+00:00",
+  "source_jobs": [
+    {
+      "title": "Claims Assistant",
+      "description": "Overview\nAt Advocate, our mission is to empower Americans to obtain the government support they've earned. Advocate aims to reduce long wait times and bureaucratic obstacles of the current government benefits application process by developing a unified intake system for the Social Security Administration, utilizing cutting-edge technologies such as artificial intelligence and machine learning, crossed with the knowledge and experience of our small team of EDPNA\u2019s and case managers.\u00a0\n\u00a0\nWe are seeking a Claims Assistant to play a key role in ensuring smooth case management and operational support at Advocate. In this position, you will handle a variety of important administrative tasks, from managing incoming communication to scheduling appointments for case managers. You\u2019ll ensure that our administrative processes flow efficiently, contributing directly to the success of our mission. If you\u2019re organized, detail-oriented, and enjoy working in a fast-paced environment, this could be the perfect opportunity for you to make a meaningful impact.\n",
+      "location": "",
+      "first_published": "2024-10-11T17:05:43.889000+00:00",
+      "url": "https://jobs.lever.co/advocate/b1a3db8d-daeb-49c3-900a-e116692eb3ff"
+    },
+    {
+      "title": "Client Engagement Associate",
+      "description": "Overview\nAt Advocate, our mission is to empower Americans to obtain the government support they've earned. Advocate aims to reduce long wait times and bureaucratic obstacles of the current government benefits application process by developing a unified intake system for the Social Security Administration, utilizing cutting-edge technologies such as artificial intelligence and machine learning, crossed with the knowledge and experience of our small team of EDPNA\u2019s and case managers.\u00a0\n\u00a0\nWe are seeking a dynamic and persistent Outreach & Intake Specialist to be the crucial first point of contact for potential claimants. In this role, you will engage new leads, guide them through the initial information gathering and contract signing process via our Onboarding Flow, and effectively convert interested individuals into Advocate claimants. You'll focus on initiating the claimant journey, ensuring potential claimants feel supported and informed from the very beginning. If you are results-oriented, possess excellent communication skills, and are passionate about helping people navigate complex processes, this role offers the opportunity to make a significant impact without managing ongoing case submissions.\n",
+      "location": "",
+      "first_published": "2024-10-13T23:57:34.342000+00:00",
+      "url": "https://jobs.lever.co/advocate/4123c1da-5e69-4aee-9121-c91de3e3095e"
+    },
+    {
+      "title": "Product Engineer, Tech Ops",
+      "description": "\ud83d\udc4b About Advocate\n\nAdvocate (joinadvocate.com) is transforming how Americans access government benefits. Our mission is to drive the time between need and relief down to zero. We have demonstrated significant progress toward this goal by combining proprietary AI-powered technology with expert human care and compassion. This approach provides an unparalleled experience for our claimants and, crucially, supports our government partners by reducing administrative burdens and enabling more efficient eligibility determinations.\n\nWe\u2019ve proven our cutting-edge AI technology works. Now, we are focused on scaling the distribution of our offering and the operations that support it. This is a unique challenge that requires a combination of high-tech precision and human-centered support.\n\nTech Ops at Advocate\n\nAt Advocate, the Tech Ops team is the connective tissue of the organization. We sit at the intersection of technology, marketing, and operations, ensuring these functions remain perfectly synchronized as we scale. We are not an IT support desk; we are front-line builders. We operate in the trenches alongside our internal users who work directly with our claimants. Our mandate is twofold:\n\n1. Short-Term Agility: We keep the lights on and the systems humming. When roadblocks appear in production, we are there to patch them and ensure our team can continue serving claimants without friction.\n\n2. Long-Term Scalability: We don't just fix problems; we observe patterns. We recognize recurring operational challenges and build scalable technology solutions that eliminate those hurdles for good.\n\nTech Ops serves at the pleasure of those serving our claimants, empowering them to do their very best work every single day while contributing to our overall mission to drive time-to-relief down to zero.\n\n\n\ud83d\udcaa The Opportunity\n\nWe are hiring for two Product Engineers to join our Tech Ops team.\u00a0If you join us, these are some of the projects you will likely own:\n\n </> The End-to-End Journey Workbench. This is one of our most ambitious initiatives. We are building a centralized internal workbench to visualize the entire claimant journey, from the first ad click to the final case closure. You will build the connectivity and insights to track every onboarding step, Social Security submission, case data update, medical event, and communication touchpoint. This platform will allow us to see exactly where pipelines fail, where they succeed, and what the actual human experience feels like across the entire lifecycle.\n\n</> Building the External Claimant Portal. Today, claimants get updates by talking directly to our case managers. Internal and external user sentiment is overwhelming: we need a portal where users can pull real-time case status, push medical evidence directly from their providers, and receive critical updates. You could own this build from architectural design to user adoption.\n\n</> Engineering the Growth Engine. We are scaling our marketing operations. This involves building data warehouse pipelines to trigger outbound communications via platforms like Iterable, integrating with PPC platforms (Google, Meta, Microsoft) for conversion tracking, and ensuring our attribution models are bulletproof. You will be the primary bridge between engineering and our growth team.\n\n</> AI-Driven Developer Velocity. We want to turn \"I see something\" into \"We did something\" faster than ever. We are building a pipeline that takes change requests from Slack and uses LLMs with full repository context to automatically open a Pull Request for engineer review. We aim to automate the distance between operational feedback and production fixes.\n\n</> Front-Line Firefighting & System Resilience. TechOps is a high-availability environment. While we build for the future, we also protect the present. You will field ad hoc requests and production fires, ensuring our claimants never lose access to relief. You will be expected to master the balance between short-term viability and l",
+      "location": "",
+      "first_published": "2026-02-03T15:45:41.548000+00:00",
+      "url": "https://jobs.lever.co/advocate/5b2a4d1b-5e6e-4dca-a707-9f401011bcca"
+    },
+    {
+      "title": "SSDI  Hearings Representative (EDPNA or Attorney)",
+      "description": "About Advocate\nAdvocate is building a better way to help people obtain the benefits they deserve. We combine an experienced hearings team with modern technology to deliver excellent representation at scale\u2014without losing the human touch. We\u2019re growing quickly and looking for a Hearings Representative who\u2019s excited to win cases and help shape how hearings work in a high-velocity, mission-driven environment.\n\u00a0\nThe Role\nAs a Hearings Representative at Advocate, you will own the end-to-end hearing process for Social Security Disability cases\u2014from record analysis through post-hearing follow-through. You\u2019ll be supported by a Hearings Case Manager, the broader hearings team, and Advocate\u2019s technology platform, so you can \n",
+      "location": "",
+      "first_published": "2025-12-05T01:25:31.892000+00:00",
+      "url": "https://jobs.lever.co/advocate/61c8987c-8ff0-4adf-9007-d0f3c2f43402"
+    },
+    {
+      "title": "SSDI Case Manager",
+      "description": "Overview\nAt Advocate, our mission is to empower Americans to obtain the government support they've earned. Advocate aims to reduce long wait times and bureaucratic obstacles of the current government benefits application process by developing a unified intake system for the Social Security Administration, utilizing cutting-edge technologies such as artificial intelligence and machine learning, crossed with the knowledge and experience of our small team of EDPNA\u2019s and case managers.\u00a0\n\nWe are seeking a highly organized and dedicated Case Manager to join Advocate and oversee the progress of disability cases at the Initial Application (IA) and Reconsideration (Recon) levels. You will manage a large caseload and work directly with claimants, ensuring they receive regular updates and assistance throughout the process. Your role will include analyzing medical records, filing recon appeals, and collaborating with SSA/DDS to resolve case-related issues. If you have strong time-management skills and thrive in a fast-paced, client-focused environment, this position will allow you to make a meaningful impact on the lives of claimants.\n",
+      "location": "",
+      "first_published": "2024-10-14T01:00:16.643000+00:00",
+      "url": "https://jobs.lever.co/advocate/0af34a16-3b60-4b66-8731-2df9d31ec75b"
+    },
+    {
+      "title": "Tech Support Specialist",
+      "description": "Advocate is a mission-driven organization helping people access the government benefits and support they deserve. We combine expert advocacy with technology to streamline complex processes for claimants. \n\nWe\u2019re looking for a Tech Support Specialist who thrives on problem-solving, enjoys troubleshooting, and can build systems that prevent issues before they occur. This role is critical to keeping our day-to-day operations running smoothly while also helping us scale for the future.\n",
+      "location": "",
+      "first_published": "2025-11-18T21:24:08.104000+00:00",
+      "url": "https://jobs.lever.co/advocate/9eafa5fa-928b-43c0-b37a-a5bc8797624a"
+    }
+  ],
+  "primary_function": "ops_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "monthly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.33,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.5,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.2,
+  "notes": "Advocate is a mission-driven organization with a mix of operational and technical roles, but the majority of the roles are non-technical.",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "slug": "artera",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:13:05.740844+00:00",
+  "source_jobs_count": 10,
+  "source_last_published": "2026-06-03T15:49:33.364000+00:00",
+  "source_jobs": [
+    {
+      "title": "Machine Learning Engineer (Platform)",
+      "description": "About Us: Artera is an AI startup that develops medical artificial intelligence tests to personalize therapy for cancer patients. Artera is on a mission to personalize medical decisions for patients and physicians on a global scale.\n\nAs a Machine Learning Engineer at Artera, you\u2019ll work on the AI Platform team with a focus on establishing scalable and efficient pipelines for model training, model evaluation, and data processing. You\u2019ll work closely with AI model developers, fellow machine learning engineers, and our platform engineering team. You\u2019ll ensure that Artera\u2019s model developers can rely on highly efficient, large-scale training regimes and deploy optimized models to production environments.\n\u00a0\n",
+      "location": "",
+      "first_published": "2026-01-22T04:32:11.307000+00:00",
+      "url": "https://jobs.lever.co/artera/d3c0ca46-28cd-4193-a678-ef95002dce01"
+    },
+    {
+      "title": "Sales Account Executive (Alabama & West Georgia)",
+      "description": "About Us: Artera is an AI startup that develops medical artificial intelligence tests to personalize therapy for cancer patients. Artera is on a mission to personalize medical decisions for patients and physicians on a global scale.\n\nArtera is seeking a dynamic and results-driven Sales Account Executive to join our dedicated team. As a Sales Account Executive, you will play a pivotal role in helping us achieve our mission of personalizing medical decisions for cancer patients and physicians. You will be responsible for developing and managing key client relationships, driving revenue growth, and expanding our market presence.\n",
+      "location": "",
+      "first_published": "2026-05-29T21:06:37.729000+00:00",
+      "url": "https://jobs.lever.co/artera/f115ac1d-d023-4182-82b5-67ef3328537e"
+    },
+    {
+      "title": "Sales Account Executive (Chicago)",
+      "description": "About Us: Artera is an AI startup that develops medical artificial intelligence tests to personalize therapy for cancer patients. Artera is on a mission to personalize medical decisions for patients and physicians on a global scale.\n\nArtera is seeking a dynamic and results-driven Sales Account Executive to join our dedicated team. As a Sales Account Executive, you will play a pivotal role in helping us achieve our mission of personalizing medical decisions for cancer patients and physicians. You will be responsible for developing and managing key client relationships, driving revenue growth, and expanding our market presence.\n",
+      "location": "",
+      "first_published": "2025-01-22T20:56:35.811000+00:00",
+      "url": "https://jobs.lever.co/artera/d1a1bff0-8cda-42c5-b8b9-e2f9bc0116e9"
+    },
+    {
+      "title": "Sales Account Executive (Colorado)",
+      "description": "About Us: Artera is an AI startup that develops medical artificial intelligence tests to personalize therapy for cancer patients. Artera is on a mission to personalize medical decisions for patients and physicians on a global scale.\n\nArtera is seeking a dynamic and results-driven Sales Account Executive to join our dedicated team. As a Sales Account Executive, you will play a pivotal role in helping us achieve our mission of personalizing medical decisions for cancer patients and physicians. You will be responsible for developing and managing key client relationships, driving revenue growth, and expanding our market presence.\n",
+      "location": "",
+      "first_published": "2026-06-03T15:49:33.364000+00:00",
+      "url": "https://jobs.lever.co/artera/3400729a-2469-4fe9-a789-0712faa65294"
+    },
+    {
+      "title": "Sales Account Executive (Milwaukee/Madison, WI)",
+      "description": "About Us: Artera is an AI startup that develops medical artificial intelligence tests to personalize therapy for cancer patients. Artera is on a mission to personalize medical decisions for patients and physicians on a global scale.\n\nArtera is seeking a dynamic and results-driven Sales Account Executive to join our dedicated team. As a Sales Account Executive, you will play a pivotal role in helping us achieve our mission of personalizing medical decisions for cancer patients and physicians. You will be responsible for developing and managing key client relationships, driving revenue growth, and expanding our market presence.\n",
+      "location": "",
+      "first_published": "2026-04-12T03:51:34.485000+00:00",
+      "url": "https://jobs.lever.co/artera/669e0738-c484-4775-877f-3f0d20fa6678"
+    },
+    {
+      "title": "Sales Account Executive (Nevada)",
+      "description": "About Us: Artera is an AI startup that develops medical artificial intelligence tests to personalize therapy for cancer patients. Artera is on a mission to personalize medical decisions for patients and physicians on a global scale.\n\nArtera is seeking a dynamic and results-driven Sales Account Executive to join our dedicated team. As a Sales Account Executive, you will play a pivotal role in helping us achieve our mission of personalizing medical decisions for cancer patients and physicians. You will be responsible for developing and managing key client relationships, driving revenue growth, and expanding our market presence.\n",
+      "location": "",
+      "first_published": "2026-06-01T20:31:04.897000+00:00",
+      "url": "https://jobs.lever.co/artera/b3c3f9b6-3582-49c9-8db6-9f0d737772c5"
+    },
+    {
+      "title": "Sales Account Executive (Oregon)",
+      "description": "About Us: Artera is an AI startup that develops medical artificial intelligence tests to personalize therapy for cancer patients. Artera is on a mission to personalize medical decisions for patients and physicians on a global scale.\n\nArtera is seeking a dynamic and results-driven Sales Account Executive to join our dedicated team. As a Sales Account Executive, you will play a pivotal role in helping us achieve our mission of personalizing medical decisions for cancer patients and physicians. You will be responsible for developing and managing key client relationships, driving revenue growth, and expanding our market presence.\n",
+      "location": "",
+      "first_published": "2026-06-01T20:32:33.730000+00:00",
+      "url": "https://jobs.lever.co/artera/60c02220-f3b8-46ac-877d-73591a726794"
+    },
+    {
+      "title": "Sales Account Executive (Pittsburgh)",
+      "description": "About Us: Artera is an AI startup that develops medical artificial intelligence tests to personalize therapy for cancer patients. Artera is on a mission to personalize medical decisions for patients and physicians on a global scale.\n\nArtera is seeking a dynamic and results-driven Sales Account Executive to join our dedicated team. As a Sales Account Executive, you will play a pivotal role in helping us achieve our mission of personalizing medical decisions for cancer patients and physicians. You will be responsible for developing and managing key client relationships, driving revenue growth, and expanding our market presence.\n",
+      "location": "",
+      "first_published": "2026-05-29T15:44:20.048000+00:00",
+      "url": "https://jobs.lever.co/artera/db3fc3b5-3e3d-4a4a-9524-a99f28708cbc"
+    },
+    {
+      "title": "Software Engineer - Compute Platform",
+      "description": "About Us: Artera is an AI startup that develops medical artificial intelligence tests to personalize therapy for cancer patients. Artera is on a mission to personalize medical decisions for patients and physicians on a global scale.\n\nCompute Infrastructure is at the core of Artera's products - using AI to interpret gigapixel-scale images of tissue biopsies to make predictions about cancer therapy, as well as rapidly developing new AI models for global deployment. As a Software Engineer on the Platform Engineering team, you'll work alongside fellow Platform Engineers to develop tools and services that improve developer experience, security, and productivity through self-service capabilities and automated infrastructure operations. You'll closely collaborate with AI scientists, ML engineers, and software developers to design, build, and maintain the infrastructure that powers everything Artera does at scale.\n",
+      "location": "",
+      "first_published": "2025-06-04T23:04:28.587000+00:00",
+      "url": "https://jobs.lever.co/artera/4d009e60-3a23-48ff-9a53-24b56a140f86"
+    },
+    {
+      "title": "Software Engineer - Python",
+      "description": "About Us: Artera is an AI startup that develops medical artificial intelligence tests to personalize therapy for cancer patients. Artera is on a mission to personalize medical decisions for patients and physicians on a global scale.\n\nAs we scale, our core infrastructure must seamlessly handle complex workflows spanning billing platforms, electronic health record (EHR) systems, and varied healthcare vendor networks. We are hiring a Software Engineer dedicated to building, optimizing, and automating Artera\u2019s foundational data pipelines end-to-end\u2014with an initial, heavy focus on our revenue cycle and billing operations.\n",
+      "location": "",
+      "first_published": "2026-05-11T15:17:01.303000+00:00",
+      "url": "https://jobs.lever.co/artera/cc5cbc4d-c7e7-4573-993f-526cb33f5a81"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "monthly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.3,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Artera is an AI startup with a strong engineering core, but with a recent surge in sales roles.",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "mrapple",
+  "board": "greenhouse",
+  "enriched_at": "2026-07-14T17:59:36.411565+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-06-24T00:51:54+00:00",
+  "source_jobs": [
+    {
+      "title": "Data Engineer",
+      "description": "&lt;p&gt;.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-06-24T00:51:54+00:00",
+      "url": "https://job-boards.greenhouse.io/mrapple/jobs/5170064007"
+    },
+    {
+      "title": "Orchardists \u2013 Hastings",
+      "description": "&lt;p&gt;.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-05-27T00:21:13+00:00",
+      "url": "https://job-boards.greenhouse.io/mrapple/jobs/4940113007"
+    },
+    {
+      "title": "Workshop Supervisor - CHB",
+      "description": "&lt;p&gt;.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-05-27T00:21:14+00:00",
+      "url": "https://job-boards.greenhouse.io/mrapple/jobs/5118226007"
+    }
+  ],
+  "primary_function": "mixed",
+  "estimated_stage": "unknown",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": null,
+  "tech_role_ratio": 0.3333333333333333,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.5,
+  "volatility_signal": 0.0,
+  "notes": "Limited job postings, unclear industry focus",
+  "overall_confidence": 0.3,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

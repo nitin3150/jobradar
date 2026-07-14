@@ -1,0 +1,8 @@
+{
+  "schema_version": 2,
+  "status": "failed",
+  "slug": "retraced",
+  "board": "greenhouse",
+  "decision_at": "2026-07-11T01:13:03.997876+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

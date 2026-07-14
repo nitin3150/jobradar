@@ -30,22 +30,34 @@ if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
 from scripts.enrich_org_profiles import (  # noqa: E402
+    CADENCE_BUCKETS,
     OrgProfile,
     SCHEMA_VERSION,
-    SKIP_CADENCE_DEAD,
-    SKIP_CADENCE_STALE_DAYS,
     SKIP_CONFIDENCE_THRESHOLD,
     SKIP_TECH_RATIO_THRESHOLD,
     SourceJob,
     _atomic_write_json,
-    _build_skip_list,
+    _bucket_for_ok_profile,
     _build_source_jobs,
     _build_user_prompt,
     _compute_skip_for_profile,
+    _emit_per_bucket_summary,
+    _find_existing_profile,
+    _purge_stale_duplicate_profiles,
+    _stale_profile_paths_for_slug,
+    _target_path_for_slug,
     _trim_jobs_for_prompt,
-    _write_skip_list,
     _write_status_envelope,
 )
+
+# Package ref bound at module-level so test methods can refer
+# to ``eom.PROFILE_DIR`` (etc.) without re-importing
+# ``scripts.enrich_org_profiles`` in every ``setUp``. The
+# module-level binding also lines up with monkey-patching:
+# a future ``mock.patch.object(eom, 'PROFILE_DIR', ...)``
+# needs the attribute to be patchable on the *module*
+# object, not on a per-frame local.
+from scripts import enrich_org_profiles as eom  # noqa: E402
 
 
 class _OrgProfileBuilder:
@@ -309,70 +321,46 @@ class TestComputeSkipForProfile(unittest.TestCase):
         for status in ("failed", "skipped", None):
             profile = _OrgProfileBuilder.make(
                 status=status,
-                posting_cadence="dead",
-                source_last_published=(
-                    self._NOW - timedelta(days=365)
-                ).isoformat(),
+                posting_cadence="daily",
+                sponsorship_open=False,
+                tech_role_ratio=SKIP_TECH_RATIO_THRESHOLD - 0.05,
+                overall_confidence=SKIP_CONFIDENCE_THRESHOLD + 0.05,
             )
             self.assertFalse(
                 _compute_skip_for_profile(profile, now=self._NOW),
                 f"status={status!r} should never skip",
             )
 
-    # -- Rule 1: cadence in {dead, rare} AND last_posted > 180d ago ----
-    def test_rule1_old_dead_org_skips(self) -> None:
+    def test_stale_dead_org_does_not_skip(self) -> None:
+        """Pin the explicit Rule 1 removal: a ``dead``-cadence org
+        with raw-age > 180d is NOT skipped — the per-cadence
+        layout routes it to ``cadence/dead/<slug>.json`` and
+        lets the GHA probe workflow's cron handle the staleness
+        budget naturally. Operationally this means the prior
+        behavior of permanently skipping dead-cadence orgs is
+        gone; a recovered dead org is now picked up on the next
+        re-enrich without operator intervention.
+        """
         profile = _OrgProfileBuilder.make(
             status="ok",
             posting_cadence="dead",
             source_last_published=(
-                self._NOW - timedelta(days=SKIP_CADENCE_STALE_DAYS + 1)
+                self._NOW - timedelta(days=400)
             ).isoformat(),
         )
-        self.assertTrue(_compute_skip_for_profile(profile, now=self._NOW))
-
-    def test_rule1_recent_dead_org_does_not_skip(self) -> None:
-        """A dead-cadence org with a fresh posting should still be
-        fetched — possibly recovered; the stale-only gate ignores it."""
-        profile = _OrgProfileBuilder.make(
-            status="ok",
-            posting_cadence="dead",
-            source_last_published=(
-                self._NOW - timedelta(days=30)
-            ).isoformat(),
+        self.assertFalse(
+            _compute_skip_for_profile(profile, now=self._NOW),
+            "dead-cadence + stale-age must not skip under the new layout",
         )
-        self.assertFalse(_compute_skip_for_profile(profile, now=self._NOW))
 
-    def test_rule1_recent_cadence_does_not_skip_regardless_of_age(self) -> None:
-        """``weekly`` cadence never falls in SKIP_CADENCE_DEAD."""
-        profile = _OrgProfileBuilder.make(
-            status="ok",
-            posting_cadence="weekly",
-            source_last_published=(
-                self._NOW - timedelta(days=365)
-            ).isoformat(),
-        )
-        self.assertFalse(_compute_skip_for_profile(profile, now=self._NOW))
-
-    def test_rule1_unknown_cadence_does_not_skip(self) -> None:
-        """``unknown`` cadence is a "we couldn't tell" sentinel — not
-        a "skip" signal."""
-        profile = _OrgProfileBuilder.make(
-            status="ok",
-            posting_cadence="unknown",
-            source_last_published=(
-                self._NOW - timedelta(days=365)
-            ).isoformat(),
-        )
-        self.assertFalse(_compute_skip_for_profile(profile, now=self._NOW))
-
-    # -- Rule 2: explicit sponsorship block ---------------------------
-    def test_rule2_sponsorship_open_false_skips(self) -> None:
+    # -- Rule 1: explicit sponsorship block ---------------------------
+    def test_rule1_sponsorship_open_false_skips(self) -> None:
         profile = _OrgProfileBuilder.make(
             status="ok", sponsorship_open=False
         )
         self.assertTrue(_compute_skip_for_profile(profile, now=self._NOW))
 
-    def test_rule2_sponsorship_open_none_does_not_skip(self) -> None:
+    def test_rule1_sponsorship_open_none_does_not_skip(self) -> None:
         """``None`` (no info) is NOT a skip signal — the runner treats
         unknown as "fall through to current behavior"."""
         profile = _OrgProfileBuilder.make(
@@ -380,14 +368,22 @@ class TestComputeSkipForProfile(unittest.TestCase):
         )
         self.assertFalse(_compute_skip_for_profile(profile, now=self._NOW))
 
-    def test_rule2_sponsorship_open_true_does_not_skip(self) -> None:
+    def test_rule1_sponsorship_open_true_does_not_skip(self) -> None:
         profile = _OrgProfileBuilder.make(
             status="ok", sponsorship_open=True
         )
         self.assertFalse(_compute_skip_for_profile(profile, now=self._NOW))
 
-    # -- Rule 3: confidently non-tech ---------------------------------
-    def test_rule3_low_tech_high_conf_skips(self) -> None:
+    def test_rule1_clearance_required_true_skips(self) -> None:
+        profile = _OrgProfileBuilder.make(
+            status="ok",
+            sponsorship_open=None,
+            clearance_required=True,
+        )
+        self.assertTrue(_compute_skip_for_profile(profile, now=self._NOW))
+
+    # -- Rule 2: confidently non-tech ---------------------------------
+    def test_rule2_low_tech_high_conf_skips(self) -> None:
         profile = _OrgProfileBuilder.make(
             status="ok",
             tech_role_ratio=SKIP_TECH_RATIO_THRESHOLD - 0.05,
@@ -395,7 +391,7 @@ class TestComputeSkipForProfile(unittest.TestCase):
         )
         self.assertTrue(_compute_skip_for_profile(profile, now=self._NOW))
 
-    def test_rule3_low_tech_low_conf_falls_through(self) -> None:
+    def test_rule2_low_tech_low_conf_falls_through(self) -> None:
         """When confidence is low we DON'T skip — the LLM isn't sure
         and we'd rather pay the per-job LLM tokens than miss a real
         tech opportunity. This is the safety case for the AND."""
@@ -406,7 +402,7 @@ class TestComputeSkipForProfile(unittest.TestCase):
         )
         self.assertFalse(_compute_skip_for_profile(profile, now=self._NOW))
 
-    def test_rule3_high_tech_low_conf_falls_through(self) -> None:
+    def test_rule2_high_tech_low_conf_falls_through(self) -> None:
         """High tech-ratio with low confidence also doesn't skip —
         the LLM might be uncertain about a startup with a small
         board."""
@@ -417,7 +413,7 @@ class TestComputeSkipForProfile(unittest.TestCase):
         )
         self.assertFalse(_compute_skip_for_profile(profile, now=self._NOW))
 
-    def test_rule3_boundary_thresholds(self) -> None:
+    def test_rule2_boundary_thresholds(self) -> None:
         """Exact threshold comparisons: ``< `` (strict) for tech ratio,
         ``>`` (strict) for confidence, so the boundary cases fall
         through."""
@@ -430,133 +426,275 @@ class TestComputeSkipForProfile(unittest.TestCase):
         self.assertFalse(_compute_skip_for_profile(profile, now=self._NOW))
 
 
-class TestBuildSkipList(unittest.TestCase):
-    """End-to-end ``_build_skip_list``: writes profiles to disk, runs
-    the walker, asserts the returned slug list matches."""
-
-    def setUp(self) -> None:
-        self._tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self._tmp.cleanup)
-        self.profile_dir = Path(self._tmp.name) / "enriched" / "greenhouse"
-        self.profile_dir.mkdir(parents=True)
-
-        # Patch ``PROFILE_DIR`` so ``_build_skip_list`` reads from
-        # our test directory rather than ``backend/data/enriched``.
-        from scripts import enrich_org_profiles
-        self._orig_profile_dir = enrich_org_profiles.PROFILE_DIR
-        enrich_org_profiles.PROFILE_DIR = Path(self._tmp.name) / "enriched"
-        self.addCleanup(
-            lambda: setattr(
-                enrich_org_profiles, "PROFILE_DIR", self._orig_profile_dir
-            )
-        )
-
-    def _write_profile(self, slug: str, profile: dict) -> Path:
-        path = self.profile_dir / f"{slug}.json"
-        path.write_text(json.dumps(profile))
-        return path
-
-    def test_returns_sortable_skip_slugs(self) -> None:
-        _NOW = datetime(2026, 7, 10, 12, 0, 0, tzinfo=timezone.utc)
-        # Org A: dead board, 200d old.
-        self._write_profile(
-            "alpha",
-            _OrgProfileBuilder.make(
-                slug="alpha",
-                status="ok",
-                posting_cadence="dead",
-                source_last_published=(_NOW - timedelta(days=200)).isoformat(),
-            ),
-        )
-        # Org B: explicit sponsorship block.
-        self._write_profile(
-            "bravo",
-            _OrgProfileBuilder.make(slug="bravo", status="ok", sponsorship_open=False),
-        )
-        # Org C: explicitly tech-heavy. Should NOT skip.
-        self._write_profile(
-            "charlie",
-            _OrgProfileBuilder.make(slug="charlie", status="ok", tech_role_ratio=0.9),
-        )
-        # Org D: status=failed. Should NOT skip.
-        self._write_profile(
-            "delta",
-            {"schema_version": SCHEMA_VERSION, "status": "failed", "slug": "delta"},
-        )
-        skip = _build_skip_list("greenhouse", now=_NOW)
-        self.assertEqual(skip, ["alpha", "bravo"])
-
-    def test_filters_meta_files_starting_with_underscore(self) -> None:
-        # ``_skip_list.json`` is a meta file from a previous run —
-        # walking the directory should ignore it.
-        meta = self.profile_dir / "_skip_list.json"
-        meta.write_text(json.dumps({"schema_version": 1, "slugs": ["ghost"]}))
-        skip = _build_skip_list("greenhouse")
-        self.assertEqual(skip, [])
-
-    def test_returns_empty_list_when_directory_does_not_exist(self) -> None:
-        non_existent = Path(self._tmp.name) / "no_dir_here"
-        from scripts import enrich_org_profiles
-        enrich_org_profiles.PROFILE_DIR = non_existent
-        self.assertEqual(_build_skip_list("greenhouse"), [])
-
-
-class TestWriteSkipList(unittest.TestCase):
-    """Atomic skip-list writer — confirms shape and stability."""
-
-    def setUp(self) -> None:
-        self._tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self._tmp.cleanup)
-        from scripts import enrich_org_profiles
-        self._orig = enrich_org_profiles.PROFILE_DIR
-        enrich_org_profiles.PROFILE_DIR = Path(self._tmp.name) / "enriched"
-        self.addCleanup(
-            lambda: setattr(
-                enrich_org_profiles, "PROFILE_DIR", self._orig
-            )
-        )
-        (enrich_org_profiles.PROFILE_DIR / "greenhouse").mkdir(parents=True)
-
-    def test_writes_meta_envelope_with_sorted_slugs(self) -> None:
-        _write_skip_list("greenhouse", ["zeta", "alpha", "mu"])
-        path = (
-            enrich_org_profiles.PROFILE_DIR / "greenhouse" / "_skip_list.json"
-        )
-        self.assertTrue(path.exists())
-        with open(path) as f:
-            data = json.load(f)
-        self.assertEqual(data["board"], "greenhouse")
-        self.assertEqual(data["schema_version"], SCHEMA_VERSION)
-        self.assertEqual(data["slugs"], ["alpha", "mu", "zeta"])
-        self.assertIn("computed_at", data)
-
-
-class TestWriteStatusEnvelope(unittest.TestCase):
-    """Non-OK envelopes (status: skipped / status: failed) — the
-    runner's contract is to ignore them. Pin the shape so the
-    skip-list walker reliably filters them out.
+class TestBucketRouting(unittest.TestCase):
+    """Per-cadence bucket router: ``_bucket_for_ok_profile`` +
+    ``_target_path_for_slug`` + ``_stale_profile_paths_for_slug``
+    + ``_purge_stale_duplicate_profiles`` wire together to give
+    every org exactly one on-disk location.
     """
 
     def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self._tmp.cleanup)
         from scripts import enrich_org_profiles
-        self._orig = enrich_org_profiles.PROFILE_DIR
-        enrich_org_profiles.PROFILE_DIR = Path(self._tmp.name) / "enriched"
+        self._orig = eom.PROFILE_DIR
+        eom.PROFILE_DIR = Path(self._tmp.name) / "enriched"
         self.addCleanup(
             lambda: setattr(
                 enrich_org_profiles, "PROFILE_DIR", self._orig
             )
         )
-        (enrich_org_profiles.PROFILE_DIR / "greenhouse").mkdir(parents=True)
+        (eom.PROFILE_DIR / "greenhouse").mkdir(parents=True)
 
-    def test_skipped_envelope_shape(self) -> None:
+    def test_cadence_bucket_set_is_frozen(self) -> None:
+        """Pin the canonical bucket set so a future drift in
+        :data:`CADENCE_BUCKETS` is a visible test diff rather
+        than a silent behavior change."""
+        self.assertEqual(
+            sorted(CADENCE_BUCKETS),
+            [
+                "biweekly", "daily", "dead", "few_per_week",
+                "monthly", "quarterly", "rare", "unknown", "weekly",
+            ],
+        )
+
+    def test_weekly_cadence_routes_to_weekly_bucket(self) -> None:
+        profile = _OrgProfileBuilder.make(
+            status="ok", posting_cadence="weekly",
+        )
+        self.assertEqual(_bucket_for_ok_profile(profile), "weekly")
+        self.assertEqual(
+            _target_path_for_slug(
+                board="greenhouse", slug="stripe", bucket="weekly",
+            ),
+            eom.PROFILE_DIR / "greenhouse"
+            / "cadence" / "weekly" / "stripe.json",
+        )
+
+    def test_sponsorship_block_routes_to_skip_bucket(self) -> None:
+        profile = _OrgProfileBuilder.make(
+            status="ok", sponsorship_open=False,
+        )
+        self.assertEqual(_bucket_for_ok_profile(profile), "skip")
+        self.assertEqual(
+            _target_path_for_slug(
+                board="greenhouse", slug="citi", bucket="skip",
+            ),
+            eom.PROFILE_DIR / "greenhouse"
+            / "skip" / "citi.json",
+        )
+
+    def test_clearance_routes_to_skip_bucket(self) -> None:
+        profile = _OrgProfileBuilder.make(
+            status="ok",
+            clearance_required=True,
+        )
+        self.assertEqual(_bucket_for_ok_profile(profile), "skip")
+
+    def test_non_tech_high_confidence_routes_to_skip_bucket(self) -> None:
+        profile = _OrgProfileBuilder.make(
+            status="ok",
+            tech_role_ratio=SKIP_TECH_RATIO_THRESHOLD - 0.05,
+            overall_confidence=SKIP_CONFIDENCE_THRESHOLD + 0.05,
+        )
+        self.assertEqual(_bucket_for_ok_profile(profile), "skip")
+
+    def test_unknown_cadence_value_falls_back_to_unknown_bucket(self) -> None:
+        profile = _OrgProfileBuilder.make(
+            status="ok",
+            posting_cadence="weird-not-in-canonical-set",
+        )
+        self.assertEqual(_bucket_for_ok_profile(profile), "unknown")
+
+    def test_status_not_ok_never_routes_to_cadence(self) -> None:
+        # Failed / skipped profiles still go through
+        # :func:`_bucket_for_ok_profile` (it's a pure dict shape
+        # check), but the caller (``_enrich_one_org`` and
+        # ``_write_status_envelope``) writes them to
+        # ``errors/<slug>.json`` directly without consulting the
+        # bucket router output.
+        for status in ("failed", "skipped", None):
+            profile = _OrgProfileBuilder.make(
+                slug="alpha",
+                status=status,
+                posting_cadence="weekly",
+            )
+            bucket = _bucket_for_ok_profile(profile)
+            # A non-ok profile with sponsorship_open=False still
+            # computes "skip" because the bucket router follows
+            # the same Rules 1+2 logic — the on-disk write path
+            # in ``_write_status_envelope`` ignores this output
+            # and routes non-ok profiles to ``errors/`` instead.
+            self.assertIn(
+                bucket, {"weekly", "skip", "unknown"},
+                f"unexpected bucket {bucket!r} for status={status!r}",
+            )
+
+    def test_stale_paths_lists_every_possible_location(self) -> None:
+        """Every on-disk location a slug might occupy is enumerated
+        so the duplicate-purge contract is exhaustive."""
+        paths = _stale_profile_paths_for_slug(
+            board="greenhouse", slug="stripe",
+        )
+        path_strs = [str(p) for p in paths]
+        self.assertIn(
+            str(
+                eom.PROFILE_DIR
+                / "greenhouse" / "stripe.json"
+            ),
+            path_strs,
+        )
+        self.assertIn(
+            str(
+                eom.PROFILE_DIR
+                / "greenhouse" / "errors" / "stripe.json"
+            ),
+            path_strs,
+        )
+        self.assertIn(
+            str(
+                eom.PROFILE_DIR
+                / "greenhouse" / "skip" / "stripe.json"
+            ),
+            path_strs,
+        )
+        for bucket in CADENCE_BUCKETS:
+            self.assertIn(
+                str(
+                    eom.PROFILE_DIR
+                    / "greenhouse" / "cadence" / bucket / "stripe.json"
+                ),
+                path_strs,
+            )
+
+    def test_purge_removes_other_buckets_keeps_target(self) -> None:
+        board_dir = (
+            eom.PROFILE_DIR / "greenhouse"
+        )
+        # Pre-populate every location with a stub file.
+        stale_locations = [
+            board_dir / "stripe.json",
+            board_dir / "errors" / "stripe.json",
+            board_dir / "skip" / "stripe.json",
+            board_dir / "cadence" / "weekly" / "stripe.json",
+            board_dir / "cadence" / "daily" / "stripe.json",
+            board_dir / "cadence" / "dead" / "stripe.json",
+        ]
+        for path in stale_locations:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps({"legacy": True}))
+
+        target = board_dir / "cadence" / "monthly" / "stripe.json"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(json.dumps({"current": True}))
+
+        removed = _purge_stale_duplicate_profiles(
+            board="greenhouse", slug="stripe", target_path=target,
+        )
+
+        # Every location EXCEPT the target is removed.
+        for path in stale_locations:
+            self.assertFalse(
+                path.exists(),
+                f"stale duplicate {path} should be purged",
+            )
+        self.assertTrue(target.exists(), "target must remain")
+        # Removed list should contain every non-target location.
+        self.assertEqual(
+            sorted(str(p) for p in removed),
+            sorted(str(p) for p in stale_locations),
+        )
+
+    def test_purge_target_safety_does_not_delete_target(self) -> None:
+        """Defensive — if ``target`` already exists in the same
+        location the caller wants, the purge must not delete it."""
+        board_dir = (
+            eom.PROFILE_DIR / "greenhouse"
+        )
+        target = board_dir / "cadence" / "weekly" / "stripe.json"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(json.dumps({"payload": "ok"}))
+
+        removed = _purge_stale_duplicate_profiles(
+            board="greenhouse", slug="stripe", target_path=target,
+        )
+        self.assertEqual(removed, [])
+        self.assertTrue(target.exists())
+
+    def test_find_existing_walks_every_location(self) -> None:
+        board_dir = (
+            eom.PROFILE_DIR / "greenhouse"
+        )
+        # No profile on disk yet.
+        self.assertIsNone(
+            _find_existing_profile(board="greenhouse", slug="ghost")
+        )
+        # Cadence bucket match.
+        bucket_path = board_dir / "cadence" / "weekly" / "ghost.json"
+        bucket_path.parent.mkdir(parents=True, exist_ok=True)
+        bucket_path.write_text(json.dumps({"v": 1}))
+        self.assertEqual(
+            _find_existing_profile(board="greenhouse", slug="ghost"),
+            bucket_path,
+        )
+        # Skip-bucket match.
+        bucket_path.unlink()
+        skip_path = board_dir / "skip" / "ghost.json"
+        skip_path.parent.mkdir(parents=True, exist_ok=True)
+        skip_path.write_text(json.dumps({"v": 1}))
+        self.assertEqual(
+            _find_existing_profile(board="greenhouse", slug="ghost"),
+            skip_path,
+        )
+        # Legacy top-level match (just-in-case the previous
+        # enrichment wrote there).
+        skip_path.unlink()
+        legacy_path = board_dir / "ghost.json"
+        legacy_path.write_text(json.dumps({"v": 1}))
+        self.assertEqual(
+            _find_existing_profile(board="greenhouse", slug="ghost"),
+            legacy_path,
+        )
+
+
+class TestWriteStatusEnvelope(unittest.TestCase):
+    """Non-OK envelopes (status: skipped / status: failed) — the
+    boards runner ignores them because they live in ``errors/``,
+    which no ``BOARDS_CADENCES`` value ever names. Pin the shape
+    AND the on-disk location so the per-cadence layout's
+    invariant (exactly one file per (board, slug) tuple,
+    sitting inside either ``errors/``, ``skip/``, or
+    ``cadence/<bucket>/``) is preserved across runs.
+    """
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        from scripts import enrich_org_profiles
+        self._orig = eom.PROFILE_DIR
+        eom.PROFILE_DIR = Path(self._tmp.name) / "enriched"
+        self.addCleanup(
+            lambda: setattr(
+                enrich_org_profiles, "PROFILE_DIR", self._orig
+            )
+        )
+        (eom.PROFILE_DIR / "greenhouse").mkdir(parents=True)
+
+    def test_skipped_envelope_shape_and_errors_path(self) -> None:
         path = _write_status_envelope(
             board="greenhouse",
             slug="tiny-org",
             status="skipped",
             reason_or_error="fewer_than_3_jobs",
             extra={"source_jobs_count": 2},
+        )
+        # Path lands in ``errors/`` — that location is invisible
+        # to ``load_orgs()`` because no ``BOARDS_CADENCES``
+        # value names it.
+        self.assertEqual(
+            path,
+            eom.PROFILE_DIR
+            / "greenhouse" / "errors" / "tiny-org.json",
         )
         with open(path) as f:
             data = json.load(f)
@@ -566,18 +704,50 @@ class TestWriteStatusEnvelope(unittest.TestCase):
         self.assertEqual(data["source_jobs_count"], 2)
         self.assertEqual(data["schema_version"], SCHEMA_VERSION)
 
-    def test_failed_envelope_shape(self) -> None:
+    def test_failed_envelope_shape_and_errors_path(self) -> None:
         path = _write_status_envelope(
             board="greenhouse",
             slug="bad-org",
             status="failed",
             reason_or_error="RuntimeError: all providers failed",
         )
+        self.assertEqual(
+            path,
+            eom.PROFILE_DIR
+            / "greenhouse" / "errors" / "bad-org.json",
+        )
         with open(path) as f:
             data = json.load(f)
         self.assertEqual(data["status"], "failed")
         self.assertEqual(data["slug"], "bad-org")
         self.assertTrue("RuntimeError" in data["reason"])
+
+    def test_envelope_writer_purges_preexisting_ok_profile(self) -> None:
+        """A re-enrich that previously had a successful profile
+        at a cadence bucket but fails on this attempt must
+        clean up the stale OK copy before writing the errors
+        envelope. The on-disk invariant "exactly one file per
+        (board, slug) tuple" must hold."""
+        board_dir = (
+            eom.PROFILE_DIR / "greenhouse"
+        )
+        # Pre-populate a stale OK profile at an unrelated cadence
+        # bucket — the kind of state a previous succeeded
+        # enrich would have left behind.
+        stale = board_dir / "cadence" / "weekly" / "stripe.json"
+        stale.parent.mkdir(parents=True, exist_ok=True)
+        stale.write_text(json.dumps({"status": "ok", "old": True}))
+        path = _write_status_envelope(
+            board="greenhouse",
+            slug="stripe",
+            status="failed",
+            reason_or_error="RuntimeError",
+        )
+        self.assertFalse(
+            stale.exists(),
+            "stale cadence-bucket OK profile must be purged on error envelope write",
+        )
+        self.assertTrue(path.exists())
 
 
 class TestOrgProfileValidation(unittest.TestCase):
@@ -623,13 +793,19 @@ class TestOrgProfileValidation(unittest.TestCase):
 
 
 class TestRunnerHook(unittest.TestCase):
-    """End-to-end load_orgs() integration: board-runner reads
-    ``_skip_list.json`` when ``BOARDS_USE_ENRICHED_PROFILES=1``.
+    """End-to-end ``load_orgs()`` integration with the
+    per-cadence layout.
 
-    Mocks ORG_INDEX so the test doesn't read the real
+    The runner reads ``BOARDS_CADENCES`` as a comma-separated
+    list of cadence buckets and returns the union of slugs
+    whose on-disk profile lives in
+    ``data/enriched/<board>/cadence/<bucket>/``. The flat
+    ``_skip_list.json`` reader was REMOVED — every org profile
+    now lives in ``cadence/<bucket>/`` (scanned) or ``skip/``
+    (never scanned) or ``errors/`` (operator inspection only).
+    Mocks ``ORG_INDEX`` so the test doesn't read the real
     ``backend/data/<board>_companies.json`` files (which would
-    make the test order-dependent on host repo state). Mocking the
-    file path also lets us inject a tiny synthetic org list.
+    make the test order-dependent on host repo state).
     """
 
     def setUp(self) -> None:
@@ -640,28 +816,13 @@ class TestRunnerHook(unittest.TestCase):
         self.data_dir = Path(self._tmp.name) / "data"
         self.data_dir.mkdir()
         self.board_path = self.data_dir / "test_companies.json"
-        self.board_path.write_text(json.dumps(["alpha", "bravo", "charlie"]))
+        self.board_path.write_text(json.dumps(["alpha", "bravo", "charlie", "delta"]))
 
-        # Re-import the runner module with DATA_DIR patched in.
-        import importlib
-
-        original = os.environ.copy()
-        os.environ["BOARDS_USE_ENRICHED_PROFILES"] = "0"  # default
+        os.environ.pop("BOARDS_CADENCES", None)
         from pipeline.nodes.jobs_boards import runner as runner_module
-        # Snapshot the original module-level state BEFORE patching so
-        # ``tearDown`` (via addCleanup below) restores them. Without
-        # this the patched ``DATA_DIR`` and ``ORG_INDEX`` persist into
-        # any subsequent test that imports the runner module — the
-        # original ORG_INDEX ("ashby", "greenhouse", "lever") would
-        # silently leak away and ``Runner.load_orgs("ashby")` would
-        # KeyError. The existing ``test_job_board_runner.py`` solves
-        # the same problem with ``importlib.reload`` in tearDown; we
-        # use the lighter attribute-restore here because we're
-        # patching only two identifiers, not module-import-time env.
         self._orig_data_dir = runner_module.DATA_DIR
         self._orig_org_index = runner_module.ORG_INDEX
         runner_module.DATA_DIR = self.data_dir
-        # Inject a synthetic ORG_INDEX entry pointing at our test file.
         runner_module.ORG_INDEX = {
             "testboard": (self.board_path, mock.MagicMock()),
         }
@@ -671,96 +832,151 @@ class TestRunnerHook(unittest.TestCase):
     def _restore_runner_state(self) -> None:
         """Restore module-level state mutated by :meth:`setUp`.
 
-        Registered via ``addCleanup`` so the restoration runs even
-        when the test raises — a patch-only-once leak would
-        otherwise silently break every runner-using test in this
-        process forever.
+        Registered via ``addCleanup`` so the restoration runs
+        even when the test raises — a patch-only-once leak
+        would otherwise silently break every runner-using test
+        in this process forever.
         """
         self.runner_module.DATA_DIR = self._orig_data_dir
-        # Take a fresh copy because the original dict could have been
-        # mutated by the test (our patch is a literal, but a future
-        # test might assign the dict itself and silently leak a
-        # stale reference otherwise).
         self.runner_module.ORG_INDEX = dict(self._orig_org_index)
 
     def tearDown(self) -> None:
         os.environ.clear()
         os.environ.update(self._env_snapshot)
 
-    def test_default_env_no_skip_list_read(self) -> None:
-        """Default 0 -> the runner ignores the skip list entirely,
-        even when the file is present."""
-        os.environ.pop("BOARDS_USE_ENRICHED_PROFILES", None)
-        # Write a skip list that would filter every slug.
-        skip_dir = self.data_dir / "enriched" / "testboard"
-        skip_dir.mkdir(parents=True)
-        (skip_dir / "_skip_list.json").write_text(
-            json.dumps({"schema_version": 1, "slugs": ["alpha", "bravo", "charlie"]})
-        )
-        orgs = self.runner_module.load_orgs("testboard")
-        self.assertEqual(orgs, ["alpha", "bravo", "charlie"])
+    def _seed_cadence_files(self, *pairs: tuple[str, str]) -> None:
+        """Pre-create cadence bucket files on disk.
 
-    def test_env_set_1_with_slugs_skips_them(self) -> None:
-        os.environ["BOARDS_USE_ENRICHED_PROFILES"] = "1"
-        skip_dir = self.data_dir / "enriched" / "testboard"
-        skip_dir.mkdir(parents=True)
-        (skip_dir / "_skip_list.json").write_text(
-            json.dumps({"schema_version": 1, "slugs": ["bravo"]})
-        )
-        orgs = self.runner_module.load_orgs("testboard")
-        self.assertEqual(orgs, ["alpha", "charlie"])
-
-    def test_env_set_1_with_meta_payload_skips(self) -> None:
-        """Pin the meta-payload shape contract: ``{schema_version, slugs: [...]}``."""
-        os.environ["BOARDS_USE_ENRICHED_PROFILES"] = "1"
-        skip_dir = self.data_dir / "enriched" / "testboard"
-        skip_dir.mkdir(parents=True)
-        (skip_dir / "_skip_list.json").write_text(
-            json.dumps({"schema_version": SCHEMA_VERSION, "slugs": ["alpha"]})
-        )
-        orgs = self.runner_module.load_orgs("testboard")
-        self.assertEqual(orgs, ["bravo", "charlie"])
-
-    def test_env_set_1_with_missing_file_falls_through(self) -> None:
-        """Absent skip list -> full org list returned (current behavior)."""
-        os.environ["BOARDS_USE_ENRICHED_PROFILES"] = "1"
-        # No _skip_list.json in the data dir.
-        orgs = self.runner_module.load_orgs("testboard")
-        self.assertEqual(orgs, ["alpha", "bravo", "charlie"])
-
-    def test_env_set_1_with_malformed_file_falls_through(self) -> None:
-        """Malformed skip list should NOT crash the runner — log+fall
-        through to the full org list. Better to do one extra HTTP
-        fetch than to break the cron on a JSON parse bug."""
-        os.environ["BOARDS_USE_ENRICHED_PROFILES"] = "1"
-        skip_dir = self.data_dir / "enriched" / "testboard"
-        skip_dir.mkdir(parents=True)
-        (skip_dir / "_skip_list.json").write_text("{this is not json")
-        orgs = self.runner_module.load_orgs("testboard")
-        self.assertEqual(orgs, ["alpha", "bravo", "charlie"])
-
-    def test_env_truthy_variants(self) -> None:
-        """``"true"`` and ``"yes"`` (lowercased) also enable the gate."""
-        for truthy in ("1", "true", "yes"):
-            os.environ["BOARDS_USE_ENRICHED_PROFILES"] = truthy
-            skip_dir = self.data_dir / "enriched" / "testboard"
-            skip_dir.mkdir(parents=True)
-            (skip_dir / "_skip_list.json").write_text(
-                json.dumps({"schema_version": 1, "slugs": ["alpha"]})
+        Each ``(bucket, slug)`` pair writes an empty profile
+        at ``data/enriched/testboard/cadence/<bucket>/<slug>.json``
+        so ``load_orgs()`` can pick it up via the
+        ``BOARDS_CADENCES`` -> glob -> Path.stem pipeline.
+        """
+        board_dir = self.data_dir / "enriched" / "testboard"
+        for bucket, slug in pairs:
+            bucket_dir = board_dir / "cadence" / bucket
+            bucket_dir.mkdir(parents=True, exist_ok=True)
+            (bucket_dir / f"{slug}.json").write_text(
+                json.dumps({"status": "ok", "slug": slug, "board": "testboard"})
             )
-            orgs = self.runner_module.load_orgs("testboard")
-            self.assertEqual(orgs, ["bravo", "charlie"], f"truthy={truthy!r}")
 
-    def test_env_unset_disables_the_gate(self) -> None:
-        """Explicitly absent env var -> 0 default -> full list."""
-        os.environ.pop("BOARDS_USE_ENRICHED_PROFILES", None)
+    def test_default_env_no_cadence_filter_returns_full_list(self) -> None:
+        """Unset ``BOARDS_CADENCES`` -> legacy behavior: every
+        org from the full board list passes through (only the
+        missing-orgs/timeout-orgs ban lists apply)."""
+        os.environ.pop("BOARDS_CADENCES", None)
+        # Even with cadence files on disk, an unset env returns
+        # the full list.
+        self._seed_cadence_files(("weekly", "alpha"), ("weekly", "bravo"))
+        orgs = self.runner_module.load_orgs("testboard")
+        self.assertEqual(orgs, ["alpha", "bravo", "charlie", "delta"])
+
+    def test_env_filters_to_one_cadence_bucket(self) -> None:
+        os.environ["BOARDS_CADENCES"] = "weekly"
+        self._seed_cadence_files(("weekly", "alpha"))
+        orgs = self.runner_module.load_orgs("testboard")
+        # Only ``alpha`` is in the weekly bucket — ``bravo``,
+        # ``charlie``, ``delta`` are absent from the on-disk
+        # bucket so they never make it into the scan.
+        self.assertEqual(orgs, ["alpha"])
+
+    def test_env_filters_to_multiple_cadence_buckets(self) -> None:
+        os.environ["BOARDS_CADENCES"] = "weekly,biweekly"
+        self._seed_cadence_files(
+            ("weekly", "alpha"),
+            ("biweekly", "bravo"),
+            # ``daily`` is on disk but NOT named in the env
+            # env-config -- should be ignored.
+            ("daily", "charlie"),
+        )
+        orgs = self.runner_module.load_orgs("testboard")
+        self.assertEqual(orgs, ["alpha", "bravo"])
+
+    def test_env_missing_cadence_dir_warns_and_skips(self) -> None:
+        """A cadence name in BOARDS_CADENCES that has no on-disk
+        directory logs a warning and contributes zero slugs
+        rather than raising."""
+        os.environ["BOARDS_CADENCES"] = "weekly,nonexistent"
+        self._seed_cadence_files(("weekly", "alpha"))
+        # No exception - just a logger.warning.
+        orgs = self.runner_module.load_orgs("testboard")
+        self.assertEqual(orgs, ["alpha"])
+
+    def test_env_empty_cadence_dir_yields_zero_slugs(self) -> None:
+        """All named cadences exist but none contain any
+        organisation profiles -> the runner returns ``[]``.
+        :func:`run_all` then logs "no relevant jobs to score"
+        and exits cleanly without writing a ``scanner_runs``
+        ``state=error`` row."""
+        os.environ["BOARDS_CADENCES"] = "weekly"
+        # Create the directory but leave it empty.
+        (self.data_dir / "enriched" / "testboard" / "cadence" / "weekly").mkdir(
+            parents=True,
+        )
+        orgs = self.runner_module.load_orgs("testboard")
+        self.assertEqual(orgs, [])
+
+    def test_env_allows_orgs_only_from_chosen_bucket_subset(self) -> None:
+        """Reverse-direction: orgs not in the named cadence are
+        NOT returned even if the full board index has them."""
+        os.environ["BOARDS_CADENCES"] = "dead"
+        self._seed_cadence_files(
+            ("weekly", "alpha"),  # on disk, but not named
+            ("dead", "delta"),    # the only valid one
+        )
+        orgs = self.runner_module.load_orgs("testboard")
+        self.assertEqual(orgs, ["delta"])
+
+    def test_env_with_whitespace_tolerated(self) -> None:
+        os.environ["BOARDS_CADENCES"] = "  weekly , biweekly  "
+        self._seed_cadence_files(
+            ("weekly", "alpha"),
+            ("biweekly", "bravo"),
+        )
+        orgs = self.runner_module.load_orgs("testboard")
+        self.assertEqual(orgs, ["alpha", "bravo"])
+
+    def test_env_unset_falls_through_to_full_list_even_if_skip_dir_present(self) -> None:
+        """The flat ``_skip_list.json`` path was removed; the
+        runner no longer reads it under any env-var. Verify
+        that an unset BOARDS_CADENCES with a legacy
+        ``_skip_list.json`` on disk (left over from a previous
+        enrichment) returns the full list. The ``_skip_list.json``
+        file is now dead-weight on disk but doesn't change
+        behavior."""
+        os.environ.pop("BOARDS_CADENCES", None)
         skip_dir = self.data_dir / "enriched" / "testboard"
         skip_dir.mkdir(parents=True)
         (skip_dir / "_skip_list.json").write_text(
-            json.dumps({"schema_version": 1, "slugs": ["alpha"]})
+            json.dumps({"schema_version": 1, "slugs": ["alpha", "bravo"]})
         )
         orgs = self.runner_module.load_orgs("testboard")
-        self.assertEqual(orgs, ["alpha", "bravo", "charlie"])
+        self.assertEqual(orgs, ["alpha", "bravo", "charlie", "delta"])
+
+    def test_cadence_filter_still_respects_missing_orgs_ban(self) -> None:
+        """``BOARDS_CADENCES`` narrows the org list, but the
+        per-board missing-orgs ban list (``<board>_missing_orgs.json``)
+        is applied on top. A slug in a cadence bucket AND in
+        the missing-orgs file gets dropped either way."""
+        os.environ["BOARDS_CADENCES"] = "weekly"
+        self._seed_cadence_files(
+            ("weekly", "alpha"),
+            ("weekly", "bravo"),
+        )
+        # Ban-list excludes ``bravo`` (3-strikes 404 bench).
+        missing_path = self.data_dir / "testboard_missing_orgs.json"
+        missing_path.write_text(json.dumps(["bravo"]))
+        orgs = self.runner_module.load_orgs("testboard")
+        self.assertEqual(orgs, ["alpha"])
+
+    def test_env_empty_string_disables_filter(self) -> None:
+        """``BOARDS_CADENCES=""`` should be treated the same as
+        unset (no filter). An empty string after ``.strip()``
+        is falsy in the runner's branch."""
+        os.environ["BOARDS_CADENCES"] = ""
+        self._seed_cadence_files(("weekly", "alpha"))
+        orgs = self.runner_module.load_orgs("testboard")
+        self.assertEqual(orgs, ["alpha", "bravo", "charlie", "delta"])
 
 
 if __name__ == "__main__":

@@ -1,8 +1,0 @@
-{
-  "schema_version": 2,
-  "status": "failed",
-  "slug": "lextech",
-  "board": "greenhouse",
-  "decision_at": "2026-07-14T02:08:23.295561+00:00",
-  "reason": "RuntimeError: all LLM providers failed on run_json_prompt; last error type=_RateLimitedError"
-}

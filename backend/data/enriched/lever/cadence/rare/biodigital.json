@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "biodigital",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:15:57.748657+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2025-06-13T16:23:02.374000+00:00",
+  "source_jobs": [
+    {
+      "title": "Keep In Touch",
+      "description": "Interested in joining the team but not ready to apply or don\u2019t see the right opportunity? Share a little bit about yourself and let us know what types of roles you're interested in. We'll let you know when we have new roles that may be a fit.\n",
+      "location": "",
+      "first_published": "2019-08-26T14:09:09.791000+00:00",
+      "url": "https://jobs.lever.co/biodigital/9245f226-72ce-47c4-97da-d9c1a35866f2"
+    },
+    {
+      "title": "Senior Account Executive",
+      "description": "Who we are\nBioDigital, a Division of Anatomage, has built the first cloud platform for visualizing the human body in interactive 3D. Similar to Google Earth, but for the human body, our cutting edge technology is used on a global scale by patients and professionals who need a more engaging, visual format for learning about health and medicine. Our unique team is leveraging this work to achieve our mission of powering every health conversation in the world and we are seeking a talented Senior Account Executive to help us achieve our ambitious growth goals.\n\nWho you are\nYou are an accomplished B2B SaaS Account Executive with a proven track record of consistently meeting or beating quota. You enjoy consultative selling, collaborating with internal teams, and building, maintaining and executing against your pipeline. You enjoy being the CEO of your own business and solving real healthcare challenges for clients. You listen first, are an adept question asker and enjoy creative problem solving, helping prospects visualize how our novel cloud based software platform and immersive content will align with their goals and objectives. \n",
+      "location": "",
+      "first_published": "2025-06-13T16:23:02.374000+00:00",
+      "url": "https://jobs.lever.co/biodigital/9ec2bac6-6943-427e-9a96-410ea429d4ab"
+    },
+    {
+      "title": "Strategic Account Director",
+      "description": "BioDigital is searching for a Strategic Account Director to manage and expand enterprise accounts, working closely with cross-functional teams to ensure clients fully utilize their cloud-based, interactive 3D human body visualization platform and realize its value in enhancing health education and understanding. This role requires a strong background in SaaS and/or healthcare sales, excellent communication and collaboration skills, and a passion for making healthcare accessible to everyone.\n\n\nWho we are\nBioDigital has built the first cloud-based solution for visualizing the human body in interactive 3D. Like Google Earth for the human body, our cutting-edge technology empowers patients, educators, and professionals worldwide with an engaging, visual way to learn about health and medicine. Our team is on a mission to make health and the human body understandable to all, and we\u2019re seeking a talented, customer-centric Strategic Account Director to help execute on our ambitious goals.\n\nWho you are\nIdeally, you'll have a proven track record in selling and managing cloud-based software solutions, particularly within healthcare, life sciences, or medical technology. You are skillful and passionate about developing and managing high-value, complex client relationships by deeply understanding their needs, proactively identifying opportunities to expand business within the account, and collaborating cross-functionally to deliver strategic solutions that align with the client's long-term goals. You enjoy collaboration with sales, product, content, and customer success teams to help clients realize the value of our platform. You are detail oriented, a creative problem solver, and have a personal connection to our mission of helping people better understand their health.\n",
+      "location": "",
+      "first_published": "2024-12-20T19:37:33.949000+00:00",
+      "url": "https://jobs.lever.co/biodigital/3ed3f15d-bf08-4659-a441-e8da38fb8c5b"
+    }
+  ],
+  "primary_function": "sales_heavy",
+  "estimated_stage": "series_c_plus",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": false,
+  "tech_role_ratio": 0.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.2,
+  "volatility_signal": 0.0,
+  "notes": "No tech roles posted",
+  "overall_confidence": 0.7,
+  "model_used": "llama-3.3-70b-versatile",
+  "status": "ok"
+}

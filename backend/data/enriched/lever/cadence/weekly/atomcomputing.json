@@ -1,0 +1,216 @@
+{
+  "schema_version": 2,
+  "slug": "atomcomputing",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:14:26.434979+00:00",
+  "source_jobs_count": 27,
+  "source_last_published": "2026-07-07T21:49:27.791000+00:00",
+  "source_jobs": [
+    {
+      "title": "Director, Marketing Communications",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing\n\u00a0\nAtom Computing is seeking a Marketing Communications Director who will develop and execute a comprehensive outbound communications strategy which builds awareness for Atom Computing\u2019s brand, educates customers and partners about our technical achievements and unique capabilities, and generates global enthusiasm for our quantum computing solutions.\n\u00a0\nOur ideal candidate thrives in a startup environment, but also knows how large, established organizations operate and can help us grow into more mature processes.\n",
+      "location": "",
+      "first_published": "2026-05-06T21:18:01.569000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/2f5c2c02-4ffc-45c9-9dc7-263fe4c223da"
+    },
+    {
+      "title": "Information Security Manager",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\nWe are seeking an Information Security Manager to be the operational backbone of our IT team, located in our Boulder, Colorado office and offering support to all our offices nationally. In this role, you will manage our information security program end-to-end: setting policy, driving compliance, managing risk, and operating the technical controls that will further improve our security posture.\n",
+      "location": "",
+      "first_published": "2026-06-18T23:27:52.975000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/bdb5f10f-c5f9-4e7b-b2a2-431705444597"
+    },
+    {
+      "title": "Lab Operations and Safety Manager",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will achieve unprecedented computational breakthroughs. Join an incredible team of scientists, engineers, and business professionals to advance the state of the art in quantum technologies that will transform computing performance.\nWe are seeking a Lab Safety Manager to oversee the daily operations of our high-performance physics research facility. You will serve as the operational backbone of the laboratory, bridging the gap between technical research needs and administrative excellence. This role is responsible for ensuring a safe, organized, and efficient environment that enables scientists and engineers to perform at their best.\nThe Lab & Safety Manager is responsible for leading Environmental Health & Safety (EHS) programs while overseeing laboratory operations, inventory systems, and facility maintenance coordination. You will partner closely with our Facilities Operations Manager, Quantum Engineers, and Optical Engineers to maintain a facility that meets the highest standards of safety and reliability.\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-11T20:34:24.741000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/445ed758-27ad-4595-9021-d31b3e9b6ec1"
+    },
+    {
+      "title": "Mechanical Engineer",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\nWe are seeking a Mechanical Engineer to help design mechanical subsystems and develop fixtures and processes for precision alignment and assembly.\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-30T15:20:44.521000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/f78ff1c8-005d-468f-bc5c-f21bf8290d0e"
+    },
+    {
+      "title": "Optical Engineer",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\n\u00a0\nAtom Computing is seeking an Optical Engineer to help lead the design of opto-mechanical subsystems and to help build them out and develop fixtures and processes for their precision alignment and assembly.\u00a0\n\u00a0\n\u00a0\n\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-23T20:18:12.587000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/0aaee1fd-703c-43cf-8a14-592b21ab0dcf"
+    },
+    {
+      "title": "Opto-Mechanical Engineer",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\nWe are seeking an Opto-Mechanical Engineer to help design opto-mechanical subsystems while also assisting with fixturing, assembly, alignment, test, and integration.\n",
+      "location": "",
+      "first_published": "2026-06-30T15:33:10.900000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/96961aba-494c-4272-ba2b-612ebbae9177"
+    },
+    {
+      "title": "Principal ASIC Design Engineer",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\u00a0\nAtom Computing is seeking a Principal ASIC Designer to oversee the development of critical technologies that power our quantum computers. In this role, you will own end-to-end design strategy\u2014from requirements definition through silicon bring-up\u2014while driving critical trade-off decisions across performance, power, area, and system integration constraints. You will partner closely with customers and cross-functional teams to translate evolving requirements into production-ready designs, ensuring alignment between technical execution and business objectives. As a senior technical leader, you will provide strategic guidance to executive stakeholders, shaping the long-term silicon roadmap and influencing key investment decisions. This position requires deep expertise in ASIC development and strong systems thinking.\u00a0\nDue to the need for collaboration with Atom\u2019s theory, software, hardware and optics teams, this role is required to be in the office in Boulder, CO or Austin, TX at least 3 days per week.\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-24T09:11:22.528000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/dd54295c-7e23-4f1c-a32f-56dc0341e938"
+    },
+    {
+      "title": "Principal Hardware Engineer",
+      "description": "<div>\n<p>At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.</p>\n<p>Atom Computing is seeking a hands-on Principal Hardware Engineer to lead the architecture, design, and deployment of custom electronic assemblies for the control system of our quantum computer. In this role, you will drive hardware strategy across multiple concurrent projects while remaining deeply engaged in the tactical engineering work</p>\n<p>This position is located in Boulder, Colorado, and will report to the Control Systems Manager.</p>\n</div>",
+      "location": "",
+      "first_published": "2026-06-10T22:27:58.894000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/a9d781b5-6595-408d-88e8-2f2c4a1b8027"
+    },
+    {
+      "title": "Principal Optical Engineer",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\nWe are seeking a Principal Optical Engineer. As a technical lead, you will define and implement rigorous standards for optical engineering, ensuring design integrity through detailed modeling and analysis. You will collaborate closely with physicists and subject matter experts to architect the optical assemblies and modules essential for our next-generation neutral atom quantum computers. This position reports directly to the VP, Optical Engineering and requires being on-site at our Boulder, CO facility 4-5 days per week.\n",
+      "location": "",
+      "first_published": "2026-07-07T21:49:27.791000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/5de72805-e7ec-4e99-9966-2b92dd729e45"
+    },
+    {
+      "title": "Principal Opto-Mechanical Engineer",
+      "description": "<div>\n<p>At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.</p>\n<p>Atom Computing is seeking a Principal Opto-Mechanical Engineer to help lead the design of opto-mechanical subsystems, while also assisting with fixturing, assembly, alignment, test, and integration.</p>\n</div>",
+      "location": "",
+      "first_published": "2026-07-06T16:31:58.477000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/995934ca-95fe-4451-8f53-4cf04e0a6abe"
+    },
+    {
+      "title": "Principal Quantum Engineer",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\nWe are looking for Quantum Engineers to work on all aspects of neutral atom quantum computing. As a Quantum Engineer at Atom Computing, you will join a team of talented scientists and engineers who are working to translate fundamental atomic physics to a scalable, fault-tolerant quantum computer.\u00a0\nWe welcome applicants from a diverse set of backgrounds, but are specifically interested in candidates with experience in the following fields: Trapping and manipulation of cold atoms; Coherent control of quantum systems (for example: neutral atoms, trapped ions, NV- centers, nuclear magnetic resonance, superconducting qubits); Quantum characterization, verification, and validation (QCVV) techniques.\n",
+      "location": "",
+      "first_published": "2026-06-12T22:23:27.093000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/96fa8da1-2ce9-45cb-93b0-623f7a4de297"
+    },
+    {
+      "title": "Principal RF Engineer",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\nAtom Computing is seeking a Principal RF Engineer to join our team to assist in the design, verification, and testing of custom assemblies that enable control of our quantum computer. This position is located in Boulder, Colorado, and will report to the Control Systems Manager.\u00a0\nDue to the need for collaboration with Atom\u2019s theory, software, hardware and optics teams, this role is required to be in the office in Boulder at least 3 days per week.\n",
+      "location": "",
+      "first_published": "2026-06-01T23:34:47.907000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/07709e70-b064-4dd8-9eac-3fc921a0fa4a"
+    },
+    {
+      "title": "Principal Software Engineer",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a talented team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\nWe are seeking a Principal Software Engineer to provide technical leadership for the software platform that orchestrates our quantum computers. In this role, you'll set the technical direction for a core area of our stack: the systems that coordinate quantum computing workloads, interface with the hardware control and calibration systems, and manage the experimental data our systems produce, while driving the architecture of our next-generation systems. Reporting to the Software Engineering Manager, you will be responsible for leading the technical direction of a focused set of projects, partner with the team that owns our hardware control and compilation systems, and collaborate closely with our quantum engineers.\nThis is a primarily backend role with occasional frontend work. Our backend services are written in Python and Rust, and our frontend components are written in TypeScript/React. Many of our services run directly on the quantum computers themselves, in a Linux environment, so you'll be writing and guiding software that operates close to the hardware.\nThis role is based in our Boulder, CO or Austin, TX office.\n",
+      "location": "",
+      "first_published": "2026-06-21T00:17:02.931000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/f5351968-3b6b-45be-a977-50a2fee553e3"
+    },
+    {
+      "title": "Principal Technical Program Manager",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\n\u00a0\nWe are seeking a Principal Technical Program Manager who will manage operation and upgrades of existing neutral atom quantum computing hardware as well as a portfolio of research projects that advance the Atom Computing roadmap.\n",
+      "location": "",
+      "first_published": "2026-05-29T19:05:21.721000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/31c8917b-0346-4288-9349-96e41313eb6c"
+    },
+    {
+      "title": "Quantum Engineer",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\nWe are looking for Quantum Engineers to work on all aspects of neutral atom quantum computing. As a Quantum Engineer at Atom Computing, you will join a team of talented scientists and engineers who are working to translate fundamental atomic physics to a scalable, fault-tolerant quantum computer.\u00a0\nWe welcome applicants from a diverse set of backgrounds, but are specifically interested in candidates with experience in the following fields: Trapping and manipulation of cold atoms; Coherent control of quantum systems (for example: neutral atoms, trapped ions, NV- centers, nuclear magnetic resonance, superconducting qubits); Quantum characterization, verification, and validation (QCVV) techniques.\n",
+      "location": "",
+      "first_published": "2026-06-12T22:17:30.586000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/4b31b2fc-324e-420d-9a5f-509be2c19393"
+    },
+    {
+      "title": "Quantum Error Correction Software Engineer",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\n\u00a0\nWe are seeking a software engineer with a background in quantum information theory to contribute to the architecture and strategy of error correction in neutral atom quantum computers. Atomic qubit arrays provide a path to the large-scale quantum computers that will deliver fault-tolerant, error-corrected logical qubits.\n",
+      "location": "",
+      "first_published": "2026-05-08T20:28:23.463000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/0341d594-0f59-4ae8-971e-9d657843e509"
+    },
+    {
+      "title": "Quantum Error Correction Theorist",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\nWe are seeking physicists, computer scientists, mathematicians, and engineers to contribute to the architecture and strategy of error correction on neutral atom quantum computers. Atomic qubit arrays provide a path to the large-scale quantum computers that will deliver error-corrected logical qubits and fault-tolerant operations.\u00a0\n\u00a0\nAt Atom Computing, you will work alongside our Quantum Engineering, Control Systems, and Software teams to demonstrate the power of scalable, neutral-atom quantum computers.\n",
+      "location": "",
+      "first_published": "2026-06-07T20:16:42.943000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/ec4d81a6-d002-45f2-af2e-257fd35b2c04"
+    },
+    {
+      "title": "Quantum Theorist, Atomic Physics Focus",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a talented team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\nAtom Computing is seeking a Quantum Theorist to contribute to a variety of projects that help with the development of neutral atom quantum computing. In this role, you'll be working directly with other theorists and experimentalists to model our quantum computers, improve calibration routines, characterize machine performance, and propose methods for their overall advancement. You'll work within an expert team of atomic physics and quantum error correction theorists that shapes future system design and supports experimental progress.\u00a0\nThis role reports to the Quantum Theory Manager within Atom Computing\u2019s Applications & Theory department. Applications will be considered for our Berkeley, CA or Boulder, CO office.\n",
+      "location": "",
+      "first_published": "2026-07-06T16:15:20.550000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/13959842-3573-4d74-b960-e9a6d7ed7583"
+    },
+    {
+      "title": "Senior FPGA Engineer - Control Systems",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\nWe are seeking a FPGA engineer to assist in the implementation of the control systems for our quantum computers.\u00a0 This position will report to the Control Systems Manager.\nCandidates will also be considered for Atom's location in Austin, TX and Berkeley, CA.\n",
+      "location": "",
+      "first_published": "2026-05-28T17:51:34.533000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/c112d9d0-8be0-4f0a-b114-56e2cd8a49c6"
+    },
+    {
+      "title": "Senior IT Support Lead",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\u00a0\n\u00a0\nWe are seeking a Senior IT Support Lead to be the operational backbone of our IT team, located in our Boulder, Colorado office and offering support to all our offices nationally. In this role, you will own the end-user experience from device provisioning to day-to-day support \u2014 building the repeatable, automated workflows that allow our team to scale without friction. You will support a highly technical employee population, including quantum engineers, hardware researchers, and software developers. Working closely with the IT Director, Security Engineer, and DevOps teams, you will ensure employees have secure, reliable access to the systems, tools, and resources they need to be productive from day one.\n",
+      "location": "",
+      "first_published": "2026-06-16T21:00:44.959000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/93772a5a-8036-4043-a449-25f8c064951f"
+    },
+    {
+      "title": "Senior Mechanical Engineer",
+      "description": "<div>\n<p>At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.</p>\n<p>Atom Computing is seeking a Mechanical Engineer to help lead the design of mechanical subsystems and develop fixtures and processes for precision alignment and assembly.</p>\n</div>",
+      "location": "",
+      "first_published": "2026-06-30T15:26:27.895000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/42db6e11-2660-46aa-b63a-cd9543440bf4"
+    },
+    {
+      "title": "Senior Optical Engineer",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\nAtom Computing is seeking an Senior Optical Engineer to lead the design of opto-mechanical subsystems and to drive their build out and develop fixtures and processes for their precision alignment and assembly.\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-23T22:04:42.786000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/059cb6a5-122e-4cd6-bf31-90531af6e60b"
+    },
+    {
+      "title": "Senior Opto-Mechanical Engineer",
+      "description": "<div>\n<p>At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.</p>\n<p>We are seeking a Senior Opto-Mechanical Engineer to help lead the design of opto-mechanical subsystems, while also assisting with fixturing, assembly, alignment, test, and integration.</p>\n</div>",
+      "location": "",
+      "first_published": "2026-06-30T15:39:33.526000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/712ac764-7615-4b35-9f18-ecf4aa09a045"
+    },
+    {
+      "title": "Senior Quantum Engineer",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\nWe are looking for Quantum Engineers to work on all aspects of neutral atom quantum computing. As a Quantum Engineer at Atom Computing, you will join a team of talented scientists and engineers who are working to translate fundamental atomic physics to a scalable, fault-tolerant quantum computer.\u00a0\nWe welcome applicants from a diverse set of backgrounds, but are specifically interested in candidates with experience in the following fields: Trapping and manipulation of cold atoms; Coherent control of quantum systems (for example: neutral atoms, trapped ions, NV- centers, nuclear magnetic resonance, superconducting qubits); Quantum characterization, verification, and validation (QCVV) techniques.\n\n\n",
+      "location": "",
+      "first_published": "2026-06-12T22:21:15.015000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/b4443155-57fc-4adc-8840-4af007c1e1ee"
+    },
+    {
+      "title": "Senior Software Engineer",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a talented team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\nAtom Computing is looking for a Senior Software Engineer to build the software platform that orchestrates our quantum computers. In this role, you'll be working on a core area of our stack: the systems that coordinate quantum computing workloads, interface with the hardware control and calibration systems, and manage the experimental data our systems produce, while driving the architecture of our next-generation systems. You'll work alongside a partner team that owns the hardware control and compilation systems, and collaborate closely with a talented, tight-knit team of software and quantum engineers, reporting to the Software Engineering Manager.\nThis is a primarily backend role with occasional frontend work. Our backend services are written in Python and Rust, and our frontend components are written in TypeScript/React. Many of our services run directly on the quantum computers themselves, in a Linux environment, so you'll be writing software that operates close to the hardware.\nThis role is based in our Boulder, CO or Austin, TX office.\n",
+      "location": "",
+      "first_published": "2026-06-21T00:21:19.310000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/f4f1fce0-86c3-4131-9d02-0d93c12dd1da"
+    },
+    {
+      "title": "Senior Software Engineer - Control Systems",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\n\u00a0\nAtom Computing is looking for a Senior Software Engineer to help design and build the high-performance control systems that drive our next-generation quantum computing platforms. In this role, you\u2019ll work across embedded software, real-time systems, GPU/FPGA acceleration, and hardware orchestration to deliver deterministic, high-throughput control pipelines. Your work will directly shape how our quantum processors operate, scale, and perform.\n\u00a0\nThis is a hands-on engineering role for someone who loves deep systems work, understands hardware/software co-design, and thrives at the intersection of physics, architecture, and performance engineering.\u00a0Due to the need for collaboration with Atom\u2019s theory, software and hardware teams, this role is required to be in the office in Boulder or Austin at least 3 days per week.\u00a0\n",
+      "location": "",
+      "first_published": "2026-05-04T20:31:45.828000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/34f2f0d8-c8ea-4795-bd0b-143abd13b747"
+    },
+    {
+      "title": "Senior Technical Program Manager",
+      "description": "At Atom Computing, we build quantum computers using arrays of optically trapped neutral atoms that will empower customers to achieve unprecedented computational breakthroughs. Join a world-class team of scientists, engineers, and business professionals to advance the state-of-the-art in quantum computing.\nWe are seeking a Senior Technical Program Manager who will oversee the operation and upgrade of existing neutral atom quantum computing systems while managing a portfolio of research programs that accelerate the Atom Computing roadmap.\n",
+      "location": "",
+      "first_published": "2026-06-03T01:18:49.879000+00:00",
+      "url": "https://jobs.lever.co/atomcomputing/5043f718-fb43-4a23-bc6f-973f18b830d5"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_b",
+  "hiring_volume_estimate": "50_200",
+  "posting_cadence": "weekly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.85,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.2,
+  "notes": "High concentration of engineering and technical roles, with a focus on quantum computing and related fields.",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

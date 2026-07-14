@@ -1,8 +1,0 @@
-{
-  "schema_version": 1,
-  "status": "failed",
-  "slug": "duplicati",
-  "board": "greenhouse",
-  "decision_at": "2026-07-11T01:12:38.642498+00:00",
-  "reason": "fetch returned empty or errored (transient)"
-}

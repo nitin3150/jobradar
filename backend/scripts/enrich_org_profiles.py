@@ -7,17 +7,33 @@ The boards scanner runs hourly on GHA and burns LLM tokens on every
 fresh opportunity, even opportunities at orgs that are obviously
 non-tech, sponsorship-closed, or haven't posted in 6+ months. This
 script runs **once** to classify every org into a structured
-``OrgProfile`` JSON, then rebuilds a per-board ``_skip_list.json``
-that the boards runner consults to drop those orgs from the hourly
-cron. Output lands in:
+``OrgProfile`` JSON, then routes each org into a per-cadence
+subdirectory on disk. The boards runner consults those subdirectories
+on every cron tick via the ``BOARDS_CADENCES`` env var so each
+cadence bucket can run at a different schedule.
 
-    data/enriched/<board>/<slug>.json     # one OrgProfile per org
-    data/enriched/<board>/_skip_list.json # slugs the runner should skip
+Output layout (per board)
+-------------------------
+
+    data/enriched/<board>/cadence/<bucket>/<slug>.json
+        # status="ok" profile, bucketed by posting_cadence.
+        # bucket ∈ {daily, few_per_week, weekly, biweekly, monthly,
+        #           quarterly, rare, dead, unknown}.
+    data/enriched/<board>/skip/<slug>.json
+        # status="ok" profile for an org disqualified by Rule 1
+        # (sponsorship/clearance block) or Rule 2 (confidently
+        # non-tech with high LLM confidence). Never scanned.
+    data/enriched/<board>/errors/<slug>.json
+        # status="failed" or status="skipped" envelope — transient
+        # LLM/parse failures, fewer-than-MIN_JOBS_FOR_LLM jobs,
+        # empty fetches, etc. Operator-inspection only; the
+        # boards runner never reads these.
 
 The expensive LLM call (one per org) happens once. The cheap
-per-board file read happens on every cron. The boards runner only
-consults the skip list when ``BOARDS_USE_ENRICHED_PROFILES=1`` —
-default 0 preserves the existing behavior bit-for-bit.
+per-board directory walk happens on every cron — the boards runner
+reads slugs as filenames (no JSON parse for the cron-time index),
+keeping the per-tick overhead well under 1 ms even at the 10K-org
+scale.
 
 Re-run manually when an operator wants to refresh the
 classification — the script is idempotent (``--skip-existing`` is
@@ -35,19 +51,44 @@ Failure handling
 ================
 
 LLM call failures or Pydantic-validation failures write
-``{status: failed, error: "..."}`` files. The skip-list writer
-ignores any profile whose ``status != "ok"``, so a partial run
-leaving 50% orgs as ``status: failed`` does not pollute the
-skip list — those orgs are still fetched by current behavior.
+``{status: failed, error: "..."}`` files into
+``data/enriched/<board>/errors/<slug>.json``. The per-cadence
+router ignores any envelope whose ``status != "ok"``, so a
+partial run leaving 50% orgs as ``status: failed`` does not
+pollute cadence buckets — those orgs simply never appear in any
+schedule's slug list.
 
 Schema versioning
 =================
 
 ``SCHEMA_VERSION`` bumps whenever the wire shape of
-``data/enriched/<board>/<slug>.json`` changes so a mixed-version
-run is acceptable during a rolling refresh. The skip-list writer
-also stamps ``schema_version`` so a future runner can refuse to
-consume a list from an older schema (cross-major refresh).
+``data/enriched/<board>/<bucket>/<slug>.json`` changes. v2 stayed
+through the per-cadence layout change because the on-disk shape
+of each individual profile JSON is unchanged — only its
+**directory** moved. The skip-list meta file
+(``_skip_list.json``) was REMOVED entirely; the boards runner no
+longer reads or writes a flat per-board skip list.
+
+Per-cadence scan wiring
+=======================
+
+The boards runner reads ``BOARDS_CADENCES`` at scan time and
+restricts :func:`pipeline.nodes.jobs_boards.runner.load_orgs`
+to the union of slugs found under each named cadence subdir.
+The GHA workflow ``.github/workflows/boards-scan.yml`` wires that
+variable on a per-tier basis:
+
+    scan-active   (cron "0 * * * *")   BOARDS_CADENCES="daily,few_per_week,weekly,biweekly"
+    scan-dormant  (cron "20 2 * * *")  BOARDS_CADENCES="monthly,quarterly,unknown"
+    scan-probe    (cron "20 4 * * 0")  BOARDS_CADENCES="rare,dead"
+
+The signal-to-noise on the weekly probe (rare + dead) is
+deliberately separate from the hourly active scan: dead orgs
+that recover (post again) get re-classified on the next
+re-enrich, and rare orgs are unlikely to add new postings
+faster than weekly. Operators who want to re-tune the cadence
+mapping can edit the per-job ``env:`` block in the workflow
+file — no script change required.
 """
 from __future__ import annotations
 
@@ -59,7 +100,7 @@ import os
 import sys
 import tempfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
@@ -81,44 +122,56 @@ from utils.http import build_client
 DATA_DIR = BACKEND_ROOT / "data"
 PROFILE_DIR = DATA_DIR / "enriched"
 
-# Schema version — bump when wire shape changes. Bumping this also
-# changes the runner's contract (it should refuse to consume lists
-# from mismatched versions). v0 (no version) profiles are treated as
-# failed/missing by the skip-list writer, forcing a re-enrich.
+# Schema version — bump when the wire shape of an individual
+# on-disk profile JSON changes (OrgProfile field additions,
+# SourceJob field additions, Pydantic validators).
 #
-# Version history
-# ---------------
-#   v1 (initial):  OrgProfile only — classification fields, no raw
-#                  job data. Descriptions flowed into the LLM call
-#                  but were discarded after the run, so re-running
-#                  for different profiles lost all the description
-#                  signal.
-#   v2 (current):  Adds ``source_jobs: list[SourceJob]`` carrying each
-#                  LLM-visible job's title / description / location /
-#                  first_published / url. The Greenhouse fetcher's
-#                  URL was also flipped to ``?content=true`` in the
-#                  same change so v2 descriptions actually contain
-#                  text for Greenhouse-sourced orgs (Lever + Ashby
-#                  already returned the body by default). The
-#                  skip-existing gate preserves existing profiles
-#                  (v1 OR v2) by default and forces a re-enrich
-#                  of the v1 subset ONLY when the operator sets
-#                  the opt-in env ``ENRICH_MIGRATE_V1_TO_V2=1``
-#                  (truthy-string whitelist like the existing
-#                  ``BOARDS_SKIP_TIMEOUTS``; default safe) — without
-#                  the flag, a routine re-run preserves v1 on-disk
-#                  profiles and avoids the ~$30-50 NVIDIA cost of
-#                  blanket-re-enriching 10K orgs.
+# v2 stays current through the per-cadence layout move because
+# the profile JSON shape itself didn't change — only the
+# containing directory moved. The skip-list meta file
+# (``_skip_list.json``) was REMOVED at the same time; the
+# boards runner's old meta reader didn't get a fallback because
+# every board in production is going to have a re-enrich pass
+# that produces the new cadence layout before any GHA cron
+# reads it.
 SCHEMA_VERSION = 2
 
 # Skip rules — kept inline (no env override) so the behavior is
 # one-line interpretable. Tunable later if the operator measures
 # false-positive or false-negative skip rates.
+#
+# The original Rule 1 (``posting_cadence in {dead, rare}`` AND
+# raw ``source_last_published`` older than
+# ``SKIP_CADENCE_STALE_DAYS``) was REMOVED when the on-disk
+# layout moved to per-cadence subdirectories. The new layout
+# drops a ``dead``-cadence org into
+# ``data/enriched/<board>/cadence/dead/<slug>.json`` regardless
+# of how long ago it last posted — the GHA probe workflow's
+# weekly cron handles the staleness budget naturally, and
+# orgs that recover (post again) are picked up on the next
+# re-enrich without the operator having to clear a skip list.
+# The remaining two rules are orthogonal to cadence so they
+# route to the per-board ``skip/`` directory.
 MIN_JOBS_FOR_LLM = 3
-SKIP_CADENCE_DEAD = frozenset({"dead", "rare"})
-SKIP_CADENCE_STALE_DAYS = 180
 SKIP_TECH_RATIO_THRESHOLD = 0.15
 SKIP_CONFIDENCE_THRESHOLD = 0.7
+
+# Per-cadence buckets the LLM may produce. Every value here
+# becomes a subdirectory under ``data/enriched/<board>/cadence/``.
+# Empty / unrecognized cadence values are coerced to ``"unknown"``
+# inside :func:`_bucket_for_ok_profile` so the runner never sees
+# a profile written outside this set.
+CADENCE_BUCKETS = frozenset({
+    "daily",
+    "few_per_week",
+    "weekly",
+    "biweekly",
+    "monthly",
+    "quarterly",
+    "rare",
+    "dead",
+    "unknown",
+})
 
 # Concurrency — mirrors boards_runner.MAX_WORKERS for fetches and
 # boards_scan._score_all for the LLM signature.
@@ -131,8 +184,8 @@ MAX_FETCH_WORKERS = 8
 # combined). Higher values (4–8) genuinely work *only* if the operator
 # paired this with ``max_retries=0`` on the AsyncOpenAI client in
 # :mod:`services.llm_client` to remove the SDK's silent 429 retries.
-# See ``scripts/enrich_org_profiles`` issue history for the cascade
-# diagnostic that motivated this default.
+# See the diagnostic print at :func:`_log_resolved_llm_config` for
+# the cascade-aware rationale.
 try:
     _LLM_CONCURRENCY_ENV: int = int(os.environ.get("LLM_CONCURRENCY", "2").strip() or "2")
 except ValueError:
@@ -173,10 +226,9 @@ MAX_DESCRIPTION_CHARS = 600
 # GHA ephemeral runner has a 14 GB total quota and the
 # ``backend/data/`` directory is NOT in ``.gitignore`` for the
 # jobradar repo. Operators who care about repo size should add
-# ``data/enriched/<board>/<slug>.json`` to ``.gitignore`` (the
-# meta ``_skip_list.json`` and this script's ``enrich`` outputs
-# are reproducible and don't need version control). Same
-# ``MAX_JOBS_TO_LLM`` guard above the trim as ``MAX_DESCRIPTION_CHARS``.
+# ``data/enriched/<board>/**/*.json`` to ``.gitignore`` (reproducible
+# enrichment outputs and the per-cadence summary in the GHA
+# workflow don't need version control).
 SOURCE_DESCRIPTION_MAX_CHARS = 4000
 
 logger = logging.getLogger("jobradar.enrich")
@@ -212,13 +264,20 @@ class SourceJob(BaseModel):
 
 
 class OrgProfile(BaseModel):
-    """Per-org LLM classification. Single source of truth for the
-    shape written to ``data/enriched/<board>/<slug>.json`` AND for the
-    fields the runner reads from ``_skip_list.json``.
+    """Per-org LLM classification.
 
-    Pydantic enforces field types and ranges on write so a malformed
-    LLM response lands in a ``{"status": "failed", "error": ...}``
-    envelope instead of corrupting the JSON contract.
+    Single source of truth for the fields written to every
+    ``data/enriched/<board>/{cadence/<bucket>|skip}/<slug>.json``
+    file. ``status`` is stamped on by
+    :func:`_enrich_one_org` AFTER Pydantic validation so the
+    on-disk shape is unambiguous (``status: "ok"`` for valid
+    profiles, ``status: "failed"|"skipped"`` for envelopes in
+    ``errors/``).
+
+    Pydantic enforces field types and ranges on write so a
+    malformed LLM response lands in
+    ``{"status": "failed", "error": ...}`` instead of corrupting
+    the JSON contract.
     """
 
     schema_version: int = SCHEMA_VERSION
@@ -301,7 +360,7 @@ ENRICHMENT_SYSTEM_PROMPT = (
     'duplicate IDs / rapid reposting>,\n'
     '  "notes": <string, <=200 chars>,\n'
     '  "overall_confidence": <float 0.0-1.0 — your self-rated confidence '
-    'in the answers above, including how much signal the input has>\n'
+    "in the answers above, including how much signal the input has>\n"
     "}\n\n"
     "Rules:\n"
     "- tech_role_ratio is the explicit fraction of tech-family postings. "
@@ -488,9 +547,12 @@ def _latest_iso_published(jobs: list[dict]) -> str | None:
     """Return the latest ISO 8601 ``published_at`` across the org's
     jobs, or ``None`` if no parseable timestamp is found.
 
-    Used to populate ``source_last_published`` so the skip rule
-    ``cadence=dead AND last_posted > 180d ago`` can run on the raw
-    signal independent of the LLM's ``posting_cadence`` derivation.
+    Used to populate ``source_last_published`` so the on-disk
+    profile carries a raw timestamp independent of the LLM's
+    ``posting_cadence`` derivation. Operators reading the per-cadence
+    bucket can spot a "dead" org that recently started posting
+    again by sorting on ``source_last_published`` even when the
+    LLM hasn't been re-run yet.
     """
     latest: str | None = None
     for j in jobs:
@@ -549,9 +611,23 @@ def _write_status_envelope(
     extra: dict | None = None,
 ) -> Path:
     """Write a non-OK envelope (``status: skipped`` or
-    ``status: failed``). These envelopes are explicitly ignored by the
-    skip-list writer; the runner reads them as "no profile
-    available, fall through to current behavior".
+    ``status: failed``) into ``data/enriched/<board>/errors/<slug>.json``.
+
+    The on-disk layout treats ``errors/`` as a sibling of
+    ``skip/`` and ``cadence/<bucket>/`` — the boards runner
+    consults only :data:`CADENCE_BUCKETS` for active scans, so a
+    slug with status ``failed`` or ``skipped`` is invisible to
+    the runner regardless of how it landed in ``errors/``.
+    Operators reading the directory during a post-mortem can
+    enumerate failures by globbing ``errors/*.json`` and reading
+    the ``reason`` field.
+
+    The function also calls
+    :func:`_purge_stale_duplicate_profiles` so a re-enrich that
+    previously had a successful profile at a cadence bucket or
+    in ``skip/`` but failed on this attempt cleans up the stale
+    copy first; the on-disk invariant is "exactly one profile
+    per (board, slug) tuple".
     """
     payload: dict = {
         "schema_version": SCHEMA_VERSION,
@@ -563,9 +639,230 @@ def _write_status_envelope(
     }
     if extra:
         payload.update(extra)
-    out = PROFILE_DIR / board / f"{slug}.json"
+    out = PROFILE_DIR / board / "errors" / f"{slug}.json"
+    _purge_stale_duplicate_profiles(
+        board=board, slug=slug, target_path=out,
+    )
     _atomic_write_json(out, payload)
     return out
+
+
+# ---------------------------------------------------------------------------
+# Per-cadence bucket routing (Phase 3 plumbing)
+# ---------------------------------------------------------------------------
+def _compute_skip_for_profile(
+    profile: dict,
+    *,
+    now: datetime | None = None,
+) -> bool:
+    """Return True when the org should land in the per-board
+    ``skip/`` directory — i.e. should NEVER be scanned at any
+    cadence.
+
+    Rules — any one is sufficient:
+    1. ``sponsorship_open is False`` (explicit sponsor-block) OR
+       ``clearance_required is True`` (DOD/IC/TS-SCI). The
+       ``None`` sponsor-open sentinel does NOT trigger skip —
+       "we couldn't tell" is not a "yes, blocked" signal.
+    2. ``tech_role_ratio < SKIP_TECH_RATIO_THRESHOLD`` AND
+       ``overall_confidence > SKIP_CONFIDENCE_THRESHOLD`` —
+       conjunction (NOT ``>=``) so a borderline LLM call still
+       falls through to current regex scoring rather than
+       silently dropping the org.
+
+    Returns False unconditionally for profiles whose
+    ``status != 'ok'`` — failed/skipped envelopes never leak
+    into the ``skip/`` directory; they go into
+    ``errors/<slug>.json`` instead.
+
+    Note: the original Rule 1 (``posting_cadence in {dead, rare}``
+    AND raw-age > ``SKIP_CADENCE_STALE_DAYS``) was REMOVED when
+    the on-disk layout moved to per-cadence subdirectories — a
+    ``dead``-cadence org now lands in
+    ``data/enriched/<board>/cadence/dead/<slug>.json`` regardless
+    of how long ago it last posted; the GHA probe workflow's
+    weekly cron handles the staleness budget naturally, and
+    orgs that recover (post again) are picked up on the next
+    re-enrich without the operator having to clear a skip list.
+
+    ``now`` defaults to ``datetime.now(timezone.utc)`` so callers
+    that don't care about staleness (the only ``now`` consumer
+    was Rule 1, now removed) can omit it. Production callers in
+    :func:`_enrich_one_org` don't pass ``now`` because the LLM-
+    visible timestamp is irrelevant to the post-Rule-1 logic.
+    """
+    if now is None:
+        now = datetime.now(timezone.utc)
+    if not isinstance(profile, dict) or profile.get("status") != "ok":
+        return False
+    # Rule 1: explicit sponsor-block OR US security clearance
+    # required. Both are disqualifying per the operator's stated
+    # GHA optimization: orgs that hard-block visa sponsorship
+    # OR require DOD/IC/TS-SCI eligibility burn LLM tokens +
+    # GHA wall-clock for zero applied yield.
+    # Note: pure US-citizenship-only (no security clearance)
+    # postings surface as ``sponsorship_open=False`` already,
+    # so they fall under the first branch of this OR. This
+    # branch is for the orthogonal DOD/IC subset.
+    if profile.get("sponsorship_open") is False or profile.get("clearance_required") is True:
+        return True
+    # Rule 2: confidently non-tech
+    tech_ratio = profile.get("tech_role_ratio")
+    confidence = profile.get("overall_confidence")
+    if tech_ratio is not None and confidence is not None:
+        if (
+            tech_ratio < SKIP_TECH_RATIO_THRESHOLD
+            and confidence > SKIP_CONFIDENCE_THRESHOLD
+        ):
+            return True
+    return False
+
+
+def _bucket_for_ok_profile(profile: dict) -> str:
+    """Return the on-disk bucket name for a ``status: ok`` profile.
+
+    Returns one of:
+    * ``"skip"`` — never scanned (Rule 1 or Rule 2 matched).
+    * one of :data:`CADENCE_BUCKETS` — the LLM-derived
+      ``posting_cadence`` coerced into the canonical set.
+
+    Profiles whose ``posting_cadence`` falls outside
+    :data:`CADENCE_BUCKETS` are coerced to ``"unknown"`` so the
+    runner sees a deterministic bucket name regardless of LLM
+    drift. The ``"unknown"`` bucket lands in the dormant tier's
+    daily cron by default — operators can re-tune by mapping it
+    into a different GHA workflow tier.
+    """
+    if _compute_skip_for_profile(profile):
+        return "skip"
+    cadence = (profile.get("posting_cadence") or "").strip().lower()
+    if cadence in CADENCE_BUCKETS:
+        return cadence
+    return "unknown"
+
+
+def _target_path_for_slug(*, board: str, slug: str, bucket: str) -> Path:
+    """Return the canonical on-disk path for an OK profile in ``bucket``.
+
+    ``"skip"`` -> ``data/enriched/<board>/skip/<slug>.json``.
+    Otherwise ``data/enriched/<board>/cadence/<bucket>/<slug>.json``.
+
+    Errors envelopes use a different path built directly inside
+    :func:`_write_status_envelope` (``errors/<slug>.json``).
+    """
+    if bucket == "skip":
+        return PROFILE_DIR / board / "skip" / f"{slug}.json"
+    return PROFILE_DIR / board / "cadence" / bucket / f"{slug}.json"
+
+
+def _stale_profile_paths_for_slug(*, board: str, slug: str) -> list[Path]:
+    """All on-disk locations a slug might already occupy, in delete order.
+
+    Walks the legacy top-level ``<slug>.json`` location, the
+    ``errors/`` location, the ``skip/`` location, and every cadence
+    bucket. The caller filters out the location it's about to
+    write to and unlinks the rest, so re-enrichment physically
+    moves a slug from old cadence bucket -> new cadence bucket
+    instead of leaving a stale duplicate at the old location.
+    """
+    board_dir = PROFILE_DIR / board
+    candidates: list[Path] = [
+        # Legacy top-level file from the v1/v2 layout — exists on
+        # disk whenever this script ran BEFORE the per-cadence
+        # layout shipped. Operator confirmed the prior enrichment
+        # was incomplete (replied "the enrichment is not complete
+        # yet" to the migration question), so we delete-as-we-go
+        # rather than carry a separate migration flag — the next
+        # re-enrich overwrites + cleans out as it runs.
+        board_dir / f"{slug}.json",
+        board_dir / "errors" / f"{slug}.json",
+        board_dir / "skip" / f"{slug}.json",
+    ]
+    candidates.extend(
+        board_dir / "cadence" / bucket / f"{slug}.json"
+        for bucket in sorted(CADENCE_BUCKETS)
+    )
+    return candidates
+
+
+def _purge_stale_duplicate_profiles(
+    *, board: str, slug: str, target_path: Path
+) -> list[Path]:
+    """Delete every on-disk duplicate of ``slug`` EXCEPT
+    ``target_path``.
+
+    Called by :func:`_enrich_one_org` (after a successful re-LLM)
+    and :func:`_write_status_envelope` (after writing an
+    errors envelope) so the on-disk state always converges to
+    one profile per (board, slug) pair. A re-enrich that flips
+    the cadence bucket moves the file physically rather than
+    leaving a stale copy at the old location.
+    """
+    removed: list[Path] = []
+    for path in _stale_profile_paths_for_slug(board=board, slug=slug):
+        if path == target_path:
+            continue
+        if not path.exists():
+            continue
+        try:
+            path.unlink()
+            removed.append(path)
+        except OSError as exc:
+            logger.warning(
+                "could not purge stale duplicate %s for %s/%s: %s",
+                path, board, slug, exc,
+            )
+    return removed
+
+
+def _find_existing_profile(*, board: str, slug: str) -> Path | None:
+    """Return the existing on-disk profile path for ``slug`` if any.
+
+    Used by Phase 1's ``--skip-existing`` gate so a profile that
+    landed in a non-trivial bucket (say
+    ``cadence/weekly/<slug>.json`` under the new layout, OR the
+    legacy ``data/enriched/<board>/<slug>.json`` if the prior
+    enrichment was incomplete) still counts as "already
+    enriched". Returns ``None`` when the slug has not been
+    enriched yet.
+    """
+    for path in _stale_profile_paths_for_slug(board=board, slug=slug):
+        if path.exists():
+            return path
+    return None
+
+
+def _emit_per_bucket_summary(*, board: str) -> None:
+    """Phase 3: emit a per-bucket slug-count line for ``board``.
+
+    Walks every cadence bucket plus ``skip/`` and ``errors/`` and
+    prints a single line per populated bucket. The boards runner
+    no longer consults a flat ``_skip_list.json``; this summary
+    is the operator's at-a-glance confirmation that the cadence
+    layout did what it should on this run.
+
+    Empty buckets are omitted from output (a bucket that scores
+    zero organisations is noise; the line would obscure the
+    populated ones during spot-check).
+    """
+    board_dir = PROFILE_DIR / board
+    labels: list[tuple[str, Path]] = [
+        ("skip", board_dir / "skip"),
+        ("errors", board_dir / "errors"),
+    ]
+    labels.extend(
+        (f"cadence/{b}", board_dir / "cadence" / b)
+        for b in sorted(CADENCE_BUCKETS)
+    )
+    for label, path in labels:
+        if not path.exists():
+            continue
+        count = sum(1 for _ in path.glob("*.json"))
+        if count:
+            print(
+                f"[enrich] bucket {board}/{label}: {count} slugs",
+                flush=True,
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -581,37 +878,39 @@ async def _enrich_one_org(
 ) -> tuple[str, str, Path, dict]:
     """Run ONE LLM call for ONE org and persist the result.
 
-    Returns ``(slug, status, path, payload)`` where ``status`` is one
-    of ``"ok"``, ``"skipped"``, ``"failed"``. ``path`` always points
-    at the on-disk file so the caller can log it.
+    Returns ``(slug, status, path, payload)`` where ``status`` is
+    one of ``"ok"``, ``"skipped"``, ``"failed"``. ``path`` always
+    points at the on-disk file so the caller can log it.
 
     Errors are caught and translated to a ``status: failed``
-    envelope — the run never crashes mid-loop because one org's LLM
-    call returned malformed JSON.
+    envelope — the run never crashes mid-loop because one org's
+    LLM call returned malformed JSON.
 
     Concurrency contract
     ---------------------
 
-    This is a single ``async def`` coroutine, called from one outer
-    ``asyncio.run(...)`` block in :func:`main`. The ``semaphore``
-    parameter is created in the same outer loop and ``async with``
-    works against it normally. Do NOT wrap this in
-    ``asyncio.to_thread`` — the inner ``asyncio.run`` would create a
-    second loop and ``asyncio.Semaphore`` is bound to the loop where
-    it was created (the cross-loop access raises
-    ``RuntimeError``). The LLMClient's internal ``AsyncTokenBucket``
-    has the same constraint — multiple loops fighting for one
-    ``asyncio.Lock`` break. Single-loop async is the design.
+    This is a single ``async def`` coroutine, called from one
+    outer ``asyncio.run(...)`` block in :func:`main`. The
+    ``semaphore`` parameter is created in the same outer loop
+    and ``async with`` works against it normally. Do NOT wrap
+    this in ``asyncio.to_thread`` — the inner ``asyncio.run``
+    would create a second loop and ``asyncio.Semaphore`` is
+    bound to the loop where it was created (the cross-loop
+    access raises ``RuntimeError``). The LLMClient's internal
+    ``AsyncTokenBucket`` has the same constraint — multiple
+    loops fighting for one ``asyncio.Lock`` break. Single-loop
+    async is the design.
     """
     sys_prompt = ENRICHMENT_SYSTEM_PROMPT
     user_prompt = _build_user_prompt(board, slug, jobs)
     latest = _latest_iso_published(jobs)
-    # Build the on-disk ``source_jobs`` list NOW so we can hand it to
-    # the OrgProfile constructor as a single Pydantic-validated
-    # field. Building AFTER the LLM call would force a second
-    # iteration over ``jobs``; building BEFORE saves the small loop
-    # and keeps the trim logic single-sourced (``_build_source_jobs``
-    # uses the same MAX_JOBS_TO_LLM / MAX_DESCRIPTION_CHARS caps as
+    # Build the on-disk ``source_jobs`` list NOW so we can hand
+    # it to the OrgProfile constructor as a single
+    # Pydantic-validated field. Building AFTER the LLM call
+    # would force a second iteration over ``jobs``; building
+    # BEFORE saves the small loop and keeps the trim logic
+    # single-sourced (``_build_source_jobs`` uses the same
+    # MAX_JOBS_TO_LLM / MAX_DESCRIPTION_CHARS caps as
     # ``_trim_jobs_for_prompt``).
     source_jobs = _build_source_jobs(jobs)
 
@@ -634,17 +933,32 @@ async def _enrich_one_org(
             model_used=model,
             **parsed,
         )
-        out_path = PROFILE_DIR / board / f"{slug}.json"
-        # Stamp ``status: "ok"`` on the persisted payload so the
-        # ``main()`` skip-existing check (``existing_profile.get("status") == "ok"``)
-        # and the ``_compute_skip_for_profile`` short-circuit both
-        # recognise successful profiles. Without this field, every
-        # re-run silently re-LLMs already-classified orgs and the
-        # ``_skip_list.json`` mechanism stays empty regardless of
-        # content because the ``status != "ok"`` guard short-circuits
-        # to False on every real profile.
+        # Stamp ``status: "ok"`` on the persisted payload so
+        # :func:`_bucket_for_ok_profile` classifies on the same
+        # key the race-path check (the ``status != "ok"``
+        # short-circuit at the top of
+        # ``_compute_skip_for_profile``) uses. Without this
+        # field, ``_compute_skip_for_profile`` sees the
+        # bare-profile envelope and never returns True, so
+        # every profile would land in
+        # ``cadence/<posting_cadence>/`` — including sponsorship
+        # blocks that should have routed to ``skip/``.
         payload = profile.model_dump()
         payload["status"] = "ok"
+        # Compute the on-disk bucket BEFORE any I/O so the
+        # duplicate-purge call below sees the right
+        # ``target_path``. A re-enrich that flips the LLM's
+        # ``posting_cadence`` from ``daily`` to ``weekly`` (or
+        # anything else in :data:`CADENCE_BUCKETS`) ends up here
+        # with a different target; the purge call deletes the
+        # old bucket's copy so the on-disk invariant holds.
+        bucket = _bucket_for_ok_profile(payload)
+        out_path = _target_path_for_slug(
+            board=board, slug=slug, bucket=bucket,
+        )
+        _purge_stale_duplicate_profiles(
+            board=board, slug=slug, target_path=out_path,
+        )
         _atomic_write_json(out_path, payload)
         return slug, "ok", out_path, payload
     except ValidationError as exc:
@@ -656,9 +970,10 @@ async def _enrich_one_org(
         )
         return slug, "failed", path, {}
     except Exception as exc:
-        # ``_PermanentError`` from ``services.llm_client`` (parse
-        # failure, all-providers-failed), HTTP timeout, anything
-        # else — log+continue via the envelope, never crash the loop.
+        # ``_PermanentError`` from ``services.llm_client``
+        # (parse failure, all-providers-failed), HTTP timeout,
+        # anything else — log+continue via the envelope, never
+        # crash the loop.
         path = _write_status_envelope(
             board=board,
             slug=slug,
@@ -671,9 +986,9 @@ async def _enrich_one_org(
 def _fetch_one(fetcher, board: str, slug: str, client) -> tuple[str, list[dict]]:
     """Synchronous fetcher call wrapped for ThreadPoolExecutor.
 
-    Returns ``(slug, jobs)``. Non-OK outcomes (HTTP 4xx, 5xx up to
-    the retry budget, network blips) return ``(slug, [])`` so the
-    orchestrator writes a ``status: failed`` envelope and
+    Returns ``(slug, jobs)``. Non-OK outcomes (HTTP 4xx, 5xx up
+    to the retry budget, network blips) return ``(slug, [])`` so
+    the orchestrator writes a ``status: failed`` envelope and
     continues. We deliberately do NOT ``raise`` here — a single
     org's flaky ATS response should not abort a 10K-org sweep.
     """
@@ -683,117 +998,6 @@ def _fetch_one(fetcher, board: str, slug: str, client) -> tuple[str, list[dict]]
     except Exception as exc:  # noqa: BLE001 — best-effort, log+continue
         logger.warning("fetch failed for %s/%s: %s", board, slug, exc)
         return slug, []
-
-
-# ---------------------------------------------------------------------------
-# Skip-list builder (Phase 3)
-# ---------------------------------------------------------------------------
-def _compute_skip_for_profile(profile: dict, *, now: datetime) -> bool:
-    """Return True when the org should land on the per-board skip list.
-
-    Rules — any one is sufficient:
-    1. ``posting_cadence ∈ {dead, rare}`` AND
-       ``source_last_published`` is older than
-       ``SKIP_CADENCE_STALE_DAYS``. The raw timestamp (LLM-independent)
-       protects against an over-eager LLM classifying a stale
-       dead-board as "weekly".
-    2. ``sponsorship_open is False`` — explicit sponsor-block.
-       ``None`` (unknown) and ``True`` (open) do NOT trigger skip.
-    3. ``tech_role_ratio < SKIP_TECH_RATIO_THRESHOLD`` AND
-       ``overall_confidence > SKIP_CONFIDENCE_THRESHOLD`` —
-       conjunction (NOT ``>=``) so a borderline LLM call still
-       falls through to current regex scoring rather than
-       silently dropping the org.
-
-    Returns False unconditionally for profiles whose
-    ``status != 'ok'`` — failed/skipped envelopes never leak into
-    the skip list.
-    """
-    if not isinstance(profile, dict) or profile.get("status") != "ok":
-        return False
-    # Rule 1: cadence + raw-age
-    cadence = profile.get("posting_cadence") or ""
-    if cadence in SKIP_CADENCE_DEAD:
-        last = profile.get("source_last_published")
-        if last:
-            try:
-                when = datetime.fromisoformat(last)
-                if when.tzinfo is None:
-                    when = when.replace(tzinfo=timezone.utc)
-                if (now - when) > timedelta(days=SKIP_CADENCE_STALE_DAYS):
-                    return True
-            except (TypeError, ValueError):
-                pass
-    # Rule 2: explicit sponsor-block OR US security clearance required.
-    # Both are disqualifying per the operator's stated GHA optimization:
-    # orgs that hard-block visa sponsorship OR require DOD/IC/TS-SCI
-    # eligibility burn LLM tokens + GHA wall-clock for zero applied
-    # yield. ``clearance_required`` was already in the JSON schema;
-    # adding it here makes the operator's 'remove these companies'
-    # intent actually trigger a skip.
-    # Note: pure US-citizenship-only (no security clearance) postings
-    # surface as ``sponsorship_open=False`` already, so they fall
-    # under the first branch of this OR. This branch is for the
-    # orthogonal DOD/IC subset.
-    if profile.get("sponsorship_open") is False or profile.get("clearance_required") is True:
-        return True
-    # Rule 3: confidently non-tech
-    tech_ratio = profile.get("tech_role_ratio")
-    confidence = profile.get("overall_confidence")
-    if tech_ratio is not None and confidence is not None:
-        if (
-            tech_ratio < SKIP_TECH_RATIO_THRESHOLD
-            and confidence > SKIP_CONFIDENCE_THRESHOLD
-        ):
-            return True
-    return False
-
-
-def _build_skip_list(board: str, *, now: datetime | None = None) -> list[str]:
-    """Walk ``data/enriched/<board>/*.json`` and return slug list.
-
-    Sorted for determinism (handy for diff-stable PRs when an
-    operator refreshes a single board). Filters out the meta
-    ``_skip_list.json`` file and any failed/skipped envelopes.
-    """
-    profile_dir = PROFILE_DIR / board
-    if not profile_dir.exists():
-        return []
-    now = now or datetime.now(timezone.utc)
-    out: list[str] = []
-    for path in sorted(profile_dir.glob("*.json")):
-        # ``_skip_list.json`` is a meta file, never a profile.
-        if path.name.startswith("_"):
-            continue
-        try:
-            with open(path, "r") as f:
-                profile = json.load(f)
-        except (json.JSONDecodeError, OSError) as exc:
-            logger.warning("could not read profile %s (%s); skipping", path, exc)
-            continue
-        if _compute_skip_for_profile(profile, now=now):
-            slug = profile.get("slug")
-            if slug:
-                out.append(slug)
-    return out
-
-
-def _write_skip_list(board: str, slugs: list[str]) -> None:
-    """Atomic write of the per-board ``_skip_list.json``.
-
-    Same atomic-write contract as ``_atomic_write_json`` — the
-    runner's ``load_orgs()`` can read the file at any point and
-    either see the previous version cleanly OR the new version
-    cleanly, never a torn write.
-    """
-    out = PROFILE_DIR / board / "_skip_list.json"
-    payload = {
-        "schema_version": SCHEMA_VERSION,
-        "board": board,
-        "computed_at": datetime.now(timezone.utc).isoformat(),
-        "slugs": sorted(slugs),
-    }
-    _atomic_write_json(out, payload)
 
 
 # ---------------------------------------------------------------------------
@@ -807,14 +1011,15 @@ def _log_resolved_llm_config() -> None:
 
     Mirrors the same env-key order and defaulting language as
     :meth:`services.llm_client.LLMClient.from_env` so the diagnostic
-    matches what the chain will actually use. Empty-string values are
-    coerced to the in-code defaults (matching :meth:`from_env`'s own
-    behaviour) rather than passed through as ``""`` which would cause
-    a ``BadRequest`` / 401 on the first chat-completion.
+    matches what the chain will actually use. Empty-string values
+    are coerced to the in-code defaults (matching
+    :meth:`from_env`'s own behaviour) rather than passed through as
+    ``""`` which would cause a ``BadRequest`` / 401 on the first
+    chat-completion.
     """
-    # Late import keeps the top-of-file dependency surface small and
-    # matches the pattern used by other helpers in this script that
-    # pull from ``services.llm_client`` lazily.
+    # Late import keeps the top-of-file dependency surface small
+    # and matches the pattern used by other helpers in this
+    # script that pull from ``services.llm_client`` lazily.
     from services.llm_client import (
         DEFAULT_GROQ_MODEL,
         DEFAULT_NVIDIA_BASE,
@@ -822,20 +1027,22 @@ def _log_resolved_llm_config() -> None:
         DEFAULT_NVIDIA_RPM,
     )
 
-    # Read raw values exactly as :meth:`LLMClient.from_env` will see
-    # them — no ``.strip() or DEFAULT`` silent fallback. ``os.environ.get
-    # ("X", DEFAULT)`` returns DEFAULT only when the key is *absent*,
-    # not when it's present-but-empty (``NVIDIA_MODEL=``); an empty value
-    # forwards ``""`` to AsyncOpenAI and produces a 401 on the first
-    # chat-completion. The diagnostic deliberately surfaces that mismatch.
+    # Read raw values exactly as :meth:`LLMClient.from_env` will
+    # see them — no ``.strip() or DEFAULT`` silent fallback.
+    # ``os.environ.get("X", DEFAULT)`` returns DEFAULT only when
+    # the key is *absent*, not when it's present-but-empty
+    # (``NVIDIA_MODEL=``); an empty value forwards ``""`` to
+    # AsyncOpenAI and produces a 401 on the first chat-completion.
+    # The diagnostic deliberately surfaces that mismatch.
     nvidia_model = os.environ.get("NVIDIA_MODEL", DEFAULT_NVIDIA_MODEL)
     nvidia_base = os.environ.get("NVIDIA_BASE_URL", DEFAULT_NVIDIA_BASE)
     raw_rpm = os.environ.get("NVIDIA_RPM", str(DEFAULT_NVIDIA_RPM))
     rpm_note = ""
     try:
         # Mirror :meth:`LLMClient.from_env` ``int(raw_rpm or DEFAULT)``:
-        # empty -> DEFAULT_NVIDIA_RPM (silent), malformed -> ValueError
-        # -> raise ``ValueError`` at import (we surface as -1 + inline note).
+        # empty -> DEFAULT_NVIDIA_RPM (silent), malformed ->
+        # ValueError -> raise ``ValueError`` at import (we surface
+        # as -1 + inline note).
         nvidia_rpm = int(raw_rpm.strip() or DEFAULT_NVIDIA_RPM)
     except ValueError:
         nvidia_rpm = -1
@@ -855,15 +1062,16 @@ def _log_resolved_llm_config() -> None:
     )
 
     # Runtime-computed PACE LIMIT — same math as
-    # :meth:`services.llm_client.LLMClient.from_env` which builds the
-    # NVIDIA bucket: ``total_rpm = rpm_per_key * len(non-empty
-    # NVIDIA_API_KEY / _2)``. Compute ``key_suffix`` BEFORE the print so
-    # pluralization is human-readable; mirror the same
-    # ``os.environ.get("X", "").strip()`` read so the count matches what
-    # the bucket sees at request time. Operator with two NVIDIA keys and
-    # ``NVIDIA_RPM=40`` should see ``2 NIM keys * 40 RPM/key = 80 RPM
-    # total``; if they see ``1 NIM key * 40 RPM/key = 40 RPM total`` the
-    # second key is unset and they're at half their expected budget.
+    # :meth:`services.llm_client.LLMClient.from_env` which builds
+    # the NVIDIA bucket: ``total_rpm = rpm_per_key * len(non-empty
+    # NVIDIA_API_KEY / _2)``. Compute ``key_suffix`` BEFORE the
+    # print so pluralization is human-readable; mirror the same
+    # ``os.environ.get("X", "").strip()`` read so the count
+    # matches what the bucket sees at request time. Operator with
+    # two NVIDIA keys and ``NVIDIA_RPM=40`` should see ``2 NIM
+    # keys * 40 RPM/key = 80 RPM total``; if they see ``1 NIM key
+    # * 40 RPM/key = 40 RPM total`` the second key is unset and
+    # they're at half their expected budget.
     nvidia_keys = [
         name for name in ("NVIDIA_API_KEY", "NVIDIA_API_KEY_2")
         if os.environ.get(name, "").strip()
@@ -888,8 +1096,9 @@ def _log_resolved_llm_config() -> None:
 def _verify_nvidia_model_present(*, http_timeout: float = 5.0) -> None:
     """Single ``GET /v1/models`` against NVIDIA to confirm ``NVIDIA_MODEL`` is on the live catalogue.
 
-    Never raises. Failure modes are logged at INFO (the WARN is reserved
-    for the actual misconfig case the operator needs to act on):
+    Never raises. Failure modes are logged at INFO (the WARN is
+    reserved for the actual misconfig case the operator needs to
+    act on):
 
     * ``NVIDIA_API_KEY`` unset → skip the check (operator must opt in).
     * ``GET /v1/models`` returns non-200 → skip + log status code.
@@ -899,8 +1108,9 @@ def _verify_nvidia_model_present(*, http_timeout: float = 5.0) -> None:
     * ``NVIDIA_MODEL=... confirmed on NVIDIA catalogue (N models-listed).``
     * ``WARN  NVIDIA_MODEL=... is NOT on the live NVIDIA catalogue ...``
 
-    The single GET hits only the catalogue endpoint (no chat-completions
-    spend), so it's safe to run on every invocation including cron.
+    The single GET hits only the catalogue endpoint (no
+    chat-completions spend), so it's safe to run on every
+    invocation including cron.
     """
     from services.llm_client import (
         DEFAULT_NVIDIA_BASE,
@@ -908,9 +1118,10 @@ def _verify_nvidia_model_present(*, http_timeout: float = 5.0) -> None:
     )
 
     # Same raw read as :func:`_log_resolved_llm_config` — no
-    # ``.strip() or DEFAULT`` coercion; the catalogue check then matches
-    # the empty-string id against the catalogue (which it won't be) and
-    # raises the WARN, mirroring what will happen on the first chat call.
+    # ``.strip() or DEFAULT`` coercion; the catalogue check then
+    # matches the empty-string id against the catalogue (which it
+    # won't be) and raises the WARN, mirroring what will happen
+    # on the first chat call.
     nvidia_model = os.environ.get("NVIDIA_MODEL", DEFAULT_NVIDIA_MODEL)
     api_key = os.environ.get("NVIDIA_API_KEY", "").strip()
     if not api_key:
@@ -1016,7 +1227,7 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument(
         "--dry-run",
         action="store_true",
-        help="Compute skip list (Phase 3) but skip Phase 1 fetches + Phase 2 LLM calls.",
+        help="Compute per-bucket summary (Phase 3) but skip Phase 1 fetches + Phase 2 LLM calls.",
     )
     p.add_argument(
         "--force",
@@ -1047,8 +1258,8 @@ def main() -> int:
     # Startup observability BEFORE any fetch / LLM work — a bad
     # NVIDIA_MODEL id will hit 404 on every call otherwise. Both
     # helpers are guard rails: they print to stdout (via ``print``,
-    # not :data:`logger`, so the lines appear even when the rest of
-    # the script is bufferred) and never raise.
+    # not :data:`logger`, so the lines appear even when the rest
+    # of the script is bufferred) and never raise.
     _log_resolved_llm_config()
     _verify_nvidia_model_present()
 
@@ -1089,11 +1300,20 @@ def main() -> int:
                 board, slug = future_to_meta[future]
                 _slug, jobs = future.result()
                 if not jobs:
-                    # Empty fetch (transient or 404). Treat as failed ONLY
-                    # if there's no prior profile — keep existing data on
-                    # flaky upstreams rather than churning on-disk state.
-                    existing = PROFILE_DIR / board / f"{slug}.json"
-                    if not existing.exists():
+                    # Empty fetch (transient or 404). Treat as
+                    # failed ONLY if there's no prior profile —
+                    # keep existing data on flaky upstreams rather
+                    # than churning on-disk state.
+                    # :func:`_find_existing_profile` walks every
+                    # on-disk location (legacy top-level,
+                    # ``errors/``, ``skip/``, every cadence
+                    # bucket) so a slug that landed in any bucket
+                    # under a previous enrichment pass counts as
+                    # "already on disk".
+                    existing = _find_existing_profile(
+                        board=board, slug=slug,
+                    )
+                    if existing is None:
                         _write_status_envelope(
                             board=board,
                             slug=slug,
@@ -1112,45 +1332,58 @@ def main() -> int:
                     )
                     skipped_short += 1
                     continue
-                existing = PROFILE_DIR / board / f"{slug}.json"
-                if args.skip_existing and existing.exists() and not args.force:
+                # Same broad reach as the empty-fetch branch
+                # above — a slug re-classified from
+                # ``cadence/daily`` to ``cadence/weekly`` (or to
+                # ``skip/``) on a previous enrichment pass is
+                # still "already enriched" by this gate.
+                existing = _find_existing_profile(
+                    board=board, slug=slug,
+                )
+                if args.skip_existing and existing is not None and not args.force:
                     try:
                         with open(existing, "r") as f:
                             existing_profile = json.load(f)
                         if existing_profile.get("status") != "ok":
                             # Not ``status: ok`` — failed/skipped
-                            # envelopes get rewritten unconditionally
-                            # so the on-disk state converges to ``ok``
-                            # after a successful run. No opt-in
-                            # needed: this rewrite doesn't burn LLM
+                            # envelopes get rewritten
+                            # unconditionally so the on-disk
+                            # state converges to ``ok`` after a
+                            # successful run. No opt-in needed:
+                            # this rewrite doesn't burn LLM
                             # budget (the new run will).
                             pass
                         else:
-                            # ``status: ok`` profile on disk. Default
-                            # behavior: trust it (skip re-enrich),
-                            # regardless of ``schema_version``. The
-                            # description-truncation gap between v1
-                            # and v2 is real but the LLM cost of
-                            # blanket re-enriching 10K orgs — ~$30-50
-                            # at NVIDIA free-tier pricing — is a worse
-                            # surprise than profile contents being
-                            # slightly stale.
+                            # ``status: ok`` profile on disk.
+                            # Default behavior: trust it (skip
+                            # re-enrich), regardless of
+                            # ``schema_version``. The
+                            # description-truncation gap between
+                            # v1 and v2 is real but the LLM cost
+                            # of blanket re-enriching 10K orgs —
+                            # ~$30-50 at NVIDIA free-tier pricing
+                            # — is a worse surprise than profile
+                            # contents being slightly stale.
                             #
-                            # ``ENRICH_MIGRATE_V1_TO_V2=1`` flips the
-                            # behavior: it forces a re-enrich whenever
-                            # the on-disk ``schema_version`` doesn't
-                            # match ``SCHEMA_VERSION``, so an operator
-                            # who actually wants the v1→v2 migration
-                            # (with descriptions in source_jobs) can
-                            # opt in once and watch the runs roll
-                            # forward incrementally. Default-safe —
-                            # the env var is opt-in like
+                            # ``ENRICH_MIGRATE_V1_TO_V2=1`` flips
+                            # the behavior: it forces a
+                            # re-enrich whenever the on-disk
+                            # ``schema_version`` doesn't match
+                            # ``SCHEMA_VERSION``, so an operator
+                            # who actually wants the v1→v2
+                            # migration (with descriptions in
+                            # source_jobs) can opt in once and
+                            # watch the runs roll forward
+                            # incrementally. Default-safe — the
+                            # env var is opt-in like
                             # ``BOARDS_SKIP_TIMEOUTS`` so a typo
-                            # (``ENRICH_MIGRATE_V1_TO_V2=2``) doesn't
-                            # silently enable a $30 sweep.
+                            # (``ENRICH_MIGRATE_V1_TO_V2=2``)
+                            # doesn't silently enable a $30
+                            # sweep.
                             #
                             # Truthy string whitelist:
-                            # ``"1"``/``"true"``/``"yes"`` (lowered).
+                            # ``"1"``/``"true"``/``"yes"``
+                            # (lowered).
                             on_disk_version = existing_profile.get("schema_version")
                             if on_disk_version == SCHEMA_VERSION:
                                 skipped_existing += 1
@@ -1162,12 +1395,14 @@ def main() -> int:
                                 # Default: preserve existing v1
                                 # profile, don't burn LLM. The
                                 # ``status == "ok"`` check above
-                                # already filtered out failed/skipped
-                                # envelopes, so this branch only
-                                # sees healthy-but-stale v1 data.
-                                # Log at debug level so an operator
-                                # investigating the skip count can
-                                # see *why* the gate fired.
+                                # already filtered out
+                                # failed/skipped envelopes, so
+                                # this branch only sees
+                                # healthy-but-stale v1 data.
+                                # Log at debug level so an
+                                # operator investigating the
+                                # skip count can see *why* the
+                                # gate fired.
                                 logger.debug(
                                     "skip v%d %s/%s profile (set "
                                     "ENRICH_MIGRATE_V1_TO_V2=1 to re-enrich)",
@@ -1191,18 +1426,14 @@ def main() -> int:
     )
 
     if args.dry_run:
-        # In dry-run we still rebuild the skip list from any existing
-        # profiles on disk so the operator can preview what WOULD change.
+        # In dry-run we still print the per-bucket summary from
+        # any existing on-disk profiles so the operator can
+        # preview what WOULD change.
         for board in boards:
-            slugs_to_skip = _build_skip_list(board)
-            print(
-                f"[enrich] (dry-run) skip list for {board}: "
-                f"{len(slugs_to_skip)} slugs",
-                flush=True,
-            )
+            _emit_per_bucket_summary(board=board)
         return 0
 
-    # ============== Phase 2: enrich via LLM (bounded concurrency) =====
+    # ============== Phase 2: enrich via LLM (bounded concurrency) ========
     succeeded = 0
     failed = 0
     if work_items:
@@ -1214,15 +1445,17 @@ def main() -> int:
 
         async def _drive() -> list[tuple[str, str, Path, dict]]:
             semaphore = asyncio.Semaphore(LLM_CONCURRENCY)
-            # All LLM coroutines share the same outer loop, so the
-            # semaphore bounds in-flight calls cleanly without a
-            # cross-loop ``asyncio.run`` shadow event. ``asyncio.gather``
-            # schedules all ``LLM_CONCURRENCY`` tasks at once; the
-            # semaphore gates the actual ``await llm.run_json_prompt``
-            # honoring NVIDIA's ``AsyncTokenBucket`` RPM cap below.
-            # Standard ``gather`` (no return_exceptions): the inner
-            # ``except Exception`` blocks in ``_enrich_one_org`` cover
-            # LLM/HTTP failures; ``KeyboardInterrupt``/``SystemExit``/
+            # All LLM coroutines share the same outer loop, so
+            # the semaphore bounds in-flight calls cleanly
+            # without a cross-loop ``asyncio.run`` shadow event.
+            # ``asyncio.gather`` schedules all
+            # ``LLM_CONCURRENCY`` tasks at once; the semaphore
+            # gates the actual ``await llm.run_json_prompt``
+            # honoring NVIDIA's ``AsyncTokenBucket`` RPM cap
+            # below. Standard ``gather`` (no
+            # return_exceptions): the inner ``except Exception``
+            # blocks in ``_enrich_one_org`` cover LLM/HTTP
+            # failures; ``KeyboardInterrupt``/``SystemExit``/
             # ``CancelledError`` (BaseException) propagate to
             # ``asyncio.run`` so operator Ctrl-C aborts cleanly.
             return await asyncio.gather(*[
@@ -1242,20 +1475,26 @@ def main() -> int:
         flush=True,
     )
 
-    # ============== Phase 3: rebuild _skip_list per board =============
+    # ============== Phase 3: per-bucket summary per board ================
+    # The :func:`_emit_per_bucket_summary` walker reads slugs as
+    # filenames (``glob("*.json")``) — no JSON parse — so the
+    # per-board summary cost stays under ~1 ms even at the
+    # 10K-org scale. Boards runner integration is wired via
+    # ``BOARDS_CADENCES`` in the GHA workflow env; the per-bucket
+    # counts here are an at-a-glance operator sanity check, not
+    # a load-bearing artifact.
     for board in boards:
-        slugs_to_skip = _build_skip_list(board)
-        _write_skip_list(board, slugs_to_skip)
-        print(
-            f"[enrich] skip list for {board}: {len(slugs_to_skip)} slugs -> "
-            f"{PROFILE_DIR / board / '_skip_list.json'}",
-            flush=True,
-        )
+        _emit_per_bucket_summary(board=board)
 
     print(
-        "[enrich] DONE. To activate skip-list gating in the boards runner, "
-        "set BOARDS_USE_ENRICHED_PROFILES=1 in the GHA workflow env. "
-        "Default 0 preserves the existing behavior.",
+        "[enrich] DONE. To activate per-cadence scan gating in the "
+        "boards runner, set BOARDS_CADENCES=<csv> in the GHA workflow "
+        "env. Default mapping: "
+        "active(hourly)=daily,few_per_week,weekly,biweekly | "
+        "dormant(daily 02:20 UTC)=monthly,quarterly,unknown | "
+        "probe(weekly Sun 04:20 UTC)=rare,dead. "
+        "Without BOARDS_CADENCES, the runner scans every org per "
+        "legacy behavior (full board minus missing/timeout orgs).",
         flush=True,
     )
     return 0

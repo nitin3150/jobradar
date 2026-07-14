@@ -1,0 +1,8 @@
+{
+  "schema_version": 2,
+  "status": "failed",
+  "slug": "knowde",
+  "board": "greenhouse",
+  "decision_at": "2026-07-11T01:12:47.061573+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

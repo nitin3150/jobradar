@@ -1,0 +1,8 @@
+{
+  "schema_version": 2,
+  "status": "failed",
+  "slug": "bamko",
+  "board": "lever",
+  "decision_at": "2026-07-14T05:15:30.134846+00:00",
+  "reason": "RuntimeError: all LLM providers failed on run_json_prompt; last error type=_RateLimitedError"
+}

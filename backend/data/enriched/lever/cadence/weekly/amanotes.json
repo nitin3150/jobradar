@@ -1,0 +1,237 @@
+{
+  "schema_version": 2,
+  "slug": "amanotes",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:05:52.858781+00:00",
+  "source_jobs_count": 44,
+  "source_last_published": "2026-07-09T11:35:53.415000+00:00",
+  "source_jobs": [
+    {
+      "title": "[LiveOps Team] Product Lead (Based in HCMC)",
+      "description": "",
+      "location": "",
+      "first_published": "2026-07-07T15:49:03.992000+00:00",
+      "url": "https://jobs.lever.co/amanotes/9c9416dd-bff1-4cf8-a4a7-b11150e37526"
+    },
+    {
+      "title": "[LiveOps Team] Senior Game Developer - Unity (Base in HCMC)",
+      "description": "",
+      "location": "",
+      "first_published": "2026-06-23T04:50:11.352000+00:00",
+      "url": "https://jobs.lever.co/amanotes/47294f4a-d875-4701-8c2a-879f8a51550a"
+    },
+    {
+      "title": "[LiveOps Team] Senior Product Owner (Base in HCMC)",
+      "description": "",
+      "location": "",
+      "first_published": "2026-01-20T08:49:11.715000+00:00",
+      "url": "https://jobs.lever.co/amanotes/01540a47-eed9-4b9b-9de9-a91658f76aa3"
+    },
+    {
+      "title": "[Music App] Product Manager (Based in HCMC)",
+      "description": "",
+      "location": "",
+      "first_published": "2026-04-23T05:06:11.066000+00:00",
+      "url": "https://jobs.lever.co/amanotes/6d610a18-1bf2-4954-9785-15a727c4c27c"
+    },
+    {
+      "title": "[UPLIVE Company]  User Acquisition Lead",
+      "description": "Location\nHCM Onsite (Relocation Support)\nWe\u2019re looking for a\u00a0User Acquisition Lead to scale and accelerate user growth across UPLIVE\u2019 portfolios. You'll play a key role in driving millions of installs while leading a high-performing team in a fast-paced, creative, and data-driven environment.\n\u00a0\n",
+      "location": "",
+      "first_published": "2026-02-27T03:17:45.565000+00:00",
+      "url": "https://jobs.lever.co/amanotes/b280ffc0-b9fb-4af1-a545-148dbdaff5bd"
+    },
+    {
+      "title": "[UPLIVE Company] 2D Game Artist",
+      "description": "We're looking for a talented Game Artist to join our Game team and create eye-catching visuals for our mobile games!\n\u00a0\nYou'll possess a keen eye for detail and a knack for crafting compelling graphics that resonate with mobile audiences.\n\u00a0\nCollaborate with the Product team, you'll research and design UI/UX and game assets that bring our mobile games to life and engage players worldwide.\n\u00a0\n",
+      "location": "",
+      "first_published": "2025-08-27T04:03:19.653000+00:00",
+      "url": "https://jobs.lever.co/amanotes/bbeb632b-0262-4513-b211-5bcab49d4b40"
+    },
+    {
+      "title": "[UPLIVE Company] 2D VFX Artist",
+      "description": "Own the look, feel, and timing of 2D game VFX that make music feel tactile. You\u2019ll design and implement performant, stylized effects, hit flashes, trails, idle loops, UI transitions, so every beat lands with clarity and delight. You ship fast, iterate faster, and keep an eye on frame time.\n",
+      "location": "",
+      "first_published": "2025-12-12T13:25:21.422000+00:00",
+      "url": "https://jobs.lever.co/amanotes/1fe8667a-667f-4c31-901c-f747a06d8fa0"
+    },
+    {
+      "title": "[UPLIVE Company] Ads Monetization Specialist",
+      "description": "Manage advertising operations to enable the achievement of users and business sales goals\n",
+      "location": "",
+      "first_published": "2025-12-12T13:19:42.910000+00:00",
+      "url": "https://jobs.lever.co/amanotes/c1b9f62a-006a-4197-937e-fa9dd0e61a3e"
+    },
+    {
+      "title": "[UPLIVE Company] Android Developer",
+      "description": "We're hiring Android Developer!\n\nJoin Uplive on our mission to musicalize the world! We are looking for a talented Android Developer to turn bold product ideas into polished, high-performance native mobile experiences.\nIn this role, you will dive deep into modern Android architecture, craft seamless user interfaces, and help push the boundaries of mobile audio processing. If you are passionate about clean code, love solving complex technical challenges, and want to build apps enjoyed by millions of music lovers worldwide, we want you on our team.\n",
+      "location": "",
+      "first_published": "2026-06-08T08:36:39.737000+00:00",
+      "url": "https://jobs.lever.co/amanotes/b6f59262-8856-4566-9a0e-c888ece532ff"
+    },
+    {
+      "title": "[UPLIVE Company] Creative Strategist (App)",
+      "description": "We\u2019re looking for a Creative Strategist with experience in multimedia or APP creative production. You\u2019ll partner with UA and the creative team to produce high-performing ads and app store assets. \n",
+      "location": "",
+      "first_published": "2025-12-12T12:46:27.587000+00:00",
+      "url": "https://jobs.lever.co/amanotes/ef627d4b-2305-4a72-a36e-1161e7c6831f"
+    },
+    {
+      "title": "[UPLIVE Company] Creative Strategist Lead",
+      "description": "UPLIVE is a high-growth global publisher seeking a Creative Strategist Lead to oversee creative strategy: project management, research, and driving creative testing plan for our Games & Apps portfolio. You\u2019ll turn insights, market data, and trends into winning creative plans and production-ready concepts for the Creative Production team.\n",
+      "location": "",
+      "first_published": "2025-11-24T12:49:00.870000+00:00",
+      "url": "https://jobs.lever.co/amanotes/fb359936-cef3-4b2e-a9d2-6b9a4b4488a9"
+    },
+    {
+      "title": "[UPLIVE Company] Fullstack Engineer",
+      "description": "OBJECTIVES\n\u00a0\nWe're hiring a Fullstack Engineer who can build end-to-end features and leverage AI tools to accelerate development.\nYou'll work across the full stack \u2014 frontend, backend, and integrations \u2014 to ship product features that serve our game publishing operations. You'll be expected to use AI coding assistants effectively, move fast, and deliver production-ready features with minimal hand-holding.\n\u00a0\n",
+      "location": "",
+      "first_published": "2026-01-07T08:30:25.591000+00:00",
+      "url": "https://jobs.lever.co/amanotes/73e664da-d664-4033-88ce-9b58970a69fe"
+    },
+    {
+      "title": "[UPLIVE Company] Game Art Director",
+      "description": "Location\nHCM Onsite (Relocation Support)\n\u00a0\nWe are seeking an experienced Game Art Director to lead the visual direction and creative strategy for our mobile game portfolio. You will define the artistic vision, ensure visual consistency across products, and guide artists and cross-functional teams to deliver world-class aesthetics that elevate player engagement and marketability. This role is central to shaping how our games look, feel, and stand out globally.\n",
+      "location": "",
+      "first_published": "2025-12-12T13:12:27.953000+00:00",
+      "url": "https://jobs.lever.co/amanotes/9a6a467a-feb9-4335-bee0-8d100ebd2b5c"
+    },
+    {
+      "title": "[UPLIVE Company] Game Designer (Liveops)",
+      "description": "ABOUT THE JOB\nWe are seeking an exceptional and innovative Game Designer to join our team in building, developing, and publishing multiple game portfolios. As a Game Designer, you will collaborate closely with passionate cross-functional teams to create extraordinary experiences for players worldwide.\n",
+      "location": "",
+      "first_published": "2025-12-03T09:42:24.704000+00:00",
+      "url": "https://jobs.lever.co/amanotes/53d882d0-3ef0-409e-a657-9ee654b76d73"
+    },
+    {
+      "title": "[UPLIVE Company] Game Unity Developer (Liveops)",
+      "description": "We're hiring a Unity Developer!\nJoin us on a mission to musicalize the world through innovative, music-driven games. You'll turn bold ideas into polished, playable experiences using Unity. Were looking for someone whos solid with Unity programming, knows how to work with sound and music, and thrives on learning and pushing creative boundaries. If you're passionate about making great games and love solving problems, we want to hear from you.\n",
+      "location": "",
+      "first_published": "2025-12-12T13:16:40.970000+00:00",
+      "url": "https://jobs.lever.co/amanotes/b1a475bc-e8e9-480c-bb1c-fb5b9f26c232"
+    },
+    {
+      "title": "[UPLIVE Company] Head Of Games",
+      "description": "The Head of Games will contribute effectively throughout the full lifecycle of new game projects, from ideation to launch, to create innovative and successful mobile music games. You will drive the game design vision, ensuring that our games are not only engaging but also commercially successful.\n",
+      "location": "",
+      "first_published": "2026-01-16T09:13:59.315000+00:00",
+      "url": "https://jobs.lever.co/amanotes/d1a67f59-42c1-4475-b992-ca0a28fce584"
+    },
+    {
+      "title": "[UPLIVE Company] Head Of Liveops",
+      "description": "As Head of LiveOps at Uplive, you will lead the most crucial division of our business, managing high-impact titles such as. Your role is to drive growth by creating and executing robust product strategies, ensuring operational excellence, and cultivating a high-performing team culture. You will play a key part in Uplive's hybrid transformation, optimizing LiveOps, monetization strategies, and product practices through innovation and automation.\n",
+      "location": "",
+      "first_published": "2026-01-16T09:17:43.530000+00:00",
+      "url": "https://jobs.lever.co/amanotes/0c35daad-6128-4b05-bed9-3a7e1fedb1d1"
+    },
+    {
+      "title": "[UPLIVE Company] LEVEL DESIGNER (MUSIC GAME)",
+      "description": "ABOUT US\nUPLIVE, a subsidiary of Amanotes, is on a mission of \u201cUplifting everyone\u2019s life through games and apps.\u201d\nWe\u2019re redefining how digital experiences can create meaningful, positive impact in everyday life.\nOur culture is built on Extreme Ownership, Relentless Learning \u2014 creating an environment where ambitious individuals are empowered to grow, innovate, and make real impact at scale.\nDiscover more:https://uplive.zone/\n",
+      "location": "",
+      "first_published": "2026-05-13T03:10:17.275000+00:00",
+      "url": "https://jobs.lever.co/amanotes/c8deafe4-2090-4103-bfde-d1e64e8bc146"
+    },
+    {
+      "title": "[UPLIVE Company] Performance Marketing",
+      "description": "Launch and scale new music games/apps profitably through organic and non-organic channels across the globe (US, China, Japan, etc.)\n\u00a0\n",
+      "location": "",
+      "first_published": "2026-02-27T10:45:37.125000+00:00",
+      "url": "https://jobs.lever.co/amanotes/fd0958b1-2370-4d57-8058-ab1e3a5ac96d"
+    },
+    {
+      "title": "[UPLIVE Company] Product Lead",
+      "description": "ABOUT US\nUPLIVE, a subsidiary of Amanotes, is on a mission of \u201cUplifting everyone\u2019s life through games and apps.\u201d\nWe\u2019re redefining how digital experiences can create meaningful, positive impact in everyday life.\nOur culture is built on Extreme Ownership, Relentless Learning\u2014 creating an environment where ambitious individuals are empowered to grow, innovate, and make real impact at scale.\n Discover more: https://uplive.zone/\n",
+      "location": "",
+      "first_published": "2026-06-08T04:58:36.328000+00:00",
+      "url": "https://jobs.lever.co/amanotes/785e2661-4a01-4aec-885e-33c4e34f2f1f"
+    },
+    {
+      "title": "[UPLIVE Company] Product Operations",
+      "description": "Uplive is seeking a performance-driven Game Product Operations to own and scale game portfolios across Android and iOS. This role sits at the intersection of product, operations, marketing, and tech. You are the business owner of several live games \u2014 ensuring each title stays updated, revenue-positive, technically healthy, and competitive in the market.You will collaborate with UA, Creative, and Engineering to accelerate growth, optimize store performance, and maintain seamless live operations.\n",
+      "location": "",
+      "first_published": "2026-02-03T05:38:57.074000+00:00",
+      "url": "https://jobs.lever.co/amanotes/f0676fc2-5849-4c3b-b14d-beed51156580"
+    },
+    {
+      "title": "[UPLIVE Company] Product Owner (App)",
+      "description": "ABOUT THE JOB\n\u00a0\nWe are seeking a dynamic and innovative Product Owner to join our team, focusing on the development and delivery of outstanding mobile app experiences. In this role, you will collaborate with cross-functional teams to create seamless, high-quality apps that will engage and delight users worldwide. You will drive the product roadmap, monitor user engagement, and continuously improve the app\u2019s functionality and performance.\n",
+      "location": "",
+      "first_published": "2025-10-06T02:44:32.105000+00:00",
+      "url": "https://jobs.lever.co/amanotes/99a73e4d-d4cd-4669-b926-2cba1db4d66a"
+    },
+    {
+      "title": "[UPLIVE Company] Product Owner (Liveops)",
+      "description": "ABOUT THE JOB\n\u00a0\nWe are seeking an exceptional and innovative Game Product Owner to join our team in building, developing, and publishing multiple game portfolios. As a Product Owner, you will collaborate closely with passionate cross-functional teams to create extraordinary experiences for players worldwide.\n\u00a0\n",
+      "location": "",
+      "first_published": "2024-08-21T11:34:34.338000+00:00",
+      "url": "https://jobs.lever.co/amanotes/442b9253-a92c-4d2b-b557-f9be0a459eb4"
+    },
+    {
+      "title": "[UPLIVE Company] Quality Control",
+      "description": "We are seeking a motivated and detail-oriented Quality Control (QC) to join our Liveops team. You\u2019ll work closely with developers, designers, and product owners to ensure smooth, high-quality user experiences.\n",
+      "location": "",
+      "first_published": "2025-12-12T13:28:20.881000+00:00",
+      "url": "https://jobs.lever.co/amanotes/465d0923-bb5b-4f74-9302-7e8619c0bc98"
+    },
+    {
+      "title": "[UPLIVE Company] Senior HR & Office Operations",
+      "description": "ABOUT US\nUPLIVE, a subsidiary of Amanotes, is on a mission of \"Uplifting everyone's life through games and apps\".\nWe're redefining how digital experiences can create meaningful, positive impact in everyday life.\nOur culture is built on\u00a0Extreme Ownership, Relentless Learning\u2014 creating an environment where ambitious individuals are empowered to grow, innovate, and make real impact at scale. Discover more:\u00a0https://uplive.zone/\n",
+      "location": "",
+      "first_published": "2026-06-15T07:40:41.452000+00:00",
+      "url": "https://jobs.lever.co/amanotes/c9187c2c-692c-4aa4-8d08-e96666404b2b"
+    },
+    {
+      "title": "[UPLIVE Company] Senior UA Marketing (Mobile Apps)",
+      "description": "LOCATION\n\nHCM Onsite (Relocation Support)\n\u00a0\nABOUT THE JOB\n\u00a0\nWe're looking for a Senior UA Marketing (Mobile Apps) to own and scale user growth across our AI and Utility app portfolio. You'll manage significant advertising budgets, optimize performance across multiple channels, and play a key role in driving product growth in global markets.\n\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-11T08:28:30.193000+00:00",
+      "url": "https://jobs.lever.co/amanotes/340ca3e8-c264-4150-8f7a-628477a24381"
+    },
+    {
+      "title": "[UPLIVE Company] Senior UA Marketing (Mobile Games)",
+      "description": "ABOUT THE JOB\n\u00a0\nJoin us as a Senior UA Marketing (Mobile Games) and take ownership of growth across multiple game titles. You'll manage substantial marketing budgets, experiment with cutting-edge UA strategies, and help bring great games to millions of players worldwide.\n\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-12T03:26:18.258000+00:00",
+      "url": "https://jobs.lever.co/amanotes/23cc7ffb-45a3-4319-b591-0480d93db140"
+    },
+    {
+      "title": "[UPLIVE Company] Talent Acquisition Business Partner",
+      "description": "ABOUT US\nUPLIVE, a subsidiary of Amanotes, is on a mission of \"Uplifting everyone's life through games and apps\".\nWe're redefining how digital experiences can create meaningful, positive impact in everyday life.\nOur culture is built on\u00a0Extreme Ownership, Relentless Learning\u2014 creating an environment where ambitious individuals are empowered to grow, innovate, and make real impact at scale. Discover more:\u00a0https://uplive.zone/\n",
+      "location": "",
+      "first_published": "2026-06-10T08:42:56.867000+00:00",
+      "url": "https://jobs.lever.co/amanotes/324555f0-405f-40aa-92a2-b51e56314aa6"
+    },
+    {
+      "title": "[UPLIVE Company] UA Marketing (Mobile Apps)",
+      "description": "We are seeking a dynamic and results-driven User Acquisition (UA) Specialist to join our team, focusing on the growth and scalability of our mobile app. In this role, you will work closely with cross-functional teams to launch and scale new mobile apps profitably through organic and non-organic channels across the globe (US, Korea, Japan, etc.)\n",
+      "location": "",
+      "first_published": "2026-06-12T03:31:57.992000+00:00",
+      "url": "https://jobs.lever.co/amanotes/ba8099c2-03d4-44ac-9bbd-61063df8984d"
+    },
+    {
+      "title": "[UPLIVE Company] UA Marketing (Mobile Games)",
+      "description": "Launch and scale new music games profitably through organic and non-organic channels across the globe (US, China, Japan, etc.)\n",
+      "location": "",
+      "first_published": "2026-06-12T03:34:25.494000+00:00",
+      "url": "https://jobs.lever.co/amanotes/65d17b11-2708-47e7-96a4-2091a67fd75b"
+    }
+  ],
+  "primary_function": "product_heavy",
+  "estimated_stage": "series_b",
+  "hiring_volume_estimate": "50_200",
+  "posting_cadence": "weekly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.567,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.2,
+  "notes": "High volume of product and game development roles, with a focus on mobile apps and games.",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "aicrete",
+  "board": "lever",
+  "enriched_at": "2026-07-14T04:57:45.123096+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2024-04-29T18:58:29.692000+00:00",
+  "source_jobs": [
+    {
+      "title": "Senior Backend Engineer",
+      "description": "Job Title: Senior Backend Engineer\n\nLocation: Hybrid (with options for remote work)\n\nJob Type: Full-Time\n\nCompany Overview:\nAt AICrete, we are committed to revolutionizing the global concrete and construction industry. Leveraging AI, machine learning, computer vision, and sophisticated automation, AICreteOS is our innovative solution designed to enhance profitability, sustainability, efficiency, and productivity in real-time. Proudly standing as the first company in the world to introduce AI to the concrete materials industry, we are at the forefront of technological advancement, setting new standards and pioneering changes that drive real impact.\n\nRole Summary:\nAs a Senior Backend Engineer at AICrete, your role will be crucial in developing the server-side logic of AICreteOS using modern frameworks like Django. You will build high-performance applications that integrate seamlessly with our front-end components, ensuring the end-to-end system functions efficiently and reliably.\n\nKey Responsibilities:\n- Design and develop robust backend services using Django and other Python frameworks.\n- Collaborate with frontend developers to ensure seamless integration and a cohesive user experience.\n- Build and maintain efficient, reusable, and reliable code.\n- Ensure the best possible performance, quality, and responsiveness of applications.\n- Implement security and data protection solutions.\n- Manage hosting environments, including database administration and scaling applications to support load changes.\n\nRequired Skills and Qualifications:\n- Proven experience as a Backend Developer with a strong background in Django (minimum of 4 years preferred).\n- Expertise in Python and its libraries.\n- Familiarity with RESTful APIs and web service integration.\n- Experience with relational databases such as PostgreSQL, and an understanding of NoSQL databases.\n- Proficiency in code versioning tools, such as Git.\n\nDesirable Skills:\n- Experience with cloud platforms like AWS, which is part of our tech stack.\n- Knowledge of front-end technologies (JavaScript, HTML, CSS) for effective team collaboration.\n- Understanding of containerization and orchestration technologies such as Docker and Kubernetes.\n- Understanding of the concrete and/or materials industry.\n\nBenefits:\n- Competitive salary and equity options.\n- Comprehensive health, dental, and vision insurance.\n- Flexible working hours and remote work opportunities.\n- A dynamic and supportive work environment that promotes professional growth and development.\n\nHow to Apply:\nPlease submit your resume, a cover letter, and any relevant project details or GitHub repositories through our career portal (AICrete ). We look forward to understanding how you can contribute to our innovative team at AICrete.\n",
+      "location": "",
+      "first_published": "2024-04-29T18:58:29.692000+00:00",
+      "url": "https://jobs.lever.co/aicrete/11747eba-2626-4d29-8842-2816ca87332c"
+    },
+    {
+      "title": "Senior Frontend Engineer",
+      "description": "Location: Hybrid (with options for remote work)\n\nJob Type: Full-Time\n\nCompany Overview:\nAt AICrete, we are committed to revolutionizing the global concrete and construction industry. Leveraging AI, machine learning, computer vision, and sophisticated automation, AICreteOS is our innovative solution designed to enhance sustainability, profitability, efficiency, and productivity in real-time. Proudly standing as the first company in the world to introduce AI to the concrete materials industry, we are at the forefront of technological advancement, setting new standards and pioneering changes that drive real impact.\n\nRole Summary:\nJoin our team as a Senior Frontend Engineer to play a pivotal role in enhancing the user experience of AICreteOS. Your work will directly contribute to our platform, focusing on creating intuitive, responsive, and visually engaging interfaces that meet the dynamic needs of our clients in the concrete industry.\n\nKey Responsibilities:\n- Develop user-friendly web pages using HTML, CSS, and modern JavaScript frameworks.\n- Design and implement mobile-first applications and progressive web apps (PWAs).\n- Collaborate with backend engineers and UI/UX designers to deliver a seamless user experience.\n- Optimize applications for maximum speed, scalability, and adaptability across a broad range of devices and systems.\n- Stay abreast of emerging frontend technologies and advocate for the adoption of industry best practices in frontend development.\n\nRequired Skills and Qualifications:\n- Proven experience as a Frontend Developer or similar role (minimum of 5 years preferred).\n- Expertise in JavaScript, including frameworks like React, Angular, Vue, etc.\n- Strong understanding of web markup, including HTML and CSS.\n- Familiarity with server-side CSS pre-processing platforms, such as LESS and SASS.\n- Experience with responsive and adaptive design.\n- Solid problem-solving skills and attention to detail.\n\nDesirable Skills:\n- Experience with cloud services like AWS and development tools including GitHub.\n- Knowledge of SEO principles.\n- A portfolio of UX/UI design work for both web and mobile platforms.\n\nBenefits:\n- Competitive salary and equity options.\n- Comprehensive health, dental, and vision insurance.\n- Flexible working hours and remote work opportunities.\n- A dynamic and supportive work environment encouraging professional growth and innovation.\n\nHow to Apply:\nPlease submit your resume along with a cover letter and a portfolio of relevant work through our career portal (https://jobs.lever.co/aicrete). We are excited to learn about how your background, skills, and interests align with our mission at AICrete.\n",
+      "location": "",
+      "first_published": "2024-04-29T18:27:09.165000+00:00",
+      "url": "https://jobs.lever.co/aicrete/02db122f-eafe-4ca1-b208-1f2e9e26c965"
+    },
+    {
+      "title": "Senior Fullstack Engineer",
+      "description": "Duties and Responsibilities\nOur mission at AICrete is to revolutionize the global concrete and construction industry by significantly increasing profitability, sustainability, efficiency, and productivity in real-time through our transformative all-in-one AI-powered operating system, AICreteOS, harnessing the power of AI, machine learning, computer vision, software, and automation.\n\nRole Summary\nJoin AICrete as a Senior Full Stack Engineer where you'll be at the forefront of building AICreteOS. Your expertise will guide the development of robust, efficient, and innovative solutions in the concrete and construction industry. Here, you will craft and code end-to-end applications, delivering meaningful contributions directly impacting our clients. This role is for those ready to dive deep into technology, problem-solving, and continuous improvement in a collaborative, dynamic, and supportive environment. Your work will lay the foundation for industry-leading insights and recommendations, shaping the future of sustainable construction.\nThis is a hybrid role that allows for both in-office and remote work.\n\nOur Stack\nWe keep a tight toolchain.\u00a0Our tech stack includes AWS and Heroku, GitHub, Python and Django, Postgres, Redis, and JavaScript.\n\n",
+      "location": "",
+      "first_published": "2024-01-09T23:53:10.316000+00:00",
+      "url": "https://jobs.lever.co/aicrete/2e6898b6-f6ba-439b-b8a8-af70786d19cf"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 1.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "AI-powered construction industry startup with a strong focus on engineering roles",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

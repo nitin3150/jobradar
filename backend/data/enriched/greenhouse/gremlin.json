@@ -1,9 +1,0 @@
-{
-  "schema_version": 2,
-  "status": "skipped",
-  "slug": "gremlin",
-  "board": "greenhouse",
-  "decision_at": "2026-07-13T03:03:34.716471+00:00",
-  "reason": "fewer_than_3_jobs",
-  "source_jobs_count": 1
-}

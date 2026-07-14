@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "atomi",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:14:15.491557+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-07-06T07:09:59.724000+00:00",
+  "source_jobs": [
+    {
+      "title": "Financial Controller",
+      "description": "Join Atomi: Reinvent how the world learns.\n\u00a0\nAt Atomi, our mission is to help unlock the world's potential by optimising the way we teach and learn.\u00a0Our platform combines cutting-edge technology with a creative, human-first approach, turning complex ideas into simple, engaging experiences for students, educators, and parents everywhere.\nWe\u2019re driven by curiosity, humility and a relentless focus on quality and innovation. At Atomi, your ideas matter, your creativity counts and your work directly impacts how hundreds of thousands of learners engage with education around the globe.\nCome build something remarkable with us.\n\nThe Opportunity\n\n\nAs our new Financial Controller, you'll lead a Finance function with strong foundations already in place, so this is a role for someone who wants to elevate a great team rather than build one from scratch. Please note, this is a 12-month max-term contract.\u00a0\n\nReporting to the Co-CEO with two direct reports, you'll balance day to day financial rigour with commercial insight, and bring an AI-forward mindset to how the team reports, forecasts and works. \n\nThis is a generalist role: you'll have real scope to pick up the projects that matter most, coach and develop your team, and help Atomi make sharper, faster financial decisions as we keep scaling.\nAt Atomi, we move quickly and value transparency. Once you're in the interview process, you'll receive clear feedback and meaningful insights from the team. For this role, you can expect:\nInitial screen with Atomi's People Team\nInterview Round 1: Role fit and culture interview\nInterview Round 2: Technical Assessment (Asynchronous task + follow-up interview)\nInterview Round 3: Co-Founder interview\n",
+      "location": "",
+      "first_published": "2026-07-02T02:57:34.100000+00:00",
+      "url": "https://jobs.lever.co/atomi/e52bdc85-d6ce-48b7-89b3-5a13c6653d0f"
+    },
+    {
+      "title": "VCE Content Creator",
+      "description": "Join Atomi: Reinvent how the world learns.\n\u00a0\nAt Atomi, our mission is to help unlock the world's potential by optimising the way we teach and learn.\u00a0Our platform combines cutting-edge technology with a creative, human-first approach, turning complex ideas into simple, engaging experiences for students, educators, and parents everywhere.\nWe\u2019re driven by curiosity, humility and a relentless focus on quality and innovation. At Atomi, your ideas matter, your creativity counts and your work directly impacts how hundreds of thousands of learners engage with education around the globe.\nCome build something remarkable with us.\n\nThe Opportunity\n\n\nAs a Content Creator, you\u2019ll play an important role in developing educational content that helps teachers and students get more out of learning.\nYou\u2019ll use your subject expertise to create clear, engaging and curriculum-aligned resources for VCE students. This may include video scripts, lesson content and assessments that turn complex curriculum requirements into student-friendly learning experiences.\nWe\u2019re looking for someone with strong knowledge of one or more VCE subject areas, particularly Health and Human Development, Physical Education, Business Management or Maths.\nPrevious experience with the VCE curriculum is required. Experience creating educational content, teaching resources or assessments is highly regarded.\n",
+      "location": "",
+      "first_published": "2026-07-06T05:25:13.867000+00:00",
+      "url": "https://jobs.lever.co/atomi/168d8438-e5f0-4c09-bcbd-7beec7d8679f"
+    },
+    {
+      "title": "VCE Content Creator - Physical Education - Casual 15-20 Hours Per Week",
+      "description": "Join Atomi: Reinvent how the world learns.\n\u00a0\nAt Atomi, our mission is to help unlock the world's potential by optimising the way we teach and learn.\u00a0Our platform combines cutting-edge technology with a creative, human-first approach, turning complex ideas into simple, engaging experiences for students, educators, and parents everywhere.\nWe\u2019re driven by curiosity, humility and a relentless focus on quality and innovation. At Atomi, your ideas matter, your creativity counts and your work directly impacts how hundreds of thousands of learners engage with education around the globe.\nCome build something remarkable with us.\n\nThe Opportunity\n\n\nAs a Content Creator, you\u2019ll play an important role in developing educational content that helps teachers and students get more out of learning.\nYou\u2019ll use your subject expertise to create clear, engaging and curriculum-aligned resources for VCE students. This may include video scripts, lesson content and assessments that turn complex curriculum requirements into student-friendly learning experiences.\nWe\u2019re looking for someone with strong knowledge of VCE Physical Education.\nPrevious experience with the VCE curriculum is required. Experience creating educational content, teaching resources or assessments is highly regarded.\n",
+      "location": "",
+      "first_published": "2026-07-06T07:09:59.724000+00:00",
+      "url": "https://jobs.lever.co/atomi/0a2cc1e2-4263-45df-bc0d-5c1d995008ee"
+    }
+  ],
+  "primary_function": "non_tech_satellite",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Atomi is an education-focused company with a small job board and no explicit tech roles.",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

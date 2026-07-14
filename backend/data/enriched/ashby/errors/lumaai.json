@@ -1,0 +1,8 @@
+{
+  "schema_version": 2,
+  "status": "failed",
+  "slug": "lumaai",
+  "board": "ashby",
+  "decision_at": "2026-07-11T01:12:12.729950+00:00",
+  "reason": "fetch returned empty or errored (transient)"
+}

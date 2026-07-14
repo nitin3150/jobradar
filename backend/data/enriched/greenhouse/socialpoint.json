@@ -1,8 +1,0 @@
-{
-  "schema_version": 1,
-  "status": "failed",
-  "slug": "socialpoint",
-  "board": "greenhouse",
-  "decision_at": "2026-07-11T01:13:06.936315+00:00",
-  "reason": "fetch returned empty or errored (transient)"
-}

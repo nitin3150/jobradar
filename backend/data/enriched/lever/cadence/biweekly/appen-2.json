@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "slug": "appen-2",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:09:42.033372+00:00",
+  "source_jobs_count": 4,
+  "source_last_published": "2026-07-10T08:39:23.897000+00:00",
+  "source_jobs": [
+    {
+      "title": "Field Partnerships Sales Lead - Robotics & AI Data Collection",
+      "description": "About the Role\u00a0\nAppen is looking for motivated, people-oriented Field Operations Specialists to support a time-sensitive AI data collection program. This data collection is geared towards capturing real-world physical tasks that can be used in robotics training. You will operate as an on-the-ground representative for Appen, signing up commercial businesses to paid AI data programs, and guiding them through onboarding and setup. This is a hands-on, field-based role that combines sales skills, relationship management, training, and reporting.\u00a0\nWhat\u00a0You\u2019ll\u00a0Do\u00a0\nBusiness Outreach & Onboarding\u00a0\nCanvas assigned commercial areas, visiting businesses across hospitality, retail, manufacturing, cleaning, construction, and other workplace settings.\u00a0\n\n\n",
+      "location": "",
+      "first_published": "2026-06-23T02:49:35.910000+00:00",
+      "url": "https://jobs.lever.co/appen-2/24acd573-cb4c-4319-a6f5-34b3e7bebbb4"
+    },
+    {
+      "title": "Office & Administration Coordinator -1 Year Fixed Term Contract",
+      "description": "Role Purpose\nThis role keeps our secure facility running smoothly, safely, and compliantly. The purpose of this role is to own day-to-day office operations, health and safety compliance, and client order administration in a structured, low-distraction environment. You will work independently, using your own initiative, with minimal oversight.\nYour Impact\nMaintain a safe, compliant, and well-organised workplace through active management of H&S obligations, risk assessments, and fire safety procedures.\nCoordinate office supplies, maintenance, and contractor relationships to keep operations running without interruption.\nProcess client orders accurately and on time, including audio quality checks and secure return of completed work.\nIdentify issues early and resolve them proactively, escalating only where necessary.\nUphold strict confidentiality and data protection standards across all activities.\nWhat You Bring\nMinimum 2 years in office operations, facilities coordination, or a similar operational support role.\nSolid working knowledge of health and safety requirements, including risk assessments, fire safety, and compliance schedules.\nConfident IT skills and a track record of picking up new systems and processes quickly.\nHigh attention to detail, particularly in data entry, compliance records, and sensitive information handling.\nStrong communication skills for dealing with colleagues, suppliers, and contractors professionally.\nA resourceful, problem-solving mindset with the ability to work independently and get things done.\nSecurity clearance eligibility (DBS and SC), funded by the company.\n",
+      "location": "",
+      "first_published": "2026-05-20T07:50:34.910000+00:00",
+      "url": "https://jobs.lever.co/appen-2/ac480d85-549c-4e62-bfce-657c77baa86e"
+    },
+    {
+      "title": "Project Specialist",
+      "description": "Role Purpose\nAppen's GenAI Project Delivery team sits at the intersection of AI development and real-world data quality, executing the annotation, evaluation, and data collection work that shapes how frontier models perform. The purpose of this role is to drive end-to-end delivery excellence across GenAI projects by ensuring task configuration, contributor performance, and data quality outcomes stay tightly aligned to client expectations. This is a hands-on, cross-functional role with\u00a0influence over delivery standards, client outcomes, and the continuous improvement of how Appen executes at scale.\u00a0\n",
+      "location": "",
+      "first_published": "2026-07-02T03:24:35.573000+00:00",
+      "url": "https://jobs.lever.co/appen-2/bae35a72-2414-4dfd-b4c3-6f31ecb91fb4"
+    },
+    {
+      "title": "Workforce Manager- On-Site (Night Shift)",
+      "description": "\u00a0\nAbout the Role\n\u00a0\nAs Workforce Manager for Project Nectar, you will be the data-driven force behind how our night shift runs at our Cavite facility. Working alongside our Supervisors and Annotators, you will use real-time performance data and forecasted demand to guide staffing decisions during peak hours, protect service levels, and keep the team positioned for success.\n\u00a0\nThis is not a traditional people-management role. Our Supervisors already handle day-to-day floor support, so instead of managing individuals directly, you will provide the analytical insight and direction that keeps a 200+ person team performing at its best, and you will be a key point of contact for workforce performance with both internal leadership and the client.\n\u00a0\nWhat You'll Do\n\u00a0\n\u2014Translate demand forecasts into staffing plans, shift rosters, and schedules for a 200+ person team.\n\u2014Monitor real-time queues and service levels, making live decisions on breaks, reallocation, and skill-based routing to protect SLAs.\n\u2014Guide and direct Team Leaders and Supervisors on forecasting and schedules.\n\u2014Track and report on core workforce KPIs, including Service Level, Occupancy, Utilization, Shrinkage, Adherence, AHT, Attrition, and Absenteeism.\n\u2014Build dashboards and reports that give leadership clear visibility into shift and project performance.\n\u2014Identify the trends and root causes behind KPI shifts, and drive corrective action plans.\n\u2014Act as the primary point of contact for workforce matters on your shift, liaising with client stakeholders and internal teams such as HR, IT, and Facilities.\n\u00a0\nWhat You'll Bring\n\u00a0\n\u20142 to 4+ years of experience in Workforce Management, Operations, or Shift Management within a BPO/contact center or large-scale operations environment.\n\u2014Proven experience managing forecasting, scheduling, and real-time management for a workforce of 150+ employees, including peak-hour surges.\n\u2014Strong Excel and data analysis skills; experience with BI tools such as Power BI or Tableau is a plus.\n\u2014Experience influencing or guiding Team Leaders and Supervisors without needing formal management authority.\n\u2014Willingness to work on-site in Cavite on a night shift, with flexibility for rotating hours as demand shifts.\n\u00a0\nNice to Have\n\u00a0\n\u2014Experience on outsourced or managed services projects.\n\u2014Experience in a start-up or ramp-up project environment, including new project mobilisation.\n\u2014Experience working directly with international or offshore clients.\n\u00a0\n",
+      "location": "",
+      "first_published": "2026-07-10T08:39:23.897000+00:00",
+      "url": "https://jobs.lever.co/appen-2/48130fa8-849f-4e05-a450-cd0eeb043fc1"
+    }
+  ],
+  "primary_function": "ops_heavy",
+  "estimated_stage": "series_c_plus",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "biweekly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": false,
+  "tech_role_ratio": 0.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.2,
+  "volatility_signal": 0.0,
+  "notes": "Appen's job postings suggest a focus on operations and project management, with no explicit tech roles.",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

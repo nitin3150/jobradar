@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "slug": "artbio",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:12:40.109387+00:00",
+  "source_jobs_count": 5,
+  "source_last_published": "2026-07-05T13:12:01.532000+00:00",
+  "source_jobs": [
+    {
+      "title": "Associate Director, CMC Development",
+      "description": "Summary\nThe Associate Director, CMC Development provides scientific and cross-functional leadership for radiopharmaceutical development programs spanning discovery through First-in-Human readiness. The role integrates radiochemistry, analytical sciences and early CMC activities to advance multiple imaging and therapeutic radiopharmaceutical assets.\nWorking closely with Discovery, CMC, Technical Operations, Quality, Regulatory Affairs, Clinical Development, and external CDMOs, the Principal Scientist drives technical strategy, manufacturing readiness, and cross-functional execution across the development portfolio.\n",
+      "location": "",
+      "first_published": "2026-07-03T23:38:41.919000+00:00",
+      "url": "https://jobs.lever.co/artbio/371f9eb4-9005-47fd-b548-0baf01737ca8"
+    },
+    {
+      "title": "Associate Director, Radiopharmaceutical Development",
+      "description": "Summary\nAs part of ARTBIO\u2019s CMC team, the Associate Director will drive the radiopharmaceutical development of Radioligand Therapy (RLT) products by designing radiolabeling synthesis, formulation, and process development. This role will collaborate with a multidisciplinary team of CDMOs (Contract Drug Manufacturing Organizations) to troubleshoot the manufacturing process of our lead products, ensuring timely data packages for regulatory submissions in compliance with regulatory standards and aligned with corporate objectives. The candidate will also be responsible for setting up the technical transfers necessary to support clinical trials.\n\u00a0\nThe ideal candidate is an expert thinker with attention to detail in manufacturing data analysis, high technical proficiency in radiopharmaceutical development, and demonstrated experience with radio metal chemistry, formulation development, and analytical expertise.\n",
+      "location": "",
+      "first_published": "2026-05-28T18:26:32.585000+00:00",
+      "url": "https://jobs.lever.co/artbio/bfd6df9c-016b-452a-ad44-fb4fdf6a25bb"
+    },
+    {
+      "title": "Office Coordinator (Temp Position, 12 months, 50-60%)",
+      "description": "Summary\nAt ARTBIO, we are looking for a structured and service-minded Office Coordinator to support our Oslo office. This is a part-time role (approx. 50\u201360%) based on-site in Oslo. You will play a key role in creating a smooth and positive office environment and supporting both employees and visitors in their day-to-day experience.\nWe are looking for someone with a warm and caring approach, who takes pride in creating a welcoming atmosphere. You are independent, proactive, and enjoy taking ownership of your responsibilities, while also being a thoughtful and collaborative presence in the office. Naturally curious and eager to learn, you take initiative, identify opportunities where support is needed, and enjoy contributing across different parts of the organization. You bring positive energy, fresh perspectives, and a genuine interest in the people, science, and work that drive ARTBIO forward.\n",
+      "location": "",
+      "first_published": "2026-07-05T13:12:01.532000+00:00",
+      "url": "https://jobs.lever.co/artbio/95f5bcb4-cb60-47af-acf6-be1c582c86a0"
+    },
+    {
+      "title": "Senior Clinical Trial Manager",
+      "description": "Summary\n The Senior Clinical Trial Manager will lead the day-to-day activities in a clinical trial, and support the program strategy in a highly collaborative environment. The successful candidate will manage members of the clinical operations team, including those at CROs and study vendors, work collaboratively with clinical trial sites, and partner with key internal stakeholders to ensure clinical trial deliverables are completed on time, within budget, and in line with regulatory requirements. The successful candidate must be comfortable working independently and cross-functionally to ensure study compliance and data quality.\n",
+      "location": "",
+      "first_published": "2026-04-24T15:36:14.354000+00:00",
+      "url": "https://jobs.lever.co/artbio/ea6e5935-8f90-40ac-a3e3-3261c35efcc3"
+    },
+    {
+      "title": "Senior Director, Clinical Operations",
+      "description": "Summary\n\u00a0\nThe Senior Director of Clinical Operations oversees all aspects of clinical trial execution, including start-up, monitoring, and close-out activities for all ARTBIO programs. This key role leads the clinical operations team and ensures that the company achieves study goals and objectives while maintaining high-quality clinical data and study integrity. The Senior Director of Clinical Operations collaborates closely with cross-functional teams, including clinical development, project management, regulatory, quality, finance, and translational and discovery research, to drive the successful execution of clinical study plans.\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-15T15:45:46.718000+00:00",
+      "url": "https://jobs.lever.co/artbio/1c128645-a7c7-40f8-8e83-711d865858a0"
+    }
+  ],
+  "primary_function": "ops_heavy",
+  "estimated_stage": "series_b",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "monthly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "No tech roles posted, mostly clinical and operations roles",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

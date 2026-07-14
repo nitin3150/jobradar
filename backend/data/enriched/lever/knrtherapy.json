@@ -1,8 +1,0 @@
-{
-  "schema_version": 1,
-  "status": "failed",
-  "slug": "knrtherapy",
-  "board": "lever",
-  "decision_at": "2026-07-11T01:13:46.385638+00:00",
-  "reason": "fetch returned empty or errored (transient)"
-}

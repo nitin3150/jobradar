@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "apexpi",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:12:56.464170+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-06-09T02:59:25.398000+00:00",
+  "source_jobs": [
+    {
+      "title": "Surveillance Investigator",
+      "description": "Actively interviewing now \u2014 immediate openings available. Apply today and hear back within 48 hours.\n\u00a0\nSigning bonus \u2014 paid after successful completion of the 90-day introductory period. Full details shared during the offer stage.\n\u00a0\n\n\nAbout Us\n\u00a0\nAPEX Investigation\u00ae is a trusted leader in Insurance, Workers' Compensation, Liability, and Human Resource Investigations. For over 40 years, APEX has stood firm in its dedication to reducing insurance risks and combating fraudulent claims. Our commitment to delivering fast, high-quality, and reliable investigations has made us the partner of choice for our clients. APEX Investigation\u2019s mission is to build lasting relationships through trust, integrity and quality investigations. The APEX team lives out that mission by providing constant communication, results you can use, delivered fast at a fair price.\n\u00a0\nThe Role\n\u00a0\nWe are seeking a\u00a0Surveillance Investigator\u00a0to join our dynamic team. In this role, you\u2019ll conduct stationary and mobile surveillance, gather critical intelligence, and produce detailed reports that help clients make informed decisions. Every day offers new challenges and opportunities to showcase your investigative expertise and problem-solving skills.\n",
+      "location": "",
+      "first_published": "2026-06-09T02:58:09.580000+00:00",
+      "url": "https://jobs.lever.co/apexpi/50bcf8ed-a3ab-4125-bf2b-baf07fa73ba5"
+    },
+    {
+      "title": "Surveillance Investigator",
+      "description": "Actively interviewing now \u2014 immediate openings available. Apply today and hear back within 48 hours.\n\u00a0\nSigning bonus \u2014 paid after successful completion of the 90-day introductory period. Full details shared during the offer stage.\n\u00a0\n\n\nAbout Us\n\u00a0\nAPEX Investigation\u00ae is a trusted leader in Insurance, Workers' Compensation, Liability, and Human Resource Investigations. For over 40 years, APEX has stood firm in its dedication to reducing insurance risks and combating fraudulent claims. Our commitment to delivering fast, high-quality, and reliable investigations has made us the partner of choice for our clients. APEX Investigation\u2019s mission is to build lasting relationships through trust, integrity and quality investigations. The APEX team lives out that mission by providing constant communication, results you can use, delivered fast at a fair price.\n\u00a0\nThe Role\n\u00a0\nWe are seeking a\u00a0Surveillance Investigator\u00a0to join our dynamic team. In this role, you\u2019ll conduct stationary and mobile surveillance, gather critical intelligence, and produce detailed reports that help clients make informed decisions. Every day offers new challenges and opportunities to showcase your investigative expertise and problem-solving skills.\n",
+      "location": "",
+      "first_published": "2026-06-09T02:58:47.434000+00:00",
+      "url": "https://jobs.lever.co/apexpi/61a28515-e3c3-4c92-b6c4-429c95de741b"
+    },
+    {
+      "title": "Surveillance Investigator",
+      "description": "Actively interviewing now \u2014 immediate openings available. Apply today and hear back within 48 hours.\n\u00a0\nSigning bonus \u2014 paid after successful completion of the 90-day introductory period. Full details shared during the offer stage.\n\u00a0\n\n\nAbout Us\n\u00a0\nAPEX Investigation\u00ae is a trusted leader in Insurance, Workers' Compensation, Liability, and Human Resource Investigations. For over 40 years, APEX has stood firm in its dedication to reducing insurance risks and combating fraudulent claims. Our commitment to delivering fast, high-quality, and reliable investigations has made us the partner of choice for our clients. APEX Investigation\u2019s mission is to build lasting relationships through trust, integrity and quality investigations. The APEX team lives out that mission by providing constant communication, results you can use, delivered fast at a fair price.\n\u00a0\nThe Role\n\u00a0\nWe are seeking a\u00a0Surveillance Investigator\u00a0to join our dynamic team. In this role, you\u2019ll conduct stationary and mobile surveillance, gather critical intelligence, and produce detailed reports that help clients make informed decisions. Every day offers new challenges and opportunities to showcase your investigative expertise and problem-solving skills.\n",
+      "location": "",
+      "first_published": "2026-06-09T02:59:25.398000+00:00",
+      "url": "https://jobs.lever.co/apexpi/f26c3bd3-8f36-4195-ab32-6caa0ef0890c"
+    }
+  ],
+  "primary_function": "ops_heavy",
+  "estimated_stage": "unknown",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": false,
+  "tech_role_ratio": 0.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.0,
+  "volatility_signal": 0.67,
+  "notes": "Multiple identical postings for Surveillance Investigator role",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

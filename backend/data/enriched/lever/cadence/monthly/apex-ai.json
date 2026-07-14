@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "slug": "apex-ai",
+  "board": "lever",
+  "enriched_at": "2026-07-14T05:08:55.645877+00:00",
+  "source_jobs_count": 6,
+  "source_last_published": "2026-06-27T02:13:11.443000+00:00",
+  "source_jobs": [
+    {
+      "title": "Application Engineer (Early Career)",
+      "description": "Launch Your Career Building the Software Foundation for Next-Generation Mobility\nAt Apex.AI, we develop safety-certified software for mobility systems and intelligent machines. Our products power applications in automotive, trucking, robotics, aerospace, agriculture, and industrial automation.\nWe are looking for an early-career Application Engineer who is passionate about modern C++ software development, distributed systems, and solving real-world technical challenges. This role is ideal for recent university graduates or engineers with 1\u20132 years of experience who want to work on cutting-edge mobility technologies while learning from experienced engineers and collaborating with global customers.\nIn this role, you will help deploy and support advanced software solutions based on Apex.OS while working closely with senior engineers, customers, and product teams. You will gain hands-on experience with embedded systems, middleware, networking, robotics software, and real-world production deployments.\nIf you are excited about modern software engineering, enjoy learning complex systems, and want to contribute to the future of software-defined mobility, we\u2019d love to hear from you.\nThis role is located in our Munich office. Authorization to work in Germany is required.\n",
+      "location": "",
+      "first_published": "2026-05-22T15:55:05.568000+00:00",
+      "url": "https://jobs.lever.co/apex-ai/f2fa3bf3-ddf5-4a9a-9c92-4647a31ef486"
+    },
+    {
+      "title": "Senior Application Engineer",
+      "description": "Apex.AI is seeking an experienced Senior Application Engineer with 5+ years of relevant experience working directly with product teams and global customers to deploy safety-certified software for SDVs (software-defined vehicles), ADAS / autonomous systems, and smart machine applications. As a Senior Application Engineer at Apex.AI you will collaborate across South Korea, Japan, Europe, and the US and help customers bring production programs to market using Apex.OS (Apex.Grace and Apex.Ida).\nJoining Apex.AI means working from South Korea with a global team of experienced and talented engineers on real production programs with companies such as\u00a0HL Klemove, MOIA, and Brunswick building the safety-certified software foundation behind next-generation ADAS, autonomous mobility, and software-defined vehicles.\nYou will develop, deploy, and support Apex.OS while partnering closely with customer engineering teams and our internal development team to create a high-quality product. This role includes direct customer interaction. You will participate and drive technical workshops, integration support, issue debugging, and occasional on-site collaboration to help customers deploy Apex.OS-based solutions. In addition, you will have opportunities to contribute features to our core products and gain deep technical knowledge of Apex.OS. If you love to code in C++ and enjoy working with others, this is the perfect role for you.\nThis role is a hybrid role, located in our South Korean office in Pangyo, with an expectation of regular days in the office. Authorization to work in South Korea is required.\n",
+      "location": "",
+      "first_published": "2026-05-01T06:10:24.026000+00:00",
+      "url": "https://jobs.lever.co/apex-ai/17e55b59-d8ca-4ead-9851-63dc32517b5d"
+    },
+    {
+      "title": "Senior Application Engineer",
+      "description": "Build the Software Foundation for Next-Generation Mobility\n\u00a0At Apex.AI, we develop safety-certified software for mobility systems and intelligent machines. Our products power applications in automotive, trucking, robotics, aerospace, agriculture, and industrial automation. We are looking for a Senior Applications Engineer who combines strong C++ engineering skills with a passion for solving complex customer challenges.\nIn this role, you will work directly with global customers and internal product teams to design, build, deploy, and support advanced software solutions based on Apex.OS. You will help customers bring real-world systems to production while contributing improvements and features back into our core platform.\nThis is a highly technical, hands-on role ideal for someone who enjoys deep systems engineering, customer collaboration, and writing production-quality C++ software.\nIf you thrive in fast-moving environments, enjoy solving difficult distributed and embedded systems problems, and want to help shape the future of software-defined mobility, we\u2019d love to talk with you.\nThis role is located in our Munich office. Authorization to work in the Germany is required.\n",
+      "location": "",
+      "first_published": "2026-05-22T15:51:38.271000+00:00",
+      "url": "https://jobs.lever.co/apex-ai/4e9f4207-1a8d-47ff-bfbf-0f22d13eeb90"
+    },
+    {
+      "title": "Senior DevOps Engineer",
+      "description": "\u00a0\n\u00a0\n",
+      "location": "",
+      "first_published": "2026-06-27T02:13:11.443000+00:00",
+      "url": "https://jobs.lever.co/apex-ai/d28d424d-2232-48bb-9a54-79ab35655ef6"
+    },
+    {
+      "title": "Senior Software Engineer \u2014 Software Platform & Middleware",
+      "description": "Build the Software Platform Powering Next-Generation Mobility\nApex.AI is developing the software foundation for autonomous systems, intelligent machines, and software-defined vehicles. We are looking for an experienced Software Engineer to help advance our core software platform technologies, including Apex.Grace and Apex.Ida.\nIn this role, you will work on high-performance middleware, runtime systems, developer tooling, and software platform infrastructure used in safety-critical and real-time environments. You will collaborate closely with world-class engineers to design and implement robust software components that enable scalable, reliable, and production-ready mobility systems.\nThis is an opportunity to work deeply in modern C++, distributed systems, middleware, operating systems, and developer platforms while contributing directly to products deployed in real-world applications across automotive, robotics, aerospace, and industrial automation.\nWe are looking for engineers who enjoy solving complex systems problems, writing clean and maintainable code, and building technology that other developers rely on every day.\nThis role is based in our Munich office.\n",
+      "location": "",
+      "first_published": "2026-05-22T15:58:02.506000+00:00",
+      "url": "https://jobs.lever.co/apex-ai/36572f5d-6b01-46ca-8445-5cd5446a7343"
+    },
+    {
+      "title": "Software Engineer \u2014 Software Platform & Middleware (Early Career)",
+      "description": "Build the Software Platform Powering Next-Generation Mobility\nApex.AI is developing the software foundation for autonomous systems, intelligent machines, and software-defined vehicles. We are looking for an early-career Software Engineer to help advance our core software platform technologies, including Apex.Grace and Apex.Ida.\nThis role is ideal for recent university graduates or engineers with 1\u20132 years of experience who are passionate about modern C++, distributed systems, middleware, developer platforms, and systems software engineering.\nYou will work alongside experienced engineers on high-performance middleware, runtime systems, developer tooling, and software infrastructure used in safety-critical and real-time environments. This is an opportunity to gain hands-on experience building production-quality software for automotive, robotics, aerospace, and industrial automation applications.\nWe are looking for engineers who enjoy solving complex technical problems, learning deeply about software systems, and building tools and platforms that other developers rely on every day.\nThis role is based in our Munich office.\n",
+      "location": "",
+      "first_published": "2026-05-22T16:00:35.694000+00:00",
+      "url": "https://jobs.lever.co/apex-ai/d5e80231-2ba0-4c7b-b9a7-3a71c874e401"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_b",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "monthly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 1.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "All postings are engineering roles, with a focus on C++ and software development for mobility systems and intelligent machines.",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -1,0 +1,237 @@
+{
+  "schema_version": 2,
+  "slug": "linkedin",
+  "board": "greenhouse",
+  "enriched_at": "2026-07-14T17:10:26.623236+00:00",
+  "source_jobs_count": 53,
+  "source_last_published": "2025-09-16T01:14:24+00:00",
+  "source_jobs": [
+    {
+      "title": "123123",
+      "description": "&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut accumsan, metus vel hendrerit eleifend, lacus nulla cursus orci, lobortis sagittis dui erat bibendum nulla. Nulla at tempus quam. Mauris mollis cursus orci, porta ultricies augue fermentum molestie. Phasellus risus dui, placerat vitae velit quis, semper malesuada urna. Sed sit amet pulvinar orci. Proin sed purus ac augue consectetur suscipit. Cras vel fermentum augue, id tempor felis. Etiam quis sagittis enim.&lt;/p&gt;\n&lt;p&gt;Duis id efficitur magna. Maecenas id metus nec dui euismod suscipit. Nullam ex quam, tincidunt et mattis vel, tempus posuere eros. Phasellus elementum, velit non aliquam fringilla, enim nisl venenatis elit, ut viverra mi diam vitae eros. Phasellus vel elit bibendum, aliquam odio vel, laoreet ex. Pellentesque at condimentum odio. Duis in nisl at eros interdum laoreet. Integer feugiat quam leo, a cursus mi vestibulum sagittis. Sed vulputate vel orci et pulvinar.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2025-09-16T01:14:24+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/4864936"
+    },
+    {
+      "title": "Bug Bash Job [No Sensitive Questions] - 03/24 ",
+      "description": "&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/5786210"
+    },
+    {
+      "title": "Bug Bash Job [No Sensitive Questions] - 03/24 ",
+      "description": "&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/5783944"
+    },
+    {
+      "title": "Bug Bash Job [ With Sensitive Questions] - 03/24 ",
+      "description": "&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/5783952"
+    },
+    {
+      "title": "Copy 1 of  EA Test - Most Questions",
+      "description": "&lt;p&gt;Easy Apply Test job with all types of questions - No Location and no education&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/5303307"
+    },
+    {
+      "title": "Copy 1 of  EA Test - Most Questions",
+      "description": "&lt;p&gt;Easy Apply Test job with all types of questions - No Location and no education&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/5051596"
+    },
+    {
+      "title": "EA -> AC malformed questions",
+      "description": "&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut accumsan, metus vel hendrerit eleifend, lacus nulla cursus orci, lobortis sagittis dui erat bibendum nulla. Nulla at tempus quam. Mauris mollis cursus orci, porta ultricies augue fermentum molestie. Phasellus risus dui, placerat vitae velit quis, semper malesuada urna. Sed sit amet pulvinar orci. Proin sed purus ac augue consectetur suscipit. Cras vel fermentum augue, id tempor felis. Etiam quis sagittis enim.&lt;/p&gt;\n&lt;p&gt;Duis id efficitur magna. Maecenas id metus nec dui euismod suscipit. Nullam ex quam, tincidunt et mattis vel, tempus posuere eros. Phasellus elementum, velit non aliquam fringilla, enim nisl venenatis elit, ut viverra mi diam vitae eros. Phasellus vel elit bibendum, aliquam odio vel, laoreet ex. Pellentesque at condimentum odio. Duis in nisl at eros interdum laoreet. Integer feugiat quam leo, a cursus mi vestibulum sagittis. Sed vulputate vel orci et pulvinar.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/4899733"
+    },
+    {
+      "title": "EA job not matched with AC job",
+      "description": "&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut accumsan, metus vel hendrerit eleifend, lacus nulla cursus orci, lobortis sagittis dui erat bibendum nulla. Nulla at tempus quam. Mauris mollis cursus orci, porta ultricies augue fermentum molestie. Phasellus risus dui, placerat vitae velit quis, semper malesuada urna. Sed sit amet pulvinar orci. Proin sed purus ac augue consectetur suscipit. Cras vel fermentum augue, id tempor felis. Etiam quis sagittis enim.&lt;/p&gt;\n&lt;p&gt;Duis id efficitur magna. Maecenas id metus nec dui euismod suscipit. Nullam ex quam, tincidunt et mattis vel, tempus posuere eros. Phasellus elementum, velit non aliquam fringilla, enim nisl venenatis elit, ut viverra mi diam vitae eros. Phasellus vel elit bibendum, aliquam odio vel, laoreet ex. Pellentesque at condimentum odio. Duis in nisl at eros interdum laoreet. Integer feugiat quam leo, a cursus mi vestibulum sagittis. Sed vulputate vel orci et pulvinar.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/4896587"
+    },
+    {
+      "title": "EA job with all questions",
+      "description": "&lt;p&gt;EA Job with all questions including location questions.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/1034437"
+    },
+    {
+      "title": "EA Job With Location Question",
+      "description": "&lt;p&gt;EA Job With Location Question&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/1026069"
+    },
+    {
+      "title": "EA job With Matched AC job",
+      "description": "&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut accumsan, metus vel hendrerit eleifend, lacus nulla cursus orci, lobortis sagittis dui erat bibendum nulla. Nulla at tempus quam. Mauris mollis cursus orci, porta ultricies augue fermentum molestie. Phasellus risus dui, placerat vitae velit quis, semper malesuada urna. Sed sit amet pulvinar orci. Proin sed purus ac augue consectetur suscipit. Cras vel fermentum augue, id tempor felis. Etiam quis sagittis enim.&lt;/p&gt;\n&lt;p&gt;Duis id efficitur magna. Maecenas id metus nec dui euismod suscipit. Nullam ex quam, tincidunt et mattis vel, tempus posuere eros. Phasellus elementum, velit non aliquam fringilla, enim nisl venenatis elit, ut viverra mi diam vitae eros. Phasellus vel elit bibendum, aliquam odio vel, laoreet ex. Pellentesque at condimentum odio. Duis in nisl at eros interdum laoreet. Integer feugiat quam leo, a cursus mi vestibulum sagittis. Sed vulputate vel orci et pulvinar.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/4896584"
+    },
+    {
+      "title": "Easy Apply Test",
+      "description": "&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/748126"
+    },
+    {
+      "title": "Easy Apply Test - DMA 2",
+      "description": "&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/5583921"
+    },
+    {
+      "title": "Easy Apply Test - DMA (EU)",
+      "description": "&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/5601420"
+    },
+    {
+      "title": "Easy Apply Test - DMA (EU - 2/2024)",
+      "description": "&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;\n&lt;p&gt;This is a test job please do not apply&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/5685902"
+    },
+    {
+      "title": "Easy Apply Test - Dropdown Question (very nested copy)",
+      "description": "&lt;p&gt;This job is a test job, to test dropdown questions!&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/5051494"
+    },
+    {
+      "title": "EA Test JC - Most Questions",
+      "description": "&lt;p&gt;Easy Apply Test job with all types of questions - No Location and no education&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/5051579"
+    },
+    {
+      "title": "EA Test - Most Questions",
+      "description": "&lt;p&gt;Easy Apply Test job with all types of questions - No Location and no education&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/4983318"
+    },
+    {
+      "title": "EA Test - Most Questions",
+      "description": "&lt;p&gt;Easy Apply Test job with all types of questions - No Location and no education&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/890616"
+    },
+    {
+      "title": "EA Test - Most Questions",
+      "description": "&lt;p&gt;Easy Apply Test job with all types of questions - No Location and no education&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/5051545"
+    },
+    {
+      "title": "EA Test - Most Questions",
+      "description": "&lt;p&gt;Easy Apply Test job with all types of questions - No Location and no education&lt;/p&gt;\n&lt;p&gt;The description length should be at least 100 characters.The description length should be at least 100 characters.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/5051577"
+    },
+    {
+      "title": "EA Test - Most Questions",
+      "description": "&lt;p&gt;Easy Apply Test job with all types of questions - No Location and no education&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/5051488"
+    },
+    {
+      "title": "Implementation Consultant",
+      "description": "&lt;p&gt;This is a test job description. DO NOT APPLY.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/1714865"
+    },
+    {
+      "title": "Medical devices sales specialist",
+      "description": "&lt;p&gt;We are seeking a Public Relations Manager (PR Manager) to nurture a strong industry network, increase awareness and develop an enviable corporate image by developing and executing effective communication and media relations programs.&lt;/p&gt;\n&lt;h2&gt;Responsibilities&lt;/h2&gt;\n&lt;ul&gt;\n&lt;li&gt;Develop a marketing communications plan including strategy, goals, budget and tactics&lt;/li&gt;\n&lt;li&gt;Develop media relations strategy, seeking high-level placements in print, broadcast and online media&lt;/li&gt;\n&lt;li&gt;Coordinate all public relations activities&lt;/li&gt;\n&lt;li&gt;Direct social media team to engage audiences across traditional and new media&lt;/li&gt;\n&lt;li&gt;Leverage existing media relationships and cultivate new contacts within business and industry media&lt;/li&gt;\n&lt;li&gt;Manage media inquiries and interview requests&lt;/li&gt;\n&lt;li&gt;Create content for press releases, byline articles and keynote presentations&lt;/li&gt;\n&lt;li&gt;Monitor, analyze and communicate PR results on a quarterly basis&lt;/li&gt;\n&lt;li&gt;Evaluate opportunities for partnerships, sponsorships and advertising on an on-going basis.&lt;/li&gt;\n&lt;li&gt;Build relationships with thought leaders to grow industry awareness&lt;/li&gt;\n&lt;li&gt;Maintain a keen understanding of industry trends affecting clients and make appropriate recommendations regarding communication strategy surrounding them&lt;/li&gt;\n&lt;/ul&gt;\n&lt;h2&gt;Requirements&lt;/h2&gt;\n&lt;ul&gt;\n&lt;li&gt;Proven working experience in public relations required&lt;/li&gt;\n&lt;li&gt;Proven track record designing and executing successful public relations campaigns at both a local and national level&lt;/li&gt;\n&lt;li&gt;Strong relationships with both local and national business and industry media outlets&lt;/li&gt;\n&lt;li&gt;Experience in acting as a company spokesperson; comfortable and skilled in both broadcast and print media interviews&lt;/li&gt;\n&lt;li&gt;Exceptional writing and editing skills&lt;/li&gt;\n&lt;li&gt;Solid experience with social media including blogs, Facebook, Twitter, etc.&lt;/li&gt;\n&lt;li&gt;Event planning experience&lt;/li&gt;\n&lt;li&gt;BA/MA degree in Marketing, Advertising, Communications or a related discipline&lt;/li&gt;\n&lt;/ul&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/6107115"
+    },
+    {
+      "title": "Medical devices sales specialist",
+      "description": "&lt;p&gt;We are seeking a Public Relations Manager (PR Manager) to nurture a strong industry network, increase awareness and develop an enviable corporate image by developing and executing effective communication and media relations programs.&lt;/p&gt;\n&lt;h2&gt;Responsibilities&lt;/h2&gt;\n&lt;ul&gt;\n&lt;li&gt;Develop a marketing communications plan including strategy, goals, budget and tactics&lt;/li&gt;\n&lt;li&gt;Develop media relations strategy, seeking high-level placements in print, broadcast and online media&lt;/li&gt;\n&lt;li&gt;Coordinate all public relations activities&lt;/li&gt;\n&lt;li&gt;Direct social media team to engage audiences across traditional and new media&lt;/li&gt;\n&lt;li&gt;Leverage existing media relationships and cultivate new contacts within business and industry media&lt;/li&gt;\n&lt;li&gt;Manage media inquiries and interview requests&lt;/li&gt;\n&lt;li&gt;Create content for press releases, byline articles and keynote presentations&lt;/li&gt;\n&lt;li&gt;Monitor, analyze and communicate PR results on a quarterly basis&lt;/li&gt;\n&lt;li&gt;Evaluate opportunities for partnerships, sponsorships and advertising on an on-going basis.&lt;/li&gt;\n&lt;li&gt;Build relationships with thought leaders to grow industry awareness&lt;/li&gt;\n&lt;li&gt;Maintain a keen understanding of industry trends affecting clients and make appropriate recommendations regarding communication strategy surrounding them&lt;/li&gt;\n&lt;/ul&gt;\n&lt;h2&gt;Requirements&lt;/h2&gt;\n&lt;ul&gt;\n&lt;li&gt;Proven working experience in public relations required&lt;/li&gt;\n&lt;li&gt;Proven track record designing and executing successful public relations campaigns at both a local and national level&lt;/li&gt;\n&lt;li&gt;Strong relationships with both local and national business and industry media outlets&lt;/li&gt;\n&lt;li&gt;Experience in acting as a company spokesperson; comfortable and skilled in both broadcast and print media interviews&lt;/li&gt;\n&lt;li&gt;Exceptional writing and editing skills&lt;/li&gt;\n&lt;li&gt;Solid experience with social media including blogs, Facebook, Twitter, etc.&lt;/li&gt;\n&lt;li&gt;Event planning experience&lt;/li&gt;\n&lt;li&gt;BA/MA degree in Marketing, Advertising, Communications or a related discipline&lt;/li&gt;\n&lt;/ul&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/3683212"
+    },
+    {
+      "title": "Multiple Location Engineering",
+      "description": "&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut accumsan, metus vel hendrerit eleifend, lacus nulla cursus orci, lobortis sagittis dui erat bibendum nulla. Nulla at tempus quam. Mauris mollis cursus orci, porta ultricies augue fermentum molestie. Phasellus risus dui, placerat vitae velit quis, semper malesuada urna. Sed sit amet pulvinar orci. Proin sed purus ac augue consectetur suscipit. Cras vel fermentum augue, id tempor felis. Etiam quis sagittis enim.&lt;/p&gt;\n&lt;p&gt;Duis id efficitur magna. Maecenas id metus nec dui euismod suscipit. Nullam ex quam, tincidunt et mattis vel, tempus posuere eros. Phasellus elementum, velit non aliquam fringilla, enim nisl venenatis elit, ut viverra mi diam vitae eros. Phasellus vel elit bibendum, aliquam odio vel, laoreet ex. Pellentesque at condimentum odio. Duis in nisl at eros interdum laoreet. Integer feugiat quam leo, a cursus mi vestibulum sagittis. Sed vulputate vel orci et pulvinar.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/5780314"
+    },
+    {
+      "title": "Nithya's RSC Demo Job 1214",
+      "description": "&lt;header&gt;nclusive job descriptions motivate candidates from all backgrounds to apply, broadening your talent pool and making it more diverse. Consider:&lt;/header&gt;\n&lt;p class=&quot;sc-fffiAB kELCvG&quot;&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-12-16T08:45:10+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/6476227"
+    },
+    {
+      "title": "Seeker EA Test Job",
+      "description": "&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut accumsan, metus vel hendrerit eleifend, lacus nulla cursus orci, lobortis sagittis dui erat bibendum nulla. Nulla at tempus quam. Mauris mollis cursus orci, porta ultricies augue fermentum molestie. Phasellus risus dui, placerat vitae velit quis, semper malesuada urna. Sed sit amet pulvinar orci. Proin sed purus ac augue consectetur suscipit. Cras vel fermentum augue, id tempor felis. Etiam quis sagittis enim.&lt;/p&gt;\n&lt;p&gt;Duis id efficitur magna. Maecenas id metus nec dui euismod suscipit. Nullam ex quam, tincidunt et mattis vel, tempus posuere eros. Phasellus elementum, velit non aliquam fringilla, enim nisl venenatis elit, ut viverra mi diam vitae eros. Phasellus vel elit bibendum, aliquam odio vel, laoreet ex. Pellentesque at condimentum odio. Duis in nisl at eros interdum laoreet. Integer feugiat quam leo, a cursus mi vestibulum sagittis. Sed vulputate vel orci et pulvinar.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/4869052"
+    },
+    {
+      "title": "Seeker Shine EA Test Job",
+      "description": "&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut accumsan, metus vel hendrerit eleifend, lacus nulla cursus orci, lobortis sagittis dui erat bibendum nulla. Nulla at tempus quam. Mauris mollis cursus orci, porta ultricies augue fermentum molestie. Phasellus risus dui, placerat vitae velit quis, semper malesuada urna. Sed sit amet pulvinar orci. Proin sed purus ac augue consectetur suscipit. Cras vel fermentum augue, id tempor felis. Etiam quis sagittis enim.&lt;/p&gt;\n&lt;p&gt;Duis id efficitur magna. Maecenas id metus nec dui euismod suscipit. Nullam ex quam, tincidunt et mattis vel, tempus posuere eros. Phasellus elementum, velit non aliquam fringilla, enim nisl venenatis elit, ut viverra mi diam vitae eros. Phasellus vel elit bibendum, aliquam odio vel, laoreet ex. Pellentesque at condimentum odio. Duis in nisl at eros interdum laoreet. Integer feugiat quam leo, a cursus mi vestibulum sagittis. Sed vulputate vel orci et pulvinar.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/4865183"
+    },
+    {
+      "title": "Seeker Shine EA Test Job",
+      "description": "&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut accumsan, metus vel hendrerit eleifend, lacus nulla cursus orci, lobortis sagittis dui erat bibendum nulla. Nulla at tempus quam. Mauris mollis cursus orci, porta ultricies augue fermentum molestie. Phasellus risus dui, placerat vitae velit quis, semper malesuada urna. Sed sit amet pulvinar orci. Proin sed purus ac augue consectetur suscipit. Cras vel fermentum augue, id tempor felis. Etiam quis sagittis enim.&lt;/p&gt;\n&lt;p&gt;Duis id efficitur magna. Maecenas id metus nec dui euismod suscipit. Nullam ex quam, tincidunt et mattis vel, tempus posuere eros. Phasellus elementum, velit non aliquam fringilla, enim nisl venenatis elit, ut viverra mi diam vitae eros. Phasellus vel elit bibendum, aliquam odio vel, laoreet ex. Pellentesque at condimentum odio. Duis in nisl at eros interdum laoreet. Integer feugiat quam leo, a cursus mi vestibulum sagittis. Sed vulputate vel orci et pulvinar.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2024-08-13T10:19:04+00:00",
+      "url": "https://job-boards.greenhouse.io/linkedin/jobs/4865184"
+    }
+  ],
+  "primary_function": "mixed",
+  "estimated_stage": "unknown",
+  "hiring_volume_estimate": "unknown",
+  "posting_cadence": "unknown",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": null,
+  "tech_role_ratio": 0.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.5,
+  "volatility_signal": 0.0,
+  "notes": "No clear primary function, no tech roles, and no sponsorship or clearance information available.",
+  "overall_confidence": 0.3,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -1,8 +1,62 @@
 {
-  "schema_version": 1,
-  "status": "failed",
+  "schema_version": 2,
   "slug": "voter",
   "board": "greenhouse",
-  "decision_at": "2026-07-12T16:59:41.141124+00:00",
-  "reason": "fetch returned empty or errored (transient)"
+  "enriched_at": "2026-07-14T04:37:33.101953+00:00",
+  "source_jobs_count": 5,
+  "source_last_published": "2026-06-23T13:26:10+00:00",
+  "source_jobs": [
+    {
+      "title": "APAMSA x Vot-ER Partnerships Intern",
+      "description": "&lt;h4&gt;&lt;strong&gt;Vot-ER and Asian Pacific American Medical Student Association:&amp;nbsp;Partnerships &amp;amp; Civic Health Intern&lt;/strong&gt;&lt;/h4&gt;\n&lt;p&gt;Organization: Asian Pacific American Medical Student Association (APAMSA)&lt;br&gt;Reporting to: Deputy Director of Partnerships&lt;br&gt;Location: Remote&lt;br&gt;Duration: 2026 SUMMER &amp;amp; FALL&lt;br&gt;Compensation: Academic Credit (Required)&lt;br&gt;Expected hours/week = 15 to 20 hours per week&lt;/p&gt;\n&lt;p&gt;&lt;br&gt;&lt;strong&gt;Role Overview&lt;/strong&gt;&lt;br&gt;The Partnerships &amp;amp; Civic Health Intern will serve as a critical link between the Asian Pacific&amp;nbsp;American Medical Student Association and Vot-ER, supporting Vot-ER as we continue to grow&amp;nbsp;and deepen relationships with health institutions across the country.&amp;nbsp;This role is designed for a proactive, detail-oriented student leader who is passionate about&amp;nbsp;the intersection of health and democracy.&amp;nbsp;You will be responsible for deepening current organizational ties, onboarding new partners,&amp;nbsp;and spearheading a specialized initiative focused on the Emergency Patient Voting (EPV)&amp;nbsp;Program.&lt;/p&gt;\n&lt;p&gt;&lt;br&gt;&lt;strong&gt;Key Responsibilities&lt;/strong&gt;&lt;br&gt;&lt;strong&gt;Partnership Growth &amp;amp; Deep Engagement&lt;/strong&gt;&lt;br&gt;\u25cf Relationship Management: Support the Deputy Director of Partnerships in&amp;nbsp;maintaining high-touch communication with existing partners to increase&amp;nbsp;engagement.&lt;br&gt;\u25cf Expansion: Actively identify and &quot;bring into the fold&quot; new health-related organizations&amp;nbsp;to expand our national footprint beyond current partners.&lt;br&gt;\u25cf Civic Holiday Orchestration: Prepare and execute mobilization strategies and&amp;nbsp;communications assets for Civic Holidays (e.g., National Voter Registration Day,&amp;nbsp;National Voter Education Week, Vote Early Day).&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Emergency Patient Voting (EPV) Program&lt;/strong&gt;&lt;br&gt;\u25cf Student Mobilization: Organize and train health professional students to facilitate&amp;nbsp;voting access for patients who face unexpected hospitalization during election cycles.&lt;br&gt;\u25cf Resource Development: Create patient-facing educational materials and bedside&amp;nbsp;toolkits to streamline the emergency ballot request process.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Eligibility &amp;amp; Requirements&lt;/strong&gt;&lt;br&gt;\u25cf APAMSA Membership: Must be an active member of the Asian Pacific American&amp;nbsp;Medical Student Association.&lt;br&gt;\u25cf Academic Credit Requirement. Candidates must provide documentation from their&lt;br&gt;institution confirming they will receive course credit for this internship.&lt;br&gt;\u25cf Communication: Exceptional written and verbal communication skills; ability to&amp;nbsp;communicate complex advocacy goals to diverse health professionals.&lt;br&gt;\u25cf Remote Proficiency: Demonstrated ability to work independently in a remote&amp;nbsp;environment, meeting deadlines and managing multiple workstreams via digital tools&amp;nbsp;(Slack, Zoom, CRM).&lt;br&gt;\u25cf Demonstrated commitment to racial equity and inclusion.&lt;br&gt;\u25cf Demonstrated ability to work collaboratively to gain trust and give respect to others&amp;nbsp;through honesty, integrity, kindness, empathy, and authenticity.&lt;br&gt;\u25cf Acute attention to detail and demonstrated ability to prioritize time to meet deadlines&amp;nbsp;for multiple projects.&lt;br&gt;\u25cf Drive to seek what can be improved and offer ways to fix any potential roadblocks.&lt;br&gt;\u25cf Comfort admitting what you don\u2019t know and recognizing that feedback is part of the&amp;nbsp;learning process.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-06-23T13:26:10+00:00",
+      "url": "https://job-boards.greenhouse.io/voter/jobs/5171266007"
+    },
+    {
+      "title": "Introduce Yourself!",
+      "description": "&lt;p&gt;Don&#39;t see a job posted on our site that fits your skills and experience? Introduce yourself by filling out our application and attaching your resume. We will review your qualifications and stay in touch in the future if our opportunities align with your experience. Thank you for your interest in opportunities with&amp;nbsp; A Healthier Democracy, Link Health, and Vot-ER!&lt;/p&gt;\n&lt;p&gt;Learn more about A Healthier Democracy &lt;a href=&quot;https://ahealthierdemocracy.org/&quot;&gt;here&lt;/a&gt;.&amp;nbsp;&lt;br&gt;Learn more about Link Health &lt;a href=&quot;https://link-health.org/&quot;&gt;here&lt;/a&gt;.&lt;br&gt;Learn more about Vot-ER &lt;a href=&quot;https://vot-er.org/&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-01-12T17:51:42+00:00",
+      "url": "https://job-boards.greenhouse.io/voter/jobs/4272544007"
+    },
+    {
+      "title": "LMSA x Vot-ER Partnerships Intern",
+      "description": "&lt;h4&gt;&lt;strong&gt;Vot-ER and Latino Medical Student Association:&lt;/strong&gt;&lt;strong&gt;&lt;br&gt;&lt;/strong&gt;&lt;strong&gt; Partnerships &amp;amp; Civic Health Intern&lt;/strong&gt;&lt;/h4&gt;\n&lt;p&gt;&lt;strong&gt;Organization:&lt;/strong&gt; Latino Medical Student Association (LMSA)&lt;br&gt;&lt;strong&gt;Reporting to:&lt;/strong&gt; Deputy Director of Partnerships&lt;br&gt;&lt;strong&gt;Location:&lt;/strong&gt; Remote&lt;br&gt;&lt;strong&gt;Duration:&lt;/strong&gt; 2026 SUMMER &amp;amp; FALL&lt;br&gt;&lt;strong&gt;Compensation:&lt;/strong&gt; Academic Credit (Required)&lt;br&gt;&lt;strong&gt;Expected Hours:&lt;/strong&gt;&amp;nbsp;15 to 20 hours per week&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Role Overview&lt;br&gt;&lt;/strong&gt;The Partnerships &amp;amp; Civic Health Intern will serve as a critical link between the Latino Medical Student Association and Vot-ER, supporting Vot-ER as we continue to grow and deepen relationships with health institutions across the country.&lt;br&gt;This role is designed for a proactive, detail-oriented student leader who is passionate about the intersection of health and democracy. &lt;br&gt;You will be responsible for deepening current organizational ties, onboarding new partners, and spearheading a specialized initiative focused on the Emergency Patient Voting (EPV) Program.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Key Responsibilities&lt;br&gt;&lt;/strong&gt;&lt;strong&gt;Partnership Growth &amp;amp; Deep Engagement&lt;br&gt;&lt;/strong&gt;&lt;strong&gt;Relationship Management:&lt;/strong&gt; Support the &lt;strong&gt;Deputy Director of Partnerships&lt;/strong&gt; in maintaining high-touch communication with existing partners to increase engagement.&lt;br&gt;&lt;strong&gt;Expansion:&lt;/strong&gt; Actively identify and &quot;bring into the fold&quot; new health-related organizations to expand our national footprint beyond current partners.&lt;br&gt;&lt;strong&gt;Civic Holiday Orchestration:&lt;/strong&gt; Prepare and execute mobilization strategies and communications assets for Civic Holidays (e.g., National Voter Registration Day, National Voter Education Week, Vote Early Day).&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Emergency Patient Voting (EPV) Program &lt;br&gt;&lt;/strong&gt;&lt;strong&gt;Student Mobilization:&lt;/strong&gt; Organize and train health professional students to facilitate voting access for patients who face unexpected hospitalization during election cycles.&lt;br&gt;&lt;strong&gt;Resource Development:&lt;/strong&gt; Create patient-facing educational materials and bedside toolkits to streamline the emergency ballot request process.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Eligibility &amp;amp; Requirements&lt;br&gt;&lt;/strong&gt;&lt;strong&gt;LMSA Membership:&lt;/strong&gt; Must be an active member of the Latino Medical Student Association.&lt;br&gt;&lt;strong&gt;Academic Credit Requirement.&lt;/strong&gt; Candidates must provide documentation from their institution confirming they will receive course credit for this internship.&lt;br&gt;&lt;strong&gt;Communication:&lt;/strong&gt; Exceptional written and verbal communication skills; ability to communicate complex advocacy goals to diverse health professionals.&lt;br&gt;&lt;strong&gt;Remote Proficiency:&lt;/strong&gt; Demonstrated ability to work independently in a remote environment, meeting deadlines and managing multiple workstreams via digital tools (Slack, Zoom, CRM).&lt;br&gt;Demonstrated commitment to racial equity and inclusion.&lt;br&gt;Demonstrated ability to work collaboratively to gain trust and give respect to others through honesty, integrity, kindness, empathy, and authenticity.&lt;br&gt;Acute attention to detail and demonstrated ability to prioritize time to meet deadlines for multiple projects.&lt;br&gt;Drive to seek what can be improved and offer ways to fix any potential roadblocks.&lt;br&gt;Comfort admitting what you don\u2019t know and recognizing that feedback is part of the le",
+      "location": "",
+      "first_published": "2026-06-23T13:25:27+00:00",
+      "url": "https://job-boards.greenhouse.io/voter/jobs/5171279007"
+    },
+    {
+      "title": "Practicum Interest Submission",
+      "description": "&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;div class=&quot;collapsed-field-text&quot;&gt;\n&lt;p&gt;Vot-ER is always looking for passionate individuals to assist us in our mission to bridge democracy and healthcare. If you are interested in completing your practicum hours with Vot-ER, please complete the continued questionnaire.&lt;/p&gt;\n&lt;p&gt;Thank you for your interest in opportunities with Vot-ER!&lt;/p&gt;\n&lt;/div&gt;",
+      "location": "",
+      "first_published": "2026-01-12T17:51:42+00:00",
+      "url": "https://job-boards.greenhouse.io/voter/jobs/4467922007"
+    },
+    {
+      "title": "Volunteer Interest Submission",
+      "description": "&lt;div class=&quot;collapsed-field-text&quot;&gt;\n&lt;p&gt;Vot-ER is always looking for passionate individuals to assist us in our mission to bridge democracy and healthcare. If you are interested in volunteering with Vot-ER, please complete the continued questionnaire.&lt;/p&gt;\n&lt;p&gt;Thank you for your interest in opportunities with Vot-ER!&lt;/p&gt;\n&lt;/div&gt;",
+      "location": "",
+      "first_published": "2026-01-12T17:51:42+00:00",
+      "url": "https://job-boards.greenhouse.io/voter/jobs/4372887007"
+    }
+  ],
+  "primary_function": "non_tech_satellite",
+  "estimated_stage": "unknown",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": null,
+  "tech_role_ratio": 0.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.5,
+  "volatility_signal": 0.0,
+  "notes": "No tech roles posted, mostly internships and volunteer opportunities",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
 }

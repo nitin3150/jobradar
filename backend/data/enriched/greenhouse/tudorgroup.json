@@ -1,8 +1,62 @@
 {
-  "schema_version": 1,
-  "status": "failed",
+  "schema_version": 2,
   "slug": "tudorgroup",
   "board": "greenhouse",
-  "decision_at": "2026-07-12T16:59:40.489833+00:00",
-  "reason": "fetch returned empty or errored (transient)"
+  "enriched_at": "2026-07-14T04:10:13.253105+00:00",
+  "source_jobs_count": 5,
+  "source_last_published": "2026-05-29T19:22:59+00:00",
+  "source_jobs": [
+    {
+      "title": "Client Services Analyst, Investor Relations",
+      "description": "&lt;p&gt;&lt;strong&gt;About Us&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;The Tudor Group manages assets across fixed income, currency, commodity and equity asset classes and related derivative instruments in the global markets for an international clientele. Paul Tudor Jones II, Co-Chairman, Chief Investment Officer, and the controlling principal, founded the Tudor Group in 1980. Since its inception, the Tudor Group has grown from one individual into a global investment adviser comprised of more than 500 personnel in the US, the UK, Singapore, and the Dubai International Financial Centre. Tudor\u2019s investment strategies today include, among others, discretionary global macro, event driven equity, long/short equity, quantitative global macro, statistical arbitrage and other quantitative trading strategies.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Role&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;This is an operational role within Tudor\u2019s Investor Relations (IR) team, focused on supporting the accuracy, organization, and delivery of reporting, data, and communications. The Client Services Analyst will work closely with IR colleagues, the fund administrator, and other internal teams to ensure investor information and records are well maintained, communicated correctly and controlled.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Responsibilities:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Review and reconcile information produced by the fund administrator to ensure accuracy and consistency.&lt;/li&gt;\n&lt;li&gt;Track and monitor investor activity, including processing and reviewing transactions documents, escalating issues as appropriate.&lt;/li&gt;\n&lt;li&gt;Support the preparation and distribution of investor communications and materials.&lt;/li&gt;\n&lt;li&gt;Manage the investor website, including content updates and assisting with access and troubleshooting.&lt;/li&gt;\n&lt;li&gt;Maintain the accuracy and completeness of the investor database (CRM).&lt;/li&gt;\n&lt;li&gt;Respond to investor inquiries and ad hoc requests.&lt;/li&gt;\n&lt;li&gt;Assist with the preparation and review of regulatory reporting and related filings.&lt;/li&gt;\n&lt;li&gt;Contribute to improvements in processes and workflows, including the use of AI tools and automation, with a focus on accuracy, efficiency, and risk reduction.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Requirements:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Undergraduate degree with strong academic performance.&lt;/li&gt;\n&lt;li&gt;Recent graduate with relevant internship or work experience.&lt;/li&gt;\n&lt;li&gt;Exceptional attention to detail and organizational skills.&lt;/li&gt;\n&lt;li&gt;Proficiency in using AI tools and Microsoft Office (Excel, PowerPoint, Word).&lt;/li&gt;\n&lt;li&gt;Ability to work both independently and collaboratively across the firm.&lt;/li&gt;\n&lt;li&gt;Strong interpersonal, written, and verbal communication skills.&lt;/li&gt;\n&lt;li&gt;Candidate will be asked to take the Series 3&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Location:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Stamford, CT.&lt;/li&gt;\n&lt;li&gt;This is a hybrid role with 4 days required in office.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Compensation:&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&lt;em&gt;Annual base salary for the position is expected to be $80,000-$105,000 per year. Actual salary offered to the successful candidate will depend on various factors including, but not limited to, geographic location, work experience and credentials, and/or skill level, the salary expectations of applicable applicants, and other market conditions. Details about eligibility for bonus compensation will be finalized at the time of offer. &lt;/em&gt;&lt;/p&gt;\n&lt;p&gt;&lt;em&gt;*If we collect and use your personal data we will use it in accordance with our privacy policy. &lt;/em&gt;&lt;a href=&quot;https://www.tudor.com/disclosures&quot;&gt;&lt;em&gt;https://www.tudor.com/disclosures&lt;/em&gt;&lt;/a&gt;&lt;/p&gt;\n&lt;p&gt;&lt;strong",
+      "location": "",
+      "first_published": "2026-05-29T19:22:59+00:00",
+      "url": "https://job-boards.greenhouse.io/tudorgroup/jobs/7950610"
+    },
+    {
+      "title": "Discretionary Global Macro Application",
+      "description": "&lt;p&gt;The Tudor Group has a strong commitment to hiring individuals who welcome individual authority and accountability for results. &amp;nbsp;If interested in applying for a position, please complete an application.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-04-21T14:32:16+00:00",
+      "url": "https://job-boards.greenhouse.io/tudorgroup/jobs/942825"
+    },
+    {
+      "title": "Low Latency Quantitative Researcher",
+      "description": "&lt;p&gt;Tudor\u2019s Macro Pipeline team seeks a &lt;strong&gt;Quantitative Researcher&lt;/strong&gt; to work within a low latency trading team that currently researches and builds low latency trading models in the liquid futures space.&amp;nbsp; The candidate\u2019s primary responsibilities will include researching and implementing fully automated systematic futures signals and strategies with short to medium horizon.&amp;nbsp; Suitable candidates will generally have at least 3 years of comparable research experience.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Requirements&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;3+ years of experience researching low latency futures signals and strategies&lt;/li&gt;\n&lt;li&gt;An advanced degree (MSc or PhD) from a top institution is preferred&lt;/li&gt;\n&lt;li&gt;Strong preference for advanced degrees in a quantitative field (e.g. Statistics, Machine Learning, Physics, Mathematics, or Engineering)&lt;/li&gt;\n&lt;li&gt;Excellent understanding of probabilities, statistics and optimization&lt;/li&gt;\n&lt;li&gt;Experience manipulating large datasets, including tick-level data&lt;/li&gt;\n&lt;li&gt;Excellent programing skills: experience with both high-level (e.g. Python, R, Julia) and lower-level languages (e.g. C, C++) with fluency in at least one.&lt;/li&gt;\n&lt;li&gt;High attention to detail&lt;/li&gt;\n&lt;li&gt;Creative thinker&lt;/li&gt;\n&lt;li&gt;Entrepreneurial spirit. Enjoys ownership of projects and takes responsibility for them&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Compensation&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Annual base salary for the position is expected to be from $150,000 per year to $250,000 per year. Actual salary offered to the successful candidate will depend on various factors including, but not limited to, geographic location, work experience and credentials, and/or skill level, the salary expectations of applicable applicants, and other market conditions. Details about eligibility for bonus compensation will be finalized at the time of offer.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Location&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;New York, NY, London, Singapore&lt;/li&gt;\n&lt;/ul&gt;",
+      "location": "",
+      "first_published": "2026-04-27T17:01:11+00:00",
+      "url": "https://job-boards.greenhouse.io/tudorgroup/jobs/5358163"
+    },
+    {
+      "title": "Management and Control Application",
+      "description": "&lt;p&gt;This group of intellectually curious professionals pay attention to details and work together to help the company succeed. We look for individuals who are starting or have exceled in their chosen field. These fields can include Technology, Finance, Human Resources, Legal, Operations, Research, Risk, and Compliance. &amp;nbsp;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-04-21T14:32:05+00:00",
+      "url": "https://job-boards.greenhouse.io/tudorgroup/jobs/495993"
+    },
+    {
+      "title": "Medium Frequency Quantitative Researcher ",
+      "description": "&lt;p&gt;Tudor\u2019s Macro Pipeline team seeks a &lt;strong&gt;Quantitative Alpha Researcher&lt;/strong&gt; to work within a systematic trading team that currently researches, builds and maintains systematic trading models in the liquid futures space.&amp;nbsp; The candidate\u2019s primary responsibilities will include researching and implementing fully automated systematic futures signals with intraday to daily horizons.&amp;nbsp; Suitable candidates will generally have at least 2-4 years of comparable research experience.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Requirements&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;3+ years of experience researching scalable short and medium-term alpha&lt;/li&gt;\n&lt;li&gt;An advanced degree (MSc or PhD) from a top institution is preferred&lt;/li&gt;\n&lt;li&gt;Strong preference for advanced degrees in a quantitative field (e.g. Statistics, Machine Learning, Physics, Mathematics, or Engineering)&lt;/li&gt;\n&lt;li&gt;Excellent understanding of probabilities, statistics and optimization&lt;/li&gt;\n&lt;li&gt;Experience manipulating large datasets&lt;/li&gt;\n&lt;li&gt;Excellent programming skills: fluency in Python and R is a must, as is the ability to write efficient code&lt;/li&gt;\n&lt;li&gt;High attention to detail&lt;/li&gt;\n&lt;li&gt;Creative thinker&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Compensation&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Annual base salary for the position is expected to be from $150,000 per year to $250,000 per year. Actual salary offered to the successful candidate will depend on various factors including, but not limited to, geographic location, work experience and credentials, and/or skill level, the salary expectations of applicable applicants, and other market conditions. Details about eligibility for bonus compensation will be finalized at the time of offer.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Location&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;New York, NY, London, Singapore&lt;/li&gt;\n&lt;/ul&gt;",
+      "location": "",
+      "first_published": "2026-04-27T17:00:10+00:00",
+      "url": "https://job-boards.greenhouse.io/tudorgroup/jobs/5358422"
+    }
+  ],
+  "primary_function": "ops_heavy",
+  "estimated_stage": "series_c_plus",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "monthly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": false,
+  "tech_role_ratio": 0.4,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.5,
+  "startup_likelihood": 0.1,
+  "volatility_signal": 0.2,
+  "notes": "Tudor Group is a global investment adviser with a strong commitment to hiring individuals who welcome individual authority and accountability for results.",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
 }

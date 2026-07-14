@@ -1,8 +1,48 @@
 {
-  "schema_version": 1,
-  "status": "failed",
+  "schema_version": 2,
   "slug": "vikingglobalinvestors",
   "board": "greenhouse",
-  "decision_at": "2026-07-12T16:59:41.064737+00:00",
-  "reason": "fetch returned empty or errored (transient)"
+  "enriched_at": "2026-07-14T04:34:46.068408+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-06-16T20:12:04+00:00",
+  "source_jobs": [
+    {
+      "title": "Execution Research Fellow, Summer / Fall 2026",
+      "description": "&lt;div class=&quot;content-intro&quot;&gt;&lt;p&gt;Founded in 1999, Viking Global Investors (\u201cViking\u201d) is a global investment firm with a long-term, fundamental, research-intensive approach to investing. Viking manages ~$52 billion of capital across public and private investments. Viking has offices in Stamford, New York, Hong Kong, London, and San Francisco, and is registered as an investment adviser with the U.S. Securities and Exchange Commission. For more information, please visit &lt;a href=&quot;https://vikingglobal.com&quot; target=&quot;_blank&quot;&gt;vikingglobal.com&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;FELLOWSHIP OPPORTUNITY&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;Viking is seeking an Execution Research Fellow to join our trading and technology teams for a project-based fellowship of 10 to 12 weeks, with a target start date in summer 2026. The fellowship may extend into the fall for the right candidate. This is an opportunity to conduct applied research on high-impact problems at the intersection of market microstructure, data infrastructure, and execution optimization.&lt;/p&gt;\n&lt;p&gt;The Fellow will work directly under the direction of Viking\u2019s Head of Execution Research, contributing to defined project workstreams and benefiting from close mentorship throughout. We are open to different start dates and schedule arrangements for the ideal candidate. This is a fixed-term fellowship with no expectation of or pathway to full-time employment.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;RESPONSIBILITIES&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;The Fellow will support applied research across three core project areas:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;&lt;strong&gt;Market Data: &lt;/strong&gt;Assist in evaluating, cleaning, and analyzing high-frequency and tick-level market data across asset classes and venues. Support work on data quality assessment, normalization, and storage efficiency.&lt;/li&gt;\n&lt;li&gt;&lt;strong&gt;Market Infrastructure: &lt;/strong&gt;Support the assessment and documentation of Viking\u2019s trading infrastructure, including connectivity to exchanges and execution venues. Research and summarize emerging technologies and best practices in low-latency and high-throughput execution systems.&lt;/li&gt;\n&lt;li&gt;&lt;strong&gt;Optimal Routing Decisions: &lt;/strong&gt;Support quantitative analysis of order routing across venues, including work on transaction cost analysis (TCA) data. Research algorithmic routing strategies and smart order routing (SOR) design.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;In addition to these core workstreams, the Fellow will contribute to Viking\u2019s broader research effort by sharing findings and insights across the trading and investment teams.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;QUALIFICATIONS&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;Across Viking, we attract motivated, intellectually curious, and analytically rigorous people who are passionate about learning and creating impact. The ideal candidate will possess the following traits:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;A strong performer currently enrolled in a Master\u2019s degree or PhD program in Computer Science, Statistics, Financial Engineering, Physics, Mathematics, or a related quantitative field&lt;/li&gt;\n&lt;li&gt;Prior hands-on experience working with tick data or other high-frequency market data (academic or professional)&lt;/li&gt;\n&lt;li&gt;Proficiency in Python, including experience with data-intensive libraries (e.g., pandas, numpy, polars, or similar); familiarity with SQL and data engineering tools a plus&lt;/li&gt;\n&lt;li&gt;Exposure to market microstructure, execution algorithms, or trading systems \u2014 through coursework, research, or prior experience&lt;/li&gt;\n&lt;li&gt;Ability to execute well-defined research tasks under direction, with strong attention to detail and follow-through&lt;/li&gt;\n&lt;li&gt;Strong communication skills, with the ability to present quantitative findings clearly to both technical and non-technical audiences&lt;",
+      "location": "",
+      "first_published": "2026-06-16T17:19:40+00:00",
+      "url": "https://job-boards.greenhouse.io/vikingglobalinvestors/jobs/6005845004"
+    },
+    {
+      "title": "Opportunistic - Investment Teams",
+      "description": "&lt;div class=&quot;content-intro&quot;&gt;&lt;p&gt;Founded in 1999, Viking Global Investors (\u201cViking\u201d) is a global investment firm with a long-term, fundamental, research-intensive approach to investing. Viking manages ~$52 billion of capital across public and private investments. Viking has offices in Stamford, New York, Hong Kong, London, and San Francisco, and is registered as an investment adviser with the U.S. Securities and Exchange Commission. For more information, please visit &lt;a href=&quot;https://vikingglobal.com&quot; target=&quot;_blank&quot;&gt;vikingglobal.com&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;&lt;p&gt;We are always interested in speaking with qualified individuals who wish to pursue a career at Viking.&amp;nbsp; If you wish to discuss career opportunities in &lt;a href=&quot;https://vikingglobal.com/public-equity/&quot; target=&quot;_blank&quot;&gt;Public Equity&lt;/a&gt;, &lt;a href=&quot;https://vikingglobal.com/private-equity/&quot; target=&quot;_blank&quot;&gt;Private Equity&lt;/a&gt;, or &lt;a href=&quot;https://vikingglobal.com/credit/&quot; target=&quot;_blank&quot;&gt;Credit and Structured Capital&lt;/a&gt;, please follow the steps below.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-06-16T20:12:04+00:00",
+      "url": "https://job-boards.greenhouse.io/vikingglobalinvestors/jobs/4809389004"
+    },
+    {
+      "title": "Opportunistic - Operations Teams",
+      "description": "&lt;div class=&quot;content-intro&quot;&gt;&lt;p&gt;Founded in 1999, Viking Global Investors (\u201cViking\u201d) is a global investment firm with a long-term, fundamental, research-intensive approach to investing. Viking manages ~$52 billion of capital across public and private investments. Viking has offices in Stamford, New York, Hong Kong, London, and San Francisco, and is registered as an investment adviser with the U.S. Securities and Exchange Commission. For more information, please visit &lt;a href=&quot;https://vikingglobal.com&quot; target=&quot;_blank&quot;&gt;vikingglobal.com&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;&lt;p&gt;While we are not actively recruiting for positions across all &lt;a href=&quot;https://vikingglobal.com/our-departments/&quot; target=&quot;_blank&quot;&gt;Our Departments&lt;/a&gt;, we are always interested in speaking with qualified individuals who wish to pursue a career at Viking.&amp;nbsp; Our Operations Teams include:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Research Specialists&lt;/li&gt;\n&lt;li&gt;Trading and Treasury&lt;/li&gt;\n&lt;li&gt;Investor Relations&lt;/li&gt;\n&lt;li&gt;Legal and Compliance&lt;/li&gt;\n&lt;li&gt;Finance, Accounting, and Operations&lt;/li&gt;\n&lt;li&gt;Technology&lt;/li&gt;\n&lt;li&gt;Human Resources and Office Management&lt;/li&gt;\n&lt;li&gt;Viking Global Foundation&lt;/li&gt;\n&lt;li&gt;Administrative Professionals&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;If you wish to discuss career opportunities with any of our Operations Teams, please follow the steps below.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-06-16T20:10:41+00:00",
+      "url": "https://job-boards.greenhouse.io/vikingglobalinvestors/jobs/4809396004"
+    }
+  ],
+  "primary_function": "ops_heavy",
+  "estimated_stage": "public",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": false,
+  "tech_role_ratio": 0.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.0,
+  "volatility_signal": 0.0,
+  "notes": "Investment firm with no tech roles posted",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
 }

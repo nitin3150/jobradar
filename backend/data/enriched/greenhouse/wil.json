@@ -1,8 +1,48 @@
 {
-  "schema_version": 1,
-  "status": "failed",
+  "schema_version": 2,
   "slug": "wil",
   "board": "greenhouse",
-  "decision_at": "2026-07-12T16:59:41.401214+00:00",
-  "reason": "fetch returned empty or errored (transient)"
+  "enriched_at": "2026-07-14T04:44:20.910599+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-05-24T05:00:18+00:00",
+  "source_jobs": [
+    {
+      "title": "C++ Programmer",
+      "description": "&lt;p&gt;We are looking for exceptionally bright and talented developers to develop and administer leading edge, global 24\u00d77 financial trading systems in a fast paced, stimulating and dynamic environment.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Primary Responsibilities:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Develop new software as well as enhance existing systems, mostly in C++ on a Linux platform.&lt;/li&gt;\n&lt;li&gt;Work directly with analysts to develop and maintain large scale financial analysis trading applications in a real time development production cycle.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Requirements:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Bachelors, Masters or Ph.D. in Computer Science or Mathematics.&lt;/li&gt;\n&lt;li&gt;Exceptional C++ programming skills.&lt;/li&gt;\n&lt;li&gt;Excellent academic record.&lt;/li&gt;\n&lt;/ul&gt;",
+      "location": "",
+      "first_published": "2026-05-24T05:00:16+00:00",
+      "url": "https://job-boards.greenhouse.io/wil/jobs/721903"
+    },
+    {
+      "title": "Quantitative Research Analyst",
+      "description": "&lt;p&gt;We are currently looking for highly talented individuals with a history of exceptional academic and/or industry achievement who are interested in working in a fast paced, stimulating and dynamic environment.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Primary Responsibilities:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Develop, modify, optimize, test and implement real time quantitative trading models and strategies.&lt;/li&gt;\n&lt;li&gt;Perform statistical analysis of historical and current financial market data.&lt;/li&gt;\n&lt;li&gt;Research strategies in equities, futures, fixed income, and other asset classes.&lt;/li&gt;\n&lt;li&gt;Generate new indicator ideas.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Requirements:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;PhD or Masters in Mathematics, Statistics, Physics or Operations Research.&lt;/li&gt;\n&lt;li&gt;Must possess expert level C/C++ programming skills.&lt;/li&gt;\n&lt;li&gt;Incredibly strong problem solving and analytical skills.&lt;/li&gt;\n&lt;li&gt;Time series analysis and statistical modeling experience.&lt;/li&gt;\n&lt;li&gt;Some financial experience desired but not required.&lt;/li&gt;\n&lt;li&gt;Must be a strong self-starter and able to work well independently.&lt;/li&gt;\n&lt;/ul&gt;",
+      "location": "",
+      "first_published": "2026-05-24T05:00:16+00:00",
+      "url": "https://job-boards.greenhouse.io/wil/jobs/721930"
+    },
+    {
+      "title": "Student Developer ",
+      "description": "&lt;p&gt;We&#39;re seeking highly motivated students who possess strong technical skills and the ability to work in a fast-paced collaborative environment.&lt;/p&gt;\n&lt;p&gt;Internship opportunities are not limited to the summer and are available throughout the year.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Primary Responsibilities:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Develop new software and enhance existing systems.&lt;/li&gt;\n&lt;li&gt;Create tools to process, store and analyze quote, trade and financial data.&lt;/li&gt;\n&lt;li&gt;Work closely with our traders, quantitative research analysts, implementation programmers and other groups to provide software solutions.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Requirements of the Candidate include:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Pursuing an undergraduate or graduate level degree in Computer Science or Mathematics.&lt;/li&gt;\n&lt;li&gt;C++ and/or Java programming knowledge or experience in a Linux environment preferred.&lt;/li&gt;\n&lt;li&gt;Excellent academic record.&lt;/li&gt;\n&lt;li&gt;Strong problem solving skills.&lt;/li&gt;\n&lt;li&gt;Knowledge of shell scripts and other languages including Perl, Bash or CSH is a plus.&lt;/li&gt;\n&lt;li&gt;Knowledge of relational databases including Sybase, SQL Server and Oracle is a plus.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-05-24T05:00:18+00:00",
+      "url": "https://job-boards.greenhouse.io/wil/jobs/1448818"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "unknown",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": null,
+  "tech_role_ratio": 1.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.5,
+  "volatility_signal": 0.0,
+  "notes": "Small sample size, but all roles are technical.",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
 }

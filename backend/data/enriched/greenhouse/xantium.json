@@ -1,8 +1,76 @@
 {
-  "schema_version": 1,
-  "status": "failed",
+  "schema_version": 2,
   "slug": "xantium",
   "board": "greenhouse",
-  "decision_at": "2026-07-12T16:59:41.615269+00:00",
-  "reason": "fetch returned empty or errored (transient)"
+  "enriched_at": "2026-07-14T04:50:04.724643+00:00",
+  "source_jobs_count": 7,
+  "source_last_published": "2026-07-07T18:13:55+00:00",
+  "source_jobs": [
+    {
+      "title": "Exploratory ",
+      "description": "&lt;div class=&quot;max-top-margin&quot;&gt;\n&lt;div class=&quot;layout-centered _3-4width&quot;&gt;\n&lt;p class=&quot;blockquote brown&quot;&gt;We are a global multi-strategy investment team that strives to uncover opportunities to generate consistently strong returns in a complex world.&lt;/p&gt;\n&lt;/div&gt;\n&lt;/div&gt;\n&lt;div class=&quot;max-top-margin&quot;&gt;\n&lt;div class=&quot;layout-centered _3-4width&quot;&gt;\n&lt;p class=&quot;blockquote brown&quot;&gt;We are quantitative researchers, developers, and traders combining intelligence and curiosity with powerful data and technology.&lt;/p&gt;\n&lt;p class=&quot;blockquote brown&quot;&gt;If you are interested in working with us but do not see a role that fits your background, we encourage you to submit an exploratory application.&lt;/p&gt;\n&lt;/div&gt;\n&lt;/div&gt;",
+      "location": "",
+      "first_published": "2026-05-26T22:52:16+00:00",
+      "url": "https://job-boards.greenhouse.io/xantium/jobs/4178187009"
+    },
+    {
+      "title": "Infrastructure Generalist",
+      "description": "&lt;p&gt;&lt;strong&gt;Infrastructure Generalist&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;We are seeking an Infrastructure Generalist to build, evolve and maintain the core infrastructure that underpins and protects Xantium\u2019s technology environment. This is a highly visible role working closely with Security, Engineering, and Operations teams.&lt;/p&gt;\n&lt;p&gt;This is an opportunity to operate in a greenfield, high-performance environment where decisions have immediate and long-term impact.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Key Responsibilities Include&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Building and maintaining infrastructure across compute, storage, networking, and cloud environments.&lt;/li&gt;\n&lt;li&gt;Owning system configuration, deployment, and troubleshooting across endpoints, servers, and services.&lt;/li&gt;\n&lt;li&gt;Defining and running experiments to improve performance, reliability, and system design.&lt;/li&gt;\n&lt;li&gt;Translating learnings from experiments into durable, production-ready solutions.&lt;/li&gt;\n&lt;li&gt;Driving architectural decisions that support growth and operational resilience.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Requirements&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;4+ years of experience in infrastructure or systems engineering within complex environments.&lt;/li&gt;\n&lt;li&gt;Deep understanding of how computers, operating systems, and networks work.&lt;/li&gt;\n&lt;li&gt;Broad experience across cloud platforms, and infrastructure tooling.&lt;/li&gt;\n&lt;li&gt;Strong ability to reason from first principles and debug unfamiliar systems.&lt;/li&gt;\n&lt;li&gt;Proven ability to experiment thoughtfully and apply learnings to real systems.&lt;/li&gt;\n&lt;li&gt;Pragmatic, high-ownership mindset with clear and structured thinking.&lt;/li&gt;\n&lt;li&gt;Bachelor\u2019s degree is preferred&lt;/li&gt;\n&lt;/ul&gt;",
+      "location": "",
+      "first_published": "2026-05-26T22:52:16+00:00",
+      "url": "https://job-boards.greenhouse.io/xantium/jobs/4227552009"
+    },
+    {
+      "title": "Operations Software Engineer: Post-Trade Systems Builder",
+      "description": "&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Operations Software Engineer&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;As a spinout from Tudor Investment Corp, Xantium is launching a multi-strategy hedge fund focused on delivering consistent returns through innovative trading strategies, robust risk management, and cutting-edge technology. As we scale, we are investing heavily in our operations technology to reduce manual work, optimize our relationships with brokers, and prevent errors.&amp;nbsp;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;As such, we seek multiple Operations Software Engineers (OSEs) to design, build, and maintain technology that powers the operational backbone of Xantium. &amp;nbsp;OSEs will work closely with Operations, Finance, Risk, Treasury, and Compliance teams to deliver systems that ensure smooth trade lifecycle management, reporting, and reconciliation. This is a highly visible role in which contributions will directly impact the efficiency and scalability of the fund. At this moment, team lead as well as individual contributor OSE roles are available.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Key responsibilities include:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Developing and maintaining systems supporting trade capture, reconciliation, settlement, risk, treasury, P&amp;amp;L, and regulatory reporting&lt;/li&gt;\n&lt;li&gt;Partnering with Operations and Finance to automate workflows and reduce errors&lt;/li&gt;\n&lt;li&gt;Building integrations with external systems such as prime brokers, fund administrators, custodians, and regulatory platforms&lt;/li&gt;\n&lt;li&gt;Making architectural decisions that will support the fund\u2019s rapid growth and long-term reliability&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Requirements:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Bachelor\u2019s degree in Computer Science, Engineering, or a related field&lt;/li&gt;\n&lt;li&gt;3\u20137+ years of professional software engineering experience in finance&lt;/li&gt;\n&lt;li&gt;Strong programming skills in Python or Java&lt;/li&gt;\n&lt;li&gt;Experience with SQL databases and data modeling&lt;/li&gt;\n&lt;li&gt;Familiarity with the trade lifecycle (execution \u2192 confirmation \u2192 settlement -&amp;gt; reconciliation)&lt;/li&gt;\n&lt;li&gt;Strong problem-solving skills with an eye for detail and data integrity&lt;/li&gt;\n&lt;li&gt;Excellent communication skills&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Nice to Haves:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Knowledge of FIX protocols, SWIFT messaging, or regulatory reporting frameworks&lt;/li&gt;\n&lt;li&gt;Experience with cloud platforms (AWS, GCP, Azure)&lt;/li&gt;\n&lt;li&gt;Familiarity with data pipelines, scheduling tools, or workflow orchestration&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Compensation:&amp;nbsp;&lt;/strong&gt;OSEs in New York can expect to earn $150,000 to $225,000+ base.&amp;nbsp; Total compensation for all OSEs also includes a large annual bonus which is guaranteed in year one and based on employee and firm performance thereafter.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-07-07T18:13:55+00:00",
+      "url": "https://job-boards.greenhouse.io/xantium/jobs/4178659009"
+    },
+    {
+      "title": "Orchestrade Specialist ",
+      "description": "&lt;p&gt;&lt;strong&gt;Orchestrade Specialist&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;Xantium is building a brand-new post-trade platform \u2013 this fast-paced, greenfield project is a top initiative for the firm.&lt;/p&gt;\n&lt;p&gt;We are seeking a highly skilled professional with a blend of technical and financial expertise to join our Operations Software Engineering team as an Orchestrade Specialist. This role involves collaborating with developers and finance teams to build and manage complex financial systems, and ensuring the seamless migration to the Orchestrade platform.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Key responsibilities include:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Collaborate with developers and finance teams to integrate Orchestrade with other enterprise systems.&lt;/li&gt;\n&lt;li&gt;Oversee the deployment, administration and maintenance of the Orchestrade system, ensuring high availability and performance.&lt;/li&gt;\n&lt;li&gt;Implement and optimize financial models, curves, and risk analytics within the Orchestrade environment.&lt;/li&gt;\n&lt;li&gt;Conduct system performance monitoring, troubleshooting, and implement improvements.&lt;/li&gt;\n&lt;li&gt;Provide technical support and training to end-users, enhancing their ability to leverage the Orchestrade platform effectively.&lt;/li&gt;\n&lt;li&gt;Stay abreast of industry trends and technological advancements to keep our systems at the forefront of financial technology.&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Requirements:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Bachelor&#39;s degree in Computer Science, Finance, Engineering, or a related field.&lt;/li&gt;\n&lt;li&gt;Strong hands-on experience with Orchestrade&lt;/li&gt;\n&lt;li&gt;Proficiency in programming and scripting languages (e.g., Python, SQL) for automation and system integration.&lt;/li&gt;\n&lt;li&gt;Experience with C#/.NET for Orchestrade customization is a plus.&lt;/li&gt;\n&lt;li&gt;Strong understanding of financial instruments, risk analytics, and market data.&lt;/li&gt;\n&lt;li&gt;Excellent analytical and problem-solving skills.&lt;/li&gt;\n&lt;li&gt;Strong communication and interpersonal skills, with the ability to work collaboratively across departments&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Compensation: &lt;/strong&gt;Orchestrade Specialist in New York can expect to earn $150,000 to $225,000+ base. &amp;nbsp;Total compensation for all Orchestrade Specialist also includes a large annual bonus which is guaranteed in year one and based on employee and firm performance thereafter.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-05-26T22:52:16+00:00",
+      "url": "https://job-boards.greenhouse.io/xantium/jobs/4210700009"
+    },
+    {
+      "title": "Quantitative Developer",
+      "description": "&lt;p&gt;At Xantium, our Quantitative Developers build software and frameworks that power our quantitative trading. Quantitative Developer responsibilities vary depending on the team and scope. These individuals may have Research Engineer, Software Developer, or other titles elsewhere. The common thread for our Quantitative Developers is strong programming combined with quantitative acumen&lt;/p&gt;\n&lt;p&gt;Projects for a Quantitative Developer may include:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Providing fast market data to a trading system&lt;/li&gt;\n&lt;li&gt;Building an integrated research and execution framework for fast predictors&lt;/li&gt;\n&lt;li&gt;Creating simulation and research frameworks in a cloud environment&lt;/li&gt;\n&lt;li&gt;Providing a robust research framework for a new asset class&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;Our tech stack is a blend of Python and C++ that runs both on-prem and in the cloud.&lt;/p&gt;\n&lt;p&gt;&lt;br&gt;&lt;strong&gt;Compensation:&amp;nbsp; &lt;/strong&gt;Quantitative Developers in New York can expect to earn $175,000 to $225,000+ base. &amp;nbsp;Total compensation for all Quantitative Developers also includes a large annual bonus which is guaranteed in year one and based on employee and firm performance thereafter.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-05-26T22:52:16+00:00",
+      "url": "https://job-boards.greenhouse.io/xantium/jobs/4179765009"
+    },
+    {
+      "title": "Quantitative Researcher ",
+      "description": "&lt;p&gt;Quantitative Researchers at Xantium are responsible for researching and developing mathematical models used to identify investment and trading opportunities in the global financial markets.&lt;/p&gt;\n&lt;p&gt;&lt;br&gt;The process is collaborative, involving direct access to and guidance from senior quantitative portfolio managers and engineers with years of experience across all major markets. Our Quantitative Researchers learn a range of skills including various research&lt;br&gt;techniques as well as how to work with different types of data, markets and asset classes.&amp;nbsp;&lt;br&gt;&lt;br&gt;Examples of responsibilities include:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Analyzing and evaluating financial and alternative datasets&lt;/li&gt;\n&lt;li&gt;Researching existing and developing new techniques in machine learning&lt;/li&gt;\n&lt;li&gt;Researching, developing and implementing quantitative trading signals/models&lt;/li&gt;\n&lt;li&gt;Developing and maintaining modeling infrastructure&lt;/li&gt;\n&lt;li&gt;Supporting production trading operations&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;Quantitative Researcher applicants should have a PhD (or equivalent) that involved intense mathematics or statistics. We may consider candidates without PhDs, provided they can demonstrate strong competitive math backgrounds and strong academic records&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Compensation:&amp;nbsp;&lt;/strong&gt;Quantitative Researchers in New York can expect to earn $175,000 to $225,000+ base. Total compensation for all Quantitative Researchers also includes a large annual bonus which is guaranteed in year one and based on employee and firm performance thereafter.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-05-26T22:52:16+00:00",
+      "url": "https://job-boards.greenhouse.io/xantium/jobs/4178738009"
+    },
+    {
+      "title": "Quantitative Volatility Trader",
+      "description": "&lt;p&gt;Quantitative Volatility Traders (QVTs) collaborate with developers and researchers to implement Xantium&#39;s derivatives trading strategies. Their roles require established Python coding skills, strong mental math, and developed market intuition.&lt;/p&gt;\n&lt;p&gt;Initial responsibilities include trading system monitoring and improvement; some roles also involve individual trade execution and support. Over time and with guidance from senior team members, all QVTs grow to better understand how the range of Xantium\u2019s volatility strategies are developed and optimized.&lt;/p&gt;\n&lt;p&gt;We are seeking multiple QVTs for a rapidly growing team. At this time, candidates with derivatives experience in the following underlying asset types are particularly attractive: equities (single name and index), commodities, and fixed income.&lt;/p&gt;\n&lt;p&gt;All applicants should have:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;1-3+ years of fulltime experience trading derivatives or developing options trading systems&lt;/li&gt;\n&lt;li&gt;Bachelor\u2019s degree (or higher) in hard sciences (e.g., mathematics, computer science, physics, engineering, etc.)&lt;/li&gt;\n&lt;li&gt;Strong Python coding skills&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Compensation:&lt;/strong&gt; Quantitative Volatility Traders in New York can expect to earn $150,000 to $225,000+ base. Total compensation for all Quantitative Volatility Traders also includes a large annual bonus which is guaranteed in year one and based on employee and firm performance thereafter.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-05-27T17:58:47+00:00",
+      "url": "https://job-boards.greenhouse.io/xantium/jobs/4179559009"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "weekly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.857,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Highly technical roles, quantitative focus, and greenfield projects suggest a strong engineering core.",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
 }

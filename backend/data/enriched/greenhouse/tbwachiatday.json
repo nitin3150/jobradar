@@ -1,8 +1,55 @@
 {
-  "schema_version": 1,
-  "status": "failed",
+  "schema_version": 2,
   "slug": "tbwachiatday",
   "board": "greenhouse",
-  "decision_at": "2026-07-12T16:59:39.616853+00:00",
-  "reason": "fetch returned empty or errored (transient)"
+  "enriched_at": "2026-07-14T03:32:20.760897+00:00",
+  "source_jobs_count": 4,
+  "source_last_published": "2026-05-21T15:04:50+00:00",
+  "source_jobs": [
+    {
+      "title": "Head of Growth (C/D LA + LOLA US)",
+      "description": "&lt;p&gt;&lt;strong&gt;WHAT WE NEED FROM EVERYONE:&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;TBWA&lt;/strong&gt; is The Disruption\u00ae Company, a global agency collective of 10,000+ creative minds operating in over 80 countries.\u202fNamed one of the World&#39;s Most Innovative Companies by Fast Company four years in a row, and Adweek&#39;s 2022 and 2021 Global Agency of the Year, we are a disruptive brand experience company that uses creativity to help businesses acquire a greater share of the future. TBWA\\Chiat\\Day develops strategies, advertising, and brand experiences for some of the world&#39;s most iconic brands.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Lola&lt;/strong&gt; is a creative agency built on the belief that crazy ambition makes serious things happen. With teams across New York and Los Angeles, Lola USA creates bold, culturally resonant work that drives real business impact.&amp;nbsp;&amp;nbsp;Key clients include Adidas, JetBlue, Disney, Molson Coors, McCain, and Porsche.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;WHAT WE NEED FROM YOU:&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;TBWA\\Chiat\\Day Los Angeles and Lola are seeking a Head of Growth who embodies the values, attitude, and approach of both agencies. This role is key to driving growth and aligning with each organization&#39;s culture. This role will actively prospect and advocate for the agency, work closely with the Comms team to build our reputation, and oversee autonomously run new business pitches of varying sizes.&lt;/p&gt;\n&lt;p&gt;This person is a highly proactive, strategic individual, leading a small but mighty team to take responsibility for TBWA\\Chiat\\Day LA and Lola\u2019s growth plans. The right person for this role can identify new opportunities to expand and strengthen our existing client relationships, while driving revenue growth for both TBWA/Chiat/Day LA and Lola.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;WHAT YOU WILL BE DOING:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Shape the overall agency service offering&lt;/li&gt;\n&lt;li&gt;Proactively build and nurture our prospecting timeline and leads&lt;/li&gt;\n&lt;li&gt;Lead all RFIs and RFPs, including developing and cultivating relationships with key external stakeholders such as search consultants and client leads&lt;/li&gt;\n&lt;li&gt;Proactively initiate client relationships and learn the client\u2019s business inside and out&lt;/li&gt;\n&lt;li&gt;Identify opportunity areas for organic growth against the agency\u2019s capabilities, and our greater Omnicom network\u2019s capabilities.&lt;/li&gt;\n&lt;li&gt;Work closely with the leadership team to elevate new business processes.&lt;/li&gt;\n&lt;li&gt;Partner with account leads to drive responses to RFI and RFPs for existing clients\u2019 additional business in an innovative, flawless, and timely manner&lt;/li&gt;\n&lt;li&gt;Audit and understand roster agency relationships &amp;amp; responsibilities across our key clients&lt;/li&gt;\n&lt;li&gt;Lead bi-weekly internal organic growth business meetings.&lt;/li&gt;\n&lt;li&gt;Create capabilities presentations and other marketing materials \u2013 fully leveraging the agency narrative and assets&lt;/li&gt;\n&lt;li&gt;Coordinate internal resources within the office and across offices to develop client proposals, working in partnership with integrated teams.&lt;/li&gt;\n&lt;li&gt;Ensure alignment with the team to set clear critical paths, project deliverables, milestones, timetables, and calendars.&lt;/li&gt;\n&lt;li&gt;Work with the CEO, Head of Operations &amp;amp; Head of Business Leadership to recommend staffing and resources for any and all converted growth opportunities&lt;/li&gt;\n&lt;li&gt;Oversee the growth manager and related growth staff&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;QUALIFICATIONS:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;12+ years of agency experience preferably with business development experience within an advertising agency.&lt;/li&gt;\n&lt;li&gt;Confirmed and proven record of running successful pitch processes&lt;/li&gt;\n&lt;li&gt;E",
+      "location": "",
+      "first_published": "2026-05-21T15:04:50+00:00",
+      "url": "https://job-boards.greenhouse.io/tbwachiatday/jobs/8516599002"
+    },
+    {
+      "title": "Keep Me In Mind",
+      "description": "&lt;div&gt;\n&lt;h3&gt;&lt;strong&gt;WE ARE ALWAYS LOOKING FOR GREAT TALENT TO JOIN US HERE AT TBWA\\CHIAT\\DAY NEW YORK&lt;/strong&gt;&lt;/h3&gt;\n&lt;h3&gt;&lt;strong&gt;IF YOU ARE INTERESTED IN WORKING WITH US BUT DO NOT SEE AN OPEN ROLE THAT FITS YOUR EXPERIENCE, PLEASE SEND US YOUR DETAILS AND WE&#39;LL BE IN TOUCH IF ANY SUITABLE&amp;nbsp;OPPORTUNITIES&amp;nbsp;ARISE. &amp;nbsp;&lt;/strong&gt;&lt;/h3&gt;\n&lt;div class=&quot;org-about-company-module__about-us-extra&quot;&gt;\n&lt;h3 class=&quot;org-about-company-module__about-us-extra-left-column&quot;&gt;&lt;strong&gt;WE APPRECIATE YOUR INTEREST!&amp;nbsp;&lt;/strong&gt;&lt;/h3&gt;\n&lt;/div&gt;\n&lt;/div&gt;",
+      "location": "",
+      "first_published": "2026-01-20T22:44:16+00:00",
+      "url": "https://job-boards.greenhouse.io/tbwachiatday/jobs/7921483002"
+    },
+    {
+      "title": "Keep Me In Mind",
+      "description": "&lt;div&gt;\n&lt;h3&gt;&lt;strong&gt;WE ARE ALWAYS LOOKING FOR GREAT TALENT TO JOIN US HERE AT TBWA\\CHIAT\\DAY NEW YORK&lt;/strong&gt;&lt;/h3&gt;\n&lt;h3&gt;&lt;strong&gt;IF YOU ARE INTERESTED IN WORKING WITH US BUT DO NOT SEE AN OPEN ROLE THAT FITS YOUR EXPERIENCE, PLEASE SEND US YOUR DETAILS AND WE&#39;LL BE IN TOUCH IF ANY SUITABLE&amp;nbsp;OPPORTUNITIES&amp;nbsp;ARISE. &amp;nbsp;&lt;/strong&gt;&lt;/h3&gt;\n&lt;div class=&quot;org-about-company-module__about-us-extra&quot;&gt;\n&lt;h3 class=&quot;org-about-company-module__about-us-extra-left-column&quot;&gt;&lt;strong&gt;WE APPRECIATE YOUR INTEREST!&amp;nbsp;&lt;/strong&gt;&lt;/h3&gt;\n&lt;/div&gt;\n&lt;/div&gt;",
+      "location": "",
+      "first_published": "2026-01-20T22:44:16+00:00",
+      "url": "https://job-boards.greenhouse.io/tbwachiatday/jobs/7921542002"
+    },
+    {
+      "title": "Keep Me In Mind (Creative)",
+      "description": "&lt;h3&gt;&lt;strong&gt;WE ARE ALWAYS LOOKING FOR GREAT TALENT TO JOIN US HERE AT TBWA\\CHIAT\\DAY LA.&lt;/strong&gt;&lt;/h3&gt;\n&lt;h3&gt;&lt;strong&gt;IF YOU ARE INTERESTED IN WORKING WITH US BUT DO NOT SEE AN OPEN ROLE THAT FITS YOUR EXPERIENCE, PLEASE SEND US YOUR DETAILS AND WE&#39;LL BE IN TOUCH IF ANY SUITABLE&amp;nbsp;OPPORTUNITIES&amp;nbsp;ARISE. &amp;nbsp;&lt;/strong&gt;&lt;/h3&gt;\n&lt;div class=&quot;org-about-company-module__about-us-extra&quot;&gt;\n&lt;h3 class=&quot;org-about-company-module__about-us-extra-left-column&quot;&gt;&lt;strong&gt;WE APPRECIATE YOUR INTEREST! &amp;nbsp;&lt;/strong&gt;&lt;/h3&gt;\n&lt;p&gt;&lt;strong&gt;Please note: If you are a current employee and have a referral to submit use this resource for &lt;span style=&quot;color: #f1c40f;&quot;&gt;creative&lt;/span&gt; referrals. Contact your recruitment team if there are any questions.&amp;nbsp;&lt;/strong&gt;&lt;/p&gt;\n&lt;/div&gt;",
+      "location": "",
+      "first_published": "2026-01-20T22:44:16+00:00",
+      "url": "https://job-boards.greenhouse.io/tbwachiatday/jobs/5696854002"
+    }
+  ],
+  "primary_function": "sales_heavy",
+  "estimated_stage": "public",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": false,
+  "tech_role_ratio": 0.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.0,
+  "volatility_signal": 0.0,
+  "notes": "No tech roles posted; mostly non-tech, sales, and creative roles",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
 }

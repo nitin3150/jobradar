@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "slug": "paradigm",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T15:52:38.358189+00:00",
+  "source_jobs_count": 4,
+  "source_last_published": "2026-05-12T18:50:04.398000+00:00",
+  "source_jobs": [
+    {
+      "title": "Engineering - Paradigm Portfolio",
+      "description": "Paradigm is a frontier technology investment firm. We invest and build in crypto, AI, robotics, and across new frontiers from the earliest stages, often when there\u2019s no more than an idea.\n\nThe companies in our portfolio are attacking an extraordinarily diverse set of problems, but they all have one thing in common - they're looking to add world-class talent to their teams.\n\nIf you\u2019re a software engineer interested in opportunities at the frontier of technology more broadly, but you don\u2019t know where to start, we\u2019d love to help identify roles within our portfolio that might be of interest to you. Please note: This posting is to learn more about opportunities across Paradigm\u2019s portfolio, and is not for an internal position at Paradigm.\n\nWhen speaking with Paradigm\u2019s talent team, we\u2019ll seek to match your background, skill set and professional interests with companies and opportunities available within our portfolio.",
+      "location": "",
+      "first_published": "2025-09-12T21:30:52.513000+00:00",
+      "url": "https://jobs.ashbyhq.com/paradigm/2c506a66-05c2-4df0-a1ae-751f44b08ce0"
+    },
+    {
+      "title": "Product - Paradigm Portfolio",
+      "description": "Paradigm is a frontier technology investment firm. We invest and build in crypto, AI, robotics, and across new frontiers from the earliest stages, often when there\u2019s no more than an idea.\n\nThe companies in our portfolio are attacking an extraordinarily diverse set of problems, but they all have one thing in common - they're looking to add world-class talent to their teams.\n\nIf you\u2019re a product manager interested in opportunities at the frontier of technology more broadly, but you don\u2019t know where to start, we\u2019d love to help identify roles within our portfolio that might be of interest to you. Please note: This posting is to learn more about opportunities across Paradigm\u2019s portfolio, and is not for an internal position at Paradigm.\n\nWhen speaking with Paradigm\u2019s talent team, we\u2019ll seek to match your background, skill set and professional interests with companies and opportunities available within our portfolio.",
+      "location": "",
+      "first_published": "2022-09-20T18:21:53.664000+00:00",
+      "url": "https://jobs.ashbyhq.com/paradigm/35d27694-9d25-4676-a797-e798c56d6787"
+    },
+    {
+      "title": "Growth - Paradigm Portfolio",
+      "description": "Paradigm is a frontier technology investment firm. We invest and build in crypto, AI, robotics, and across new frontiers from the earliest stages, often when there\u2019s no more than an idea.\n\nThe companies in our portfolio are attacking an extraordinarily diverse set of problems, but they all have one thing in common - they're looking to add world-class talent to their teams.\n\nIf you\u2019re a growth expert (or work in marketing or BD) interested in opportunities at the frontier of technology more broadly, but you don\u2019t know where to start, we\u2019d love to help identify roles within our portfolio that might be of interest to you. Please note: This posting is to learn more about opportunities across Paradigm\u2019s portfolio, and is not for an internal position at Paradigm.\n\nWhen speaking with Paradigm\u2019s talent team, we\u2019ll seek to match your background, skill set and professional interests with companies and opportunities available within our portfolio.",
+      "location": "",
+      "first_published": "2022-09-20T18:21:02.193000+00:00",
+      "url": "https://jobs.ashbyhq.com/paradigm/80eee80a-aecb-4888-b219-fba7b99dcb1b"
+    },
+    {
+      "title": "Design - Paradigm Portfolio",
+      "description": "Paradigm is a frontier technology investment firm. We invest and build in crypto, AI, robotics, and across new frontiers from the earliest stages, often when there\u2019s no more than an idea.\n\nThe companies in our portfolio are attacking an extraordinarily diverse set of problems, but they all have one thing in common - they're looking to add world-class talent to their teams.\n\nIf you\u2019re a product designer interested in opportunities at the frontier of technology more broadly, but you don\u2019t know where to start, we\u2019d love to help identify roles within our portfolio that might be of interest to you. Please note: This posting is to learn more about opportunities across Paradigm\u2019s portfolio, and is not for an internal position at Paradigm.\n\nWhen speaking with Paradigm\u2019s talent team, we\u2019ll seek to match your background, skill set and professional interests with companies and opportunities available within our portfolio.",
+      "location": "",
+      "first_published": "2026-05-12T18:50:04.398000+00:00",
+      "url": "https://jobs.ashbyhq.com/paradigm/e1446f34-a963-4df9-bab8-e49e7fcdb16f"
+    }
+  ],
+  "primary_function": "mixed",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.75,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Portfolio company job postings, diverse set of problems, frontier technology investment firm",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

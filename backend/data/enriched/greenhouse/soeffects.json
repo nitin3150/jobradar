@@ -1,9 +1,8 @@
 {
-  "schema_version": 1,
-  "status": "skipped",
+  "schema_version": 2,
+  "status": "failed",
   "slug": "soeffects",
   "board": "greenhouse",
-  "decision_at": "2026-07-11T01:13:06.982274+00:00",
-  "reason": "fewer_than_3_jobs",
-  "source_jobs_count": 1
+  "decision_at": "2026-07-14T02:28:10.385683+00:00",
+  "reason": "RuntimeError: all LLM providers failed on run_json_prompt; last error type=_RateLimitedError"
 }

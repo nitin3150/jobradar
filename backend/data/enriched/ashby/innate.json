@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "innate",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T05:36:05.394163+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-05-03T23:07:51.097000+00:00",
+  "source_jobs": [
+    {
+      "title": "Open Application",
+      "description": "Feel free to indicate what you think you could be helpful for\n\n\n\nWe're always on the lookout for talented folks willing to give a hand!",
+      "location": "",
+      "first_published": "2025-02-06T05:46:19.512000+00:00",
+      "url": "https://jobs.ashbyhq.com/innate/dce6c0ec-068b-484b-bf12-f8d65ad06faf"
+    },
+    {
+      "title": "Mechatronics Engineer",
+      "description": "Who we are\n\nBefore the PC, there used to be a time where computing was locked inside big corporations. But thanks to hackers of Silicon Valley, everyone now has a computer and can develop for it.\n\nThe same should happen for robotics. We're building a platform that makes it accessible: the PC of robotics. An intuitive, open, affordable general-purpose robot for everyone.\n\nIf you're going to work on something crazy hard, it might as well matter. We're a small team that cares: about the problem, about the people using our robots, and about building a product that will still mean something years from now. We are our own users.\n\n\n\nWhat we're looking for\n\nA generalist mechatronics engineer who has built and shipped before and feels confident working on a mass consumer product.\n\nThis role covers a lot of ground. On any given day you might be laying out a PCB, designing a mechanical part, and writing firmware. If your ideal job is owning one narrow thing and perfecting it over years, we're probably not a fit. If that description sounds limiting to you, keep reading.\n\nThe core stuff that actually excites us:\n\n - PCB design, high-speed digital and power electronics\n\n - CAD & rapid prototyping.\n\n - Firmware: embedded C, microcontrollers\n\n - Software: You can code and debug in C / Python\n\nThings that we prefer to see:\n\n - Experience with manufacturing processes \u2014 CNC machining, sheet metal, injection molding\n\n - You've touched RF or high-speed signal integrity work\n\n - You've ordered parts, managed a BOM, navigated a supply chain\n\n - FPGAs are a real bonus\n\nDO NOT censure yourself if you don't meet all of these requirements, we look for fast-learners more than anything else.\n\n\n\nThe kind of person you are\n\n\u2022\u2060 \u2060You are energized by hard problems, not intimidated by them\n\u2022\u2060 \u2060You are driven to build things for the real world\n\u2022\u2060 \u2060Who you're building with with matters as much as what you're building\n\u2022\u2060 \u2060You value dynamism, new problems every week\n\n\n\nWhat you'll work on\n\nDesigning and building the physical systems that make our robots work \u2014 electronics, mechanics, firmware, and everything in between. Think about and design the product, with the rest of the team, and stay close to customers' needs.",
+      "location": "",
+      "first_published": "2026-03-24T23:50:42.363000+00:00",
+      "url": "https://jobs.ashbyhq.com/innate/df4e2f82-2039-4496-8c60-3ea14045eed1"
+    },
+    {
+      "title": "Operations Lead / Chief of Staff",
+      "description": "WHO WE ARE\n\nBefore the PC, computing was locked inside big corporations. But thanks to hackers of Silicon Valley, everyone now has a computer and can develop for it.\n\nThe same should happen for robotics. We're building a platform that makes it accessible: the PC of robotics. An intuitive, open, affordable general-purpose robot for everyone.\n\nIf you're going to work on something crazy hard, it might as well matter. We're a small team that cares: about the problem, about the people using our robots, and about building a product that will still mean something years from now. We are our own users.\n\n\n\n\nWHAT WE'RE LOOKING FOR\n\nWe're looking for an Operations Lead / Chief of Staff to be working with the CEO as Innate scales from early customer deployments to real volume.\n\nYou will help turn a fast-moving robotics company into an operating machine: keeping customers cared for, shipments moving, information findable, and the team focused. This is not a back-office role. You will be close to the product, close to customers, and close to the messy reality of putting robots in the world.\n\n\n\nThe core stuff that actually excites us:\n\n - Customer experience: keeping early users cared for, informed, and successful.\n\n - Operations: shipments, inventory, vendors, timelines, internal systems, and follow-through.\n\n - Process: turning chaos into clean workflows, docs, CRM systems, and company rhythm.\n\n - Strategy: helping with planning, research, prioritization, and special projects with the CEO.\n\n - AI leverage: finding and (preferably) building internal AI tools that make the team faster.\n\n - Company building: noticing what is broken, owning it, and building the habit or system that keeps it from breaking again.\n\n\n\n\nTHE KIND OF PERSON YOU ARE\n\nYou are high-energy, extremely organized, and unusually good at making things happen. You notice details, but you do not get lost in them. You are creative in your ability to solve problems.\n\nYou might have a consulting, bizops, startup, operations, investing, or generalist background. More importantly, you have strong taste, strong follow-through, and a real interest in both consumer products, hardware, deep tech. You also have experience with supply chain, and are very interested in manufacturing. Finally, you care about the human side of personal robots: trust, delight, reliability, and customer experience.\n\nBut most importantly, you are ridiculously hungry to make something worthwhile with your life. This is not a job to slack, it's a job to change the world.\n\n\n\n\nWHAT YOU'LL WORK ON\n\nYou will work directly with the CEO to build the operating layer of Innate: customer experience, shipments, internal systems, CRM and processes, planning, documentation, and company operations.\n\n\n\nWhen you apply, tell us about a time you took something ambiguous and made it run.\n\n\n\nFounder note: we receive a lot of applications; make sure you find a way to get yourself noticed",
+      "location": "",
+      "first_published": "2026-05-03T23:07:51.097000+00:00",
+      "url": "https://jobs.ashbyhq.com/innate/8a0a0ea5-8a40-4d32-812c-e2b780f03ce9"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "seed",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.6666666666666666,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Robotics platform startup with a small team and a focus on accessibility and open-source technology.",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

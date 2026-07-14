@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "tilderesearch",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T17:50:13.399177+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2025-07-14T21:45:39.710000+00:00",
+  "source_jobs": [
+    {
+      "title": "ML Researcher (Internship and Full-time)",
+      "description": "Tilde Research is a moonshot AI lab advancing mechanistic interpretability, new architectures, and pretraining science. We build foundational understanding of models to advance the frontier of intelligence.\n\n\nAbout the role:\n\nAs a ML Researcher, you will develop innovative techniques to deeply understand how large AI models work\u2014and use those insights to make them better. You'll work on training, analyzing, and evaluating cutting-edge models, collaborating closely with a team of researchers and engineers to advance interpretability as a tool for improving performance and control.\n\n\n\nWhat you might work on:\n\n - Designing, prototyping, and optimizing novel model architectures\n\n - Investigating why models or specific components behave the way they do\u2014and how to improve them\n\n - Curating targeted datasets to elicit and instill specific behaviors or capabilities in models\n\n - Collaborating on papers, blog posts, and open-source tools to share insights with the broader community\n\n\n\nYou're a good fit if you:\n\n - Have experience in deep learning or related research areas\n\n - Have deep technical expertise in some subfield(s) of modern ML, e.g. architecture, optimizers, RL, learning dynamics, etc.. This can include through:\n   \n   - Strong publication record\n   \n   - Thoughtful technical blog posts\n\n - Have experience working with large-scale pre/post-training infrastructure for experimentation\n\n - Communicate clearly and effectively, both verbally and in writing\n\n - Can come up with and evaluate research ideas\n\n - Are able to learn quickly",
+      "location": "",
+      "first_published": "2025-07-14T19:00:37.725000+00:00",
+      "url": "https://jobs.ashbyhq.com/tilderesearch/e850d5b0-a5d6-4b9c-9898-f7addb441508"
+    },
+    {
+      "title": "ML Engineer (Internship and Full-time)",
+      "description": "Tilde Research is a moonshot AI lab advancing mechanistic interpretability, new architectures, and pretraining science. We build foundational understanding of models to advance the frontier of intelligence.\n\n\nAbout the role:\n\nAs a ML Engineer, you\u2019ll build and operate the infrastructure that makes cutting-edge machine learning research possible. At Tilde, we believe meaningful progress in AI requires not just novel ideas, but the ability to rapidly test, scale, and iterate on them\u2014and that demands exceptional engineering.\n\nYou\u2019ll work on the systems that support training and evaluating large models, scaling experimental pipelines, and building the infrastructure necessary to actually understand models. Your work will be foundational to our research, making it possible to explore ambitious ideas that push the boundaries of performance, interpretability, and control.\n\n\n\nWhat you might work on:\n\n - Optimize inference and training throughput for novel model architectures\n\n - Build and maintain high-performance distributed training infrastructure\n\n - Collaborate with researchers to translate insights into measurable improvements in model performance and understanding\n   \n   \n\nYou're a good fit if you:\n\n - Have experience in deep learning or related research areas\n\n - Have demonstrated exceptional capability in working on ML infrastructure. This can include:\n   \n   - Strong open source contributions\n   \n   - Thoughtful technical blog posts/work logs\n   \n   - Previous experience working with large-scale pre/post-training infrastructure\n\n - Deep familarity with Pytorch or Jax, basic familiarity Triton/Tilelang/TK etc.\n\n - Communicate clearly and effectively, both verbally and in writing\n\n - Can design and orchestrate end-to-end ML pipelines\n\n - Are able to learn quickly",
+      "location": "",
+      "first_published": "2025-07-14T21:43:09.149000+00:00",
+      "url": "https://jobs.ashbyhq.com/tilderesearch/b2e145db-0111-47c1-9d9f-e856a057d8ef"
+    },
+    {
+      "title": "Kernel Engineer (Internship and Full-time)",
+      "description": "Tilde Research is a moonshot AI lab advancing mechanistic interpretability, new architectures, and pretraining science. We build foundational understanding of models to advance the frontier of intelligence.\n\n\nAbout the role:\n\nAs a Kernel Engineer at Tilde, you'll design, implement, and optimize high-performance GPU kernels that are critical to scaling our training and inference workloads. Your work will enable faster iteration cycles, higher throughput, and lower latency. You'll work closely with ML researchers and engineers to co-design models and infrastructure that are deeply performance-aware, and help push the limits of what current hardware can support.\n\n\n\nWhat you might work on:\n\n - Design, develop, and tune custom GPU kernels for core model operations\n\n - Work with ML engineers to prototype and scale novel model architectures\n\n - Contribute to system-wide efforts to improve efficiency and throughput, beyond just kernel-level optimizations\n   \n\n\nYou're a good fit if you:\n\n - Have experience in deep learning or related research areas\n\n - Have demonstrated exceptional capability in working on ML kernels. This can include:\n   \n   - Strong open source contributions\n   \n   - Thoughtful technical blog posts/work logs\n   \n   - Previous experience working on hardware-aligned algorithms\n\n - Deep familiarity with PyTorch, Triton/TK/TileLang (>1 of), basic familiarity with CUDA, and knowledge of GPU architecture.\n\n - Communicate clearly and effectively, both verbally and in writing\n\n - Strong algorithmic thinker\n\n - Are able to learn quickly",
+      "location": "",
+      "first_published": "2025-07-14T21:45:39.710000+00:00",
+      "url": "https://jobs.ashbyhq.com/tilderesearch/bc4e4071-cf64-4460-8265-b1e5a603d6b8"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "seed",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 1.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "AI research lab with high-performance engineering focus",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "slug": "vibecode",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T18:11:41.092673+00:00",
+  "source_jobs_count": 4,
+  "source_last_published": "2026-05-08T20:24:07.558000+00:00",
+  "source_jobs": [
+    {
+      "title": "Member of Technical Staff (Applied AI Engineer)",
+      "description": "At Vibecode, we want to bring the power of AI to the next 100 million people.\n\nIf you get deeply excited about being able to take the most wonderful technology of our generation and spread it to the masses through inspiration and education, then Vibecode is the place for you.\n\nSince the advent of AI-assisted coding, there is no hard technical requirements anymore, but here are some interesting things we are working on:\n\n - Custom memory systems that grow and scale as users use the platform\n\n - A custom agent that is at the cutting edge\n\n - Bare metal infrastructure and scalability with concurrency and a high degree of reliability\n\n - Cost and output optimization with multiple models\n\n - Evaluating LLM performance on a wide domain of tasks\n\n\n\nYou will be a good fit if you meet all of these criteria:\n\n 1. Deeply curious -- you are fascinated by the world of technology and often find yourself tinkering late into the night or early into the morning\n\n 2. Hard worker -- working long hours comes naturally for you and you gain pleasure from working in an intense team that pushes you to your limits\n\n 3. Low ego / humble -- no problem is too small, and you are always open to other's ideas",
+      "location": "",
+      "first_published": "2026-05-08T20:23:51.953000+00:00",
+      "url": "https://jobs.ashbyhq.com/vibecode/6ab57742-1695-4ba2-8de1-998e85769501"
+    },
+    {
+      "title": "Member of Technical Staff (Design Engineer)",
+      "description": "At Vibecode, we want to bring the power of AI to the next 100 million people.\n\nIf you get deeply excited about being able to take the most wonderful technology of our generation and spread it to the masses through inspiration and education, then Vibecode is the place for you.\n\nSince the advent of AI-assisted coding, there is no hard technical requirements anymore, but here are some interesting things we are working on:\n\n - Using a combination of AI coding tools like Cursor, Claude Code, and Codex to build scalable design systems\n\n - Knowing the difference between #1f1f1f and #1d1d1d and being nit-picky about good design\n\n - Having excellent taste\n\n - Using Figma when necessary\n   \n   \n\nYou will be a good fit if you meet all of these criteria:\n\n 1. Deeply curious -- you are fascinated by the world of technology and often find yourself tinkering late into the night or early into the morning\n\n 2. Hard worker -- working long hours comes naturally for you and you gain pleasure from working in an intense team that pushes you to your limits\n\n 3. Low ego / humble -- no problem is too small, and you are always open to other's ideas",
+      "location": "",
+      "first_published": "2026-04-21T18:27:16.094000+00:00",
+      "url": "https://jobs.ashbyhq.com/vibecode/7b824dd2-0947-43e4-b7fe-b9778920e5ad"
+    },
+    {
+      "title": "Member of Technical Staff (Growth & Content)",
+      "description": "At Vibecode, we want to bring the power of AI to the next 100 million people.\n\nIf you get deeply excited about being able to take the most wonderful technology of our generation and spread it to the masses through inspiration and education, then Vibecode is the place for you.\n\nSince the advent of AI-assisted coding, there is no hard technical requirements anymore, but here are some interesting things we are working on:\n\n - Researching the hot new thing and running deep evals on it\n\n - Having early access to new agents, models, and runtimes and being able to finetune our system to them\n\n - Inspiring and educating the next generation to use AI via high-quality long form content on YouTube, X, Instagram and LinkedIn\n\n - Building multiple projects with a combination of AI tools that are unique and exciting\n\n - Having good taste and making things look good effortlessly\n\n\n\nYou will be a good fit if you meet all of these criteria:\n\n 1. Deeply curious -- you are fascinated by the world of technology and often find yourself tinkering late into the night or early into the morning\n\n 2. Hard worker -- working long hours comes naturally for you and you gain pleasure from working in an intense team that pushes you to your limits\n\n 3. Low ego / humble -- no problem is too small, and you are always open to other's ideas",
+      "location": "",
+      "first_published": "2026-04-21T18:27:26.511000+00:00",
+      "url": "https://jobs.ashbyhq.com/vibecode/ea20329e-d9ed-4fd4-99ca-5dc881adc023"
+    },
+    {
+      "title": "Member of Technical Staff (Infrastructure)",
+      "description": "At Vibecode, we want to bring the power of AI to the next 100 million people.\n\nIf you get deeply excited about being able to take the most wonderful technology of our generation and spread it to the masses through inspiration and education, then Vibecode is the place for you.\n\nSince the advent of AI-assisted coding, there is no hard technical requirements anymore, but if you have experience in the following or want to help build the following that would be great:\n\n - Custom sandbox architecture on bare metal infrastructure\n\n - Go/Golang based microservices platform\n\n - Dealing with high concurrency platform systems that reach 100s of thousands of users\n\n - Custom AI harnesses and AI agents\n   \n   \n\nYou will be a good fit if you meet all of these criteria:\n\n 1. Deeply curious -- you are fascinated by the world of technology and often find yourself tinkering late into the night or early into the morning\n\n 2. Hard worker -- working long hours comes naturally for you and you gain pleasure from working in an intense team that pushes you to your limits\n\n 3. Low ego / humble -- no problem is too small, and you are always open to other's ideas",
+      "location": "",
+      "first_published": "2026-05-08T20:24:07.558000+00:00",
+      "url": "https://jobs.ashbyhq.com/vibecode/3f7436ea-42ed-4061-a446-98c5128b87db"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "seed",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "biweekly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.75,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "AI-assisted coding platform with multiple technical roles open",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "slug": "icon",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T05:29:29.710635+00:00",
+  "source_jobs_count": 6,
+  "source_last_published": "2026-05-14T01:36:54.661000+00:00",
+  "source_jobs": [
+    {
+      "title": "Founding Operations",
+      "description": "https://icon.me/careers",
+      "location": "",
+      "first_published": "2024-08-29T19:45:14.290000+00:00",
+      "url": "https://jobs.ashbyhq.com/icon/174feb0d-9e8e-41e0-bbef-db131e536a64"
+    },
+    {
+      "title": "Founding Growth",
+      "description": "https://icon.com/careers https://icon.me/careers",
+      "location": "",
+      "first_published": "2024-08-29T19:44:49.228000+00:00",
+      "url": "https://jobs.ashbyhq.com/icon/28d03030-be7a-4e48-bc0b-6c19ac8d7579"
+    },
+    {
+      "title": "Founding Creative",
+      "description": "https://icon.com/careers",
+      "location": "",
+      "first_published": "2024-11-28T05:00:05.637000+00:00",
+      "url": "https://jobs.ashbyhq.com/icon/71e0a7d4-5577-46cf-9abe-c23dc54cfa9b"
+    },
+    {
+      "title": "Founding Sales",
+      "description": "https://icon.com/careers",
+      "location": "",
+      "first_published": "2026-05-14T01:36:54.661000+00:00",
+      "url": "https://jobs.ashbyhq.com/icon/78de2e13-4416-4fab-a785-f52062ee0c71"
+    },
+    {
+      "title": "Founding Engineer",
+      "description": "https://icon.com/careers https://icon.me/careers",
+      "location": "",
+      "first_published": "2024-08-29T19:45:00.606000+00:00",
+      "url": "https://jobs.ashbyhq.com/icon/8de569c7-814f-4ffe-9c21-a92d7b806be2"
+    },
+    {
+      "title": "Anything",
+      "description": "https://icon.com/careers https://icon.me/careers",
+      "location": "",
+      "first_published": "2024-08-29T19:45:07.837000+00:00",
+      "url": "https://jobs.ashbyhq.com/icon/a6f90043-34aa-4547-99ca-30af079dacd2"
+    }
+  ],
+  "primary_function": "mixed",
+  "estimated_stage": "seed",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.16666666666666666,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Limited job postings, but diverse roles and 'Founding' titles suggest early-stage startup",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

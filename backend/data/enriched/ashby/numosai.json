@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "slug": "numosai",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T15:28:37.037796+00:00",
+  "source_jobs_count": 4,
+  "source_last_published": "2026-05-09T00:13:08.238000+00:00",
+  "source_jobs": [
+    {
+      "title": "Senior AI Engineer",
+      "description": "We\u2019re looking for a Senior AI engineer to build the core intelligence behind AI teammates for finance. You\u2019ll develop systems that go beyond copilots and actually execute work, combining reasoning, context, and action inside real enterprise workflows.\n\nWhat you\u2019ll do\n\n - Build and deploy AI systems that power outcome-driven automation\n\n - Develop agentic workflows that can plan, reason, and take action across systems\n\n - Integrate LLMs into production environments with reliability and control\n\n - Work with structured and unstructured data to ground models in real business context\n\n - Partner with product to ship end-to-end capabilities\n\nWhat we\u2019re looking for\n\n - Experience working with LLMs and generative AI systems\n\n - Strong Python skills with frameworks like PyTorch or TensorFlow\n\n - Familiarity with AI agent frameworks and orchestration patterns\n\n - Experience integrating AI into enterprise software environments\n\nWhy Numos\nYou\u2019ll be building AI that doesn\u2019t just assist, but delivers outcomes. The work is applied, the systems are complex, and the bar for reliability is high.",
+      "location": "",
+      "first_published": "2026-03-31T05:08:26.092000+00:00",
+      "url": "https://jobs.ashbyhq.com/numosai/6fc8aa1f-3c7e-4162-bcb2-42925e185da9"
+    },
+    {
+      "title": "Senior Full-Stack Engineer",
+      "description": "We\u2019re looking for a senior full stack engineer to help build the core systems behind AI teammates for finance. You\u2019ll design and ship infrastructure that allows agents to initiate, execute, and complete real workflows across messy enterprise environments. This is not surface-level AI. You\u2019ll be working on systems that combine reasoning, context, and action in production.\n\nWhat you\u2019ll do\n\n - Design and build end-to-end systems that power intelligent, outcome-driven workflows\n\n - Own features across the stack, from backend services to user-facing interfaces\n\n - Integrate AI models into reliable, auditable production systems\n\n - Work closely with product and customers to solve real finance and accounting problems\n\n - Build for scale, security, and enterprise-grade reliability from day one\n\nWhat we\u2019re looking for\n\n - 5+ years of full stack development experience\n\n - Strong proficiency in Python\n\n - Experience with modern cloud platforms (AWS, Azure, or GCP)\n\n - Hands-on experience integrating AI/ML systems into applications\n\n - Background in enterprise software architecture and distributed systems\n\nWhy Numos\nYou\u2019ll be building systems that don\u2019t just assist work, but actually get it done. The problems are complex, the expectations are high, and the impact is real.\n\n\n\n\u00a0\n\u00a0",
+      "location": "",
+      "first_published": "2026-03-31T04:58:45.096000+00:00",
+      "url": "https://jobs.ashbyhq.com/numosai/979ea4ff-a86d-4e1e-9e82-05f26cb831d6"
+    },
+    {
+      "title": "Senior Frontend Engineer",
+      "description": "We\u2019re looking for a senior frontend engineer to design and build the interfaces for AI teammates in finance. You\u2019ll create intuitive, high-signal experiences that make complex systems understandable, controllable, and trustworthy in real workflows.\n\nWhat you\u2019ll do\n\n - Build responsive, high-performance interfaces for AI-driven workflows\n\n - Translate complex data and system behavior into clear, usable experiences\n\n - Design interactions that balance automation with human control and review\n\n - Collaborate closely with backend and AI teams to ship end-to-end features\n\n - Own frontend architecture and contribute to design systems and standards\n\nWhat we\u2019re looking for\n\n - 2+ years of frontend development experience\n\n - Strong expertise in React and TypeScript\n\n - Experience designing or building interfaces for AI/ML systems\n\n - Ability to work with complex data and create effective visualizations\n\n - Familiarity with modern web technologies and frontend best practices\n\nWhy Numos\nYou\u2019ll be shaping how people interact with AI that actually does the work. The challenge is making powerful systems feel simple, without losing depth or control.",
+      "location": "",
+      "first_published": "2026-03-31T05:12:06.911000+00:00",
+      "url": "https://jobs.ashbyhq.com/numosai/ade7b15a-68c7-46ad-ad2a-9a941f26adb9"
+    },
+    {
+      "title": "Founding Growth Lead",
+      "description": "ABOUT NUMOS\n\nNumos is building the AI Teammate for enterprise finance organizations. We\u2019re taking finance teams from operational drudgery to strategic powerhouses by becoming the trusted AI layer across financial operations so every number is accurate, every insight is accessible, and finance leaders get time back to focus on what matters. Our customers range from mid-market to large public companies.\n\n\n\n\nTHE ROLE\n\nThis is our first growth hire. You\u2019ll build the growth engine end-to-end: lead generation \u2192 pipeline \u2192 onboarding/activation \u2192 retention loops. This is not a narrow \u201cmarketer\u201d role and not an SDR seat. It\u2019s a generalist builder role for someone who wants to own ambiguity, run experiments, and turn what works into repeatable systems.\n\nIf you\u2019re looking for a place where your work visibly moves the company every week, this role is for you.\n\n\u00a0\n\u00a0\n\n\nWHAT YOU\u2019LL OWN\n\n\n1) FUNNEL ANALYTICS OWNERSHIP (END-TO-END)\n\n - Model, measure, and optimize acquisition, activation, and retention metrics.\n\n - Build out our reporting cadence: what happened, why, and what we\u2019re changing.\n\n\n2) PIPELINE CREATION (MULTI-CHANNEL)\n\n - Design and experiment across outbound programs across email, LinkedIn, content-led outreach, and events.\n\n - Build and iterate on targeting, segmentation, and sequencing to generate high-quality meetings + pipeline.\n\n\n3) EXPERIMENTATION ENGINE\n\n - Ship high-leverage experiments: messaging tests, outbound angles, founder-led content, webinars/events, partnerships, paid tests (selectively).\n\n - Run tight loops: hypothesis \u2192 launch \u2192 measure \u2192 double down or kill fast.\n\n\n4) POSITIONING & MESSAGING\n\n - Craft crisp value props and competitive angles that resonate with CFOs, Controllers, and FP&A leaders (and the operators who support them).\n\n - Produce collateral that actually gets used: one-pagers, outbound snippets, decks, case studies, demo narratives.\n\n\n5) PROCESS, TOOLING, AND AUTOMATION (AI-FIRST STACK)\n\n - Stand up workflows for prospecting, enrichment, routing, attribution, and follow-up.\n\n - Build lightweight systems that scale (CRM hygiene, automation, handoffs, playbooks). Automate what can be automated; personalize where it matters.\n\n\n6) ACTIVATION + RETENTION LOOPS (WITH THE TEAM)\n\n - Improve onboarding and \u201ctime-to-value\u201d with tight feedback loops from customers.\n\n - Build lifecycle touches that drive adoption, expansion, and referrals.\n   \n\n\u00a0\n\u00a0\n\n\nWHO YOU ARE\n\n - Builder mindset: you like blank pages and turning chaos into systems.\n\n - Strong operator brain: analytical, structured, fast-moving, allergic to vanity metrics.\n\n - High-agency: you don\u2019t wait for permission; you figure it out and ship.\n\n - Great communicator: you can write tight copy and explain tradeoffs clearly.\n\n - Comfortable with outbound: you\u2019re not precious about \u201cbrand\u201d at the expense of pipeline.\n\n - Curious + relentless: you learn quickly, iterate quickly, and don\u2019t get emotional about failed experiments.\n   \n   \n\n\nYOU MIGHT HAVE\n\n - 2-6 years in consulting, BizOps, growth ops.\n\n - Experience standing up growth tooling (CRM, enrichment, sequencing, attribution, automation).\n\n - Bonus: you can do light SQL / analytics and aren\u2019t scared of data.\n\n\u00a0\n\u00a0\n\n\nWHY THIS ROLE IS SPECIAL\n\n - You\u2019ll be the founding architect of growth at a company aiming to define a category.\n\n - Direct line to the founding team; fast decisions; high ownership.\n\n - If you crush this, you won\u2019t just \u201cdo growth\u201d, you\u2019ll define how Numos grows.\n\n",
+      "location": "",
+      "first_published": "2026-05-09T00:13:08.238000+00:00",
+      "url": "https://jobs.ashbyhq.com/numosai/cb850730-eeb8-4e9a-9092-789fc2d9d8a0"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.75,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "AI-focused startup with a strong engineering core, few non-tech postings",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

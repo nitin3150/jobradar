@@ -1,0 +1,104 @@
+{
+  "schema_version": 2,
+  "slug": "umbrel",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T17:58:10.285500+00:00",
+  "source_jobs_count": 11,
+  "source_last_published": "2025-11-14T22:00:20.530000+00:00",
+  "source_jobs": [
+    {
+      "title": "Product Designer",
+      "description": "In this role, you will work on the product design of umbrelOS, some of our first-party umbrelOS apps, and the umbrel.com http://umbrel.com website.\n\n\n\nWe hope you:\n\n - Like to spend your days staring at artboards in Figma\n\n - Are obsessed with creating delightful micro-interactions and animations\n\n - Are willing to throw away ideas if they're not great, and optimistic enough to keep hunting for new ones\n\n - Care about the details, maybe a bit too much (a pixel off ruins your sleep)\n\n - Are excited to collaborate with everyone on the team: engineers, customer facing folks, etc - you believe inspiration can come from anywhere\n\n - Have good judgement of when to ship\n\n - Like to level up your design skills continually\n\n - Put yourselves in the shoes of our users to craft a great experience\n\n - Enjoy being a generalist and are not tied down to a specific design, trend, or tools",
+      "location": "",
+      "first_published": "2025-11-14T21:41:55.387000+00:00",
+      "url": "https://jobs.ashbyhq.com/umbrel/0c4657db-0d05-42f0-ad3e-8fac6b3fd6f1"
+    },
+    {
+      "title": "Senior Systems Engineer",
+      "description": "This role requires a strong understanding of Linux systems, particularly at the kernel level, networking, Docker, and the ability to optimize for both x86 and ARM64 architectures.\n\n\n\nIn this role, you will:\n\n - Develop and maintain the core components of umbrelOS, focusing on performance, stability, and security across different hardware architectures.\n\n - Ensure optimal integration and performance of umbrelOS on the Umbrel Home.\n\n - Design and implement system-level enhancements.\n\n - Conduct rigorous testing and debugging at the kernel level to handle system updates and compatibility issues.\n\n\n\nWe hope you:\n\n - Can autonomously figure out solutions to engineering challenges\n\n - Value clear and frequent communication (we do a lot of reading and writing)\n\n - Enjoy being a generalist and are not tied down to a specific framework or surface area of our codebase\n\n - Are naturally curious and willing to learn something they don\u2019t have experience in\n\n - Have good judgement of when to ship: perfect is the enemy of good",
+      "location": "",
+      "first_published": "2025-11-14T21:38:27.480000+00:00",
+      "url": "https://jobs.ashbyhq.com/umbrel/0f1d0297-d3b1-4d7f-8e42-8fe0a52a3066"
+    },
+    {
+      "title": "Customer Support (technical)",
+      "description": "In this role, you will:\n\n - Support our users across all online channels (email, Discord, website chat, forums, social medias, etc)\n\n - Create how-tos, guides, wikis, knowledge base, etc for recurring questions/issues\n\n - Collaborate with engineers on our team to debug through challenging technical issues\n\n\n\nWe hope you:\n\n - Have great written communication skills\n\n - Have at least basic Linux technical skills, such as SSH, running commands in Terminal to debug with users, etc (we\u2019ll train you with umbrelOS-specific commands)\n\n - Like talking to users and are willing to constantly do so without external encouragement\n\n - Are able to empathize with users, and genuinely care about their problems \u2014 we can\u2019t exist without them",
+      "location": "",
+      "first_published": "2025-11-14T21:58:04.222000+00:00",
+      "url": "https://jobs.ashbyhq.com/umbrel/127412b8-7730-4311-9be2-2977806a0474"
+    },
+    {
+      "title": "umbrelOS Apps Engineer (Docker)",
+      "description": "In this role, you'd lead the Umbrel App Store, including the app submission and review process, documentation, SDK, and more.\n\nYou will:\n\n - Review and test app submissions https://github.com/getumbrel/umbrel-apps/pulls for the Umbrel App Store\n\n - Identify bugs and issues in apps\n\n - Automate testing processes for umbrelOS apps\n\n - Work closely with the engineering team to track down umbrelOS-related bugs\n\n\n\nWe hope you have:\n\n - Experience in Docker, Docker Compose, and Linux\n\n - Experience in software quality assurance, testing, automation tools, and scripting\n\n - Knowledge of testing methodologies and tools\n\n - Most importantly - genuine passion for delivering high-quality software and experiences to end-users",
+      "location": "",
+      "first_published": "2025-11-14T21:40:02.414000+00:00",
+      "url": "https://jobs.ashbyhq.com/umbrel/2cce27ee-1af0-48c5-86f8-5df11a76f80e"
+    },
+    {
+      "title": "Lead Native App Engineer",
+      "description": "We're looking for a Lead Native App Engineer to join our team and take full ownership of an exciting new, unannounced project. \ud83d\udc40\n\nWe hope you are someone who:\n\n - Feels a deep sense of ownership over the apps you build, because you\u2019ll own this entire codebase end-to-end.\n\n - Has a strong background in developing native apps for iOS and Android using React Native, preferably with experience using platforms like Expo.\n\n - Is comfortable building for the desktop and has experience with frameworks like Tauri or Electron.\n\n - Obsessively sweats the details: performance, animations, offline states, edge cases, and the stuff most people ignore.\n\n - Has a hacker\u2019s spirit; unafraid to dive into native code when needed, or figure out a gnarly build system issue.\n\n - Thrives when given full autonomy, but also loves supporting teammates and sharing knowledge.\n\n - Cares deeply about the user experience and tries to see every problem through the user\u2019s eyes.\n\n - Communicates clearly and frequently (we do a lot of async writing and reading).\n\n - Enjoys being a generalist who can stretch across frameworks and platforms.\n\n - Is naturally curious and always looking to learn the \u201cwhy\u201d behind the \u201chow\u201d.\n\n - Balances craft with pragmatism - knows when to polish, and when to just ship.",
+      "location": "",
+      "first_published": "2025-11-14T21:37:21.960000+00:00",
+      "url": "https://jobs.ashbyhq.com/umbrel/45cec93b-3f48-4e5c-a67d-79bea0d3dee8"
+    },
+    {
+      "title": "Senior Full-Stack Engineer",
+      "description": "Engineers on our team today:\n\n - Ships polished, accessible UI in React + TypeScript (Tailwind, Shadcn, Radix).\n\n - Work primarily in TypeScript, and dabble in Shell as necessary\n\n - Build APIs in Node.js\n\n - Are extremely supportive, especially when teammates are faced with new challenges\n\n - Are left to autonomously figure out solutions to their challenges\n\n - Think hard about every problem and its solution from user\u2019s perspective\n\n - Value clear and frequent communication (we do a lot of reading and writing)\n\n - Enjoy being a generalist and are not tied down to a specific framework or surface area of our codebase\n\n - Are naturally curious and willing to learn something they don\u2019t have experience in\n\n - Feel a great sense of accountability to each other\n\n - Have good judgement of when to ship: perfect is the enemy of good\n\n - Have a fundamental understanding of Linux/Docker/networking",
+      "location": "",
+      "first_published": "2025-11-14T21:36:29.012000+00:00",
+      "url": "https://jobs.ashbyhq.com/umbrel/4d78d631-9f0a-4bc6-bba6-2cb43ebe4c2e"
+    },
+    {
+      "title": "Lead Marketing Manager",
+      "description": "We believe the best products spread through word-of-mouth of their users, and we\u2019re very lucky to have a passionate and loving community of thousands of users who voluntarily help each other out, write tutorials, create videos, and get creative in many surprising ways.\n\n\n\nOur communication style is very friendly, transparent, casual, witty-but-respectful with our users, i.e. anti-corporate lingo.\n\n\n\nIdeally we\u2019re looking for one person (or a \ud83e\udd84) to do all the following tasks, but if you\u2019re only interested in one of them (like just shitposting memes on our Twitter) or a few of them (eg. tutorial videos, paid ads, content), that\u2019s okay too.\n\n\n\nIn this role, you will:\n\n - Run external communications on all of our socials\n\n - Create marketing campaigns and paid ads\n\n - Stay on top of our SEO, identify new content opportunities\n\n - Work with influencers/reviewers for umbrelOS and Umbrel Home reviews\n\n - Manage community across our Discord https://discord.gg/efNtFzqtdx, community forum https://community.getumbrel.com/, and reddit https://www.reddit.com/r/getumbrel/\n\n - Shitpost on our X (Twitter) https://x.com/umbrel. Exhibit a https://x.com/umbrel/status/1904222773075234954, b https://x.com/umbrel/status/1980487816674222085, c https://twitter.com/umbrel/status/1764214643323744288, d, https://x.com/umbrel/status/1907039607554027979 e https://x.com/umbrel/status/1980494339173412887\n\n - Also not-shitpost on our Twitter. Exhibit a https://x.com/umbrel/status/1970508327479320862, b https://twitter.com/umbrel/status/1760240427352182882, c https://x.com/umbrel/status/1883861532389556333, d https://x.com/umbrel/status/1937904228535832988, e https://x.com/umbrel/status/1982420385921728645\n\n - Collaborate with our team to create engaging content, such as how-tos, tutorials, and guides\n\n - Write blog posts and press releases\n\n - Come up with new ideas! You\u2019ll run the show \u2728\n\n\u00a0\n\n",
+      "location": "",
+      "first_published": "2025-11-14T21:55:39.719000+00:00",
+      "url": "https://jobs.ashbyhq.com/umbrel/9a4e2130-48ce-4638-9b97-c66bee953add"
+    },
+    {
+      "title": "Senior Backend Engineer",
+      "description": "Engineers on our team today:\n\n - Work primarily in TypeScript, and dabble in Shell as necessary\n\n - Build APIs in Node.js\n\n - Are extremely supportive, especially when teammates are faced with new challenges\n\n - Are left to autonomously figure out solutions to their challenges\n\n - Think hard about every problem and its solution from user\u2019s perspective\n\n - Value clear and frequent communication (we do a lot of reading and writing)\n\n - Enjoy being a generalist and are not tied down to a specific framework or surface area of our codebase\n\n - Are naturally curious and willing to learn something they don\u2019t have experience in\n\n - Feel a great sense of accountability to each other\n\n - Have good judgement of when to ship: perfect is the enemy of good\n\n - Have a fundamental understanding of Linux/Docker/networking",
+      "location": "",
+      "first_published": "2025-11-14T21:34:27.053000+00:00",
+      "url": "https://jobs.ashbyhq.com/umbrel/cbcc73d1-aef2-4e79-b356-fecf5b225103"
+    },
+    {
+      "title": "Customer Support (non-technical)",
+      "description": "In this role, you will:\n\n - Support our users across all online channels (email, Discord, website chat, forums, social medias, etc) for non-technical issues (such as Umbrel Home order related queries)\n\n - Work with our logistics and fulfillment team to resolve order/shipping issues\n\n - Help users with various non-technical tasks, such as order modifications, returns, replacements, and repairs\n\n - Create how-tos, guides, wikis, knowledge base, etc for recurring questions\n\n\n\nWe hope you:\n\n - Have great written communication skills\n\n - Like talking to users and are willing to constantly do so without external encouragement\n\n - Are able to empathize with users, and genuinely care about their problems \u2014 we can\u2019t exist without them",
+      "location": "",
+      "first_published": "2025-11-14T22:00:20.530000+00:00",
+      "url": "https://jobs.ashbyhq.com/umbrel/dbaae6df-f8f3-41f9-a5f3-d3d711715d8b"
+    },
+    {
+      "title": "Senior Frontend Engineer",
+      "description": "In this role, you will lead the frontend engineering at Umbrel, and own major product surfaces in umbrelOS (web UI), our first-party apps, and our website.\n\n\nWe hope you are someone who:\n\n - Treats Figma as a contract you\u2019ll honor in code, and you\u2019ll improve it when the reality demands.\n\n - Ships polished, accessible interfaces in React + TypeScript (Tailwind, Shadcn, Radix).\n\n - Sweats the last 5%: empty states, errors, skeletons, loading strategies, and microcopy that reduces cognitive load.\n\n - Uses motion to communicate state (not decorate it): consistent easing/durations and meaningful transitions.\n\n - Thinks in systems: API-design, theming, responsive scales, and components that age well.\n\n - Writes clear, readable code and tests, and leaves the codebase calmer than you found it.\n\n - Can take a vague problem \u2192 write a short design doc \u2192 prototype in code \u2192 ship in small, reversible steps.\n\n - Partners with design early: you\u2019ll prototype, tweak spacing/typography/easing, and treat copy as part of the UI.\n\n - Communicates crisply in writing (we\u2019re async-first) and gives kind, candid feedback.\n\n - Has strong product judgment. Knows when to refine and when to press \"ship.\"",
+      "location": "",
+      "first_published": "2025-11-14T21:32:10.646000+00:00",
+      "url": "https://jobs.ashbyhq.com/umbrel/dc4ce904-4340-4fe0-b2c0-eacfa970bcb3"
+    },
+    {
+      "title": "Electrical Design Engineer",
+      "description": "This role requires a deep experience in design, development and testing of hardware systems, particularly focused on motherboards/PCBs and circuitry.\n\n\n\nIn this role, you will:\n\n - Handle the complete circuit design process including component selection, schematic capture, and PCB layout for the Umbrel Home product line.\n\n - Test and validate all electrical components and systems to ensure quality, reliability and performance, including thermal testing.\n\n - Ensure all designs comply with industry standards and regulatory requirements.\n\n - Collaborate with our software engineering team to ensure that the electrical systems integrate seamlessly with umbrelOS.\n\n - Lead the initial prototyping stages to troubleshoot, iterate, and refine designs.\n\n - Work closely with our suppliers and manufacturers to prioritize tasks and facilitate the transition from prototyping to mass production.\n\n - Document the design process and provide technical support throughout the product lifecycle.\n\n - Identify and implement improvements in electrical design and system efficiency.",
+      "location": "",
+      "first_published": "2025-11-14T21:40:45.864000+00:00",
+      "url": "https://jobs.ashbyhq.com/umbrel/e557f089-0295-45da-bdef-de414717db00"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.8181818181818182,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Highly technical job postings with a focus on engineering and product development. No explicit mention of sponsorship or clearance requirements.",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

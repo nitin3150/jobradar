@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "continue",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T04:03:41.153897+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2025-06-16T06:30:10.948000+00:00",
+  "source_jobs": [
+    {
+      "title": "Software Engineer (New grad)",
+      "description": "Continue is seeking an intense and fast-learning engineer to help us build our open-source product, starting by resolving and learning about user problems on GitHub and Discord. In this role, you will shape our open-source IDE extensions by designing, building, and maintaining a product loved by many, including yourself.\n\n\n\nAbout you\n\nPlease keep in mind that we are describing the background that we imagine would best fit the role. If you don\u2019t meet all the requirements, but you are confident that you are up for the task, we absolutely want to get to know you!\n\n - You are proficient in TypeScript, Node.js, and React / Next.js\n\n - You have a track record of building side projects\n\n - You are interested in AI engineering or machine learning\n\n - You are a rigorous thinker capable of tackling difficult algorithmic problems\n\n\n\nWhat you will do\n\nWe\u2019re a startup, so you\u2019ll have to be ready to do whatever is required to accomplish our mission. However, you can definitely expect to:\n\n - Design and implement new affordances for coding with LLMs as new model capabilities emerge\n\n - Rapidly experiment and design benchmarks to improve autocomplete and codebase retrieval\n\n - Iterate on the smallest details to make our chat and autocomplete experiences awesome\n\n - Play a key role in our GitHub and Discord communities by answering questions and resolving problems",
+      "location": "",
+      "first_published": "2025-06-16T06:24:28.712000+00:00",
+      "url": "https://jobs.ashbyhq.com/continue/219fce3e-7af9-4b00-8fa7-87bf53db72f7"
+    },
+    {
+      "title": "Software Engineer (10+ years)",
+      "description": "Continue is seeking an experienced software engineer to help us improve the foundations of our IDE extensions, the hub.continue.dev http://hub.continue.dev backend, and various services we\u2019ll build on top of them (e.g. codebase sync https://github.com/continuedev/continue/tree/main/sync/src#codebase-indexing/indexing engine, data ingestion, VMs for background agents).\n\n\n\nAbout you\n\nPlease keep in mind that we are describing the background that we imagine would best fit the role. If you don\u2019t meet all the requirements, but you are confident that you are up for the task, we absolutely want to get to know you!\n\n - You are highly proficient in TypeScript, Go, or any transferable language\n\n - You have interest in AI engineering or machine learning\n\n - You have experience scaling systems for stability, maintainability, and great developer experience\n\n - You are willing to simplify and make trade-offs in order to move quickly\n\n\n\nWhat you will do\n\nWe\u2019re a startup, so you\u2019ll have to be ready to do whatever is required to accomplish our mission. However, you can definitely expect to:\n\n - Hold and enact strong opinions about architecture that let us quickly deliver both SaaS and on premise products\n\n - Build out large portions of our backend services\n\n - Define and solve fundamental problems to improve core product metrics like autocomplete acceptance rate and codebase retrieval accuracy in our open-source product\n\n - Design thoughtful abstractions to underpin our product and potentially serve as open-source standards",
+      "location": "",
+      "first_published": "2025-06-16T06:30:10.948000+00:00",
+      "url": "https://jobs.ashbyhq.com/continue/36b1633f-153e-4277-9660-fc1bc5e7e255"
+    },
+    {
+      "title": "Software Engineer (5+ years)",
+      "description": "Continue is seeking an outstanding software engineer to help us build state-of-the-art autocomplete and codebase retrieval, who thinks rigorously and pays attention to the smallest details. In this role, you will work on fundamental, but highly open-ended problems where deliberate measurement, rapid experimentation, and empathy for users push forward the product.\n\n\n\nAbout you\n\nPlease keep in mind that we are describing the background that we imagine would best fit the role. If you don\u2019t meet all the requirements, but you are confident that you are up for the task, we absolutely want to get to know you!\n\n - You are proficient in TypeScript, Node.js, and React / Next.js\n\n - You are interested in AI engineering or machine learning\n\n - You have a good design sense and are highly detail-oriented\n\n - You are willing to simplify and make trade-offs in order to move quickly\n\n\n\nWhat you will do\n\nWe\u2019re a startup, so you\u2019ll have to be ready to do whatever is required to accomplish our mission. However, you can definitely expect to:\n\n - Define and solve fundamental problems to improve core product metrics like autocomplete acceptance rate and codebase retrieval accuracy in our open-source product\n\n - Take ownership of the UI details that encompass your work by using your design sense, running experiments, and iterating from user feedback\n\n - Design thoughtful abstractions to underpin our product and potentially serve as open-source standards\n\n - Play a key role in our GitHub and Discord communities by answering questions and resolving problems",
+      "location": "",
+      "first_published": "2025-06-16T06:29:09.151000+00:00",
+      "url": "https://jobs.ashbyhq.com/continue/3c3493c9-b66e-4add-9caa-ae424fe2a9ba"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "seed",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 1.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "All three job postings are for software engineers with varying levels of experience.",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

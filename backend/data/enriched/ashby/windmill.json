@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "windmill",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T18:20:03.994205+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2025-08-17T15:40:18.962000+00:00",
+  "source_jobs": [
+    {
+      "title": "ML Engineer",
+      "description": "Windmill is building the future of performance.\n\n\n\nWindmill is the first context graph for your people: a continuous, cited understanding of your workforce so HR can lead strategically, managers can see their teams clearly, and every person's work speaks for itself.\n\n\n\nLearn more: gowindmill.com http://gowindmill.com\n\n\n\nWe're looking for candidates with experience in:\n\n 1. Model Development & Deployment: Design, build, and deploy scalable machine learning models to enhance product features, optimize performance, and drive intelligent automation.\n\n 2. Algorithm Optimization: Fine-tune and optimize machine learning algorithms to improve accuracy, efficiency, and real-time performance within the product environment.\n\n 3. Cross-Functional Collaboration: Work closely with data scientists, software engineers, and founders to integrate machine learning solutions that solve complex product challenges for our users\n\n 4. Scalable Infrastructure: Develop and maintain robust machine learning pipelines and data infrastructure, ensuring the models can efficiently handle large-scale data processing and deployment needs.\n\n 5. Continuous Learning & Innovation: Stay up-to-date with the latest research in machine learning, artificial intelligence, and data science to identify opportunities for applying cutting-edge techniques that drive product innovation.\n\nNote: We're a New York based company, and want our team working together in the office. If you're not interested in considering relocation to New York, this may not be the right opportunity.",
+      "location": "",
+      "first_published": "2024-10-23T03:24:48.761000+00:00",
+      "url": "https://jobs.ashbyhq.com/windmill/18f096aa-00fc-414f-a806-d6255d41cb96"
+    },
+    {
+      "title": "Design Engineer",
+      "description": "Windmill is building the future of performance.\n\n\n\nWindmill is the first context graph for your people: a continuous, cited understanding of your workforce so HR can lead strategically, managers can see their teams clearly, and every person's work speaks for itself.\n\n\n\nLearn more: gowindmill.com http://gowindmill.com\n\n\n\nWe are NYC based and work together in person. If you are not open to relocating to New York, this is not the right opportunity.\n\n\n\n\nTHE ROLE\n\nYou will be our first Design Engineer. You move fluidly between Figma and production code. You turn vague problems into crisp flows, then into reliable components that ship. You care about taste, speed, and quality in equal measure.\n\n\n\n\nWHAT YOU WILL DO\n\n - Own critical journeys end to end. Research, map flows, design in Figma, prototype in code, and ship.\n\n - Design and prototype AI chat experiences that feel fast, useful, and trustworthy.\n\n - Shape our Slack surfaces. Messages, modals, triage flows, and notifications that people rely on daily.\n\n - Improve key funnels. Onboarding, 1:1 prep, feedback routing, performance reviews, and calibration boards.\n\n - Instrument what you ship. Define success metrics, run quick experiments, and iterate with real data.\n\n - Work across the stack as needed to unblock great UI with simple APIs and data shapes.\n   \n\n\nWHAT YOU HAVE\n\n - 4+ years designing and shipping software used by real customers.\n\n - Experience building B2B SaaS.\n\n - Experience with AI chat systems and conversational UX.\n\n - Mastery of Figma. Strong systems thinking, clean information architecture, responsive layouts, motion.\n\n - Strong front end engineering. React, TypeScript, modern CSS, accessibility, testing habits, performance instincts.\n\n - A portfolio and code samples that show your role, decisions, and outcomes.\n\n\n\n\nOUR STACK TODAY\n\nReact, TypeScript, Remix, Tailwind, Postgres, TipTap, Yjs, Slack platform.\n\n\n\n\nHOW WE WORK\n\n - Small team. High trust. Direct feedback.\n\n - Ship weekly. Measure and improve.\n\n - Prototypes over long specs.\n\n - Clear ownership with high standards for craft and velocity.\n\n\n\n\nCOMPENSATION AND LOCATION\n\nCompetitive salary and meaningful equity. Health, flexible time off. We work together in our NYC office and expect teammates to relocate within a reasonable time frame.\n\n\n\n",
+      "location": "",
+      "first_published": "2025-08-17T15:40:18.962000+00:00",
+      "url": "https://jobs.ashbyhq.com/windmill/d32e01ef-fad1-4481-b8e3-6e54429f8efb"
+    },
+    {
+      "title": "Software Engineer",
+      "description": "Windmill is building the future of performance.\n\n\n\nWindmill is the first context graph for your people: a continuous, cited understanding of your workforce so HR can lead strategically, managers can see their teams clearly, and every person's work speaks for itself.\n\n\n\nLearn more: gowindmill.com http://gowindmill.com\n\n\n\nWe are NYC based and work together in person. If you are not open to relocating to New York, this is not the right opportunity.\n\n\n\nWe are looking for candidates who are:\n\n - Self starters, who are curious to learn new things\n\n - Individuals with a strong interest in AI, and hands on experience with the latest technologies\n\n - Experienced in software engineering and a deeper level understanding of computing and theory.\n\n - Knowledgable in Node.JS, Typescript and Postgres\n\n - Experienced in building and launching a side project\n\n\n\nThe right candidates have:\n\n - 3-8 years of professional engineering experience\n\n - Strong communication skills and an ability to simplify complex problems\n\n - A bias to action\n\n - Strong interest and curiosity around our product\n\n - A desire to drive an outsized impact at a fast paced and growing company\n\n\n\nAbout Windmill: Founded in 2023 by Brian Distelburger https://www.linkedin.com/in/briandistelburger/ (Co-Founder of Yext), Max Shaw https://www.linkedin.com/in/max-shaw-82287025/(SVP of Product at Yext) and Mark Tanner https://www.linkedin.com/in/mark-tanner-88623123/ (VP Strategy at Saturn), Windmill is building the AI Management system of the future. Windmill is at the cutting edge of AI and how it will change the future of company building.\n\n\n\n\n\n",
+      "location": "",
+      "first_published": "2024-10-22T20:43:13.674000+00:00",
+      "url": "https://jobs.ashbyhq.com/windmill/f832a79f-5190-4961-b4e6-5c8da8aa3ad1"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "seed",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": false,
+  "is_likely_startup": true,
+  "tech_role_ratio": 1.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Small NYC-based startup with a strong focus on engineering and AI.",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

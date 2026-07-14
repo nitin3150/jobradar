@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "jetinsight",
+  "board": "greenhouse",
+  "enriched_at": "2026-07-14T01:45:29.904097+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-07-08T21:24:33+00:00",
+  "source_jobs": [
+    {
+      "title": "Operator Success Manager",
+      "description": "&lt;div class=&quot;content-intro&quot;&gt;&lt;p&gt;JetInsight&#39;s best-in-class quoting and fleet management software helps aircraft charter operators run and grow safer, more efficient, and more profitable businesses. We work with hundreds of operators across the US and are building the world&#39;s largest network of on-demand aircraft.&lt;/p&gt;&lt;/div&gt;&lt;p&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;We are looking for an Operator Success Manager (Customer Success Manager) to help proactively support and engage our rapidly-growing number of charter operators. You will serve as a trusted advisor to help new customers implement JetInsight and to achieve ongoing value with the platform.&lt;/span&gt;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Your responsibilities will include:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;Onboarding and training charter operators&lt;/span&gt;&lt;/li&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;Driving adoption and usage of JetInsight&#39;s product and managing customer relationships&lt;/span&gt;&lt;/li&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;Creating business success goals for operators, and proactively tracking metrics and engagement to ensure operators achieve value&lt;/span&gt;&lt;/li&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;Identify opportunities to drive usage and adoption while working with cross functional teams&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;You resonate with the following skills, traits, and experience:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;2+ years of proven success as a CSM or Account Manager ideally in a technology company&lt;/span&gt;&lt;/li&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;An attitude that gets things done&lt;/span&gt;&lt;/li&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;A desire to learn and immerse yourself in a new industry to truly understand the customer&lt;/span&gt;&lt;/li&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;Track record of effective onboarding and long-term relationship management&lt;/span&gt;&lt;/li&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;Strong problem solving abilities to quickly understand customer&#39;s core issues and find creative solutions&lt;/span&gt;&lt;/li&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;Possess phenomenal communication and presentation skills&lt;/span&gt;&lt;/li&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;An interest in aviation and/or the travel industry is a plus!&lt;/span&gt;&lt;/li&gt;\n&lt;/ul&gt;",
+      "location": "",
+      "first_published": "2026-07-08T21:24:33+00:00",
+      "url": "https://www.jetinsight.com/careers?gh_jid=4166478003"
+    },
+    {
+      "title": "Senior Software Engineer",
+      "description": "&lt;div class=&quot;content-intro&quot;&gt;&lt;p&gt;JetInsight&#39;s best-in-class quoting and fleet management software helps aircraft charter operators run and grow safer, more efficient, and more profitable businesses. We work with hundreds of operators across the US and are building the world&#39;s largest network of on-demand aircraft.&lt;/p&gt;&lt;/div&gt;&lt;p&gt;&lt;/p&gt;\n&lt;p&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;We\u2019re looking for a &lt;/span&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;full stack Senior Software Engineer&lt;/span&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt; to join our growing engineering team. You\u2019ll work on all areas of the JetInsight product and help solve challenging problems involving route optimization, dynamic pricing, real-time flight data, and others that will have a major impact on our rapidly growing network of operators.&lt;/span&gt;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Your responsibilities will include:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Architecting scalable solutions for new products and major product enhancements&lt;/li&gt;\n&lt;li&gt;Independently shipping production-quality code with an eye towards usability, performance, and extensibility&lt;/li&gt;\n&lt;li&gt;Maintaining customer empathy and a customer-focused engineering mindset&lt;/li&gt;\n&lt;li&gt;Building and maintaining automated testing on your contributions to the product&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;You resonate with the following skills, traits, and experience:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;2+ years of proven success as a Software Engineer in a technology company working on a web-based product&lt;/li&gt;\n&lt;li&gt;Raw intelligence in engineering, with a track record of high performance and results&lt;/li&gt;\n&lt;li&gt;A history of shipping production-quality software&lt;/li&gt;\n&lt;li&gt;Self-motivation and an attitude that gets things done&lt;/li&gt;\n&lt;li&gt;A desire to learn and immerse yourself in a new industry to truly understand the customer&lt;/li&gt;\n&lt;li&gt;Strong ability to communicate and collaborate in teams&lt;/li&gt;\n&lt;li&gt;Specific language experience is not required, but experience with Rails, React, and/or PostgreSQL is a plus&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2025-12-23T00:22:49+00:00",
+      "url": "https://www.jetinsight.com/careers?gh_jid=6351776003"
+    },
+    {
+      "title": "Software Engineer",
+      "description": "&lt;div class=&quot;content-intro&quot;&gt;&lt;p&gt;JetInsight&#39;s best-in-class quoting and fleet management software helps aircraft charter operators run and grow safer, more efficient, and more profitable businesses. We work with hundreds of operators across the US and are building the world&#39;s largest network of on-demand aircraft.&lt;/p&gt;&lt;/div&gt;&lt;p&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;We\u2019re looking for a &lt;/span&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt;full stack Software Engineer&lt;/span&gt;&lt;span style=&quot;font-weight: 400;&quot;&gt; to join our growing engineering team. You\u2019ll work on all areas of the JetInsight product and help solve challenging problems involving route optimization, dynamic pricing, real-time flight data, and others that will have a major impact on our rapidly growing network of operators.&lt;/span&gt;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Your responsibilities will include:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Architecting scalable solutions for new products and major product enhancements&lt;/li&gt;\n&lt;li&gt;Independently shipping production-quality code with an eye towards usability, performance, and extensibility&lt;/li&gt;\n&lt;li&gt;Maintaining customer empathy and a customer-focused engineering mindset&lt;/li&gt;\n&lt;li&gt;Building and maintaining automated testing on your contributions to the product&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;You resonate with the following skills, traits, and experience:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;2+ years of proven success as a Software Engineer in a technology company working on a web-based product&lt;/li&gt;\n&lt;li&gt;Raw intelligence in engineering, with a track record of high performance and results&lt;/li&gt;\n&lt;li&gt;A history of shipping production-quality software&lt;/li&gt;\n&lt;li&gt;Self-motivation and an attitude that gets things done&lt;/li&gt;\n&lt;li&gt;A desire to learn and immerse yourself in a new industry to truly understand the customer&lt;/li&gt;\n&lt;li&gt;Strong ability to communicate and collaborate in teams&lt;/li&gt;\n&lt;li&gt;Specific language experience is not required, but experience with Rails, React, and/or PostgreSQL is a plus&lt;/li&gt;\n&lt;/ul&gt;",
+      "location": "",
+      "first_published": "2025-12-23T00:22:50+00:00",
+      "url": "https://www.jetinsight.com/careers?gh_jid=4176692003"
+    }
+  ],
+  "primary_function": "product_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.67,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Small job board with mostly tech roles, indicating a product-heavy startup.",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

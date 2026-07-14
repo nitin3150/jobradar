@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "stargate-foundation",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T17:28:15.995478+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2025-07-22T20:27:58.048000+00:00",
+  "source_jobs": [
+    {
+      "title": "Smart Contract Engineer",
+      "description": "Stargate is the leading liquidity infrastructure protocol in crypto, powering over $65 billion in cross-chain volume to date. Built on LayerZero, Stargate enables guaranteed instant settlement of assets on more than 80 blockchains. As the global liquidity layer, Stargate connects users, applications, ecosystems and assets into a unified network, removing friction from value transfer and making omnichain liquidity accessible.\n\n\n\nAbout the Role\n\nWe are seeking a Smart Contract Engineer to join the Stargate Foundation team. This role focuses on developing secure, efficient, and scalable smart contracts to enhance the Stargate ecosystem. Based in Warsaw is preferred, but the role is open to exceptional remote candidates.\n\n\n\nWhat You\u2019ll Do\n\n - Smart Contract Development: Design, implement, and deploy secure and efficient Solidity-based smart contracts for Stargate\u2019s protocol and related systems.\n\n - Protocol Enhancements: Work closely with the team to identify and implement new features that align with the Stargate roadmap and DAO priorities.\n\n - Code Auditing and Testing: Conduct thorough testing and security reviews of smart contracts, including collaborating with external audit firms as needed.\n\n - Cross-Chain Integration: Optimize Stargate\u2019s cross-chain capabilities by building robust integrations and maintaining multichain compatibility.\n\n - Collaboration: Partner with the broader development team, and technical execution partners to ensure seamless integration and deployment of upgrades.\n\n\n\nAbout You\n\n - Technical Expertise: Proficient in Solidity and EVM-compatible blockchains, with a strong understanding of DeFi and blockchain architecture. Experience with Move preferred.\n\n - Experience: 3+ years of professional experience in smart contract development, with a proven track record of deployed contracts on mainnet.\n\n - Security Mindset: Deep understanding of smart contract vulnerabilities, common attack vectors, and best practices for secure development.\n\n - Analytical Thinker: Strong problem-solving skills and the ability to design innovative solutions for complex technical challenges.\n\n - Collaborative Attitude: Excellent communication and teamwork skills, ready to work closely with a distributed team.\n\n - Growth-Oriented: Eager to contribute to a fast-paced, rapidly evolving DeFi ecosystem and take on challenging responsibilities.\n\n\n\nNice to Have\n\n - Familiarity with Stargate, LayerZero, or similar bridging/messaging protocols.\n\n - Experience with multichain environments and integrating across diverse blockchain ecosystems.\n\n - Previous contributions to open-source blockchain projects.",
+      "location": "",
+      "first_published": "2025-07-22T20:24:45.086000+00:00",
+      "url": "https://jobs.ashbyhq.com/stargate-foundation/86a0163c-adb0-408c-b363-5cecd711e051"
+    },
+    {
+      "title": "Head of Partnerships",
+      "description": "Stargate is the leading liquidity infrastructure protocol in crypto, powering over $65 billion in cross-chain volume to date. Built on LayerZero, Stargate enables guaranteed instant settlement of assets on more than 80 blockchains. As the global liquidity layer, Stargate connects users, applications, ecosystems and assets into a unified network, removing friction from value transfer and making omnichain liquidity accessible.\n\n\n\nAbout the Role\n\nThe Head of Partnerships will play a pivotal role in establishing and managing high-value relationships with key industry stakeholders, including financial institutions. This individual will be responsible for identifying, negotiating, and executing partnerships that align with the company\u2019s strategic objectives, as well as growing and maintaining the company\u2019s partner ecosystem. Additionally, the Head of Partnerships will be responsible for drafting and submitting high-quality partnership proposals, ensuring they are persuasive, tailored to client needs, and aligned with business goals.\n\n\n\nWhat You\u2019ll Do\n\n - Proposal Writing: Draft compelling, well-researched proposals for potential partners, ensuring they are aligned with business strategies and client needs.\n\n - Drive Product Adoption: Lead efforts to drive adoption of Stargate\u2019s products with fintech platforms and top crypto protocols.\n\n - Partnership Development: Build and maintain strategic partnerships with crypto protocols, fintech platforms, exchanges, and DeFi projects to expand Stargate\u2019s network and influence.\n\n - Collaborate Across Teams: Work closely with internal teams (engineering, product, marketing) and external partners to identify, scope, and deliver integration opportunities that enhance the value of Stargate\u2019s products and services.\n\n - Strategic Integration Leadership: Guide integration projects from ideation to execution, ensuring smooth collaboration between technical teams and partners.\n   \n\nAbout You\n\n - You have a passion for bridging the tradFi/crypto gap\u00a0\n\n - You enjoy and have led partnerships and integrations with banks/fintech applications/exchanges and/or crypto protocols\u00a0\n\n - You are excited about DeFi and the wider crypto sector\u00a0\n\n - You have a strong sense of professionalism and know how to represent yourself and the company\n\n - You are highly motivated by success and dedicated to driving projects to completion\n   \n   \n\nRequirements:\n\n - 5+ years of experience in partnership development, business development, or a similar role in fintech, crypto, or DeFi.\n\n - Proven track record of successfully driving partnerships, integrations, and adoption with financial institutions or crypto protocols.\n\n - Strong understanding of decentralized finance, blockchain technology, and the broader crypto ecosystem.\n\n - Ability to manage technical and non-technical stakeholders, with experience leading integration projects across teams.\n\n - Strong negotiation, problem-solving, and strategic thinking skills.",
+      "location": "",
+      "first_published": "2025-02-28T16:50:28.551000+00:00",
+      "url": "https://jobs.ashbyhq.com/stargate-foundation/88ab7c8e-f486-4004-bd33-de8237ab3d3c"
+    },
+    {
+      "title": "Full Stack Engineer",
+      "description": "Stargate is the leading liquidity infrastructure protocol in crypto, powering over $65 billion in cross-chain volume to date. Built on LayerZero, Stargate enables guaranteed instant settlement of assets on more than 80 blockchains. As the global liquidity layer, Stargate connects users, applications, ecosystems and assets into a unified network, removing friction from value transfer and making omnichain liquidity accessible.\n\n\n\nAbout the Role\n\nWe are hiring a Full Stack Engineer to be at the forefront of driving our mission to enhance blockchain interoperability and unlock the full potential of cross-chain decentralized applications. Your role will involve designing and implementing robust and scalable web applications that push the boundaries of web3 technologies together with our team.\n\n\n\nWhat You\u2019ll Do\n\n - Architect and design core product features from start to finish; from conception and research to implementation and iteration, all the way through deployment, maintenance, and future iterations\n\n - Help architect and build performant backend systems for serving our core marketplace features\n\n - Think holistically about how parts of our systems fit together from the UX to the underlying APIs and data models\n\n - Mentor and train other team members on best practices and approaching large ambiguous problems\n\n - Collaborate with Product Managers, Designers, and other Engineers to prioritize, scope, and architect new features\n\n - Prioritize projects and tasks based on impact; balancing moving fast and building for the long haul\n\n\n\nAbout You\n\n - Deep knowledge of web technologies and large-scale web application architectures\n\n - Familiarity with current trends and best practices in front-end architecture, including performance, security, and usability\n\n - 3+ years of industry experience building scalable and performant production UIs and APIs using a stack similar but not limited to React, Typescript, AWS and Elasticsearch\n\n - Strong customer empathy; you think critically of how our features impact our community, users, and business\n\n - Ability to cooperate with a distributed team in a remote environment\n\n - You enjoy working across Engineering and Design to build user friendly applications\n\n - Interest in the Blockchain space",
+      "location": "",
+      "first_published": "2025-07-22T20:27:58.048000+00:00",
+      "url": "https://jobs.ashbyhq.com/stargate-foundation/b28b571a-4491-4fb6-8e6c-89f91df854c2"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_b",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.67,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Crypto liquidity infrastructure protocol with a strong focus on engineering roles.",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

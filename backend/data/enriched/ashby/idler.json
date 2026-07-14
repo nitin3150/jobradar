@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "slug": "idler",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T05:31:59.115026+00:00",
+  "source_jobs_count": 4,
+  "source_last_published": "2026-02-14T02:07:11.645000+00:00",
+  "source_jobs": [
+    {
+      "title": "Software Engineer",
+      "description": "What we do\n\nIdler builds reinforcement learning environments that teach AI models to code like 0.01% engineers. Our training environments are based on real-world coding scenarios that frontier models will actually encounter.\n\nWe've closed a multimillion-dollar contract with a leading foundation lab (the largest they've issued to date). Demand is outpacing our capacity to deliver, so we're scaling the team fast.\n\nWhat you'll do\n\nBuild features and tooling for our agentic systems that create and QA coding environments. You'll work alongside senior engineers and the founding team, learning how to design systems that are both technically sound and philosophically robust. A big part of our work is thinking critically about what makes a coding environment \"good\" and \"fair\".\n\nConcretely, you'll:\n\n - Build UI components and backend services for environment generation and validation\n\n - Implement automated testing and QA workflows\n\n - Work with real codebases to understand what makes effective training data\n\n - Ship features quickly and iterate based on feedback from AI researchers at leading labs\n\nYou'll work with\n\nThe founding team, a founding engineer, and a small group of engineers (we're hiring quickly). You'll learn directly from people building at the cutting edge of AI training.\n\nTech stack\n\nTypescript, React, NodeJS, Postgres, Redis, Vercel, Cursor\n\nBenefits\n\n - Healthcare coverage, 401(k), and 15 days PTO\n\n - Meals, coffee, and snacks (that you will actually enjoy) covered during working days\n\n - Latest MacBook Pro and equipment\n\n - Relocation assistance available\n\n - Team offsites and events (we love hanging out)\n\nThis is an in-person role in San Francisco. We're a tight-knit founding team and we play to win. Join us if you like to win too.",
+      "location": "",
+      "first_published": "2025-10-14T20:39:45.676000+00:00",
+      "url": "https://jobs.ashbyhq.com/idler/cce9ab39-0ab0-489d-bbf9-4df74c2baeee"
+    },
+    {
+      "title": "Senior Software Engineer",
+      "description": "WHAT WE DO\n\nIdler builds reinforcement learning environments that teach AI models to code like 0.01% engineers. Our training environments are based on real-world coding scenarios that frontier models will actually encounter.\n\nWe've closed a multimillion-dollar contract with a leading foundation lab (the largest they've issued to date). Demand is outpacing our capacity to deliver, so we're scaling the team fast.\n\n\nWHAT YOU'LL DO\n\nBuild agentic systems that create and QA coding environments at scale. Most of your day will be spent designing these systems to be extremely sound. A big part of our work is thinking critically about what makes a coding environment and task \"good\" and \"fair\". This requires high agency and philosophical thinking alongside technical execution.\n\nConcretely, you'll:\n\n - Design and build scaleable systems that generate RL environments\n\n - Create automated QA systems to validate environment quality and fairness\n\n - Work directly with AI researchers at leading labs to understand what makes training data effective\n\n - Support new product lines as we expand beyond coding environments\n\n\nYOU'LL WORK WITH\n\nThe founding team, a founding engineer, and a small group of engineers (we're hiring quickly). You'll have direct access to AI researchers at frontier labs.\n\n\nTECH STACK\n\nTypescript, React, NodeJS, Postgres, Redis, Vercel, Cursor\n\n\nBENEFITS\n\n - Healthcare coverage, 401(k), and 15 days PTO.\n\n - Meals, coffee, and snacks (that you will actually enjoy) covered during working days.\n\n - Latest MacBook Pro and equipment.\n\n - Relocation assistance available.\n\n - Team offsites and events (we love hanging out).\n\nThis is an in-person role in San Francisco. We're a tight-knit founding team and we play to win. Join us if you like to win too.",
+      "location": "",
+      "first_published": "2025-10-22T19:48:20.316000+00:00",
+      "url": "https://jobs.ashbyhq.com/idler/63235fd6-eace-4244-9a17-d98762993878"
+    },
+    {
+      "title": "Staff Software Engineer",
+      "description": "WHAT WE DO\n\nIdler builds reinforcement learning environments that teach AI models to code like 0.01% engineers. Our training environments are based on real-world coding scenarios that frontier models will actually encounter.\n\nWe've closed a multimillion-dollar contract with a leading foundation lab (the largest they've issued to date). Demand is outpacing our capacity to deliver, so we're scaling the team fast.\n\n\nWHAT YOU'LL DO\n\nBuild agentic systems that create and QA coding environments at scale. Most of your day will be spent designing these systems to be extremely sound. A big part of our work is thinking critically about what makes a coding environment and task \"good\" and \"fair\". This requires high agency and philosophical thinking alongside technical execution.\n\nConcretely, you'll:\n\n - Design and build scaleable systems that generate RL environments\n\n - Create automated QA systems to validate environment quality and fairness\n\n - Work directly with AI researchers at leading labs to understand what makes training data effective\n\n - Support new product lines as we expand beyond coding environments\n\n\nSTAFF ENGINEER RESPONSIBILITIES & REQUIREMENTS\n\n - Lead the process of identifying, specifying, and implementing core technology primitives that maximize the leverage of the rest of the team.\n\n - Understand and own the technology stack end-to-end.\n\n - 8+ years of professional software engineering experience.\n\n - Lead and mentor more junior members of the team.\n\n\nYOU'LL WORK WITH\n\nThe founding team, a founding engineer, and a small group of engineers (we're hiring quickly). You'll have direct access to AI researchers at frontier labs.\n\n\nTECH STACK\n\nTypescript, React, NodeJS, Postgres, Redis, Vercel, Cursor\n\n\nBENEFITS\n\n - Healthcare coverage, 401(k), and 15 days PTO.\n\n - Meals, coffee, and snacks (that you will actually enjoy) covered during working days.\n\n - Latest MacBook Pro and equipment.\n\n - Relocation assistance available.\n\n - Team offsites and events (we love hanging out).\n\nThis is an in-person role in San Francisco. We're a tight-knit founding team and we play to win. Join us if you like to win too.",
+      "location": "",
+      "first_published": "2025-11-13T01:46:30.178000+00:00",
+      "url": "https://jobs.ashbyhq.com/idler/b631cd26-30c8-4767-a27d-8d8447eacb86"
+    },
+    {
+      "title": "Special Projects Operator",
+      "description": "ABOUT IDLER\n\nIdler builds reinforcement learning environments that encode real human expertise into frontier AI systems. We model the real workflows of serious professionals and hold ourselves to a high bar for quality.\n\nWe\u2019ve secured a landmark multimillion-dollar contract with a leading foundation lab and are expanding into new domains as we scale.\n\nWe believe advanced AI should be trained on work that is rigorous, responsibly produced, and grounded in real expertise, and we are building toward that standard.\n\n\n\nTHE ROLE\n\nLeading AI labs partner with Idler on high-stakes training programs that directly shape frontier models. As a Special Projects Operator, you will own end-to-end execution of these programs, from scoping to delivery.\n\nThis is a hands-on, operations-first role. You will be accountable for delivery quality, timelines, and contributor performance, with direct line of sight to revenue.\n\nWhat You\u2019ll Do\n\n - Own execution of multi-million-dollar programs from scope through delivery.\n\n - Orchestrate hundreds to thousands of expert contributors under aggressive timelines.\n\n - Design and iterate on workflows, incentive systems, and quality controls to improve throughput, margins, and reliability.\n\n - Run QA reviews, surface delivery risks early, and remove bottlenecks before they escalate.\n\n - Track throughput, quality, cost, and timeliness, and translate performance into clear updates for leadership.\n\n - Partner with senior stakeholders to align on scope, iterate quickly, and expand engagements through strong execution.\n\n\nWHO THRIVES HERE\n\nYou\u2019ll do well in this role if you:\n\n - Take high ownership and proactively fix what\u2019s broken.\n\n - Turn ambiguity into structured plans and measurable outcomes.\n\n - Maintain a high bar for correctness and follow-through.\n\n - Perform well in fast-moving environments with shifting constraints.\n\n - Want responsibility tied directly to output and business impact.\n\nCommon backgrounds include consulting, finance, high-growth startups, and product or operations roles with end-to-end accountability. Experience running large distributed teams or marketplaces is a plus.\n\n\n\nGROWTH PATH\n\nSpecial Projects Operators start by owning projects end-to-end. Top performers take on larger portfolios, manage other operators, and help launch new verticals.\n\nThis role scales quickly for people who consistently deliver.\n\n\n\nIMPACT\n\n - Own programs that can generate tens of millions of dollars in revenue.\n\n - Shape how frontier AI systems are trained through the work you deliver.\n\n - Help expand Idler into new domains through execution.\n\n\nDETAILS\n\n - In-person in San Francisco\n\n - Competitive salary + meaningful equity\n\n - Free meals in office\n\n - Healthcare, 401(k), PTO\n\n - Relocation assistance\n\n - Small, ambitious team\n\nThis is an in-person role in San Francisco. We're a tight-knit founding team and we play to win. Join us if you like to win too.",
+      "location": "",
+      "first_published": "2026-02-14T02:07:11.645000+00:00",
+      "url": "https://jobs.ashbyhq.com/idler/52dc59ef-08d0-4d08-8fe5-0e3c5dfd1424"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "biweekly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.75,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Idler is a rapidly scaling AI startup with a strong focus on engineering and reinforcement learning.",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

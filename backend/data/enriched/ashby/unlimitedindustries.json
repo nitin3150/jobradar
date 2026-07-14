@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "slug": "unlimitedindustries",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T18:01:22.701799+00:00",
+  "source_jobs_count": 6,
+  "source_last_published": "2026-04-08T21:13:17.865000+00:00",
+  "source_jobs": [
+    {
+      "title": "Software Engineer - Junior",
+      "description": "AI obsessed software engineer building the product to build all real world physical infrastructure.",
+      "location": "",
+      "first_published": "2026-04-08T21:12:20.952000+00:00",
+      "url": "https://jobs.ashbyhq.com/unlimitedindustries/5c5706fe-26ae-46d6-8423-e4721a5a98fc"
+    },
+    {
+      "title": "Software Engineer - Mid-Level",
+      "description": "AI obsessed software engineer building the product to build all real world physical infrastructure.",
+      "location": "",
+      "first_published": "2026-04-08T21:13:17.865000+00:00",
+      "url": "https://jobs.ashbyhq.com/unlimitedindustries/4a31f7e5-1bb7-400d-b5b5-14a7771b907d"
+    },
+    {
+      "title": "Obsessive Generalist",
+      "description": "You're obsessed with our mission, but not a good fit for any other role. Apply here to tell us why you'd be a great addition.",
+      "location": "",
+      "first_published": "2026-04-02T18:21:18.850000+00:00",
+      "url": "https://jobs.ashbyhq.com/unlimitedindustries/41488b77-0f43-48dc-9f61-a0d705799f1c"
+    },
+    {
+      "title": "Multidisciplinary Engineer - Junior",
+      "description": "The role: As a Multidisciplinary Engineer, you'll use your deep domain expertise \u2014 spanning mechanical, electrical, civil, structural, or systems engineering \u2014 alongside AI tools like Claude Code to build the platform that automates engineering design across all construction. You don't need prior software experience; our engineers who've never built a software product are writing code with AI. What matters is that you understand the physics, the constraints, and the trade-offs across multiple engineering disciplines. You'll be hands-on: designing, building, testing, iterating.\n\n\n\nWhat we're looking for:\n\n - Inherently multidisciplinary \u2014 product companies naturally create this. Engineers have to collaborate tightly across mechanical, electrical, software, systems \u2014 so they end up thinking across the full stack whether they intended to or not\n   \n   - the multidisciplinary can also come from studying one discipline in college and then working across another\n\n - Worked at exceptional product companies \u2014 think Tesla, SpaceX, Joby, Anduril, Rivian, Neuralink. These environments force engineers to work across disciplines and think holistically about a product. That's very different from a Bechtel or a construction firm where work is siloed and process-driven\n\n - Worked on real, shippable products \u2014 a car, a robot, a rocket, a humanoid, an aircraft. especially first of a kind products. Something hard that gets built, tested, iterated on, and shipped to the world\n\n - Hands-on builder \u2014 not a manager, consultant, or someone who just oversaw the work. We want people who actually built the thing\n\n - Strong pedigree is a bonus, not necessary\u2014 elite engineering schools (MIT, Stanford, Caltech, CMU), but work experience is more important. i.e. a track record at companies doing genuinely hard things\n\n - Personality: hungry, deep in their craft, still hands-on.\n\n - Not a fit: construction/infrastructure firms (Bechtel, AECOM, etc.), pure project managers, consultants\n\nWe\u2019re hiring across the board in terms of experience \u2014 even engineers straight out of school. For those straight out of school internships at great companies is a bonus.\n\n\nJunior = 0-3 years of relevant work experience.",
+      "location": "",
+      "first_published": "2026-03-26T19:13:29.774000+00:00",
+      "url": "https://jobs.ashbyhq.com/unlimitedindustries/822c9b6b-4889-407a-b435-f96f23c44a86"
+    },
+    {
+      "title": "Multidisciplinary Engineer - Mid-Level",
+      "description": "The role: As a Multidisciplinary Engineer, you'll use your deep domain expertise \u2014 spanning mechanical, electrical, civil, structural, or systems engineering \u2014 alongside AI tools like Claude Code to build the platform that automates engineering design across all construction. You don't need prior software experience; our engineers who've never built a software product are writing code with AI. What matters is that you understand the physics, the constraints, and the trade-offs across multiple engineering disciplines. You'll be hands-on: designing, building, testing, iterating.\n\n\n\nWhat we're looking for:\n\n - Inherently multidisciplinary \u2014 product companies naturally create this. Engineers have to collaborate tightly across mechanical, electrical, software, systems \u2014 so they end up thinking across the full stack whether they intended to or not\n   \n   - the multidisciplinary can also come from studying one discipline in college and then working across another\n\n - Worked at exceptional product companies \u2014 think Tesla, SpaceX, Joby, Anduril, Rivian, Neuralink. These environments force engineers to work across disciplines and think holistically about a product. That's very different from a Bechtel or a construction firm where work is siloed and process-driven\n\n - Worked on real, shippable products \u2014 a car, a robot, a rocket, a humanoid, an aircraft. especially first of a kind products. Something hard that gets built, tested, iterated on, and shipped to the world\n\n - Hands-on builder \u2014 not a manager, consultant, or someone who just oversaw the work. We want people who actually built the thing\n\n - Strong pedigree is a bonus, not necessary\u2014 elite engineering schools (MIT, Stanford, Caltech, CMU), but work experience is more important. i.e. a track record at companies doing genuinely hard things\n\n - Personality: hungry, deep in their craft, still hands-on.\n\n - Not a fit: construction/infrastructure firms (Bechtel, AECOM, etc.), pure project managers, consultants\n\nWe\u2019re hiring across the board in terms of experience \u2014 even engineers straight out of school. For those straight out of school internships at great companies is a bonus.\n\n\n\nMid-Level = 3-7 years of relevant work experience.",
+      "location": "",
+      "first_published": "2026-03-26T19:15:23.710000+00:00",
+      "url": "https://jobs.ashbyhq.com/unlimitedindustries/59df1511-efc7-4356-af58-9bdd5bda2f63"
+    },
+    {
+      "title": "Multidisciplinary Engineer - Senior",
+      "description": "The role: As a Multidisciplinary Engineer, you'll use your deep domain expertise \u2014 spanning mechanical, electrical, civil, structural, or systems engineering \u2014 alongside AI tools like Claude Code to build the platform that automates engineering design across all construction. You don't need prior software experience; our engineers who've never built a software product are writing code with AI. What matters is that you understand the physics, the constraints, and the trade-offs across multiple engineering disciplines. You'll be hands-on: designing, building, testing, iterating.\n\n\n\nWhat we're looking for:\n\n - Inherently multidisciplinary \u2014 product companies naturally create this. Engineers have to collaborate tightly across mechanical, electrical, software, systems \u2014 so they end up thinking across the full stack whether they intended to or not\n   \n   - the multidisciplinary can also come from studying one discipline in college and then working across another\n\n - Worked at exceptional product companies \u2014 think Tesla, SpaceX, Joby, Anduril, Rivian, Neuralink. These environments force engineers to work across disciplines and think holistically about a product. That's very different from a Bechtel or a construction firm where work is siloed and process-driven\n\n - Worked on real, shippable products \u2014 a car, a robot, a rocket, a humanoid, an aircraft. especially first of a kind products. Something hard that gets built, tested, iterated on, and shipped to the world\n\n - Hands-on builder \u2014 not a manager, consultant, or someone who just oversaw the work. We want people who actually built the thing\n\n - Strong pedigree is a bonus, not necessary\u2014 elite engineering schools (MIT, Stanford, Caltech, CMU), but work experience is more important. i.e. a track record at companies doing genuinely hard things\n\n - Personality: hungry, deep in their craft, still hands-on.\n\n - Not a fit: construction/infrastructure firms (Bechtel, AECOM, etc.), pure project managers, consultants\n\nWe\u2019re hiring across the board in terms of experience \u2014 even engineers straight out of school. For those straight out of school internships at great companies is a bonus.\n\n\n\nSenior = 7-15+ years of relevant work experience.",
+      "location": "",
+      "first_published": "2026-03-26T19:16:56.716000+00:00",
+      "url": "https://jobs.ashbyhq.com/unlimitedindustries/c4a388aa-72c0-404d-a978-d2f01a669695"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "seed",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "biweekly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.8333333333333334,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "AI-focused construction tech startup with multidisciplinary engineering roles",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "old-well-labs",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T15:38:55.106875+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-05-03T17:12:49.934000+00:00",
+  "source_jobs": [
+    {
+      "title": "Senior Software Engineer, Data",
+      "description": "ABOUT OWL\n\nOld Well Labs is a Charlotte-based financial intelligence startup used by leading allocators and the fund managers they invest with. Our platform turns billions of disclosures into structured data that makes it easy for those in the investment ecosystem to find, monitor, and connect with one another.\n\n\n\n\nABOUT THE ROLE\n\nWe\u2019re hiring an Engineer to define and build systems that make our data usable across the company.\n\nThis role will own the architecture for how data is processed, enriched, and operationalized. You'll build agent systems that collect data across the web and extract structured information, the queues and pipelines that route that data through human-in-the-loop review, and the admin tooling that lets our data ops team work efficiently. You'll work heavily on the data infrastructure underneath (e.g., SQS, dbt, Step Functions, Lambda) to make it all fast and reliable.\n\nWe're big proponents of using AI to do our best work, and this role is the most direct expression of that. Every workflow you build helps remove manual work or makes us faster at it. If you have an idea for a new tool, agent, or pipeline, you will be able to own and push that idea forward.\n\n\n\n\nWHAT YOU\u2019LL DO\n\nBuild AI Agents That Collect and Extract Data\n\nDesign and ship agent workflows that collect data from across the web, extract structured information, and build it into our app.\n\nDesign Data Pipelines and Event-Driven Systems\n\nOwn how data flows from collection through processing to the platform. Work across SQS, dbt, Step Functions, Lambda, Athena, and S3 to evolve the architecture as volume and complexity grow.\n\nBuild Admin Tooling for Data Operations\n\nShip the human-in-the-loop interfaces, dashboards, and internal tools our operations team uses every day.\n\nMove Quickly in a Small, Senior Team\n\nOperate with high ownership in a small engineering team. Take problems from ambiguous requirements through design, implementation, and production, with the autonomy to make the calls that ship the work.\n\n\n\n\nWHAT WE\u2019RE LOOKING FOR\n\n - 5+ years of backend, platform, or systems engineering experience\n\n - Strong Python and system design expertise\n\n - Experience with distributed and event-driven systems\n\n - Hands-on experience with data pipeline tools (dbt, Airflow, or comparable)\n\n - Experience defining architecture across multiple systems\n\n - Practical experience applying AI in production systems\n\n - Ability to operate with high ownership in ambiguous environments\n   \n   \n\n\nLOCATION\n\nCharlotte (Hybrid: Tuesday\u2013Thursday in office)\n\n\n\n\nCOMPENSATION\n\n - Competitive salary + equity\n\n\n\n\nBENEFITS\n\n - 100% medical, dental & vision coverage\n\n - 401k\n\n - Flexible PTO\n\n - Parental leave\n\n - Office in South End\n\n - Bagel Thursdays",
+      "location": "",
+      "first_published": "2026-05-03T17:12:49.934000+00:00",
+      "url": "https://jobs.ashbyhq.com/old-well-labs/4161104b-f494-432f-aeb9-d652bf1f65a8"
+    },
+    {
+      "title": "Senior Software Engineer, Product",
+      "description": "ABOUT OWL\n\nOld Well Labs is a Charlotte-based financial intelligence startup used by leading allocators and the fund managers they invest with. Our platform turns billions of disclosures into structured data on 20,000+ funds, 1.4M people, and 10,000+ LPs \u2014 helping customers discover managers, monitor their moves, and connect with the right partners.\n\n\n\n\nABOUT THE ROLE\n\nWe're hiring a Senior Full Stack Engineer to build product features end to end as we evolve OWL from a data intelligence layer into a network platform, one that sits on top of the industry's best dataset and connects the top allocators and hedge funds in the world. Each new customer makes the network more valuable to the next, and your work will directly shape that flywheel.\n\nYou'll work across our React frontend and backend services, owning features from idea through production. That means understanding the user problem, designing the solution, building it, and iterating based on feedback.\n\nWe're also big proponents of using AI to do our best work. If you have an idea for a new tool or workflow, we'll move quickly to get it on the roadmap. Using AI well across the development lifecycle is something we're continuing to get better at, and we value everyone's contribution to that effort.\n\n\n\n\nWHAT YOU\u2019LL DO\n\nBuild the Network Layer\n\nDesign and ship the tooling that turns OWL from a data platform into a network: the search, connection, and collaboration surfaces that let allocators and managers find and engage with each other.\n\nOwn and Deliver Product Features\n\nTake problems from ambiguous requirements through design, implementation, and production across the stack.\n\nMove Quickly in a Changing Environment\n\nWork on evolving systems with shifting priorities while maintaining a high bar for quality\n\nWork with Data and Systems that Scale\n\nBuild features on top of large, structured datasets while improving performance and reliability as the product grows\n\n\n\n\nWHAT WE\u2019RE LOOKING FOR\n\n - 5+ years of experience building production software\n\n - Strong backend experience in Python (and/or Node.js)\n\n - Strong frontend experience in React + TypeScript\n\n - Experience building APIs (REST and/or GraphQL)\n\n - Solid understanding of relational databases (Postgres) and data modeling\n\n - Experience working in fast-moving or early-stage environments with evolving systems and priorities\n\n - Ability to take ownership and deliver without heavy direction\n\n\n\n\nTECH STACK\n\n - Languages: Python, Node.js, TypeScript\n\n - Frontend: React\n\n - Backend: FastAPI, GraphQL APIs\n\n - Database: Postgres\n\n - Infrastructure: AWS\n\n - DevOps & Tooling: Terraform, GitHub, Datadog\n\n - AI: OpenAI, Claude, LangSmith\n\n\n\n\nLOCATION\n\nCharlotte (Hybrid: Tuesday\u2013Thursday in office)\n\n\n\n\nCOMPENSATION\n\n - Competitive salary + equity\n   \n   \n\n\nWORK AUTHORIZATION\n\nAt this time, OWL is not able to sponsor employment visas. Candidates must be authorized to work in the United States without sponsorship now or in the future.\n\n\n\n\nBENEFITS\n\n - 100% medical, dental & vision coverage\n\n - 401k\n\n - Flexible PTO\n\n - Parental leave\n\n - Office in South End\n\n - Bagel Thursdays",
+      "location": "",
+      "first_published": "2026-04-24T23:53:31.562000+00:00",
+      "url": "https://jobs.ashbyhq.com/old-well-labs/73c91f02-994f-4620-afa4-35d8375619d6"
+    },
+    {
+      "title": "General Interest",
+      "description": "We\u2019re always interested in meeting exceptional people! We don't have any specific roles posted at this time but please share your resume and a short note if you think you'd be a great fit at OWL.",
+      "location": "",
+      "first_published": "2026-02-18T21:53:01.158000+00:00",
+      "url": "https://jobs.ashbyhq.com/old-well-labs/c548269f-2b4f-4bb3-99fb-9ff32840d21c"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.6666666666666666,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Financial intelligence startup with a strong engineering focus.",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

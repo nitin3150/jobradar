@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "fulcrum-inc",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T04:48:17.602397+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-02-04T00:29:35.158000+00:00",
+  "source_jobs": [
+    {
+      "title": "Expression of Interest",
+      "description": "We're growing, and job descriptions can't always keep up with what we need.\n\nIf you care about the problems we're working and have skills you think we'd benefit from, we want to hear from you, even if we don't have a clear role.\n\n",
+      "location": "",
+      "first_published": "2026-02-04T00:29:35.158000+00:00",
+      "url": "https://jobs.ashbyhq.com/fulcrum-inc/062b1335-b85c-4ce0-ab22-7ab520f13bcc"
+    },
+    {
+      "title": "Member of Technical Staff",
+      "description": "Compensation: $200,000\u2013$500,000 + equity (depending on experience and scope)\n\nLocation: San Francisco\n\nStart: ASAP \u2022 Applications: Rolling\n\n\n\nThere is a $5k referral bonus for this role. You can refer people through our form https://airtable.com/appYVvzDrNdbVKIaK/pagLIE65fzwkJz6NB/form.\n\n\n\nWe\u2019re hiring a member of technical staff to work closely with the founding team. You'll shape both our products and research direction.\n\n\n\nKey Responsibilities:\n\n - Backend engineering: Design and build scalable infrastructure and systems for AI agents, including containerization, and performance optimization\n\n - Machine learning: Contribute to agent science research, and create evaluations for agent performance and behavior\n\n - Frontend engineering: Develop oversight interfaces and frontend systems for coding agent monitoring and control\n\n - Shape product strategy and research direction in collaboration with the founding team",
+      "location": "",
+      "first_published": "2026-01-21T22:24:17.991000+00:00",
+      "url": "https://jobs.ashbyhq.com/fulcrum-inc/4e80f439-c751-4969-ab0b-5b09591c16fe"
+    },
+    {
+      "title": "Generalist",
+      "description": "Compensation: $150,000\u2013$300,000 + equity (depending on experience and scope)\n\nLocation: San Francisco\n\nStart: ASAP \u2022 Applications: Rolling\n\n\n\nThere is a $5k referral bonus for this role. You can refer people through our form https://airtable.com/appYVvzDrNdbVKIaK/pagLIE65fzwkJz6NB/form.\n\n\n\nWe\u2019re hiring a high-agency strategic ops & product generalist to work closely with the founding team. You would be responsible for helping with Fulcrum Research\u2019s strategic direction, product management, communicating with customers, writing, & general operations support.\n\n\n\nKey responsibilities:\n\n - Partner with founders to identify and prioritize strategic initiatives that drive company growth and impact\n\n - Work with technical teams to define product requirements and manage the development roadmap\n\n - Lead product launches and coordinate go-to-market efforts\n\n - Craft compelling written content including product documentation, blog posts, and customer-facing materials\n\n - Support internal and external communications efforts\n\n - Develop operational processes and frameworks that scale with the organization\n\nWe value candidates with varied experiences and perspectives. If you're adaptable, thoughtful, and hard-working, please submit an application, even if you think your background isn\u2019t a perfect match!",
+      "location": "",
+      "first_published": "2025-12-03T19:47:39.807000+00:00",
+      "url": "https://jobs.ashbyhq.com/fulcrum-inc/b7f9d023-7ac7-420d-bb53-ae1f1383b4bc"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "seed",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.67,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Small team with high equity compensation, likely early-stage startup",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

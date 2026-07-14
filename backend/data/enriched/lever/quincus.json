@@ -3,7 +3,7 @@
   "status": "skipped",
   "slug": "quincus",
   "board": "lever",
-  "decision_at": "2026-07-12T20:09:15.660783+00:00",
+  "decision_at": "2026-07-13T03:04:55.959075+00:00",
   "reason": "fewer_than_3_jobs",
   "source_jobs_count": 2
 }

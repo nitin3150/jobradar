@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "slug": "flutterflow",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T04:40:31.163754+00:00",
+  "source_jobs_count": 4,
+  "source_last_published": "2026-03-05T16:20:31.878000+00:00",
+  "source_jobs": [
+    {
+      "title": "General Application - Future Openings",
+      "description": "\nPlease note: this is not a job that's being actively recruited for.\n\nWe'd love to keep you in mind for future roles if FlutterFlow seems like an interesting place to work, and you didn't see a good match posted on our career site! Add your resume here, and we may reach out in the future if a role opens up that's a good match - this is a great way to stay on our radar.\n\n\n\nPerks & Benefits\nWe are a globally distributed company - 15 countries and counting! While our benefits offering varies from country to country, our goal is to provide competitive and comprehensive benefits to every member of our team, no matter where they live and work.",
+      "location": "",
+      "first_published": "2025-05-15T21:07:25.786000+00:00",
+      "url": "https://jobs.ashbyhq.com/flutterflow/2faa2b63-761f-4839-9c36-3eed7ad8466a"
+    },
+    {
+      "title": "Software Engineer - Future Openings",
+      "description": "Note: This posting is NOT for an active role. Please apply if you'd like to be considered for future roles on our engineering team.\n\nWe are looking for rockstar engineers to join us in building our low-code application development platform from the ground up. You'll be shaping the future of our company and the future of how applications are built.\n\nThis is a remote position, based anywhere in the United States.\n\n\nWHAT YOU WILL WORK ON\n\n - Help us decide what to build next. You will partner with our founders and team to identify and prioritize new features.\n\n - Implement new features and integrations as well as informing best practices in our generated code (architecture, performance, style, etc).\n\n - Write code that writes code! We work in an interesting and challenging space that few people get to work on.\n\n - Work on more core features: new widgets and integrations, code quality and generation.\n\n - Keep FlutterFlow up to date with cutting edge Flutter features and updates.\n\n - Help solve complex problems.\n\n\nWHO YOU ARE\n\n - 3+ years of real-world full-time experience developing or implementing software.\n\n - Strong domain experience in Flutter, in-depth knowledge of framework and tools, knows best practices in Flutter.\n\n - You write high-quality code that is readable and reliable.\n\n - You have a start-up mentality. You understand shipping a feature early and learning from the result is more important than perfecting it.\n\n - You are always willing to roll up your sleeves and pitch in when the team needs help.\n\n - Experience with Firebase\n\n - Experience with mobile app development\n\nPerks & Benefits\nWe are a globally distributed company - 15 countries and counting! While our benefits offering varies from country to country, our goal is to provide competitive and comprehensive benefits to every member of our team, no matter where they live and work.",
+      "location": "",
+      "first_published": "2025-02-20T21:13:49.639000+00:00",
+      "url": "https://jobs.ashbyhq.com/flutterflow/a45343e4-ba41-4a6d-817c-897cc9ecfdb5"
+    },
+    {
+      "title": "Product Manager - Future Openings",
+      "description": "Note: This posting is NOT for an active role. Please apply if you'd like to be considered for future roles on our engineering team.\n\nWhat You Will Work On\n\n - Collaborate closely with Engineering, and Design teams to scope and define product features that directly address customer needs and enhance product capabilities.\n\n - Own features from concept through launch, gathering feedback, measuring outcomes, and iterating quickly to continuously improve the product experience.\n\n - Develop strong opinions about usability and user experience by actively using the product, identifying opportunities for improvement from a first-hand perspective.\n\n - Shape how users interact with AI-assisted app development, helping define the future of no-code and low-code tooling as a key advocate for the product\u2019s vision.\n\n - Conduct customer interviews, analyze user behavior data, and perform market research to uncover and prioritize the most impactful user pain points.\n\n - Partner closely with cross functional teams to synthesize customer feedback, and shape messaging, and go-to-market strategies for feature launches.\n\n\n\nWho You Are\n\n - You bring at least 5 years of experience in Product Management or closely related technical roles, with a proven track record of shipping technical products used by developers.\n\n - You thrive in fast-paced environments where you can wear multiple hats, whether that's pulling a SQL query, writing a spec, creating mockups in Figma, or improving documentation.\n\n - You are comfortable working with technical teams and have hands-on familiarity with code, even if you're not a full-time developer.\n\n - You leverage data tools to validate hypotheses, prioritize work, and inform product decisions with a strong analytical approach.\n\nPerks & Benefits\nWe are a globally distributed company - 15 countries and counting! While our benefits offering varies from country to country, our goal is to provide competitive and comprehensive benefits to every member of our team, no matter where they live and work.",
+      "location": "",
+      "first_published": "2026-02-05T18:15:34.161000+00:00",
+      "url": "https://jobs.ashbyhq.com/flutterflow/65f701e1-f4f2-469f-ae56-7be801d3a07b"
+    },
+    {
+      "title": "Sr. Product Designer",
+      "description": "THE OPPORTUNITY\n\nThe way people build digital products is being torn apart and rebuilt right now. Designers are leaving Figma, not because it's bad, but because AI coding tools like Cursor, Claude Code, and let them skip the design phase entirely and go straight to working software. The problem is, those tools reduce the entire creative process to a prompt box. You type, you wait, you get something back. If it's wrong, you type again. No visual control or way to grab a component and say \"not that, this.\"\n\n\n\nWe think there's a better model: a canvas where AI and humans collaborate visually. Where you can prompt and get a full screen in seconds, then drag, drop, refine, and push it further utilizing AI as a creative partner. FF Designer is the first step toward that vision. It launched weeks ago and the response has been strong. But we're just getting started.\n\n\n\nABOUT THE ROLE\n\nFlutterFlow Designer sits at the intersection of two worlds that rarely meet this cleanly: the craft and intuition of great design, and the generative power of modern AI. Your job is to make that intersection feel inevitable.\n\n\n\nAs a Product Designer, you'll work alongside our design lead and engineering team to shape the FlutterFlow Designer experience: the canvas, the generation flow, the editing layer, the feedback loops that make AI feel like a collaborator. You'll be helping define what it means to design with intelligence rather than designing around it. This isn't a role where you execute against a spec. You'll be deeply involved in product direction, collaborating with design leadership, engineering, and product to figure out what this category even looks like.\n\n\n\nWHY THIS, WHY NOW\n\nFlutterFlow has helped millions of users build real apps, generating real revenue, without the traditional barriers of development cost and timeline. AI has dramatically accelerated product development, shrinking the time it takes to go from idea to working product. As the barrier to building software falls, what will differentiate great products is design.\n\n\nJust as development now has AI-native tools, design deserves them too. Tools that help designers focus on what matters most: exploration, rapid iteration, and maintaining full control.\n\n\nThe design phase hasn't been solved for the AI era. That's what we're building with Designer.\n\n\nDesigner is a generative design canvas where a prompt becomes a production-quality, fully editable app screen in seconds. Not a mockup or a wireframe, but a screen you can push directly into a live app. AI is also collapsing the traditional product team. The lines between engineering, product, and design are beginning to blur as more people gain the ability to build directly. In that world, taste becomes even more important.\n\n\nWhen anyone can create products, the differentiator isn't just the ability to build, it's the ability to decide what should be built, and how it should feel. Designers with strong taste will play a bigger role than ever.\n\n\n\nWHAT YOU WILL WORK ON\n\n - Lead end-to-end design for FF Designer: flows, interactions, visual language, and the micro-moments that make AI output feel trustworthy and controllable\n\n - Define how users direct, refine, and iterate on AI-generated screens, making the generative loop feel natural and empowering\n\n - Collaborate tightly with engineering to ensure what ships matches the intent, and occasionally jump into the front-end yourself to close the gap\n\n - Synthesize user research, usage data, and your own product instincts into a coherent, evolving design vision\n\n - Help build the design system that serves FlutterFlow Designer and informs the broader FlutterFlow ecosystem\n\n - Stay close to the frontier, absorbing new interaction patterns, emerging AI capabilities, shifts in how people build, and bring those signals back into the product\n\n\n\nWHO YOU ARE\n\n - A product designer who thinks like a builder with technical fluency; you\u2019re comfortable building interactions in code, reading pull reques",
+      "location": "",
+      "first_published": "2026-03-05T16:20:31.878000+00:00",
+      "url": "https://jobs.ashbyhq.com/flutterflow/224be149-19f8-469c-9767-f2f263f0ae5c"
+    }
+  ],
+  "primary_function": "product_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.75,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Low posting volume, but high tech role ratio. Product-focused startup with AI-driven design tools.",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

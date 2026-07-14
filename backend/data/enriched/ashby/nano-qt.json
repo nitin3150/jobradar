@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "slug": "nano-qt",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T15:12:05.679860+00:00",
+  "source_jobs_count": 5,
+  "source_last_published": "2025-07-24T20:57:24.851000+00:00",
+  "source_jobs": [
+    {
+      "title": "Research Scientist (Hardware)",
+      "description": "Role\n\n - Undertake both independent and collaborative research to enhance the present and future nanofiber cavity QED systems for quantum computing.\n\n - Lead the design, development, operation, diagnosis, and enhancement of new experiment systems, under supervision of the CTO.\n\n - Provide technical guidance and mentorship to engineers and interns.\n\nQualifications\n\n - Must have PhD before commencing the role.\n\nRequirements\n\n - Fundamental understanding of quantum computation and quantum communication.\n\n - Proficient in verbal and written English communication (Knowledge of Japanese is not mandatory).\n\n - Ability to work cohesively in an interdisciplinary team and adjust to a rapidly evolving environment.\n\nDesired Experience\n\n - At least 3 years of experience in the development/operation of experiments to control quantum system.\n\n - Expertise in one or more of the following domains:\n   \n   - Cooling, trapping and manipulating ions or neutral atoms\n   \n   - Control of atom/photons in cavity QED system\n   \n   - Coherent control of other quantum systems for quantum computing or quantum communication e.g., superconducting circuits, quantum dots\n   \n   - Quantum optics\n\nCompensation\n\n - Competitive salary.",
+      "location": "",
+      "first_published": "2025-07-24T20:57:04.917000+00:00",
+      "url": "https://jobs.ashbyhq.com/nano-qt/f6c281c1-151c-462f-8b48-176921df0812"
+    },
+    {
+      "title": "Research Scientist (Theory, FTQC/Quantum Information)",
+      "description": "Role\n\n - Undertake both independent and collaborative research to develop and publish foundational and innovative theoretical framework to achieve a breakthrough in quantum information sciences.\n\n - Lead and develop collaborations with influential researchers, corporate or academic, in the fields of quantum computing, quantum communication, quantum cryptography, quantum sensing, and other emerging applications of quantum technologies.\n\n - Propose physical implementations and scalable architecture designs of the nanofiber cavity quantum electrodynamics (cQED), distributed neutral-atom quantum processors, and other quantum devices.\n\nQualifications\n\n - Must have PhD before commencing the role.\n\nRequirements\n\n - Proven experience of theoretical research in at least one of the fields of fault-tolerant quantum computing, quantum cryptography, quantum communication, quantum algorithms, or relevant fields, with publication record commensurate with experience.\n\n - Proficient in verbal and written English communication (proficiency in Japanese is not mandatory).\n\n - Ability to work cohesively in an interdisciplinary team and adjust to a rapidly evolving environment.\n\nDesired Experience\n\n - Track record of publications in reputable peer-reviewed academic journals.\n\n - Proficient programming skills for reproducible numerical simulations.\n\n - Basic knowledge or interest in qubit systems based on atomic, molecular, and optical (AMO) physics, including ions, optics, cavity QED and neutral atoms.\n\n - Leading role in international and interdisciplinary collaborative research.\n\nCompensation\n\n - Competitive salary.",
+      "location": "",
+      "first_published": "2025-07-24T20:57:24.851000+00:00",
+      "url": "https://jobs.ashbyhq.com/nano-qt/07f49c7e-1fa4-4fe1-9779-8058ae19bd47"
+    },
+    {
+      "title": "Research Scientist (Theory, AMO Physics)",
+      "description": "Role\n\n - Engage in both independent and collaborative research in the field of Atomic, Molecular, and Optical (AMO) physics, focusing on quantum information applications.\n   \n   - Develop scalable architectures for neutral-atom Quantum Processing Units (QPUs) with cavity Quantum Electrodynamics (QED) atom-light interfaces, towards distributed quantum computing and quantum communications. This involves close collaboration with NanoQT\u2019s FTQC/Quantum Information team (including high-rate QEC specialists).\n   \n   - Develop and/or optimize protocols for fast and high-fidelity neutral-atom qubit operations, both in free space and in optical cavities.\n   \n   - Propose novel applications of neutral atom and cavity QED systems for quantum communications, quantum sensing, analog quantum simulations, and other emerging quantum technologies.\n\n - Publish results in peer-reviewed academic journals.\n\n - Contribute to the design and optimization of nanofiber cavity QED and free-space neutral atom hardware, working closely with NanoQT\u2019s hardware team (cold-atom and cavity QED experimentalists).\n\nQualifications\n\n - Must have PhD before commencing the role.\n\nRequirements\n\n - Demonstrated expertise in theoretical research, particularly focused on Atomic, Molecular, and Optical (AMO) systems for quantum information applications, substantiated by publication history.\n\n - Strong programming and code/data organization skills for efficient and reproducible numerical simulations.\n\n - Proficient in verbal and written English communication (proficiency in Japanese is not mandatory).\n\n - Ability to work cohesively in an interdisciplinary team and adjust to a rapidly evolving environment.\n\nDesired Experience\n\n - In-depth knowledge of cavity QED and/or neutral atoms for quantum information applications.\n\n - Basic knowledge in fault-tolerant quantum computing and quantum communication.\n\n - Leading role in collaborative research projects with experimentalists.\n\nCompensation\n\n - Competitive salary.",
+      "location": "",
+      "first_published": "2025-07-24T20:57:13.197000+00:00",
+      "url": "https://jobs.ashbyhq.com/nano-qt/518cfb63-c9d8-4eb7-b312-c7006cb9bd24"
+    },
+    {
+      "title": "Research Internship (Hardware)",
+      "description": "Description\n\n - NanoQT is offering internship for both Master's and PhD candidates. Gain in-depth experience in quantum optics, ultracold atoms, and their applications to quantum computing. Join Japan's first startup, pioneering hardware for quantum computing and quantum networking, and the world's first commercialization attempt using optical cavity QED for quantum computing and quantum networking.\n\nAvailable topics\n\n - Analog/digital electronic development\n\n - Optical setups for laser cooling, probing atoms\n\n - Programming of control system\n\n - Nanofiber cavity development\n\n - and more\n\nBenefits\n\n - Opportunity to work closely with leading experts in the fields of in quantum optics, ultracold atoms\n\n - Hands-on experience in cutting-edge research and development projects\n\n - Possibility of co-authoring scientific publications or presenting research findings at conferences\n\nEducation, Experience, Requirements\n\n - You must be a Master's or PhD student to be eligible for the program.\n\nQualifications / Skills\n\n - Highly organized with excellent attention to detail\n\n - Effective oral and written communication abilities\n\n - Ability to work well both independently and collaboratively\n\n - Japanese fluency is NOT mandatory\n\nCompensation\n\n - Competitive stipend based on qualifications and experience.\n\n - Please note that compensation details may vary depending on the specific internship program.\n\n - Candidates will be provided with more specific information during the interview process.\n\nOther details\n\n - Duration: 3-6 months to 1 year (Flexible based on candidate's requirements)\n\n - Hours: 20-40 hours per week (Flexible schedule)\n\n - Location: Shinjuku, Tokyo, Japan",
+      "location": "",
+      "first_published": "2025-07-24T20:56:04.177000+00:00",
+      "url": "https://jobs.ashbyhq.com/nano-qt/bc56a95a-36f7-4b5f-b875-d9d30289f28a"
+    },
+    {
+      "title": "Research Internship (Theory)",
+      "description": "Project Examples\n\n - Fault-tolerant quantum computation(FTQC), quantum error correction(QEC):\n   \n   - Develop and implement a high-performance decoding algorithm for QEC and FTQC.\n   \n   - Survey and develop quantum (or classical) error-correcting codes.\n   \n   - Design architectural frameworks for FTQC tailored to specific physical systems (such as cavity QED and neutral atoms).\n   \n   - Explore fundamental properties of QEC and FTQC.\n   \n   Applications of quantum information processing and quantum networks:\n   \n   - Research and develop promising algorithms and protocols that leverage the advantages of quantum information processing in fields like quantum algorithms, communication, cryptography, and sensing.\n   \n   - Design efficient algorithms or protocols optimized for fault-tolerant quantum computation or error-corrected quantum repeaters, adapted to the constraints of physical quantum systems.\n   \n   Quantum state engineering in cavity QED and neutral-atom systems:\n   \n   - Contribute to the development of simulator library and hardware API for cQED-based quantum computer and quantum repeater.\n   \n   - Develop and/or optimize gate operations, entangled state generation and other qubit operations in cQED system.\n   \n   - Fundamental research into light-matter interaction and quantum many-body dynamics in cQED systems.\n   \n   - .. and more.\n\nQualifications\n\n - Must be currently enrolled in a university, graduate program, or an equivalent academic institution.\n\nRequirements\n\n - Background in physics, mathematics, computer science, engineering, or related fields.\n\n - Basic understanding of quantum computation and quantum communication.\n\nHow to stand out in the crowd\n\n - Knowledge of quantum error-correcting codes and fault-tolerant quantum computation.\n\n - Knowledge in theoretical computer science such as coding theory, cryptography.\n\n - Research experience in the field of atomic, molecular and optical (AMO) physics.\n\n - Coding experience in Python or Julia.\n\n - Extensive experience with simulation libraries for quantum systems, such as qutip, quantumoptics.jl, qulacs, pennylane, stim, etc.\n\nCompensation\n\n - Competitive salary + full or partial travel/lodging support\n\nWork Detail\n\n - Format: On site (Tokyo, Japan) or remote.\n\n - Frequency: Full time or 2+ days / week.\n\n - Duration: 1+ month.",
+      "location": "",
+      "first_published": "2025-07-24T20:56:01.674000+00:00",
+      "url": "https://jobs.ashbyhq.com/nano-qt/457b7524-9005-484c-86a7-65992c1b1189"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": true,
+  "tech_role_ratio": 1.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "NanoQT is a quantum computing startup with a strong focus on research and development.",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

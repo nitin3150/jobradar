@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "tzafon",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T17:57:49.764237+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2025-10-10T01:04:31.464000+00:00",
+  "source_jobs": [
+    {
+      "title": "Member of Technical Staff \u2013 Applied AI",
+      "description": "Tzafon is a foundation model lab building scalable compute systems and advancing machine intelligence, with offices in San Francisco, Zurich & Tel Aviv. We\u2019ve raised over $12m in funding to advance our mission of expanding the frontiers of machine intelligence.\n\nWe're a team of engineers and scientists with deep backgrounds in ML infrastructure & research. Founded by IOI and IMO medalists, PhDs, and alumni from leading tech companies, we train models and build infrastructure for swarms of agents to automate work across real-world environments.\n\nYou'll work between our product and post-training teams to ship Large Action Models that actually work. Build evals, benchmarks, and fine-tuning pipelines. Define what good model behavior means and make it happen at scale.\n\n\n\nWhat you'll do\n\n - Build evaluation infrastructure for agent systems\n\n - Create benchmarks that measure real capability\n\n - Design data pipelines for behavioral data collection and analysis\n\n - Implement fine-tuning pipelines (wandb, distributed training infrastructure)\n\n - Work with post-training team on RLHF and behavioral optimization\n\n - Build tools for model introspection and capability mapping\n\n - Ship continuous evaluation systems that catch regressions before users do\n\n\nWe're looking for\n\n - Expert-level at Python and ML frameworks (PyTorch)\n\n - Deep experience with LLM fine-tuning and evaluation infrastructure\n\n - Track record of shipping ML systems to production\n\n - Strong opinions on what makes a good eval\n\n - Experience with wandb, MLflow, or similar experiment tracking\n\n\n\nPreferred Experience\n\n - Built eval frameworks at AI labs or LLM companies\n\n - RLHF/Constitutional AI/DPO implementation experience\n\n - Published work on model evaluation or benchmarking\n\n - Contributions to open source ML infrastructure\n\n - Experience with multi-agent systems or tool-use models\n\n\n\nLife at Tzafon\n\n - Full medical, dental, and vision coverage, plus 401(k) in the US\n\n - Office in SF, Zurich and Tel Aviv\n\n - Early-stage equity in a future-defining company\n\n\n\nVisa sponsorship: We do sponsor visas! However, we aren't able to successfully sponsor visas for every role and every candidate. But if we make you an offer, we will make every reasonable effort to get you a visa, and we retain an immigration lawyer to help with this.\n\nCompensation starts at $150k-$400k + equity package, depending on experience & location.\n\nWe also offer a referral bonus of $5k for referral of successful hires (send to careers@tzafon.ai).",
+      "location": "",
+      "first_published": "2025-07-03T00:34:14.258000+00:00",
+      "url": "https://jobs.ashbyhq.com/tzafon/cd4a8db1-d779-44a1-9cc9-76190bc8db2c"
+    },
+    {
+      "title": "Member of Technical Staff - Foundations",
+      "description": "Tzafon is a foundation model lab building scalable compute systems and advancing machine intelligence, with offices in San Francisco, Zurich & Tel Aviv. We\u2019ve raised over $12m in funding to advance our mission of expanding the frontiers of machine intelligence.\n\nWe're a team of engineers and scientists with deep backgrounds in ML infrastructure & research. Founded by IOI and IMO medalists, PhDs, and alumni from leading tech companies, such as Google Deepmind, Character, and NVIDIA, we train models and build infrastructure for swarms of agents to automate work across real-world environments.\n\nYou'll work between our product and post-training teams to ship Large Action Models that actually work. Build evals, benchmarks, and fine-tuning pipelines. Define what good model behavior means and make it happen at scale.\n\nWhat you'll do\n\n - Design and execute large scale training runs on our clusters\n\n - Build and optimize distributed training infrastructure across massive multi-node systems\n\n - Implement post-training pipelines at scale\n\n - Develop data pipelines that process and filter trillions of tokens for pre-training\n\n - Research and implement architectural improvements, scaling laws, and training optimizations\n\n - Debug training instabilities, loss spikes, and convergence issues in long-running jobs\n\n - Build tooling for cluster utilization, fault tolerance, and checkpoint management\n\n - Write custom CUDA/Triton kernels to optimize critical training operations (attention, normalization, activations)\n\n - Collaborate on research that advances the state of the art in foundation model training\n\n\nWe're looking for\n\n - Deep experience pre-training or post-training foundation models on large clusters\n\n - Expert-level at Python and ML frameworks (PyTorch, JAX, Torchtitan)\n\n - Strong systems skills: distributed training, FSDP/ZeRO, tensor parallelism, pipeline parallelism\n\n - Experience writing performant CUDA or Triton kernels for ML workloads\n\n - Track record of running stable multi-week training jobs and debugging distributed training failures\n\n - Understanding of cluster scheduling, networking bottlenecks, and GPU/TPU performance optimization\n\n\n\nPreferred Experience\n\n - Trained foundation models at major AI labs (OpenAI, Anthropic, Google DeepMind, Meta, xAI, etc.)\n\n - Worked on large scale RL runs\n\n - Optimized critical training kernels (FlashAttention, fused optimizers, custom kernels)\n\n - Published research at top ML conferences (NeurIPS, ICML, ICLR)\n\n - Contributions to open source ML infrastructure (PyTorch, JAX, vLLM, etc.)\n\n - Experience with training data pipelines, data quality research, or synthetic data generation\n\n\n\nLife at Tzafon\n\n - Full medical, dental, and vision coverage, plus 401(k) in the us\n\n - Office in SF, Zurich, and Tel Aviv\n\n - Early-stage equity in a future-defining company\n   \n   \n\nVisa sponsorship: We do sponsor visas! However, we aren't able to successfully sponsor visas for every role and every candidate. But if we make you an offer, we will make every reasonable effort to get you a visa, and we retain an immigration lawyer to help with this.\n\nCompensation starts at $200k-$500k + equity package, depending on experience & location.\n\nWe also offer a referral bonus of $5k for referral of successful hires (send to careers@tzafon.ai).\n\n",
+      "location": "",
+      "first_published": "2025-10-10T01:04:31.464000+00:00",
+      "url": "https://jobs.ashbyhq.com/tzafon/d24d8aa3-099e-47ec-82b8-22c1649727ce"
+    },
+    {
+      "title": "Member of Technical Staff \u2013 Backend/Platform Engineer",
+      "description": "Tzafon is a foundation model lab building scalable compute systems and advancing machine intelligence, with offices in San Francisco, Zurich & Tel Aviv. We\u2019ve raised over $12m in funding to advance our mission of expanding the frontiers of machine intelligence.\n\nWe're a team of engineers and scientists with deep backgrounds in ML infrastructure & research. Founded by IOI and IMO medalists, PhDs, and alumni from leading tech companies, we train models and build infrastructure for swarms of agents to automate work across real-world environments.\n\nYou will:\n\n - Design, version, and operate core APIs across our systems\n\n - Orchestrate processes with isolation, quotas, and guardrails.\n\n - Implement approvals and audit/replay.\n\n - Stand up observability: OpenTelemetry spans, logs, metrics, replayable traces.\n\n - Drive reliability (SLOs, autoscaling, backpressure, retries).\n\nYou have:\n\n - Interest in building scalable systems\n\n - Built and operated real\u2011time APIs (streams, websockets, or game/RTC\u2011style).\n\n - Strong data modeling for event logs/traces; comfort with queues & idempotency.\n\n - Experience with sandboxed automation or similar.\n\n - Worked with Go and are comfortable with advanced concurrency patterns\n\n - Security mindset\n\nNice to haves:\n\n - Temporal/NATS/Kafka experience; ClickHouse/OLAP for traces; Kubernetes, Nomad.\n\n - Billing exposure; SOC2 experience.\n\nStack: Go, Rust, gRPC, Postgres, Redis, S3, a queue (SQS/Pub/Sub/NATS), Prometheus, Tzafon Waypoint\n\nLife at Tzafon\n\n - Full medical, dental, and vision coverage, plus 401(k) in the US\n\n - Office in SF, Zurich and Tel Aviv\n\n - Early-stage equity in a future-defining company\n\nVisa sponsorship: We do sponsor visas! However, we aren't able to successfully sponsor visas for every role and every candidate. If we make you an offer, we will make every reasonable effort to get you a visa.\n\nCompensation\n\nCompensation starts at $150k-$250k and equity package.",
+      "location": "",
+      "first_published": "2025-09-24T21:50:41.523000+00:00",
+      "url": "https://jobs.ashbyhq.com/tzafon/e043899c-381b-4e6c-a1ea-a6825c288dee"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 1.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Foundation model lab with strong engineering focus",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

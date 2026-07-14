@@ -1,0 +1,76 @@
+{
+  "schema_version": 2,
+  "slug": "invisible",
+  "board": "greenhouse",
+  "enriched_at": "2026-07-14T01:42:46.366679+00:00",
+  "source_jobs_count": 7,
+  "source_last_published": "2026-07-02T17:37:37+00:00",
+  "source_jobs": [
+    {
+      "title": "Business Opportunities at Invisible (Commercial, Delivery, Client Accounts Team)",
+      "description": "&lt;p&gt;Business Opportunities at Invisible&amp;nbsp;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-07-02T17:37:36+00:00",
+      "url": "https://job-boards.eu.greenhouse.io/invisible/jobs/4614080101"
+    },
+    {
+      "title": "Engineering Opportunities at Invisible ",
+      "description": "&lt;p&gt;Engineering Opportunities at Invisible&amp;nbsp;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-07-02T17:37:37+00:00",
+      "url": "https://job-boards.eu.greenhouse.io/invisible/jobs/4791685101"
+    },
+    {
+      "title": "Invisible Technologies Opportunities (Finance, Legal, Marketing, Talent, Business Ops)",
+      "description": "&lt;p&gt;Invisible Technologies Opportunity&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-07-02T17:37:36+00:00",
+      "url": "https://job-boards.eu.greenhouse.io/invisible/jobs/4584333101"
+    },
+    {
+      "title": "Product Opportunities at Invisible ",
+      "description": "&lt;p&gt;Product Opportunities at Invisible&amp;nbsp;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-07-02T17:37:36+00:00",
+      "url": "https://job-boards.eu.greenhouse.io/invisible/jobs/4645560101"
+    },
+    {
+      "title": "Software Engineer, Forward Deployed  (Multiple levels)",
+      "description": "&lt;h2&gt;&lt;strong&gt;About The Role&lt;/strong&gt;&lt;/h2&gt;\n&lt;p&gt;As a Software Engineer, Forward Deployed Engineer (FDE) you&#39;ll work directly with clients and our internal delivery teams to build and deploy AI-powered solutions that transform how work gets done. You\u2019ll own projects end-to-end: scoping ambiguous problems, prototyping AI workflows, and deploying scalable systems on top of our products \u2014 all while interfacing with technical and non-technical stakeholders.&lt;/p&gt;\n&lt;p&gt;This is a hybrid role: equal parts AI engineer, software builder, and technical consultant. It&#39;s perfect for someone who wants to be hands-on with models and close to the impact they generate.&lt;/p&gt;\n&lt;h4&gt;&lt;em&gt;&lt;br&gt;**&lt;span style=&quot;text-decoration: underline;&quot;&gt;Please note&lt;/span&gt; - We are always looking to connect with talented individuals for this role. This posting is part of our ongoing effort to build a strong pipeline of candidates and may not correspond to an immediate opening. Candidates who move forward in the process may be considered for current and future opportunities as they arise.&lt;br&gt;&lt;br&gt;&lt;/em&gt;&lt;/h4&gt;\n&lt;h2&gt;&lt;strong&gt;What You\u2019ll Do&lt;/strong&gt;&lt;/h2&gt;\n&lt;ul&gt;\n&lt;li&gt;Collaborate with delivery leaders to scope technical solutions to operational problems&lt;/li&gt;\n&lt;li&gt;Identify workflow optimizations through deep engagement with customer problems and work to build into a stable and scalable solution&lt;/li&gt;\n&lt;li&gt;Design and implement AI-powered workflows using LLMs, embedding models, retrieval systems, and automation tools&lt;/li&gt;\n&lt;li&gt;Translate messy real-world constraints (e.g., inconsistent data, latency requirements) into elegant engineering solutions&lt;/li&gt;\n&lt;li&gt;Iterate quickly based on real-time feedback from operators and clients&lt;/li&gt;\n&lt;li&gt;Build reusable tooling and infrastructure that accelerates future deployments&lt;/li&gt;\n&lt;/ul&gt;\n&lt;h2&gt;&lt;strong&gt;What We Need&lt;/strong&gt;&lt;/h2&gt;\n&lt;ul&gt;\n&lt;li&gt;2+ years of professional experience in software engineering or ML engineering&lt;/li&gt;\n&lt;li&gt;Strong Python skills and familiarity with libraries like PyTorch, Hugging Face, LangChain, or OpenAI APIs&lt;/li&gt;\n&lt;li&gt;Solid understanding of data pipelines, APIs, and production deployment (e.g., Docker, FastAPI, GCP/AWS)&lt;/li&gt;\n&lt;li&gt;Experience building usable systems from messy data and ambiguous requirements&lt;/li&gt;\n&lt;li&gt;Strong communication skills \u2014 you can explain technical decisions to delivery teams and client stakeholders&lt;/li&gt;\n&lt;li&gt;Entrepreneurial mindset and comfort working in fast-moving, unstructured environments&lt;/li&gt;\n&lt;li&gt;Be willing to be on-call for our customers when situations arise&lt;/li&gt;\n&lt;li&gt;Ability to travel roughly 15-50% of the time, sometimes short-notice trips\u2014primarily across Europe with occasional roll-outs outside of Europe \u2014to work directly on-site with clients&lt;/li&gt;\n&lt;/ul&gt;\n&lt;h2&gt;&lt;strong&gt;What\u2019s In It For You&lt;/strong&gt;&lt;/h2&gt;\n&lt;p&gt;Invisible is committed to fair and competitive pay, ensuring that compensation reflects both market conditions and the value each team member brings. Our salary structure accounts for regional differences in cost of living while maintaining internal equity.&lt;br&gt;&lt;br&gt;For this position, the annual salary ranges by level are:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;&lt;strong&gt;Level 1:&lt;/strong&gt; 173,000 - 224,000z\u0142\u200e&lt;/li&gt;\n&lt;li&gt;&lt;strong&gt;Level 2:&lt;/strong&gt; 217,000 - 281,000z\u0142\u200e&lt;/li&gt;\n&lt;li&gt;&lt;strong&gt;Level 3:&lt;/strong&gt; 276,000 - 358,000z\u0142\u200e&lt;/li&gt;\n&lt;/ul&gt;",
+      "location": "",
+      "first_published": "2026-07-02T17:37:37+00:00",
+      "url": "https://job-boards.eu.greenhouse.io/invisible/jobs/4898162101"
+    },
+    {
+      "title": "Software Engineer, Forward Deployed  (Multiple levels)",
+      "description": "&lt;h2&gt;&lt;strong&gt;About The Role&lt;/strong&gt;&lt;/h2&gt;\n&lt;p&gt;As a Software Engineer, Forward Deployed Engineer (FDE) you&#39;ll work directly with clients and our internal delivery teams to build and deploy AI-powered solutions that transform how work gets done. You\u2019ll own projects end-to-end: scoping ambiguous problems, prototyping AI workflows, and deploying scalable systems on top of our products \u2014 all while interfacing with technical and non-technical stakeholders.&lt;/p&gt;\n&lt;p&gt;This is a hybrid role: equal parts AI engineer, software builder, and technical consultant. It&#39;s perfect for someone who wants to be hands-on with models and close to the impact they generate.&lt;/p&gt;\n&lt;h4&gt;&lt;em&gt;&lt;br&gt;**&lt;span style=&quot;text-decoration: underline;&quot;&gt;Please note&lt;/span&gt; - We are always looking to connect with talented individuals for this role. This posting is part of our ongoing effort to build a strong pipeline of candidates and may not correspond to an immediate opening. Candidates who move forward in the process may be considered for current and future opportunities as they arise.&lt;br&gt;&lt;br&gt;&lt;/em&gt;&lt;/h4&gt;\n&lt;h2&gt;&lt;strong&gt;What You\u2019ll Do&lt;/strong&gt;&lt;/h2&gt;\n&lt;ul&gt;\n&lt;li&gt;Collaborate with delivery leaders to scope technical solutions to operational problems&lt;/li&gt;\n&lt;li&gt;Identify workflow optimizations through deep engagement with customer problems and work to build into a stable and scalable solution&lt;/li&gt;\n&lt;li&gt;Design and implement AI-powered workflows using LLMs, embedding models, retrieval systems, and automation tools&lt;/li&gt;\n&lt;li&gt;Translate messy real-world constraints (e.g., inconsistent data, latency requirements) into elegant engineering solutions&lt;/li&gt;\n&lt;li&gt;Iterate quickly based on real-time feedback from operators and clients&lt;/li&gt;\n&lt;li&gt;Build reusable tooling and infrastructure that accelerates future deployments&lt;/li&gt;\n&lt;/ul&gt;\n&lt;h2&gt;&lt;strong&gt;What We Need&lt;/strong&gt;&lt;/h2&gt;\n&lt;ul&gt;\n&lt;li&gt;2+ years of professional experience in software engineering or ML engineering&lt;/li&gt;\n&lt;li&gt;Strong Python skills and familiarity with libraries like PyTorch, Hugging Face, LangChain, or OpenAI APIs&lt;/li&gt;\n&lt;li&gt;Solid understanding of data pipelines, APIs, and production deployment (e.g., Docker, FastAPI, GCP/AWS)&lt;/li&gt;\n&lt;li&gt;Experience building usable systems from messy data and ambiguous requirements&lt;/li&gt;\n&lt;li&gt;Strong communication skills \u2014 you can explain technical decisions to delivery teams and client stakeholders&lt;/li&gt;\n&lt;li&gt;Entrepreneurial mindset and comfort working in fast-moving, unstructured environments&lt;/li&gt;\n&lt;li&gt;Be willing to be on-call for our customers when situations arise&lt;/li&gt;\n&lt;li&gt;Ability to travel roughly 15-50% of the time, sometimes short-notice trips\u2014primarily across Europe with occasional roll-outs outside of Europe \u2014to work directly on-site with clients&lt;/li&gt;\n&lt;/ul&gt;\n&lt;h2&gt;&lt;strong&gt;What\u2019s In It For You&lt;/strong&gt;&lt;/h2&gt;\n&lt;p&gt;Invisible is committed to fair and competitive pay, ensuring that compensation reflects both market conditions and the value each team member brings. Our salary structure accounts for regional differences in cost of living while maintaining internal equity.&lt;br&gt;&lt;br&gt;For this position, the annual salary ranges by level and location are:&lt;/p&gt;\n&lt;p&gt;&lt;span style=&quot;text-decoration: underline;&quot;&gt;&lt;strong&gt;Tier 1 (London):&lt;/strong&gt;&lt;/span&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;&lt;strong&gt;Level 1:&amp;nbsp; &lt;/strong&gt;\u00a356,000 - \u00a383,000&lt;/li&gt;\n&lt;li&gt;&lt;strong&gt;Level 2:&amp;nbsp; &lt;/strong&gt;\u00a371,000 - \u00a3103,000&lt;/li&gt;\n&lt;li&gt;&lt;strong&gt;Level 3:&amp;nbsp; &lt;/strong&gt;\u00a390,000 - \u00a3132,000&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;span style=&quot;text-decoration: underline;&quot;&gt;&lt;",
+      "location": "",
+      "first_published": "2026-07-02T17:37:37+00:00",
+      "url": "https://job-boards.eu.greenhouse.io/invisible/jobs/4898453101"
+    },
+    {
+      "title": "Technology Opportunities at Invisible ",
+      "description": "&lt;p&gt;Technology Opportunities at Invisible&amp;nbsp;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-07-02T17:37:36+00:00",
+      "url": "https://job-boards.eu.greenhouse.io/invisible/jobs/4607689101"
+    }
+  ],
+  "primary_function": "mixed",
+  "estimated_stage": "series_b",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.42857142857142855,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Multiple duplicate job postings, unclear org structure",
+  "overall_confidence": 0.6,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "dialo",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T04:20:34.178315+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2025-10-14T22:53:40.364000+00:00",
+  "source_jobs": [
+    {
+      "title": "Founding AI Engineer",
+      "description": "We are looking for a founding AI engineer to lead the mission to solve voice AI, shaping our technical strategy while owning its hands-on implementation.\n\n\n\nUntil now, we have been pushing fine-tuning, small model architecture tweaks, and data pipelines to their limits as a team of product-focused engineers. This allowed us to build a successful commercial product, powered by advanced components we created ourselves, like our industry-leading Polish ASR for telephony.\n\n\n\nYour mission is to push beyond our current limits by leading R&D in real-time understanding and reasoning. Expect to research and develop speech to text systems, multimodal LLMs, and collaborate with the rest of the team on data pipelines that fuel entire development.",
+      "location": "",
+      "first_published": "2025-10-14T18:33:20.018000+00:00",
+      "url": "https://jobs.ashbyhq.com/dialo/78387501-025d-4c1c-a259-084a00ef6b3d"
+    },
+    {
+      "title": "UI Engineer (Fullstack)",
+      "description": "We are looking for a Fullstack UI Engineer to build the tools that empower our clients and accelerate our AI development. As our product and data scale, we face the critical challenge of turning massive datasets into simple, powerful user experiences. We need a dedicated specialist to own our user-facing applications and solve this challenge head-on.\n\nYour mission is to build performant and intuitive applications that give users leverage over complex data. You will create the tools that enable clients to discover insights and help our AI team curate datasets, directly accelerating our ability to build better AI models, faster.",
+      "location": "",
+      "first_published": "2025-10-14T22:53:40.364000+00:00",
+      "url": "https://jobs.ashbyhq.com/dialo/8bc7a7bd-43e3-4d0d-8a4c-458cc7e56747"
+    },
+    {
+      "title": "AI Engineer (Future Role)",
+      "description": "We are proactively seeking members for a new AI team, which will be built directly by our Founding AI Engineer after they join. As a core hands-on contributor, you will help execute the mission to solve voice AI. This is an expression of interest to be among the first candidates to form this new team of AI specialists.\n\nUntil now, we have been pushing fine-tuning, small model architecture tweaks, and data pipelines to their limits as a team of product-focused engineers. This allowed us to build a successful commercial product, powered by advanced components we created ourselves, like our industry-leading Polish ASR for telephony.\n\nYour mission will be to help push beyond our current limits by executing on R&D in real-time understanding and reasoning. You will build and deploy speech-to-text systems, experiment with multimodal LLMs, and collaborate with your new team on the data pipelines that fuel this entire development.",
+      "location": "",
+      "first_published": "2025-10-14T22:16:32.230000+00:00",
+      "url": "https://jobs.ashbyhq.com/dialo/e3710a0f-d281-4f32-b2c1-75a1cd574840"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "seed",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 1.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Small team with strong AI focus, likely early-stage startup",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

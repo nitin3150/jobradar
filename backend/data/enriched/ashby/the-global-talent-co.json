@@ -1,0 +1,8 @@
+{
+  "schema_version": 2,
+  "status": "failed",
+  "slug": "the-global-talent-co",
+  "board": "ashby",
+  "decision_at": "2026-07-13T17:48:44.963900+00:00",
+  "reason": "RuntimeError: all LLM providers failed on run_json_prompt; last error type=_RateLimitedError"
+}

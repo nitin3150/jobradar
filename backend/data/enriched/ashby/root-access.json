@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "slug": "root-access",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T16:44:40.829217+00:00",
+  "source_jobs_count": 4,
+  "source_last_published": "2026-07-10T23:29:11.562000+00:00",
+  "source_jobs": [
+    {
+      "title": "Head of Media and Marketing",
+      "description": "ROLE OVERVIEW\n\nThis is a highly creative, execution-focused role centered around storytelling, content creation, and brand narrative. You will lead creation of media across video, design, written content, social, and product storytelling.\n\nThis role is a great fit for an expert videographer who feels like they have more to offer than just content. You will craft campaigns, develop marketing plans across channels, and help oversee the company\u2019s budget for growth operations.\n\nThis is a full-time, in-person role based in NYC at our offices in midtown.\n\n\u00a0\n\u00a0\n\n\nWHAT YOU\u2019LL DO\n\n - Help create and refine the Root Access brand voice across all media\n\n - Produce high-quality videos, technical explainers, documentaries, interviews, demos, and short-form content\n\n - Create graphics, visuals, motion assets, presentations, and brand materials\n\n - Translate complex embedded systems and AI concepts into clear and compelling stories\n\n - Showcase the work being achieved by our customers and partners\n\n - Write copy for launches, social media, website content, investor materials, and product messaging\n\n - Build repeatable media systems for capturing product development, engineering breakthroughs, and customer outcomes\n\n - Provide creative direction for launches, announcements, and major company moments\n\n - Operate with high autonomy and rapid execution speed\n\n - Oversee contractors when necessary for content production\n\n\u00a0\n\u00a0\n\n\nWHAT WE\u2019RE LOOKING FOR\n\n - Exceptional taste in storytelling, visuals, pacing, and presentation\n\n - Strong portfolio demonstrating work across video, design, and written content\n\n - Ability to independently create polished content from raw ideas\n\n - Strong video editing and production skills\n\n - Experience with tools such as Adobe Creative Suite, Figma, DaVinci Resolve, Final Cut, Blender, or equivalent\n\n - Strong writing ability with a sharp sense of voice and positioning\n\n - Ability to understand and communicate highly technical concepts\n\n - Comfortable working directly with technical founders and engineering teams\n\n - High ownership mentality with strong creative instincts\n\n - Fast-moving, resourceful, and detail-oriented",
+      "location": "",
+      "first_published": "2026-05-12T19:11:45.250000+00:00",
+      "url": "https://jobs.ashbyhq.com/root-access/4e37f80c-509f-4459-930d-2fef9f3a3abc"
+    },
+    {
+      "title": "Firmware / Embedded Engineer -- Intern",
+      "description": "Internship Role Overview\n\nWe\u2019re looking for a Firmware / Embedded Engineer to join our paid summer internship for 2026. The right person will be excited to break things, give blunt feedback, and help shape new developer tools they wish they had. You\u2019ll be an internal user of our product, write firmware for dev boards, and help us validate AI-assisted workflows. You\u2019ll also contribute to embedded projects for testing peripherals, validating board files, or exploring new toolchains. We have an intense working environment meant only for the most ambitious engineers.\n\nIf working hard and laughing along the way with awesome teammates is something you'd enjoy, then you'll fit right in!\n\n\n\nWhat You\u2019ll Do\n\n - Write, test, and debug embedded software + firmware (e.g., STM32, ESP32, nRF52) using C/C++ or Rust.\n\n - Use our internal AI-powered tools to generate/configure firmware\n\n - Help test features like pin mapping, driver generation, clock tree config, and build tool integrations.\n\n - Provide structured feedback on usability, bugs, and edge cases (you\u2019re part of the product loop).\n\n - Build demo projects, scripts, or workflows that help us validate tool reliability and usability.\n\n - Read datasheets and vendor docs to cross-verify model output (yep, still a thing).\n\n\n\nYou might be a good fit:\n\n - Have hands-on experience with microcontrollers (STM32, Arduino, ESP32, etc.).\n\n - Know your way around basic embedded peripherals: UART, I2C, SPI, GPIO, timers.\n\n - Have worked with at least one toolchain (e.g., PlatformIO, STM32CubeIDE, Zephyr, Arduino, Keil).\n\n - Are curious about how firmware dev tools could be better\u2014and want to shape that future.\n\n - Have tinkered with LLMs and AI-native dev tools",
+      "location": "",
+      "first_published": "2026-02-11T15:26:31.558000+00:00",
+      "url": "https://jobs.ashbyhq.com/root-access/ca7bc32d-5f10-49db-b569-2a7c94da484e"
+    },
+    {
+      "title": "Electronics Engineer",
+      "description": "About the company\nRoot Access is a frontier electronics company. We are a NYC-based startup funded by top hardware investors. Our team is a passionate mix of engineers across electrical, firmware, software, and machine learning.\n\n\nAbout the role\n\nWe're looking for an Electronics Engineer to own the design of electronic hardware from concept through prototype and into production. You will work alongside our cofounder / CTO who earned 7 patents for electronics. The Electronics Engineer will develop product requirements into schematics, circuits, and manufacturable boards, and oversee each through verification and test. This role is best suited for a skilled engineer who wants to move fast and help pioneer the field of electronics in the age of AI.\n\n\n\nKey responsibilities\n\n - Design analog, digital, and mixed-signal circuits from requirements and specifications.\n\n - Produce schematic capture and drive PCB layout (directly or in partnership with layout engineers), including component selection, footprints, and BOM management.\n\n - Develop and perform circuit simulation and analysis (e.g. SPICE), covering power, signal integrity, timing, and thermal considerations.\n\n - Design power supplies, sensor interfaces, communication interfaces (I\u00b2C, SPI, UART, USB, Ethernet, etc.), and microcontroller/processor subsystems.\n\n - Bring up and debug prototypes in the lab using oscilloscopes, logic analyzers, and other bench equipment.\n\n - Collaborate with firmware, mechanical, verification, and test engineers throughout the development cycle.\n\n - Prepare design documentation, review packages, and support Design for Manufacturability (DFM) and cost reduction efforts.\n\n - Support compliance activities (EMC/EMI, safety, regulatory) as designs mature.\n\n\n\nRequired qualifications\n\n - Bachelor's degree in EE or equivalent experience.\n\n - 3+ years of hands-on electronic circuit and PCB design experience.\n\n - Proficiency with a schematic / PCB design tool (e.g. Altium, Cadence, KiCad, etc).\n\n - Proficiency using Ansys HFSS, SIwave, Icepak and CST is a plus.\n\n - Solid grounding in analog and digital fundamentals, power electronics, and high-speed design concepts.\n\n - Comfortable debugging hardware at the bench with standard lab instrumentation (oscilloscopes, logic analyzers, etc).\n\n\n\nPreferred qualifications\n\n - Master's in Electrical Engineering\n\n - Experience taking products through the full lifecycle to volume production.\n\n - Familiarity with signal-integrity and power-integrity analysis tools.\n\n - Scripting ability (e.g. Python) for design automation or data analysis.\n\n - Exposure to EMC/regulatory compliance testing.",
+      "location": "",
+      "first_published": "2026-07-07T22:36:12.847000+00:00",
+      "url": "https://jobs.ashbyhq.com/root-access/6edb588c-077f-4bfd-b53a-8e2860acab52"
+    },
+    {
+      "title": "Machine Learning Engineer",
+      "description": "About the company\nRoot Access is a frontier electronics company. We are a NYC-based startup funded by top investors. Our team is a passionate mix of engineers across electrical, firmware, software, and machine learning.\n\n\n\nCore Responsibilities\n\n - Architect Physics Foundation Models: Design and train deep learning models\u2014specifically PINNs, FNOs, and Neural Operators\u2014optimized to solve Maxwell\u2019s equations, Helmholtz equations, and heat equations directly within the neural loss function.\n\n - Build the ECAD Data Pipeline: Develop high-performance asset pipelines to convert geometric, discrete, and multi-layer PCB files (ODB++, IPC-2581, STEP, Gerber) into continuous tensor grids, signed distance fields (SDFs), or graph embeddings.\n\n - Close the Simulation-to-Reality (Sim2Real) Gap: Implement Differentiable Physics Calibration pipelines to ingest physical lab measurements (VNA Touchstone files, TDR traces, near-field EMI scans) to fine-tune latent material and manufacturing parameters.\n\n - Multi-Modal Architecture Integration: Collaborate on connecting upstream Graph Neural Networks (GNNs) or LLMs mapping schematic topologies to downstream spatial physics engines.\n\n - Optimize for Real-Time Execution: Optimize training and inference pipelines on GPU clusters to ensure forward-pass physics predictions can execute in sub-100 millisecond timeframes, enabling real-time feedback loops for layout designers.\n\n\nRequired Technical Skills & Qualifications\n\n - Education: Master\u2019s or Ph.D. in Computer Science, Mathematics, EE, Physics, or a related quantitative field with a focus on Scientific Machine Learning (SciML).\n\n - Deep Learning Frameworks: 4+ years of expert-level experience with PyTorch or JAX.\n\n - SciML Expertise: Direct, hands-on experience building and training PINNs, DeepONets, or Fourier Neural Operators (FNOs). Direct experience using frameworks like NVIDIA Modulus, DeepXDE, or PyTorch Geometric.\n\n - Mathematical Depth: Exceptional understanding of partial differential equations (PDEs), vector calculus, automatic differentiation (autograd), and numerical optimization algorithms (Adam, L-BFGS).\n\n - Data Pipelines: Strong proficiency in manipulating spatial or geometric datasets using Python libraries (NumPy, SciPy, Shapely, Open3D, or custom voxelization matrices).",
+      "location": "",
+      "first_published": "2026-07-10T23:29:11.562000+00:00",
+      "url": "https://jobs.ashbyhq.com/root-access/2f6ce424-fc4f-436a-9493-7fb74aff9017"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "seed",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "monthly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": false,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.75,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Electronics company with a strong focus on engineering and machine learning roles.",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "slug": "dryft",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T04:23:07.855462+00:00",
+  "source_jobs_count": 5,
+  "source_last_published": "2026-02-05T02:56:55.170000+00:00",
+  "source_jobs": [
+    {
+      "title": "Founding Design Engineer",
+      "description": "DRYFT\n\nDryft builds intelligent systems that automate complex human decisions in manufacturing operations\n\nWe\u2019re a small, talent-dense team with modest roots and a love for the physical world - cars, machines, planes. Our team includes graduates from Stanford, Berkeley, CDTM, TUM, winners of Stanford TreeHacks, recipients of Fulbright & Haniel scholarships, and builders of everything from robots and race cars to software with millions of downloads.\n\nWe\u2019re backed by the founders and leaders behind Amazon, Facebook, Stripe, Applied Intuition, & others; General Catalyst & Neo, and board members of global industrial companies.\n\nToday, we\u2019re already saving customers millions. But this is only the beginning. ERPs ran the physical world for half a century. Dryft is powering the next.\n\n\n\n\nTHE ROLE\n\nAs Founding Design Engineer, you\u2019ll work directly with our CEO, CTO, and customers to build magical user interfaces for our AI Agents. Your mission is to make the complex intuitive, transforming dense industrial data and decision logic into transparent, high-trust experiences that empower users to act with confidence and speed.\n\n\n\n\nYOU\n\n - Are an engineer turned designer, or vice versa, or always have been the one on the team understanding the value of easy-to-use interfaces.\n\n - Shipped production features end-to-end. While stronger in FE, you can handle BE too.\n\n - Have a strong product sense and enjoy working directly with customers\n\n - You obsess over design, pay attention to details and are always the first to explore best-in-class products\n\n - Are ready to work onsite in SF (we support relocation & visa)\n\n\n\n\nTECH STACK\n\n - FE (TypeScript): React, Chakra UI v3, TanStack Router, TanStack Query, Vite\n\n - BE (Python): FastAPI with Pydantic v2, SQLModel, PostgreSQL with pgvector, dagster\n\n - AI: Pydantic AI, Langfuse",
+      "location": "",
+      "first_published": "2025-11-05T00:55:36.542000+00:00",
+      "url": "https://jobs.ashbyhq.com/dryft/572fe2dc-1f15-476e-9e1b-df60ddd3205d"
+    },
+    {
+      "title": "Founding Forward Deployed Engineer",
+      "description": "DRYFT\n\nDryft builds intelligent systems that automate complex human decisions in manufacturing operations\n\nWe\u2019re a small, talent-dense team with modest roots and a love for the physical world - cars, machines, planes. Our team includes graduates from Stanford, Berkeley, CDTM, TUM, winners of Stanford TreeHacks, recipients of Fulbright & Haniel scholarships, and builders of everything from robots and race cars to software with millions of downloads.\n\nWe\u2019re backed by the founders and leaders behind Amazon, Facebook, Stripe, Applied Intuition, & others; General Catalyst & Neo, and board members of global industrial companies.\n\nToday, we\u2019re already saving customers millions. But this is only the beginning. ERPs ran the physical world for half a century. Dryft is powering the next.\n\n\n\n\nTHE ROLE\n\nThis role is our most entrepreneurial. I no other role will you learn more about how to become a great founder, listener & builder.\n\nAs our Founding Forward Deployed Engineer, you\u2019ll operate at the intersection of product, engineering, and operations. 50% Engineering, 50% Customer interaction.\n\n - Design the product backbone. Work hands-on with users, translate their pain into product improvements, and prototype features yourself - ideally writing production code when needed.\n\n - Turn operations into product. Every deployment becomes a blueprint for scale \u2014 you\u2019ll transform learnings into reusable product features, data models, and playbooks that move Dryft from bespoke to productized.\n\n - Lead full-stack rollouts. Own implementations end-to-end: from scoping and onboarding to integration and training. Align IT teams, engineers, and C-level execs across Germany, the EU, and the US (10\u201330% travel).\n\n - Shape how Dryft scales. Work directly with the CEO & CTO to define the product DNA, build the foundation for future teams, and grow into roles like CPO or COO.\n\nThis is a high-ownership, zero-handholding role for someone who loves turning complexity into clarity and shipping solutions that just work.\n\n\n\n\nYOU\n\n - Product architect at heart. You turn ERP frustrations into intuitive features. You care deeply about UX, speed, and simplicity.\n\n - Sharp mind: You pick up new concepts extremely quickly. You listen. You remember the details - even of things you never heard about.\n\n - Systems thinker. You design processes that scale - in code, in operations, and in how people work. You think in data and automation.\n\n - Quality-obsessed. You hold yourself to a high bar, dive deep into problems, and care about getting it right - not just getting it done.\n\n - Confident communicator. You can calm an impatient exec, convince a skeptical IT leader, and still keep humor in the room.\n\n - Down-to-earth & relatable. You bond with shop-floor operators as easily as with boardroom execs.\n\n - Fluent German & English speaker. Our customers are global, and you\u2019ll move between San Francisco, the US Midwest, Mexico and the heart of German manufacturing.\n\n\n\n\nTECH STACK\n\n - FE (TypeScript): React, Chakra UI v3, TanStack Router, TanStack Query, Vite\n\n - BE (Python): FastAPI with Pydantic v2, SQLModel, Postgres with pgvector, dagster\n\n - AI: Pydantic AI, Langfuse",
+      "location": "",
+      "first_published": "2025-08-01T20:52:51.634000+00:00",
+      "url": "https://jobs.ashbyhq.com/dryft/16a68334-23db-4f99-a01d-6941945e86db"
+    },
+    {
+      "title": "Founding Full-Stack Engineer",
+      "description": "DRYFT\n\nDryft builds intelligent systems that automate complex human decisions in manufacturing operations\n\nWe\u2019re a small, talent-dense team with modest roots and a love for the physical world - cars, machines, planes. Our team includes graduates from Stanford, Berkeley, CDTM, TUM, winners of Stanford TreeHacks, recipients of Fulbright & Haniel scholarships, and builders of everything from robots and race cars to software with millions of downloads.\n\nWe\u2019re backed by the founders and leaders behind Amazon, Facebook, Stripe, Applied Intuition, & others; General Catalyst & Neo, and board members of global industrial companies.\n\nToday, we\u2019re already saving customers millions. But this is only the beginning. ERPs ran the physical world for half a century. Dryft is powering the next.\n\n\n\n\nTHE ROLE\n\nAs Founding Fullstack Engineer, you\u2019ll be the brain behind Dryft\u2019s decision intelligence. You\u2019ll build scalable systems that combine agent-based reasoning with mathematical optimization and simulation on top of large-scale industrial data.\n\n\n\n\nYOU\n\n - Like building scalable, interpretable, data-driven agents from all perspectives - algorithms, architecture and infrastructure.\n\n - Have a strong product sense and enjoy working directly with customers daily\n\n - Have shipped production code end-to-end, are strong in backend & infra and comfortable shipping basic frontend features.\n\n - Have built data-intensive, multi-tenant production systems with Redis, Postgres, and orchestration frameworks. Clickhouse experience is a plus.\n\n - Are ready to work onsite in SF (we support relocation & visa)\n\n\n\n\nTECH STACK\n\n - FE (TypeScript): React, Chakra UI v3, TanStack Router, TanStack Query, Vite\n\n - BE (Python): FastAPI with Pydantic v2, SQLModel, Postgres with pgvector, dagster\n\n - AI: Pydantic AI, Langfuse",
+      "location": "",
+      "first_published": "2025-08-07T21:35:05.506000+00:00",
+      "url": "https://jobs.ashbyhq.com/dryft/352183c7-98bc-4626-bc80-b13cfaf005d4"
+    },
+    {
+      "title": "Open Application",
+      "description": "-- Can't find the right fit but still want to work with us? Apply here. --\n\n\n\nDryft builds intelligent systems that automate complex human decisions in manufacturing operations\n\nWe\u2019re a small, talent-dense team with modest roots and a love for the physical world - cars, machines, planes. Our team includes graduates from Stanford, Berkeley, CDTM, TUM, winners of Stanford TreeHacks, recipients of Fulbright & Haniel scholarships, and builders of everything from robots and race cars to software with millions of downloads.\n\nWe\u2019re backed by the founders and leaders behind Amazon, Facebook, Stripe, Applied Intuition, & others; General Catalyst & Neo, and board members of global industrial companies.\n\nToday, we\u2019re already saving customers millions. But this is only the beginning. ERPs ran the physical world for half a century. Dryft is powering the next.\n\n\n",
+      "location": "",
+      "first_published": "2025-11-04T23:22:33.779000+00:00",
+      "url": "https://jobs.ashbyhq.com/dryft/aa0aaa74-2681-4c2c-a714-c1ebffacd48a"
+    },
+    {
+      "title": "Full-Stack Engineering Intern ",
+      "description": "DRYFT\n\nDryft builds intelligent systems that automate complex human decisions in manufacturing operations\n\nWe\u2019re a small, talent-dense team with modest roots and a love for the physical world - cars, machines, planes. Our team includes graduates from Stanford, Berkeley, MIT, TUM, winners of Stanford TreeHacks, and builders of everything from robots and race cars to software with millions of downloads.\n\nWe\u2019re backed by the founders and leaders behind Amazon, Facebook, Stripe, Applied Intuition, & others; General Catalyst & Neo, and board members of global industrial companies.\n\nWe\u2019re a no-bullshit, direct-feedback kind of team. People come to Dryft because they want to grow fast, with real responsibility.\n\n\n\n\nTHE ROLE\n\nAs a Fullstack Engineering Intern, you\u2019ll be the brain behind Dryft\u2019s decision intelligence. You\u2019ll build scalable systems that combine agent-based reasoning with mathematical optimization and simulation on top of large-scale industrial data.\n\nYou will work autonomously on your own dedicated projects, often directly with the customer while receiving mentorship from senior engineers that work directly with you. Our early engineers were prior founding/early engineers at venture-backed startups in SF.\n\n\n\n\nYOU\n\n - Like building scalable, interpretable, data-driven agents from all perspectives - algorithms, architecture and infrastructure.\n\n - Have a strong product sense and enjoy working directly with customers daily\n\n - Have shipped production code end-to-end, are strong in backend & infra and comfortable shipping basic frontend features.\n\n - Are ready to work onsite in SF (we support visa)\n\n\n\n\nTECH STACK\n\n - FE (TypeScript): React, Chakra UI v3, TanStack Router, TanStack Query, Vite\n\n - BE (Python): FastAPI with Pydantic v2, SQLModel, Postgres with pgvector, dagster\n\n - AI: Pydantic AI, Langfuse",
+      "location": "",
+      "first_published": "2026-02-05T02:56:55.170000+00:00",
+      "url": "https://jobs.ashbyhq.com/dryft/3f1c261d-9b65-412b-9f17-34b8968bdd78"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "seed",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "monthly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.8,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.2,
+  "notes": "small team, talent-dense, backed by prominent founders",
+  "overall_confidence": 0.8,
+  "model_used": "llama-3.3-70b-versatile",
+  "status": "ok"
+}

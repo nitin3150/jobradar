@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "hrttalentcommunity",
+  "board": "greenhouse",
+  "enriched_at": "2026-07-14T01:22:44.953589+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-05-06T17:14:56+00:00",
+  "source_jobs": [
+    {
+      "title": "Campus Talent Community",
+      "description": "&lt;p&gt;Our Talent Community is a great way to stay connected, learn more about HRT, and be notified about career opportunities and events that interest you!&lt;/p&gt;\n&lt;p&gt;Fill out this form to:&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Submit your resume to our network.&lt;/li&gt;\n&lt;li&gt;Get notified about job openings and recruiting events in your area or on campus.&lt;/li&gt;\n&lt;li&gt;Express interest in early student programs if you&#39;re a first or second year undergraduate student.&lt;/li&gt;\n&lt;li&gt;Stay updated and connected with HRT!&lt;/li&gt;\n&lt;/ul&gt;",
+      "location": "",
+      "first_published": "2026-05-06T17:14:56+00:00",
+      "url": "https://job-boards.greenhouse.io/hrttalentcommunity/jobs/3432773"
+    },
+    {
+      "title": "FPGA Verification and Developer (Internships and Campus Full-time)",
+      "description": "&lt;p&gt;The applications for our FPGA Verification and Developer internships and full-time roles have not yet opened. To express your interest and be alerted when these positions open, submit your information below!&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-05-06T17:14:56+00:00",
+      "url": "https://job-boards.greenhouse.io/hrttalentcommunity/jobs/4576493"
+    },
+    {
+      "title": "HRT Talent Community",
+      "description": "&lt;p&gt;Interested in HRT but not ready to apply or don&#39;t see what you&#39;re looking for? Join our Talent Community so we can reach out to you when an opportunity arises!&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-05-06T17:14:56+00:00",
+      "url": "https://job-boards.greenhouse.io/hrttalentcommunity/jobs/3530960"
+    }
+  ],
+  "primary_function": "mixed",
+  "estimated_stage": "unknown",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": null,
+  "tech_role_ratio": 0.3333333333333333,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.5,
+  "startup_likelihood": 0.5,
+  "volatility_signal": 0.0,
+  "notes": "Only 3 jobs posted, mostly talent community and internship interest forms",
+  "overall_confidence": 0.3,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -3,7 +3,7 @@
   "status": "skipped",
   "slug": "safety",
   "board": "ashby",
-  "decision_at": "2026-07-12T20:07:39.166854+00:00",
+  "decision_at": "2026-07-13T03:03:06.327875+00:00",
   "reason": "fewer_than_3_jobs",
   "source_jobs_count": 1
 }

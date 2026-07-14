@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "eventual",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T04:28:27.578298+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-04-17T16:54:20.988000+00:00",
+  "source_jobs": [
+    {
+      "title": "Growth",
+      "description": "About Eventual\n\nEventual is the company behind Premium Lock, the 3-Year Price Guarantee for home insurance. Our mission is to make American housing more affordable by first tackling home insurance chaos.\n\nWe\u2019re a small, high-energy team of 12 professionals based in New York City and Los Angeles with expertise from Blackstone, Citadel, and early-stage fintech startups. We\u2019ve raised $7.5m, have paying customers (homeowners) in dozens of US states and a large network of distributors (insurance agents). We\u2019re growing quickly and winning more customers and distributors every day.\n\nJoining Eventual means you\u2019ll be a founding member of our sales and growth team: you\u2019ll scale our distribution network of insurance agents with a full-cycle sales process. We move with urgency, test ideas quickly, and have high attention to detail.\n\nThings you might work on immediately\n\n - Full-cycle sales process: Generate leads, set meetings, host demos, and onboard insurance agents as distributors of Premium Lock\n\n - Build relationships with our existing network of insurance agents to support top-performers and improve performance of under-performers\n\n - Test and deploy growth automation tools to improve distribution with limited resources\n\n - Work closely with leadership to refine messaging and product positioning\n\n - Own CRM hygiene to track, verify, and report performance for founders\n\n - We are in-person only and full-time in Los Angeles (Santa Monica) or New York City (Tribeca)\n\nYou might be a fit if\n\n - You have a relentless focus on continuous learning and an ability to question the status quo\n\n - You have extremely strong communication skills and confidence presenting complex concepts to industry experts\n\n - You\u2019re comfortable with a sales process where you\u2019ll face repeated rejection in a high-pressure, high-growth environment\n\n - You\u2019re self-motivated and energized by building something new in a legacy industry like insurance and housing",
+      "location": "",
+      "first_published": "2026-01-16T18:27:22.816000+00:00",
+      "url": "https://jobs.ashbyhq.com/eventual/b7043129-ebe2-4a7f-a8b8-259bb70de1e8"
+    },
+    {
+      "title": "Generalist",
+      "description": "About Eventual\n\nEventual is the company behind Premium Lock, the 3-Year Price Guarantee for home insurance. Our mission is to make American housing more affordable by first tackling home insurance chaos.\n\nWe\u2019re a small, high-energy team of 12 professionals based in New York City and Los Angeles with expertise from Blackstone, Citadel, and early-stage fintech startups. We\u2019ve raised $7.5m, have paying customers (homeowners) in dozens of US states and a large network of distributors (insurance agents). We\u2019re growing quickly and winning more customers and distributors every day.\n\nJoining Eventual means you\u2019ll be a founding member of our team. We move with urgency, test ideas quickly, and have high attention to detail.",
+      "location": "",
+      "first_published": "2026-01-21T20:40:44.284000+00:00",
+      "url": "https://jobs.ashbyhq.com/eventual/807c997a-dbe3-495f-b841-ec0d73be0aea"
+    },
+    {
+      "title": "BDR",
+      "description": "About Eventual\n\nEventual is the company behind Premium Lock, the 3-Year Price Guarantee for home insurance. Our mission is to make American housing more affordable by first tackling home insurance chaos.\n\nWe\u2019re a small, high-energy team of 12 professionals based in New York City and Los Angeles with expertise from Blackstone, Citadel, and early-stage fintech startups. We\u2019ve raised $7.5m, have paying customers (homeowners) in dozens of US states and a large network of distributors (insurance agents). We\u2019re growing quickly and winning more customers and distributors every day.\n\nJoining Eventual means you\u2019ll be a founding member of our sales and growth team: you\u2019ll scale our distribution network of insurance agents through proactive outreach to booking demos and onboardings. We move with urgency, test ideas quickly, and have high attention to detail.\n\nThings you might work on immediately\n\n - Top-of-funnel sales process: Generate leads and set meetings with insurance agents as distributors of Premium Lock\n\n - Test and deploy growth automation tools to improve distribution\n\n - Work closely with leadership to refine messaging and product positioning\n\n - Own CRM hygiene to track, verify, and report performance for founders\n\n - We are in-person only and full-time in Los Angeles (Santa Monica) or New York City (Tribeca)\n\nYou might be a fit if\n\n - You have a relentless focus on continuous learning and an ability to question the status quo\n\n - You have extremely strong communication skills and confidence presenting complex concepts to industry experts\n\n - You\u2019re comfortable with a sales process where you\u2019ll face repeated rejection in a high-pressure, high-growth environment\n\n - You\u2019re self-motivated and energized by building something new in a legacy industry like insurance and housing",
+      "location": "",
+      "first_published": "2026-04-17T16:54:20.988000+00:00",
+      "url": "https://jobs.ashbyhq.com/eventual/075dff33-58e3-4540-80a2-efc17d8b64d9"
+    }
+  ],
+  "primary_function": "mixed",
+  "estimated_stage": "seed",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Small team, fintech startup with insurance focus",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

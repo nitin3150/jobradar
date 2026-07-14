@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "slug": "julius",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T14:01:25.821474+00:00",
+  "source_jobs_count": 4,
+  "source_last_published": "2026-06-08T19:22:12.029000+00:00",
+  "source_jobs": [
+    {
+      "title": "Growth Intern",
+      "description": "Growth Intern at Julius AI\n\nWith AI, the future belongs to the people who figure out distribution. We have the product and 2M+ users. Now we are looking for someone who can help us crack the next phase of growth.\n\nJulius https://julius.ai is an AI data analyst used by over 2M users, including companies like Nvidia and institutions like Harvard Business School. As our growth intern, you'll own critical growth and distribution projects at a fast-moving AI startup, with real autonomy and a direct line to the founding team. This position touches content, distribution, community, and video, and you'll have a lot of room to shape what the role becomes, as well as an opportunity to turn this into a full-time role.\n\nWhat you'll do:\n\n - Own content across X, LinkedIn, Reddit, and YouTube, from ideation to publishing\n\n - Create video content including short form clips, product capability videos, industry deep dives, and other engaging content across channels\n\n - Find creative ways to get Julius in front of new audiences, whether that's jumping on trending conversations with data visualizations, building relationships in online communities, or testing entirely new channels\n\n - Track what's working and double down on it. We care about results, not activity.\n\nWhat we're looking for:\n\n - Background in business, marketing, entrepreneurship, or finance\n\n - Strong written and verbal communication skills\n\n - Comfortable being on camera and creating video content\n\n - Numbers-driven and genuinely curious about data\n\n - High-agency and willing to quickly learn skills you don't have yet\n\n - Can start remote ASAP and go full-time in SF for the summer\n\nBonus points:\n\n - You have an active presence on at least one of these platforms: X, LinkedIn, TikTok, Instagram, or Reddit\n\n - You have intuition on what makes something go viral\n\nInterview process:\n\n - Intro chat with the founder\n\n - Paid take-home project where you create growth content for Julius\n\n[https://app.ashbyhq.com/api/images/user-content/b4801f92-bb9e-4d04-a4a5-9191f60a6732/f224ee88-6cc3-40a0-9c30-a92ea32b9ac9/image.png]\n\n",
+      "location": "",
+      "first_published": "2026-06-08T19:22:12.029000+00:00",
+      "url": "https://jobs.ashbyhq.com/julius/29f2ce98-e22e-4087-8f78-48231504cd9d"
+    },
+    {
+      "title": "Software Engineer - Product (New Grad)",
+      "description": "Benefits: Health & dental insurance, gym reimbursement, daily team meals, commuter benefits\n\nWe are an early stage applied AI startup building agents that automate knowledge work with code. We\u2019re on a mission to enable one billion humans to become software creators, and we are starting with a focus on data science and analysis use cases.\n\nToday, Julius writes and executes 1 million lines of code every 36 hours, has served over 1 million users and generated over 3 million data visualizations.\n\nWe're a small technical team with experience from Uber, Facebook and Scale AI. We're making revenue and we're backed by some of best investors like AI Grant, YCombinator, Bessemer Venture Partners and founders of Vercel, Notion, Perplexity, Palantir, Replit, Zapier, Intercom, Dropbox and researchers from OpenAI and Google DeepMind.\n\nBuilding intuitive and performant user interfaces is critical to making Julius easy to use for over 1 million users. Our interface has several moving parts including tool use, multi-step reasoning, code generation, code execution, file and secrets management, and more. You will get to define and build the experiences for all of these as we scale to our future milestones.\n\nWhat you'll do:\n\n - Build products that bring AI capabilities to millions of people\n\n - Design and implement intuitive, responsive, and performant user interfaces\n\n - Optimize application performance and ensure cross-browser compatibility\n\nWhat we're looking for:\n\n - Experience with React, Next.js, Tailwind CSS, Python\n\n - Have previous internships or relevant experience where you\u2019ve shipped production level code\n\n - Strong understanding of frontend frontend primitives: component architecture, state management, streaming UIs, and performance profiling\n\n - Strong understanding of backend systems, in particular - relational databases, caching, background jobs, and auth.\n\n - Examples of live projects or products you've built\n\n\nABOUT THE INTERVIEW\n\n - Intro call\n\n - Short paid work trial (2-5 days). Own and ship a project in Julius",
+      "location": "",
+      "first_published": "2026-05-21T00:32:30.409000+00:00",
+      "url": "https://jobs.ashbyhq.com/julius/5e0b677a-f677-44de-93c6-f7848ab5a8e6"
+    },
+    {
+      "title": "Software Engineer - Infrastructure (Mid - Senior)",
+      "description": "Compensation: Competitive base salary and meaningful equity\n\nBenefits: Health & dental insurance, gym reimbursement, daily team meals, commuter benefits\n\nWe\u2019re an applied AI lab building coding agents. Julius executes ~1M lines of code every 36 hours for 1M+ users and has generated 3M+ visualizations. All code runs in code sandboxes (isolated remote containers) that we manage. We\u2019re revenue\u2011generating and backed by AI Grant, YCombinator, Bessemer Venture Partners and the founders from Vercel, Notion, Perplexity, Palantir, Replit, Zapier, Intercom, and Dropbox.\n\nThe Role\n\nBuild and scale the code\u2011execution sandboxes that power Julius across cloud environments (AWS and GCP). We orchestrate 500k+ containers/month and growing. You\u2019ll own reliability, performance, and security for multi\u2011tenant compute.\n\nWhat You\u2019ll Do\n\n - Design and operate secure, multi\u2011tenant container infrastructure with fast startup and smart autoscaling.\n\n - Ship cloud deployments (Helm/Terraform) with SSO, network controls, and audit logging.\n\n - Drive observability (metrics, traces, logs) with clear SLOs; lead incident response.\n\n - Optimize images, scheduling, networking, and cost ; build fair\u2011use and rate\u2011limiting controls.\n\nWhat You Bring\n\n - Production Kubernetes and container internals (Docker/containerd); strong networking fundamentals.\n\n - Cloud (AWS/GCP/Azure) and IaC (Terraform/Helm).\n\n - Monitoring/Logging (Prometheus, Grafana, OpenTelemetry, ELK/Vector).\n\n - Security best practices for containerized, multi\u2011tenant systems.\n\nNice to Have\n\n - gVisor/Kata/Firecracker; Cilium/eBPF; GPU scheduling; serverless autoscaling (KEDA/Knative/Karpenter).\n\n - You\u2019ve built an AI side project and enjoy tinkering with LLMs.\n\nWhy Julius\n\nSmall, senior team; massive impact surface; hard infra problems at meaningful scale.",
+      "location": "",
+      "first_published": "2026-05-21T00:34:57.847000+00:00",
+      "url": "https://jobs.ashbyhq.com/julius/e653d931-d8a4-4647-933e-812d6622f619"
+    },
+    {
+      "title": "Software Engineer - Product (Mid to Senior)",
+      "description": "Compensation: Competitive base salary and meaningful equity\n\nBenefits: Health & dental insurance, gym reimbursement, daily team meals, commuter benefits\n\nWe are an early stage applied AI startup building agents that automate knowledge work with code. We\u2019re on a mission to enable one billion humans to become software creators, and we are starting with a focus on data science and analysis use cases.\n\nToday, Julius writes and executes 1 million lines of code every 36 hours, has served over 1 million users and generated over 3 million data visualizations.\n\nWe're a small technical team with experience from Uber, Facebook and Scale AI. We're making revenue and we're backed by some of best investors like AI Grant, YCombinator, Bessemer Venture Partners and founders of Vercel, Notion, Perplexity, Palantir, Replit, Zapier, Intercom, Dropbox and researchers from OpenAI and Google DeepMind.\n\nBuilding intuitive and performant user interfaces is critical to making Julius easy to use for over 1 million users. Our interface has several moving parts including tool use, multi-step reasoning, code generation, code execution, file and secrets management, and more. You will get to define and build the experiences for all of these as we scale to our future milestones.\n\nWhat you'll do:\n\n - Build products that bring AI capabilities to millions of people\n\n - Design and implement intuitive, responsive, and performant user interfaces\n\n - Optimize application performance and ensure cross-browser compatibility\n\nWhat we're looking for:\n\n - 3+ of experience with React, Next.js, Tailwind CSS\n\n - Strong understanding for frontend frontend primitives: component architecture, state management, streaming UIs, and performance profiling\n\n - Experience scaling applications and backend systems, have experience with relational databases, caching, background jobs, and auth.\n\n - Examples of live projects or products you've built\n\n - Bonus points: You have built an AI side project before, and like prompting and playing with LLMs\n\n\nABOUT THE INTERVIEW\n\n - Intro screen\n\n - Short paid work trial (2-3 days). Own and ship a project in Julius",
+      "location": "",
+      "first_published": "2026-05-21T00:34:34.995000+00:00",
+      "url": "https://jobs.ashbyhq.com/julius/ef275db5-43c3-4a6a-bd70-fb8f02392c9b"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "monthly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.75,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Early-stage applied AI startup with a strong focus on engineering and product development.",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

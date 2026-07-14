@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "palup",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T15:51:10.529716+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-06-09T08:21:59.096000+00:00",
+  "source_jobs": [
+    {
+      "title": "Talent Acquisition Growth Specialist",
+      "description": "What You'll Do\n\n 1. Own the full recruitment lifecycle\u2014from sourcing and screening candidates to coordinating interviews, extending offers, and supporting onboarding.\n\n 2. Proactively build and manage high-quality AI talent pipelines through LinkedIn, job boards, professional communities, referrals, and other sourcing channels.\n\n 3. Partner closely with hiring managers to understand hiring needs, provide market insights, and continuously improve our recruiting process.\n\n 4. Support day-to-day People Operations, including onboarding, offboarding, employee benefits administration, and employee relations.\n\nWhat We're Looking For\n\n 1. 2+ years of experience in Talent Acquisition, Human Resources, Recruiting, or People Operations.\n\n 2. Excellent communication and interpersonal skills, with the ability to create a positive candidate experience and collaborate effectively across teams.\n\n 3. Self-motivated, highly organized, and comfortable working independently in a fast-paced startup environment.\n\n 4. A genuine passion for meeting people and understanding what motivates them.5.\n\n 5. Curiosity and enthusiasm for AI and the technology industry. (You don't need to be an engineer\u2014we're looking for someone who's excited about what we're building.)\n\nWhy Join PalUp?\n\n 1. Be part of a fast-growing startup where your ideas are heard, valued, and quickly put into action.\n\n 2. Gain hands-on experience recruiting top AI talent and rapidly develop your expertise in one of the world's fastest-growing industries.\n\n 3. Work alongside a passionate team that's building AI products with real-world impact.\n\n 4. Enjoy significant opportunities for ownership, learning, and career growth.\n\nReady to Help Build the Future of AI?\n\nWe'd love to hear from you!\n\nSubmit your resume and tell us briefly why you'd like to join PalUp. We'll review applications on a rolling basis and prioritize interviews for candidates who are a great fit.\n\n",
+      "location": "",
+      "first_published": "2024-12-27T10:08:46.741000+00:00",
+      "url": "https://jobs.ashbyhq.com/palup/7d6ce183-bbd9-4f46-92ab-d16f6952c34a"
+    },
+    {
+      "title": "AI Agent Designer",
+      "description": "About the Role\n\nPalUp is building an enterprise AI Agent SaaS platform to help businesses use AI and get much more done with the same team.\n\nOur customers don't just want a chatbot. They want AI Agents to become a real part of how their teams work every day.\n\nWhat You'll Do Every Day\n\n 1. Build and improve PalUp's core AI Agent features \u2014 starting from understanding what merchants and buyers really need, then designing it, building it, and testing it live.\n\n 2. Use AI tools (like Claude Code, Codex, etc.) to turn complex Agent logic into a working product in just a few hours.\n\n 3. Design and improve how the Agent talks, makes decisions, uses tools, and remembers things \u2014 so it really knows how to sell.\n\n 4. Look at the Agent from different angles \u2014 sometimes as the merchant, sometimes as the buyer, sometimes just asking \"did this actually help the business?\"\n\n 5. Keep making the Agent smarter over time, so it gets better and sells better the more it's used.\n\nWho We're Looking For\n\n 1. You've actually built or improved an AI Agent before, and you know at least one of: prompt engineering, RAG, agent design, tool use, or multi-agent systems.\n\n 2. You have a real record of getting things done. It doesn't have to be coding \u2014 maybe you grew a business, built a strong community, or made a messy process run smoothly. You're someone who can figure things out even with no instructions.\n\n 3. You care about results, not just effort. You may not write every line of code, but you can tell right away if an Agent is working well or still needs fixing.\n\n 4. You can easily switch how you look at a problem, depending on the situation.\n\n 5. You're very curious. When something an Agent does doesn't make sense, you keep digging and testing until you understand it \u2014 because you want it to be better.\n\n 6. You communicate clearly. Building an Agent means thinking clearly in words \u2014 if your instructions are unclear, the Agent will be unclear too.",
+      "location": "",
+      "first_published": "2026-05-06T04:10:21.364000+00:00",
+      "url": "https://jobs.ashbyhq.com/palup/319c3454-85e4-4ab9-b001-4004e434ad5e"
+    },
+    {
+      "title": "Customer Success Manager",
+      "description": "About the Role\n\nPalUp is building an enterprise-grade AI Agent SaaS platform that helps businesses adopt AI to dramatically improve efficiency and amplify the output of their teams.\n\nOur customers aren't looking to buy a chatbot. They want AI Agents to become a real part of their company's workflow \u2014 reshaping how their teams actually get work done. That's not something you can achieve with a slide deck or a single demo. It takes someone who sits down with the customer, understands what they truly need, helps them use the platform effectively, and makes sure AI Agents genuinely become part of their daily work.\n\nThat role is the Customer Success Manager \u2014 the bridge between our customers and our product team.\n\nWhat You'll Do\n\n 1. Understand what problems customers want to solve with AI Agents, and help them get up and running on the platform.\n\n 2. Act as the bridge between customers and our product team \u2014 clearly relaying customer issues and feature requests back to the team.\n\n 3. Stay engaged with customers over time, regularly check in on how they're using the platform, and help them get real value out of it, so AI Agents truly become part of their daily work.\n\nWho We're Looking For\n\n 1. 2+ years of work experience, in any industry \u2014 e-commerce, finance, healthcare, law, sales, consulting, marketing, software engineering, and more are all welcome. We believe great Customer Success Managers come from all kinds of backgrounds \u2014 what matters most is that you deeply understand the real day-to-day work of at least one field.\n\n 2. Hands-on experience with AI/LLM technology, and a strong interest in continuing to learn. You don't need to have built a complete AI application yourself, but you should: -Have used tools like Claude Code or Codex to solve real work problems -Understand the basic concepts of Prompt Engineering, Loop Engineering, RAG, and AI Agents\n\n 3. Fluent English (written and spoken) \u2014 you'll be collaborating with overseas clients and teams",
+      "location": "",
+      "first_published": "2026-06-09T08:21:59.096000+00:00",
+      "url": "https://jobs.ashbyhq.com/palup/0c8726cc-88ae-424b-8666-daf1f63de14f"
+    }
+  ],
+  "primary_function": "mixed",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.3333333333333333,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Small job board with mixed roles, AI focus, and no explicit sponsorship or clearance info.",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

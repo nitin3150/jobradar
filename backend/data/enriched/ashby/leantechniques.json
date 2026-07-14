@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "leantechniques",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T14:16:30.119560+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-07-10T15:47:49.784000+00:00",
+  "source_jobs": [
+    {
+      "title": "Senior Java Engineer",
+      "description": "Maybe you\u2019re bored and need a new challenge. Or you\u2019re sick of all the bureaucracy and just want to focus on building kick-ass software. Or maybe you are looking for a job where you can do really great work from anywhere.\n\n\u00a0\n\nWhatever the reason, we want you to know that LT is different. And not just air quotes \u201cdifferent,\u201d but more like \u201cbreathing easy for the first time in a long time\u201d different.\n\n\u00a0\n\nIt\u2019s a place where you can write your own story and make a difference along the way. At LT, you\u2019ll have the freedom and flexibility to do what you think needs to be done, and you\u2019ll get to do it while working alongside a team of other curious individuals who love a good challenge too.\n\n\u00a0\n\nWe\u2019re currently looking to add a Senior Java Engineer to this nerd club of ours. If you\u2019re someone who has 5+ or so years of experience, we\u2019d love to chat.\n\n\u00a0\n\nHere\u2019s what you can expect as a Java Engineer at LT:\n\n - You\u2019ll join forces with 3-5 other team members to deliver high-quality, low-maintenance software solutions that help organizations cement their place in the digital economy.\n\n - You\u2019ll help coach and guide client teams on the best approaches to modern software development in order to create scalable and maintainable applications.\n\n - You\u2019ll use test-driven development practices to help write high-quality code.\n\n - You\u2019ll continue to refine your craft and grow your skills through ongoing training, personal development and other learning opportunities that help you reach your goals.",
+      "location": "",
+      "first_published": "2026-07-10T15:47:49.784000+00:00",
+      "url": "https://jobs.ashbyhq.com/leantechniques/be3565b4-4c58-4363-9165-ef5e54dfd86b"
+    },
+    {
+      "title": "UX Designer",
+      "description": "Maybe you're bored and need a new challenge. Or you're tired of shipping designs into a void and never seeing them built. Or maybe you're looking for a job where you can do great work from anywhere.\n\nWhatever the reason, we want you to know that LT is different. Not air-quotes \"different,\" but more like \"breathing easy for the first time in a long time\" different.\n\nIt's a place where you can write your own story and make a difference along the way. You'll have the freedom to figure out what needs to be done, alongside people who are curious and love a good challenge too.\n\nWe're currently looking to add a Senior UX Designer to this nerd club of ours. Five-ish years in and still learning everyday:\n\nHere's what you can expect as a UX Designer at LT:\n\n - You'll help organizations design intuitive, human-centered software that cements their place in the digital economy.\n\n - You'll embed with a client team, owning the work end-to-end.\n\n - You'll work side-by-side with engineers, not toss designs over a wall, so what ships looks and works the way you intended.\n\n - You'll measure whether the work did what it was supposed to.\n\n - You'll help the people around you get better, teammates and client teams both, by sharing what you know while you're doing the work.\n\n - You'll speak up. If you see something that could be better, say something, no matter whose job it \"is.\"\n\n - You'll keep growing through training, mentorship, and whatever else helps you get where you want to go.\n\nCome humble and curious. Be honest about what you don't know yet. Care about the work more than the title on the process diagram.",
+      "location": "",
+      "first_published": "2026-07-08T15:20:06.795000+00:00",
+      "url": "https://jobs.ashbyhq.com/leantechniques/dd55d13a-23d8-4cef-8891-0add624ec115"
+    },
+    {
+      "title": "Senior Java Engineer",
+      "description": "Maybe you\u2019re bored and need a new challenge. Or you\u2019re sick of all the bureaucracy and just want to focus on building kick-ass software. Or maybe you are looking for a job where you can do really great work from anywhere.\n\n\u00a0\n\nWhatever the reason, we want you to know that LT is different. And not just air quotes \u201cdifferent,\u201d but more like \u201cbreathing easy for the first time in a long time\u201d different.\n\n\u00a0\n\nIt\u2019s a place where you can write your own story and make a difference along the way. At LT, you\u2019ll have the freedom and flexibility to do what you think needs to be done, and you\u2019ll get to do it while working alongside a team of other curious individuals who love a good challenge too.\n\n\u00a0\n\nWe\u2019re currently looking to add a Senior Java Engineer to this nerd club of ours. If you\u2019re someone who has 5+ or so years of experience, we\u2019d love to chat.\n\n\u00a0\n\nHere\u2019s what you can expect as a Java Engineer at LT:\n\n - You\u2019ll join forces with 3-5 other team members to deliver high-quality, low-maintenance software solutions that help organizations cement their place in the digital economy.\n\n - You\u2019ll help coach and guide client teams on the best approaches to modern software development in order to create scalable and maintainable applications.\n\n - You\u2019ll use test-driven development practices to help write high-quality code.\n\n - You\u2019ll continue to refine your craft and grow your skills through ongoing training, personal development and other learning opportunities that help you reach your goals.",
+      "location": "",
+      "first_published": "2026-06-24T19:45:31.762000+00:00",
+      "url": "https://jobs.ashbyhq.com/leantechniques/f6d17a1a-c35c-4a95-8218-832b198c5ee1"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "seed",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "biweekly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.6666666666666666,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.3333333333333333,
+  "notes": "Small, remote-friendly org with a strong engineering focus.",
+  "overall_confidence": 0.7,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

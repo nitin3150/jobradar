@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "craftdocs",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T04:07:22.207723+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-06-05T08:55:21.489000+00:00",
+  "source_jobs": [
+    {
+      "title": "Product Engineer (all level)",
+      "description": "Location: Budapest, Hungary (hybrid) or remote in the EU, with the first month onsite\n\nSeniority: all levels\n\nFull-time\n\n\n\nTHE ROLE IN A NUTSHELL\n\nYou'll work in a small team where ownership is real, and decisions matter. You'll ship features, debug production issues, and question why things are built the way they are. You'll use different enabling tools daily, not to write more code faster, but to multiply your impact and free up time for the work that actually matters: shipping things our users love.\n\nWe care less about your years of experience and more about how you think, learn, and ship.\n\n\n\nWHAT YOU'LL DO\n\n - Own features end-to-end, from problem definition to production\n\n - Work with different coding tools (Claude Code, Cursor, agents) as part of your daily workflow\n\n - Debug and validate code from any source, knowing when to trust it and when to dig deeper\n\n - Collaborate with a small, high-velocity team where everyone contributes to direction\n\n - Challenge assumptions, including your own\n\n - Hold a high quality bar, because we're a small team doing world-class work\n\n\n\nWHAT WE'RE LOOKING FOR\n\nMust have:\n\n - A high quality bar: you care about the details no one else notices, and you're not satisfied until something is genuinely good\n\n - User-first thinking: every line of code comes back to whether it's making someone's life better\n\n - Strong judgment: the ability to evaluate any output, knowing what to accept, reject, and verify\n\n - Curiosity and drive: you explore, you iterate, you don't wait to be told what to do\n\n - Personal projects built with or assisted by AI tools: we want to see how you think with these tools, not just that you use them\n\n - Willingness to set ambitious goals and honestly try to reach them\n\nMatters more than years:\n\n - Product intuition: you understand why something needs to be built, not just how\n\n - Ability to learn fast and adapt\n\n - Debugging instincts: when something feels wrong, you dig until you understand why\n\n - Pride in being part of a small team where you own the outcome end-to-end\n\nIf you find meaning in building things that matter, shipping them at a high quality bar, and working in a small team where ownership is real, we want to talk.\n\nSounds exciting? Apply today!",
+      "location": "",
+      "first_published": "2026-06-05T08:55:21.489000+00:00",
+      "url": "https://jobs.ashbyhq.com/craftdocs/918581ad-8c41-44b8-addc-c7fcf70ed1fe"
+    },
+    {
+      "title": "Product Growth (all levels)",
+      "description": "Location: Budapest, Hungary (hybrid) or remote in the EU with the first month onsite\n\nSeniority: all levels\n\nFull-time\n\n---\n\n\nTHE ROLE IN A NUTSHELL\n\nThis isn't a PM role where you write specs and hand them off. You'll figure out what to build, then help build it. You'll run research, shape strategy, prototype ideas, analyze data, and work side-by-side with engineers and designers to ship.\n\nWe're a small team doing what we believe is world-class work, and we hire people who want that same bar. You'll use whatever tools help you move fast and think clearly, including AI tools where they genuinely help, but the work itself is about taste, judgment, and getting to answers that matter for our users.\n\nWe care less about your years of experience and more about how you think, explore, and make things happen.\n\n\n\n\nWHAT YOU'LL DO\n\n- Figure out what's worth building - through customer research, data analysis, and sharp product intuition\n\n- Prototype and validate before anything gets built at scale\n\n- Use different tools (Claude Code, research agents, prototyping tools) to move from question to insight to testable idea - fast\n\n- Work hands-on with engineering and design, not as a ticket-writer, but as a collaborator in the work\n\n- Ship and measure, own outcomes, not just outputs\n\n\n\n\nWHAT WE'RE LOOKING FOR\n\nMust have:\n\nProduct intuition with a high bar: you sense which problems matter, which solutions will actually work, and you're not satisfied until something is genuinely good\n\nUser-first thinking: every decision comes back to whether it's making someone's life better, not whether it's clever or shippable\n\nStrong judgment: knowing what to trust, what to verify, and when to slow down and use your own head\n\nBias to action: you'd rather test a hypothesis than debate it, you prototype, ship small, and learn\n\nCuriosity without boundaries: you'll dig into data, talk to users, sketch interfaces, whatever it takes to get to the right answer\n\nComfort with modern tools: show us how you've used AI in your product work, for research, synthesis, prototyping, or analysis. We want to see how you think with these tools, not just that you use them\n\n\n\n\nMATTERS MORE THAN YEARS:\n\n- Ability to learn and adapt fast: new tools, new domains, new constraints - you figure it out\n\n- Comfort with ambiguity: you thrive when the path isn't clear\n\n\n\nSounds exciting? Apply here!\n\n",
+      "location": "",
+      "first_published": "2026-06-05T07:47:52.550000+00:00",
+      "url": "https://jobs.ashbyhq.com/craftdocs/bc2fb6c1-6800-48ab-b6d2-88d5d9b6d467"
+    },
+    {
+      "title": "Product Designer (all level)",
+      "description": "Location: Budapest, Hungary (hybrid) or remote in the EU, with the first month onsite\n\nSeniority: all levels\n\nFull-time\n\nWe're looking for a Product Designer who thrives at the intersection of design, strategy, and craft. This isn't a traditional designer role: it's about problem framing, system thinking, and building product experiences our users genuinely love.\n\nAt Craft, we're a small team holding ourselves to a world-class bar. We use all the necessary tools to move fast and free up time for the work that actually matters: deeply understanding our users and shaping experiences worth their trust. If that's the kind of work you want to do, we want to hear from you.\n\n\n\nWHAT YOU'LL DO\n\n\nSTRATEGIC DESIGN AND PROBLEM FRAMING\n\n - Define the right problems to solve, not just create solutions. With so many possible directions, your role is to frame the problems worth solving and guide where we go\n\n - Think in systems, considering how features work together holistically rather than in isolation\n\n - Connect user needs with business objectives, serving as the bridge between what users need and what the business requires\n\n - Make judgment calls under pressure, knowing when something is genuinely good and when it needs more time\n\n\nHANDS-ON EXECUTION\n\n - Move from concept to testable prototype quickly, so more of your time goes into the creative and strategic decisions\n\n - Use AI tools (Claude Code, Codex, and others) to rapidly prototype, iterate, and validate concepts\n\n - Validate and refine outputs from any source, applying your taste and judgment to ensure quality\n\n\nWHO YOU ARE\n\n\n\nCORE TRAITS\n\n - Naturally curious and self-directed: you explore products deeply, ask \"why,\" and don't wait to be told what to do\n\n - High learning velocity: you can quickly pick up new tools, frameworks, and ways of working\n\n - Taste and judgment: you know when something needs more refinement and when it's good enough to ship, and you care about the details no one else notices\n\n - User-first thinking: every design decision comes back to whether it's making someone's life better\n\n - Pride in being part of a small team: small teams move fast and own outcomes end to end. If that energizes you, you'll fit here\n\n - Comfortable with uncertainty: you're energized, not paralyzed, when the path isn't clear\n\n\nSKILLS AND EXPERIENCE\n\n - Strong foundation in product design fundamentals: user research, interaction design, visual design, prototyping\n\n - Comfort with AI tools: show us personal projects or work you've done with them so we can see how you think with them\n\n - System thinking mindset: you naturally consider edge cases, various user states, and how components work together\n\n - Communication skills: you can articulate design decisions, give and receive feedback constructively, and work transparently\n\nDesign at Craft is about deep craft, sharp judgment, and shipping experiences our users love. If that sounds like the work you want to do, we'd love to talk.\n\nSounds exciting? Apply today!",
+      "location": "",
+      "first_published": "2026-06-05T07:55:25.870000+00:00",
+      "url": "https://jobs.ashbyhq.com/craftdocs/509ce7cf-3c9d-441a-b5d5-d4d26f77085d"
+    }
+  ],
+  "primary_function": "product_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.6666666666666666,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Small team with high expectations, hybrid/remote work options in EU",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -3,7 +3,7 @@
   "status": "skipped",
   "slug": "uqual",
   "board": "lever",
-  "decision_at": "2026-07-12T20:09:30.089536+00:00",
+  "decision_at": "2026-07-13T03:05:08.451736+00:00",
   "reason": "fewer_than_3_jobs",
   "source_jobs_count": 1
 }

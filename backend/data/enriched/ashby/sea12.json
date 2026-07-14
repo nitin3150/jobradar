@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "slug": "sea12",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T17:00:06.738038+00:00",
+  "source_jobs_count": 4,
+  "source_last_published": "2025-08-07T15:26:17.627000+00:00",
+  "source_jobs": [
+    {
+      "title": "Platform Engineer",
+      "description": "At Sea12 Technologies, we work with some of the largest public and private companies in the world - taking an executive level approach to their toughest challenges, and solving them with our technology. We specialize in critical industries, such as Manufacturing, Logistics, and Construction, and deliver results that touch millions of people every day.\n\n\n\nAs a Platform Engineer, you'll join a team working to design, build, and optimize our orchestration platform that enables enterprises to create, manage, and execute complex workflows through visual interfaces and AI automation.\n\n\n\nKey Responsibilities:\n\n - Help \u2060Develop and refine Sea12's process Orchestration platform for users to design, optimize, and execute high stakes business processes.\n\n - Design and build secure, high-performance backend services using Go, Gin, PostgreSQL, and Redis. Implement job queues, real-time processing, and distributed workflow execution across cloud environments.\n\n - Architect responsive web applications using Next.js and TypeScript.\n\n - Ensure high-availability, security, and observability of workflow execution engines. Implement best practices for distributed computing, scalable service orchestration, and real-time data processing.\n\n - Partner with other Full-Stack and Forward Deployed Engineers.\n\n\n\nRequirements:\n\n - Strong ability in Full-Stack Development. Expertise in Go, TypeScript, React, and modern web technologies for building scalable, high-performance systems and user interfaces.\n\n - \u2060Hands-on experience with distributed systems, databases (PostgreSQL, Redis), and cloud platforms. Experience with containerization (Docker), CI/CD, and infrastructure as code.\n\n - Strong interest in AI-native development and workflow orchestration. Experience with LLM integration, vector databases, and building visual programming interfaces.\n\n - Experience with real-time systems, job queues, and event-driven architectures. Knowledge of workflow engines, process automation, and distributed computing patterns.\n\n - Familiarity with modern frontend frameworks and state management. Experience with drag-and-drop interfaces, and building complex user interactions.\n\n - Experience with security, authentication and large-scale observability is a plus.\n\n",
+      "location": "",
+      "first_published": "2025-07-12T15:26:31.778000+00:00",
+      "url": "https://jobs.ashbyhq.com/sea12/17ab5e93-061e-4346-a9d5-3dd729336141"
+    },
+    {
+      "title": "Forward Deployed Software Engineer",
+      "description": "At Sea12 Technologies, we work with some of the largest public and private companies in the world - taking an executive level approach to their toughest challenges, and solving them with our technology. We specialize in critical industries, such as Manufacturing, Logistics, and Construction, and deliver results that touch millions of people every day.\n\n\n\nAs a Forward Deployed Engineer, you will work directly with our customers, boots on the ground on the factory floor and in the dispatch rooms. You will bridge the gap between frontier AI research and tangible physical impact for critical industries. One month, you may be working with a Fortune 500 Freight Brokerage, working directly with the executive team to automate customer communications with LLMs. The next month, you may be working with a major cruise line, onsite onboard their ships, helping the crew revolutionize fleet operations.\n\n\n\nWe\u2019re well funded from leading VCs, are growing quickly, and in only months have secured enterprise scale engagements with lasting impact. If you want to build things that drive tangible outcomes you can see with your own eyes, then Sea12 is the place for you.\n\n\n\nExperience/Responsibilities\n\n - Passion: Passionate about the impact of AI systems, and traditionally overlooked industries, such as manufacturing and logistics.\n\n - Strong Communication Skills: Ability to communicate complex ideas simply\n\n - Problem Scouting: Ability to identify the most high value problems to solve among a myriad of potential approaches.\n\n - Feedback: The ability to design and quickly iterate on strong feedback loops from customers. Prioritizing adoption over ego.\n\n - Travel: Ability and desire to travel often, and witness technical deployments with your own eyes.\n\n - Coding Experience: Strong ability Python, SQL, Javascript (Go, C# nice to have)",
+      "location": "",
+      "first_published": "2025-07-13T17:24:51.306000+00:00",
+      "url": "https://jobs.ashbyhq.com/sea12/b0b82450-0ec7-432c-ac52-4eb2b795bb08"
+    },
+    {
+      "title": "Generalist",
+      "description": "At Sea12 Technologies, we work with some of the largest public and private companies in the world - taking an executive level approach to their toughest challenges, and solving them with our technology. We specialize in critical industries, such as Manufacturing, Logistics, and Construction, and deliver results that touch millions of people every day.\n\n\n\nWe're well funded from leading VCs, are growing quickly, and in only months have secured enterprise scale engagements with lasting impact. If you want to build things that drive tangible outcomes you can see with your own eyes, then Sea12 is the place for you.\n\n\n\nIf you care deeply about overlooked industries, and are excited to work at the frontier of applied AI, we have a place for you at Sea12.",
+      "location": "",
+      "first_published": "2025-07-13T16:54:18.098000+00:00",
+      "url": "https://jobs.ashbyhq.com/sea12/bf6c1b01-bd69-4958-aab0-3288f8379d01"
+    },
+    {
+      "title": "Designer / Brand Marketer",
+      "description": "At Sea12 Technologies, we work with some of the largest public and private companies in the world - taking an executive level approach to their toughest challenges, and solving them with our technology. We specialize in critical industries, such as Manufacturing, Logistics, and Construction, and deliver results that touch millions of people every day.\n\n\n\nWe're well funded from leading VCs, are growing quickly, and in only months have secured enterprise scale engagements with lasting impact. If you want to build things that drive tangible outcomes you can see with your own eyes, then Sea12 is the place for you.\n\n\n\nWe're looking for a talented designer / brand marketer to help us redefine an industry.\n\n\n\n\nROLE\n\n - Be the driving force behind Sea12's brand image and design\n\n - Ship frontend code, and work with engineering teams on product approaches\n\n\nQUALIFICATIONS\n\n - Extensive design experience across print and web\n\n - strong frontend coding ability\n\n - Ability to move quickly in a startup environment, even when goals are loosely defined\n\n",
+      "location": "",
+      "first_published": "2025-08-07T15:26:17.627000+00:00",
+      "url": "https://jobs.ashbyhq.com/sea12/b81f7ae8-37ea-4462-bfee-cb0c83fd443d"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "weekly",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.75,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Highly technical job postings with a focus on AI and workflow automation.",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

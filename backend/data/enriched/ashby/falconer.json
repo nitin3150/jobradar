@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "falconer",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T04:29:26.360083+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2025-07-09T00:35:36.751000+00:00",
+  "source_jobs": [
+    {
+      "title": "Founding AI Engineer",
+      "description": "At Falconer, we\u2019re transforming how engineers create, access, and share knowledge with each other and their AI agents. We\u2019re looking for a Founding AI Engineer to help us build an AI-powered knowledge platform that companies love.\n\nAs a founding engineer, you'll have a major impact on our product development, technical direction, and culture.\n\nKey responsibilities:\n\n - Participate in the entire product development lifecycle, including architecture, coding, testing, and deploying\n\n - Research and apply best practices in terms of Knowledge Graph, embeddings, vector and graph RAG search, fine-tuning, and model optimization\n\n - Develop and maintain backend systems including API services, databases, and server-side logic\n\n - Optimize tech stack and applications for maximum precision and speed\n\n - Write clean, efficient, and well-documented code, following industry best practices\u2014the Falconer platform will help you!\n\n - Stay updated with emerging technologies in web development and make recommendations for adopting new tools and practices\u00a0\n\nWho you are:\n\n - Advanced degree in Machine Learning, Computer Science, Data Science, Engineering, or equivalent work experience\n\n - Minimum of 2 years of professional experience in developing ML data pipelines\n\n - Experience with text embeddings, RAG systems, and similarity search\n\n - Familiar with Entity and Relationship recognition models\n\n - Skilled at prompt engineering\n\n - Ability to implement backend systems in Python and/or Node.js\n\n - You can evaluate tradeoffs and propose the most appropriate storage solution (SQL, NoSQL, Vector DBs, Graph databases)\n\n - You enjoy hard problems and open-ended assignments\n\n - You use data to make decisions, and experiment your way around hard problems\n\nBonus points:\n\n - You've developed products with LLMs before (extra if you've already built your own agents)\n\n - You have fine-tuned foundational models to tailor responses to specific data use cases\n\n - You have experience with LlamaIndex and Memgraph to produce knowledge graphs\n\nPerks and benefits:\n\n - Generous equity package\n\n - Competitive salary and benefits\n\n - 401(k) retirement account\n\n - The best equipment and tools, like a spec'd out MacBook, and dev prod tools like Cursor, Claude, and Linear to help you move fast\n\n - Flexible work arrangements with in-office work or hybrid work for the right candidate\n\n - Our current office is in San Francisco, just steps from Caltrain\n\nAt Falconer, we value diversity and equal opportunities. We welcome applicants from all backgrounds and are committed to creating an inclusive workplace. If you are passionate about technology and thrive in a challenging environment, come join our team and help us shape the future of work communication.",
+      "location": "",
+      "first_published": "2025-04-14T17:20:36.717000+00:00",
+      "url": "https://jobs.ashbyhq.com/falconer/75083e64-e5fb-4cb6-ba81-9a548b30e317"
+    },
+    {
+      "title": "Software Engineer, Full-Stack",
+      "description": "At Falconer, we\u2019re transforming how engineers create, access, and share knowledge. We\u2019re looking for a Full-Stack Engineer to help us build an AI-powered knowledge platform that companies love.\n\nKey responsibilities:\n\n - Translate UI/UX designs into high-quality, visually appealing and responsive web applications\n\n - Develop and maintain frontend and backend systems including API services, databases, and server-side logic\n\n - Optimize applications for maximum speed and scalability\n\n - Write clean, efficient, and well-documented code, following industry best practices\u2014the Falconer platform will help you!\n\nWho you are:\n\n - Degree in Computer Science, Engineering or a related field, or equivalent work experience\n\n - Minimum of 4 years of experience in developing web-based applications\n\n - Proficiency in front-end technologies such as HTML, CSS, JavaScript, React, and WebSockets\n\n - Experience with server-side languages (we'll gravitate towards Python and Node.js)\n\n - You enjoy hard problems and open-ended assignments\n\nBonus points:\n\n - Hands-on experience with databases (SQL and/or NoSQL)\n\n - You've developed products with LLMs before (extra if you've already built your own agents)\n\n - You know your way around AWS or Google Cloud\n\nPerks and benefits:\n\n - Generous equity package\n\n - Competitive salary and benefits\n\n - 401(k) retirement account\n\n - The best equipment and tools, like a spec'd out MacBook, and dev prod tools like Cursor, Claude Code, and Linear to help you move fast\n\n - Our office is in San Francisco, just steps from Caltrain",
+      "location": "",
+      "first_published": "2025-07-09T00:35:36.751000+00:00",
+      "url": "https://jobs.ashbyhq.com/falconer/96a5d4d2-02b6-46a8-944d-d6bde4707de3"
+    },
+    {
+      "title": "Founding Engineer, Backend",
+      "description": "At Falconer, we\u2019re transforming how engineers create, access, and share knowledge with each other and their AI agents. We\u2019re looking for a Founding Backend Engineer to help us build an AI-powered knowledge platform that companies love.\n\nAs a founding engineer, you'll have a major impact on our product development, technical direction, and culture.\n\nKey responsibilities:\n\n - Participate in the entire product development lifecycle, including architecture, coding, testing, and deploying\n\n - Research and apply best practices in terms of infra, deployment, and containerization of our products and ML stack\n\n - Develop and maintain backend systems including API services, databases, and server-side logic\n\n - Optimize applications for maximum speed and scalability\n\n - Write clean, efficient, and well-documented code, following industry best practices\u2014the Falconer platform will help you!\n\n - Stay updated with emerging technologies in web development and make recommendations for adopting new tools and practices\u00a0\n\nWho you are:\n\n - Degree in Computer Science, Engineering or a related field, or equivalent work experience\n\n - Minimum of 5 years of experience in developing APIs or backend systems in different languages (we'll gravitate towards Python and Node.js)\n\n - You can evaluate trade-offs and propose the most appropriate storage solution (SQL, NoSQL, Vector DBs)\n\n - You have experience with event queues such as Kafka or RabbitMQ\n\n - You make containers look simple, and are the go-to person to discuss Docker or Kubernetes\n\n - You can make anything run in AWS or Google Cloud\n\n - You enjoy hard problems and open-ended assignments\n\n - You use data to make decisions, and experiment your way around hard problems\n\nBonus points:\n\n - You've developed products with LLMs before (extra if you've already built your own agents)\n\n - You're familiar with vector databases and similarity search\n\nPerks and benefits:\n\n - Generous equity package\n\n - Competitive salary and benefits\n\n - 401(k) retirement account\n\n - The best equipment and tools, like a spec'd out MacBook, and dev prod tools like Cursor, Claude, and Linear to help you move fast\n\n - Flexible work arrangements with in-office work or hybrid work for the right candidate\n\n - Our office is in San Francisco, just steps from Caltrain\n\nAt Falconer, we value diversity and equal opportunities. We welcome applicants from all backgrounds and are committed to creating an inclusive workplace. If you are passionate about technology and thrive in a challenging environment, come join our team and help us shape the future of work communication.",
+      "location": "",
+      "first_published": "2025-04-14T18:26:49.657000+00:00",
+      "url": "https://jobs.ashbyhq.com/falconer/cf424d45-bc08-4036-be3d-c14e633ce1e1"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "seed",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 1.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "AI-powered knowledge platform with multiple founding engineer roles",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "slug": "hamster",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T05:13:04.901469+00:00",
+  "source_jobs_count": 4,
+  "source_last_published": "2025-10-14T18:51:33.643000+00:00",
+  "source_jobs": [
+    {
+      "title": "Senior Javascript Engineer",
+      "description": "You will need a strong background in modern JavaScript frameworks and a deep understanding of full-stack development. You will be instrumental in designing, developing, and maintaining scalable and high-performance applications, with a particular focus on integrating cutting-edge AI capabilities.\n\n\n\n\nRESPONSIBILITIES\n\n - Lead the design, development, and deployment of complex web applications using Next.js and NestJS.\n\n - Develop robust and efficient backend services with Node.js, interacting with PostgreSQL databases.\n\n - Implement and maintain real-time messaging solutions.\n\n - Apply expertise in AI prompt engineering to optimize interactions with large language models.\n\n - Contribute to the training and fine-tuning of machine learning models.\n\n - Develop and integrate features related to embedding, chunking, and Retrieval Augmented Generation (RAG).\n\n - Write clean, maintainable, and well-documented code in TypeScript.\n\n - Collaborate closely with product managers, designers, and other engineers to define, design, and ship new features.\n\n - Mentor junior engineers and contribute to best practices within the team.\n\n - Participate in code reviews to ensure code quality and adherence to standards.\n   \n\n\nREQUIRED SKILLS AND QUALIFICATIONS\n\n - Bachelor's degree in Computer Science, Software Engineering, or a related field, or equivalent practical experience.\n\n - 5+ years of experience as a JavaScript Engineer, with a focus on full-stack development.\n\n - Proficiency in TypeScript.\n\n - Strong experience with PostgreSQL.\n\n - Extensive experience with Next.js for front-end development.\n\n - Demonstrated experience with NestJS for backend development.\n\n - Proven experience with AI prompt engineering.\n\n - Familiarity with model training concepts and practices.\n\n - Experience implementing and managing real-time messaging systems.\n\n - Understanding and practical application of embedding and chunking techniques.\n\n - Experience with Retrieval Augmented Generation (RAG) implementation.\n\n - Solid understanding of software design principles, data structures, and algorithms.\n\n - Excellent problem-solving skills and attention to detail.\n\n - Strong communication and interpersonal skills.\n   \n\n\nPREFERRED QUALIFICATIONS\n\n - Experience with cloud platforms (AWS, Azure, GCP).\n\n - Familiarity with containerization technologies (Docker, Kubernetes).\n\n - Experience with testing frameworks (e.g., Jest, React Testing Library).",
+      "location": "",
+      "first_published": "2025-10-14T18:07:20.660000+00:00",
+      "url": "https://jobs.ashbyhq.com/hamster/32526e80-82c9-45ce-a0a2-ad8810452f1d"
+    },
+    {
+      "title": "Senior Integration Engineer",
+      "description": "You will be responsible for building robust and scalable integrations between various systems of record, ensuring seamless data flow and consistency across platforms. This role requires expertise in stateful two-way synchronization and a deep understanding of integration patterns.\n\n\n\nRESPONSIBILITIES\n\n - Design and implement robust integration solutions between various systems of record.\n\n - Develop stateful two-way synchronization mechanisms to ensure data consistency across platforms.\n\n - Build and maintain APIs for external system integrations.\n\n - Implement error handling and retry mechanisms for reliable data synchronization.\n\n - Monitor and optimize integration performance and reliability.\n\n - Collaborate with product and engineering teams to define integration requirements.\n\n - Document integration patterns and best practices for the team.\n\n - Troubleshoot and resolve integration issues in production environments.\n\n - Mentor junior engineers and contribute to best practices within the team.\n   \n\n\nREQUIRED SKILLS AND QUALIFICATIONS\n\n - Bachelor's degree in Computer Science, Software Engineering, or a related field, or equivalent practical experience.\n\n - 5+ years of experience in software development with a focus on integrations.\n\n - Strong programming skills in JavaScript/TypeScript and experience with Node.js.\n\n - Deep understanding of RESTful APIs and web service architectures.\n\n - Experience with stateful data synchronization and conflict resolution strategies.\n\n - Proficiency in working with various data formats (JSON, XML, CSV) and transformation techniques.\n\n - Experience with message queues and event-driven architectures.\n\n - Strong understanding of database systems and data modeling principles.\n\n - Experience with cloud platforms and infrastructure (AWS, Azure, or GCP).\n\n - Excellent problem-solving skills and attention to detail.\n\n - Strong communication and interpersonal skills.\n   \n\n\nPREFERRED QUALIFICATIONS\n\n - Experience with enterprise integration platforms (MuleSoft, Apache Camel, or similar).\n\n - Knowledge of ETL/ELT processes and data pipeline development.\n\n - Experience with real-time data streaming and processing.\n\n - Familiarity with GraphQL and modern API design patterns.",
+      "location": "",
+      "first_published": "2025-10-14T18:43:40.324000+00:00",
+      "url": "https://jobs.ashbyhq.com/hamster/6fd8f408-1afc-4334-8ba5-00a7dbcc880f"
+    },
+    {
+      "title": "Senior Machine Learning Specialist",
+      "description": "You will be responsible for developing and implementing machine learning solutions that power our AI-native platform. This role requires expertise in custom model development, transformer architectures, and production deployment of ML systems.\n\n\n\nRESPONSIBILITIES\n\n - Design and develop custom machine learning models for specific business use cases.\n\n - Implement and optimize transformer architectures for natural language processing tasks.\n\n - Develop and maintain ML pipelines for data preprocessing, model training, and inference.\n\n - Work with large language models and implement fine-tuning strategies.\n\n - Implement retrieval-augmented generation (RAG) systems and optimize their performance.\n\n - Collaborate with engineering teams to deploy ML models in production environments.\n\n - Monitor and maintain model performance in production, implementing retraining strategies as needed.\n\n - Conduct research on emerging ML techniques and evaluate their applicability to our platform.\n\n - Mentor junior ML engineers and contribute to best practices within the team.\n   \n\n\nREQUIRED SKILLS AND QUALIFICATIONS\n\n - Master's degree or PhD in Computer Science, Machine Learning, or a related field, or equivalent practical experience.\n\n - 5+ years of experience in machine learning development and deployment.\n\n - Strong programming skills in Python and experience with ML frameworks (PyTorch, TensorFlow, or similar).\n\n - Deep understanding of transformer architectures and their applications in NLP.\n\n - Experience with large language models and fine-tuning techniques.\n\n - Proficiency in implementing and optimizing RAG systems.\n\n - Experience with ML model deployment and production monitoring.\n\n - Strong understanding of data preprocessing, feature engineering, and model evaluation techniques.\n\n - Experience with cloud platforms and ML infrastructure (AWS SageMaker, Google Vertex AI, or similar).\n\n - Excellent problem-solving skills and attention to detail.\n\n - Strong communication and interpersonal skills.\n   \n\n\nPREFERRED QUALIFICATIONS\n\n - Experience with MLOps and ML pipeline orchestration tools.\n\n - Knowledge of distributed training and model optimization techniques.\n\n - Experience with vector databases and similarity search algorithms.\n\n - Familiarity with reinforcement learning and multi-agent systems.",
+      "location": "",
+      "first_published": "2025-10-14T18:45:29.057000+00:00",
+      "url": "https://jobs.ashbyhq.com/hamster/c8dd2a3b-84b1-4928-9acb-8d15caaab0bc"
+    },
+    {
+      "title": "Open Application",
+      "description": "If your skillset doesn't match our current open roles, please do fire through your details. We'll let you know when something relevant comes up.",
+      "location": "",
+      "first_published": "2025-10-14T18:51:33.643000+00:00",
+      "url": "https://jobs.ashbyhq.com/hamster/674c8e1b-a65f-44e9-81c3-d31765b37ef3"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.75,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "AI-native platform with focus on machine learning and full-stack development",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

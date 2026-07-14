@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "molecule-software",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T14:58:15.406202+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-06-15T14:27:04.365000+00:00",
+  "source_jobs": [
+    {
+      "title": "Implementation Engineer",
+      "description": "Molecule Software | Poland (Office)\n\nMolecule is a modern ETRM platform built for energy trading companies across power, natural gas, renewables, and financial commodities. We're looking for an Implementation Engineer to join our Poland-based technical team and take ownership of the build work at the core of every client implementation.\n\n\n\n\nTHE ROLE\n\nWorking from requirements and solution plans produced by Implementation BAs and Solution Architects, you'll configure Molecule environments, load and validate data, and execute the testing that takes a client from signed design to live system. You'll also carry support responsibilities for live clients, investigating and resolving technical issues across configuration, data, and platform behaviour.\n\nThis is a back-office, internally-facing role \u2014 you'll work closely with BAs, Solution Architects, and the Technical Team Manager in a structured, documentation-driven delivery environment.\n\n\n\n\nWHAT YOU'LL WORK ON\n\n\u2022 Configuring Molecule across complex instrument types: power (OTC, PPAs, GoOs, exchange-traded), natural gas (physical and financial), financial instruments (FTRs, RECs, RGGIs, options, swaps), and structured contracts with tiered or ratcheted pricing\n\n\u2022 Loading and validating reference data, historical trades, market pricing, and settlement data\n\n\u2022 Executing reconciliations and unit testing before UAT; supporting BAs through client review\n\n\u2022 Investigating and resolving support tickets covering configuration errors, data issues, valuation discrepancies, and settlement anomalies\n\n\u2022 BigBang data migration and validation\n\n\n\n\nWHAT WE'RE LOOKING FOR\n\n\u2022 Background in energy, commodities, or financial services \u2014 a working understanding of physical and financial trading, trade lifecycles, and post-trade processes is required\n\n\u2022 Hands-on experience with an ETRM or CTRM platform is essential\n\n\u2022 Strong SQL: querying, validating, and transforming trade, position, market data, and reference data\n\n\u2022 Familiarity with energy market concepts: forward curves, MTM valuation, P&L attribution, settlement\n\n\u2022 Experience working from structured specification documents with a clear instinct to raise blockers early\n\n\u2022 Strong written English for documentation and async communication",
+      "location": "",
+      "first_published": "2026-06-15T14:18:41.284000+00:00",
+      "url": "https://jobs.ashbyhq.com/molecule-software/14f2d8ec-450f-40e7-974d-7b7b6a22ec33"
+    },
+    {
+      "title": "Technical Team Manager",
+      "description": "Molecule Software | Poland (Office)\n\nMolecule is a modern ETRM platform serving energy trading companies across power, gas, renewables, and financial commodities. As we scale our implementation business, we're hiring a Technical Team Manager to lead our Poland-based technical (build and support) team.\n\n\n\n\nTHE ROLE\n\nYou'll lead a team of Implementation Engineers responsible for the technical configuration, data loading, testing, and support work that underpins every Molecule implementation. This is a player-manager position \u2014 you'll carry a hands-on delivery contribution alongside managing the team's workload, standards, and development.\n\nYou sit between Implementation BAs (who own client relationships and requirements) and the build team (who execute against them). Your job is to make sure work is clearly understood, accurately executed, and delivered on time \u2014 and to build the processes that make that repeatable across a growing portfolio of concurrent implementations.\n\n\n\n\nWHAT YOU'LL BE RESPONSIBLE FOR\n\n\u2022 Managing, mentoring, and developing a team of Implementation Engineers\n\n\u2022 Owning quality and timeliness of all build team outputs: ETRM configuration, data loading, testing, reconciliation, and support\n\n\u2022 Defining and maintaining the operating model between BAs and the technical team\n\n\u2022 Resource allocation across concurrent implementations and support queues\n\n\u2022 Driving continuous improvement \u2014 turning recurring issues into structural fixes\n\n\u2022 Reporting on team throughput and implementation status to CS leadership\n\n\n\n\nWHAT WE'RE LOOKING FOR\n\n\u2022 Hands-on background in energy, commodities, or financial services \u2014 physical and/or financial trading, post-trade processes, ETRM/CTRM experience required\n\n\u2022 Prior experience managing a technical delivery or implementation team in a SaaS or enterprise software environment\n\n\u2022 Strong SQL skills and the ability to independently validate trade, position, and market data outputs\n\n\u2022 Strong process orientation \u2014 comfortable building structure where ways of working are still maturing\n\n\u2022 Excellent written and spoken English; experience with distributed or offshore teams is a strong advantage",
+      "location": "",
+      "first_published": "2026-06-15T14:27:04.365000+00:00",
+      "url": "https://jobs.ashbyhq.com/molecule-software/a2f8802c-3670-49e2-9061-bf901217fbf3"
+    },
+    {
+      "title": "Integration Engineer",
+      "description": "Molecule Software | Poland (Office)\n\nMolecule is a modern ETRM platform built for energy trading companies across power, natural gas, renewables, and financial commodities. We're growing our integration capability and looking for an Integration Engineer to own the technical connectivity that sits at the heart of every client implementation.\n\n\n\n\nTHE ROLE\n\nYou'll design, build, and maintain the integrations that connect Molecule to the systems our clients depend on \u2014 market data providers, exchange platforms, generation data sources, ERP and CRM systems, SCADA historians, and downstream analytics infrastructure. You'll also build custom reports in SQL, turning client data into the insights they need.\n\nThis is an end-to-end ownership role: from integration design through to testing, documentation, and handover. Where your profile supports it, you'll engage directly with client technical teams \u2014 representing Molecule in integration design discussions and supporting go-live.\n\n\n\n\nWHAT YOU'LL WORK ON\n\n\u2022 Building integrations with ISO and market data providers (Montel, Pharos, ZEMA), exchange platforms (ICE, CME, Nodal), ERP/CRM systems (SAP, Microsoft), and generation data sources\n\n\u2022 API-based price extraction \u2014 forward curves, LMPs, ancillary service prices, settlement data\n\n\u2022 Outbound data feeds and BigBang data lake integration for positions, P&L, and valuations\n\n\u2022 REST APIs, SFTP/FTP, webhooks, and email-based automation\n\n\u2022 SSO and MFA configuration\n\n\u2022 Custom report development in Mode using SQL\n\n\n\n\nWHAT WE'RE LOOKING FOR\n\n\u2022 Background in energy, commodities, or financial services \u2014 familiarity with ETRM/CTRM workflows is strongly preferred\n\n\u2022 Strong Python and TypeScript \u2014 both used daily\n\n\u2022 Solid SQL for data transformation, validation, and reconciliation\n\n\u2022 Hands-on experience with real-world integrations: market data vendors, exchanges, ERP/CRM, or SCADA systems\n\n\u2022 Good understanding of REST APIs, OAuth 2.0, SAML, and common data formats (JSON, XML, CSV, FIX)",
+      "location": "",
+      "first_published": "2026-06-15T14:23:35.515000+00:00",
+      "url": "https://jobs.ashbyhq.com/molecule-software/f12c8764-6aa4-4313-b5b0-2bcebd3afa6c"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": false,
+  "is_likely_startup": true,
+  "tech_role_ratio": 1.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.8,
+  "volatility_signal": 0.0,
+  "notes": "Small team, high tech role ratio, likely startup",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

@@ -3,7 +3,7 @@
   "status": "skipped",
   "slug": "smallstep",
   "board": "ashby",
-  "decision_at": "2026-07-12T20:07:41.188410+00:00",
+  "decision_at": "2026-07-13T03:03:07.770358+00:00",
   "reason": "fewer_than_3_jobs",
   "source_jobs_count": 1
 }

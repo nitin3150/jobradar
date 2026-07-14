@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "hsgllp",
+  "board": "greenhouse",
+  "enriched_at": "2026-07-14T01:22:56.938870+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-06-25T19:25:49+00:00",
+  "source_jobs": [
+    {
+      "title": "2027 2L Summer Associate ",
+      "description": "&lt;p&gt;At Holwell Shuster &amp;amp; Goldberg, summer associates are the future.&lt;/p&gt;\n&lt;p&gt;We are committed to promoting talent from within. We identify our partners from our base of talented associates, and we now identify many associates from our summer associate program. (We have also hired multiple former paralegals as summer associates, in another demonstration of our commitment to promoting from within.)&lt;/p&gt;\n&lt;p&gt;Accordingly, we value our summer associates greatly and invest in their growth. HSG summer associates receive the same work assignments that a first-year associate would\u2014which, at our firm means they are given meaningful responsibility. Summer associates spend significant time at depositions and hearings, and are substantively involved in witness preparation, trial preparation, briefing, and more. &amp;nbsp;&lt;/p&gt;\n&lt;p&gt;Beyond case teams, we provide structured support to summer associates through assigned partner and associate mentors. We also plan a robust schedule of social events to ensure that our lawyers get to know our summer associates personally, and vice versa.&lt;/p&gt;\n&lt;p&gt;We invite summer associates to join us for a 10-week program.&lt;/p&gt;\n&lt;p&gt;If you are interested in a summer associate position, please submit a resume, transcript, and writing sample below.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-01-16T16:55:41+00:00",
+      "url": "https://job-boards.greenhouse.io/hsgllp/jobs/7594929003"
+    },
+    {
+      "title": "Associate",
+      "description": "&lt;p&gt;HSG is thriving, and we seek the brightest litigators to join our team as associates.&lt;/p&gt;\n&lt;p&gt;We are committed to helping our associates develop into the finest lawyers they can be. We do that by actively mentoring our associates and staffing our matters leanly. We believe attorneys learn by doing\u2014by interacting substantively with clients, by determining case strategy, by taking and defending depositions, by arguing motions, and by conducting trials. We provide associates with these opportunities whenever possible.&lt;/p&gt;\n&lt;p&gt;Further to HSG\u2019s commitment to hiring the finest lawyers, we compensate our associates at the level of the top firms in New York, including year-end bonuses at or above market rates. Lawyers coming to HSG from a clerkship also receive a market-rate clerkship bonus. We appreciate the importance of family and other outside commitments. As part of our commitment to fostering a healthy work-life balance, we offer a generous and flexible family leave policy.&lt;/p&gt;",
+      "location": "",
+      "first_published": "2025-11-03T17:29:07+00:00",
+      "url": "https://job-boards.greenhouse.io/hsgllp/jobs/4232657003"
+    },
+    {
+      "title": "Paralegal ",
+      "description": "&lt;p&gt;Holwell Shuster &amp;amp; Goldberg is a litigation boutique specializing in the trial of complex commercial cases, with a particular focus on sophisticated financial, securities, antitrust, and bankruptcy-related disputes.&amp;nbsp; Our firm\u2019s success is largely determined by our commitment to hiring and developing the very best and brightest, creating a team that provides our clients with the highest quality of service.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;Commercial Litigation Paralegals provide support for the firm\u2019s partners and associates. They are responsible for working closely with firm attorneys on various legal projects and performing other duties as required.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;&amp;nbsp;&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Base Salary:&lt;/strong&gt; $50,000 - $55,000 (DOE)&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Responsibilities and duties will include:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Assist with filings of legal pleadings and motion papers&lt;/li&gt;\n&lt;li&gt;Document management (physical and electronic) and document production&lt;/li&gt;\n&lt;li&gt;Trial and deposition preparation&lt;/li&gt;\n&lt;li&gt;Cite check, bluebook and fact check documents and create Tables of Authorities&lt;/li&gt;\n&lt;li&gt;Prepare exhibits for pleadings, motion papers, trials, hearings, presentations, etc.&lt;/li&gt;\n&lt;li&gt;Create trial and case binders&lt;/li&gt;\n&lt;li&gt;Utilize litigation support software programs and other spreadsheet and database programs as needed to perform client projects&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Qualifications:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Four-year college degree&lt;/li&gt;\n&lt;li&gt;Strong academic background&lt;/li&gt;\n&lt;li&gt;Paralegal certificate or work-related experience at a top tier commercial litigation firm considered a plus, but not necessary if candidate has stellar credentials&lt;/li&gt;\n&lt;li&gt;Superb organizational skills&lt;/li&gt;\n&lt;li&gt;Strong verbal and written communication skills&lt;/li&gt;\n&lt;li&gt;Knowledge of bluebooking and cite checking considered a plus&lt;/li&gt;\n&lt;li&gt;Willingness and ability to work overtime and long hours&lt;/li&gt;\n&lt;li&gt;Good judgment and high ethical standards&lt;/li&gt;\n&lt;li&gt;Familiarity and competency with technology, including document review platforms&lt;/li&gt;\n&lt;li&gt;Good client service skills&lt;/li&gt;\n&lt;li&gt;Ability to prioritize and multitask&lt;/li&gt;\n&lt;/ul&gt;",
+      "location": "",
+      "first_published": "2026-06-25T19:25:49+00:00",
+      "url": "https://job-boards.greenhouse.io/hsgllp/jobs/4061463003"
+    }
+  ],
+  "primary_function": "non_tech_satellite",
+  "estimated_stage": "unknown",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": null,
+  "is_likely_startup": false,
+  "tech_role_ratio": 0.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.0,
+  "volatility_signal": 0.0,
+  "notes": "Law firm with no tech roles",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

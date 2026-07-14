@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "messa",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T14:50:42.929831+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-05-21T00:54:25.051000+00:00",
+  "source_jobs": [
+    {
+      "title": "Senior Full Stack Engineer",
+      "description": "ROLE OVERVIEW\n\nWe're looking for a Senior Full Stack Engineer to help design, build, and ship core parts of our product. You'll work across the entire stack, with a strong emphasis on crafting polished, intuitive user experiences, while also building reliable backend systems and integrating AI deeply into the product.\n\nWe\u2019re an early stage full of energy team. Everyone wears multiple hats, moves fast, and cares deeply about what we're building. We need someone with a product mindset: not just an engineer who executes specs, but someone who thinks about why we're building something and how users will experience it.\n\n\n\n\nWHAT YOU'LL DO\n\n - Build and own end-to-end product features across the full stack.\n\n - Design and implement clean, high-performance user interfaces. This is where your craft shines.\n\n - Develop and maintain robust APIs and backend services.\n\n - Integrate AI agents and LLM-powered workflows into the product.\n\n - Participate in code reviews and help maintain a high quality bar across the codebase.\n\n - Think like a product builder: bring ideas, question assumptions, and help shape what we ship.\n\n\n\n\nWHAT WE'RE LOOKING FOR\n\nMust-haves:\n\n - Expert-level proficiency in React and modern TypeScript.\n\n - Basic backend experience. You're comfortable designing APIs and working with server-side systems.\n\n - Sharp eye for UI/UX. You build interfaces that feel polished and intuitive, not just functional.\n\n - Experience working with AI/LLM tools in your workflow and integrating AI capabilities into product features.\n\n - Product mindset. You think about the user, not just the ticket.\n\n - High-quality code output with minimal review overhead.\n\n - Comfort with ambiguity and speed in an early-stage environment.\n\nNice to have:\n\n - Experience building SaaS products from early stages.\n\n - Python coding skills.\n\n - Experience building browser extensions.\n\n - Experience with desktop app development (Electron, Qt, etc.).\n\n - Familiarity with AWS or another major cloud platform.\n\n - Experience using Docker across development and production.\n\n - Experience with AI agent orchestration or agentic workflows.",
+      "location": "",
+      "first_published": "2025-12-18T18:20:39.561000+00:00",
+      "url": "https://jobs.ashbyhq.com/messa/205b3e45-b131-4d3a-92cb-3b3dd9a559a1"
+    },
+    {
+      "title": "GTM Lead",
+      "description": "We're building the missing evaluation layer for hiring: structured, evidence-based interviews that are AI-assisted and human-decided. We work with publicly listed companies and global startups, backed by top-tier VCs. Founded by a two-time exited founder.\n\n\n\n\nTHE ROLE\n\nWe\u2019re looking for our first GTM hire. You're coming in to support that motion, amplify it, and learn it from the inside. Over time, as you earn the room and the playbook takes shape, you'll take on more and eventually own it.\n\nYou'll work alongside the CEO and our Head of Talent & Product Strategy on every active deal. Your job is to make the founding team faster and more leveraged today; and to be the person ready to run this tomorrow.\n\n\n\n\nWHAT YOU'LL DO\n\n - Support active deals end-to-end. Real enterprise ACVs with buying committees and procurement. Discovery prep, demo follow-up, account research, security review coordination, contract logistics, next-step orchestration. You'll be in every room.\n\n - Build a modern GTM machine on top of AI. Clay enrichment, signal-based outbound, deal intelligence, AI-drafted follow-ups, agents that pre-qualify. You should run a one-person operation that punches like a team of five.\n\n - Own a pipeline of 30\u201350 active opportunities. CRM hygiene, forecasting, account plans \u2014 you build it because nobody else will.\n\n - Run outbound. Sequences, account lists, ABM-light motions. You don't need to be a copywriter, but you need to write a cold email that opens.\n\n - Document everything into a playbook. Discovery questions, objection handling, demo flow, ICP definition. The playbook is how you eventually take it over.\n\n\n\n\nWHO YOU ARE\n\n - You spent the last 2\u20134 years inside an AI or vertical SaaS company going from early traction to real scale. You weren't running GTM, but you were in the room. You watched the playbook get built, saw deals close, and now you want to do it yourself.\n\n - You've worked enterprise deals in some capacity: SDR, BDR, AE, solutions, CS, or chief of staff. You've seen security reviews and procurement up close. You're not scared of the complexity; you're attracted to it.\n\n - Bilingual English/Spanish \u2014 a real plus given our team and early customers.\n\n - You're genuinely proficient with AI. You have a stack. You build agents. You chain tools together. You've replaced hours with minutes. The frontier moves every week and you move with it. This is a hard requirement.\n\n - You write in a way that changes how people think about a problem. Cold emails, follow-ups, customer-facing docs\u2026 you don't need a marketer to make your outbound work.\n\n - You have pirate-like tendencies. Tiny budget, outsized result. You see angles others miss.\n\n - Bonus points: HR Tech, recruiting, or workforce experience. Operator background (recruiter, sourcer, in-house talent).\n\n\n\n\nPRACTICALITIES\n\nLocation: Bay Area, CA is preferred\n\nModality: Hybrid\n\nYou\u2019ll report to: CEO\n\nCompensation: Competitive Bay Area pre-seed package. Meaningful founding equity. Health, dental, and vision allowance.\n\n\n\nMessa is an Equal Employment Opportunity and Affirmative Action Employer. We celebrate diversity and are committed to creating an inclusive environment for all employees. All employment decisions are based on business needs, job requirements, and individual qualifications, without regard to race, color, religion, sex, sexual orientation, gender identity, national origin, veteran status, or disability status.",
+      "location": "",
+      "first_published": "2026-05-21T00:26:45.335000+00:00",
+      "url": "https://jobs.ashbyhq.com/messa/376021cd-236f-4058-932e-2885dab3e624"
+    },
+    {
+      "title": "Generalist Intern",
+      "description": "We're building the missing evaluation layer for hiring \u2014 structured, evidence-based interviews, AI-assisted and human-decided. Early customers include publicly listed companies and global startups. Pre-seed, backed by top-tier VCs, founded by a two-time exited founder.\n\nWe\u2019re looking for an Intern in 3 months paid contract, with the possibility of extension (depending on business needs and performance)\n\n\n\n\nWHAT YOU'LL DO\n\nOwn real work from week one. The scope shifts with what the company needs, but expect:\n\n - Optimizing our internal tools (Claude, Notion, Slack \u2014 whatever saves us hours)\n\n - Customer and market research: finding the 500 companies we should be talking to\n\n - GTM support: outbound, demo prep, CRM, anything that moves a deal\n\n - Product support: listening to user calls, surfacing patterns, writing up insights\n\n - Writing: briefs, docs, memos \u2014 sharp and clear\n\n\nWHO YOU ARE\n\n - Recent grad, current student, or 0\u20133 years into your career\n\n - You've built something you\u2019re proud of: a side project, a community, a workflow, a campaign\n\n - Genuinely proficient with AI tools (not just using them, building with them)\n\n - You write clearly and think fast\n\n - Remote-ready: proactive, visible, no hand-holding needed\n\n - You want this to become full-time and you love startup mentality and agility\n\nNice to have: CS, design, or business background. Bilingual English/Spanish. Any HR Tech or recruiting exposure.\n\n\n\nLOGISTICS\n\nRemote, US-based. Bay Area a plus.\nTrial: full-time, paid stipend competitive with top tech internships.\nFull-time conversion: market salary + early equity + benefits.\n\nMessa is an Equal Employment Opportunity and Affirmative Action Employer. We celebrate diversity and are committed to creating an inclusive environment for all employees. All employment decisions are based on business needs, job requirements, and individual qualifications, without regard to race, color, religion, sex, sexual orientation, gender identity, national origin, veteran status, or disability status.",
+      "location": "",
+      "first_published": "2026-05-21T00:54:25.051000+00:00",
+      "url": "https://jobs.ashbyhq.com/messa/a7822443-df7a-424f-a209-fbd408e96f7b"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "pre_seed",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.67,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Early-stage startup with a strong engineering focus, but limited job postings.",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

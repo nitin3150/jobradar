@@ -1,25 +1,62 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "slug": "3redpartners",
   "board": "greenhouse",
-  "enriched_at": "2026-07-12T18:29:23.528383+00:00",
+  "enriched_at": "2026-07-13T18:30:36.059317+00:00",
   "source_jobs_count": 5,
   "source_last_published": "2026-07-09T14:29:26+00:00",
+  "source_jobs": [
+    {
+      "title": "C++ Developer",
+      "description": "&lt;p&gt;3Red Partners, a proprietary trading firm headquartered in Chicago, is seeking a C++ Developer to join the team. Our team has extensive, global experience in a wide variety of asset classes, risk management, and leading trading technologies. We focus our efforts on hiring extremely talented and motivated individuals to collaborate with each other and be on the forefront of leveraging technology and math to implement sophisticated trading strategies.&lt;/p&gt;\n&lt;p&gt;The C++ Developer will have the opportunity to work in one of our offices on all aspects of our high-frequency trading system. We are seeking a candidate that is searching for an opportunity to make a real impact, deliver value, and work within an experienced team.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Your impact:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;Implement, test, and deploy trading system features and tools according to business needs&lt;/li&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;Monitor low latency trading system performance, ensure market data and research resource utilization issues are tracked, bugs are fixed and deployed appropriately&lt;/li&gt;\n&lt;li&gt;Liaise internally with traders and developers to discuss performance optimizations, vet ideas and questions, refactor existing implementation, and monitor updates to the OS, libraries, and current internal frameworks&lt;/li&gt;\n&lt;li&gt;Investigate improvements to the trading system; diagnose, debug, and address issues when needed&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Your skills:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;A Bachelor&#39;s, Master&#39;s, or PhD degree with an emphasis in Computer Science, Engineering or a related field with more than 2 years of relevant work experience&amp;nbsp;&lt;/li&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;Experience with coding languages, specifically, C++ (data structures)&amp;nbsp;&lt;/li&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;Knowledge of third-party libraries (i.e. STL and Boost), linux environments, git&lt;/li&gt;\n&lt;li style=&quot;font-weight: 400;&quot;&gt;Exceptional problem solving, written, and verbal communication skills&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Our perks:&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;3Red offers a competitive compensation and benefits package. In addition to a base salary, we offer performance-based bonuses, reflecting our commitment to rewarding excellence. We also provide comprehensive health benefits, a 401k plan, commuter and wellness reimbursements, as well as several learning and development perks. Our casual dress code, weekly lunches, and team events foster a welcoming and collaborative workplace culture. At our Chicago headquarters, we enhance the workday with fully stocked pantries offering snacks and drinks, a Zen Room for relaxation, and an environment designed to support productivity and well-being.&lt;/p&gt;\n&lt;p&gt;The expected salary range for this position is $150,000 to $250,000, depending on qualifications, experience, and skills.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;em&gt;3Red Partners does not accept unsolicited resumes from 3rd party vendors. Any unsolicited resumes will become property of our team.&amp;nbsp;&lt;/em&gt;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-05-04T12:21:02+00:00",
+      "url": "https://job-boards.greenhouse.io/3redpartners/jobs/4547348002"
+    },
+    {
+      "title": "General Technologist Submissions: Developers, DevOps, SysAdmin",
+      "description": "&lt;p&gt;We are always looking to connect with exceptional talent. Please send us your information and we will respond with any opportunities.&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;em&gt;3Red Partners does not accept unsolicited resumes from 3rd party vendors. Any unsolicited resumes will become property of our team.&amp;nbsp;&lt;/em&gt;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-05-14T13:22:47+00:00",
+      "url": "https://job-boards.greenhouse.io/3redpartners/jobs/4201091002"
+    },
+    {
+      "title": "General Trading Submissions: Traders, Quants, and Quant Devs",
+      "description": "&lt;p&gt;We are always looking to connect with exceptional talent. Please send us your information and we will respond with any opportunities.&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;em&gt;3Red Partners does not accept unsolicited resumes from 3rd party vendors. Any unsolicited resumes will become property of our team.&amp;nbsp;&lt;/em&gt;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-06-01T13:34:51+00:00",
+      "url": "https://job-boards.greenhouse.io/3redpartners/jobs/4201088002"
+    },
+    {
+      "title": "Quant",
+      "description": "&lt;p&gt;3Red Partners LLC, a proprietary trading firm headquartered in Chicago, is seeking a Quant to join the team. 3Red Partners is committed to leveraging technology and math to implement competitive trading strategies. Our team has extensive, global experience in a wide variety of asset classes, risk management, and leading trading technologies. We focus our efforts on hiring extremely talented and motivated individuals to collaborate with each other and compete in the world\u2019s financial markets.&lt;/p&gt;\n&lt;p&gt;The Quant will have the opportunity to work in one of our offices focusing on expanding and optimizing current and future trading opportunities. We are seeking a candidate that is searching for an opportunity to make a real impact, deliver value, and work within an experienced team.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Your impact:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Work with the team to optimize the current strategy components and identify new trading opportunities&lt;/li&gt;\n&lt;li&gt;Research and test alphas to improve existing tools and identify methods to increase trading efficiency &amp;nbsp;&lt;/li&gt;\n&lt;li&gt;Focus on enhancing the production trading system and rewriting existing trades and signals&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Your skills:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;A Bachelor&#39;s, Master&#39;s, or PhD degree with an emphasis in a STEM related field (e.g. Mathematics, Statistics, Physics, Computer Science, Data Science, etc.) with more than 2 years of relevant work experience&lt;/li&gt;\n&lt;li&gt;Experience with Python, C++, and machine learning tools&lt;/li&gt;\n&lt;li&gt;Ability to understand the optimization and profiling of trading systems with proven success of developing models in a low latency trading environment&lt;/li&gt;\n&lt;li&gt;Strong multi-tasking skills, including the ability to prioritize and work on multiple projects at one time&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Our perks:&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;3Red offers a competitive compensation and benefits package. In addition to a base salary, we offer performance-based bonuses, reflecting our commitment to rewarding excellence. We also provide comprehensive health benefits, a 401k plan, commuter and wellness reimbursements, as well as several learning and development perks. Our casual dress code, weekly lunches, and team events foster a welcoming and collaborative workplace culture. At our Chicago headquarters, we enhance the workday with fully stocked pantries offering snacks and drinks, a Zen Room for relaxation, and an environment designed to support productivity and well-being.&lt;/p&gt;\n&lt;p&gt;The expected salary range for this position is $150,000 to $250,000, depending on qualifications, experience, and skills.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;em&gt;3Red Partners does not accept unsolicited resumes from 3rd party vendors. Any unsolicited resumes will become property of our team.&amp;nbsp;&lt;/em&gt;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-07-09T14:29:26+00:00",
+      "url": "https://job-boards.greenhouse.io/3redpartners/jobs/4224805002"
+    },
+    {
+      "title": "Quantitative Developer",
+      "description": "&lt;p&gt;3Red Partners LLC, a proprietary trading firm headquartered in Chicago, is seeking a Quantitative Developer to join the team. 3Red Partners is committed to leveraging technology and math to implement competitive trading strategies. Our team has extensive, global experience in a wide variety of asset classes, risk management, and leading trading technologies. We focus our efforts on hiring extremely talented and motivated individuals to collaborate with each other and compete in the world\u2019s financial markets.&lt;/p&gt;\n&lt;p&gt;The Quantitative Developer will have the opportunity to work in one of our offices on strategy development and code optimization. We are seeking a candidate that is searching for an opportunity to make a real impact, deliver value, and work within an experienced team.&lt;/p&gt;\n&lt;p&gt;&lt;strong&gt;Your impact:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;Partner with the team to build, optimize, and evolve the firms\u2019 current research pipeline and strategy development&lt;/li&gt;\n&lt;li&gt;Identify potential areas for optimization and performance enhancements through research; including, but not limited to suggestions for the ongoing maintenance and improvement of code quality&lt;/li&gt;\n&lt;li&gt;Build components and new infrastructure to maintain new trading strategies and exhausting the testing and debugging skills as part of the development process&lt;/li&gt;\n&lt;li&gt;Work directly with traders and developer to provide realistic project timelines and estimates and ensure team accountability&lt;/li&gt;\n&lt;li&gt;Stay current on industry developments and trends to maintain ongoing business awareness and a competitive edge&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Your skills:&lt;/strong&gt;&lt;/p&gt;\n&lt;ul&gt;\n&lt;li&gt;A Bachelor&#39;s, Master&#39;s, or PhD degree with an emphasis in a STEM related field (e.g. Mathematics, Statistics, Physics, Computer Science, Data Science, etc.) with more than 2 years of relevant work experience&lt;/li&gt;\n&lt;li&gt;Experience coding in C++ and Python&lt;/li&gt;\n&lt;li&gt;Strong organizational and software architecture skills with a proven understanding of optimizing and profiling strategies&lt;/li&gt;\n&lt;li&gt;Ability to multi-task and prioritize multiple projects at one time&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;&lt;strong&gt;Our perks:&lt;/strong&gt;&lt;/p&gt;\n&lt;p&gt;3Red offers a competitive compensation and benefits package. In addition to a base salary, we offer performance-based bonuses, reflecting our commitment to rewarding excellence. We also provide comprehensive health benefits, a 401k plan, commuter and wellness reimbursements, as well as several learning and development perks. Our casual dress code, weekly lunches, and team events foster a welcoming and collaborative workplace culture. At our Chicago headquarters, we enhance the workday with fully stocked pantries offering snacks and drinks, a Zen Room for relaxation, and an environment designed to support productivity and well-being.&lt;/p&gt;\n&lt;p&gt;The expected salary range for this position is $150,000 to $250,000, depending on qualifications, experience, and skills.&lt;/p&gt;\n&lt;p&gt;&amp;nbsp;&lt;/p&gt;\n&lt;p&gt;&lt;em&gt;3Red Partners does not accept unsolicited resumes from 3rd party vendors. Any unsolicited resumes will become property of our team.&amp;nbsp;&lt;/em&gt;&lt;/p&gt;",
+      "location": "",
+      "first_published": "2026-07-08T14:14:25+00:00",
+      "url": "https://job-boards.greenhouse.io/3redpartners/jobs/4224827002"
+    }
+  ],
   "primary_function": "engineering_heavy",
-  "estimated_stage": "series_a",
+  "estimated_stage": "series_b",
   "hiring_volume_estimate": "lt_10",
-  "posting_cadence": "biweekly",
+  "posting_cadence": "monthly",
   "sponsorship_open": null,
   "clearance_required": null,
   "remote_friendly": null,
-  "is_likely_startup": true,
+  "is_likely_startup": false,
   "tech_role_ratio": 0.8,
   "sponsorship_likelihood": 0.4,
   "clearance_likelihood": 0.0,
-  "startup_likelihood": 0.7,
-  "volatility_signal": 0.2,
-  "notes": "Quant/trading focus",
+  "startup_likelihood": 0.2,
+  "volatility_signal": 0.0,
+  "notes": "Proprietary trading firm with tech-heavy job postings",
   "overall_confidence": 0.8,
-  "model_used": "llama-3.3-70b-versatile",
+  "model_used": "meta/llama-3.1-70b-instruct",
   "status": "ok"
 }

@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "shuttlelabs",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T17:14:20.171956+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-01-16T23:37:54.665000+00:00",
+  "source_jobs": [
+    {
+      "title": "Senior Front-end Engineer",
+      "description": "RESPONSIBILITIES\n\n - Own the front-end architecture of a high-throughput, real-time trading application.\n\n - Design, build, and maintain production-grade applications using Next.js, React, and TypeScript.\n\n - Implement pixel-accurate, accessible, and responsive UI systems under strict performance budgets.\n\n - Lead complex feature development end-to-end, from technical design to production rollout.\n\n - Optimize rendering paths, state management, data flow, and bundle size for sub-second interactions.\n\n - Integrate deeply with REST and WebSocket APIs powering live market data and execution flows.\n\n - Collaborate tightly with product, design, and backend engineers on advanced trading workflows.\n\n - Set and uphold engineering standards around code quality, testing, performance, and maintainability.\n\n - Mentor other engineers and raise the bar for front-end execution across the team.\n\n - Contribute across the stack when needed (API design, data models, infra tradeoffs).\n\n\nREQUIREMENTS\n\n - 6+ years of professional front-end engineering experience, with clear ownership of complex production systems.\n\n - Expert-level mastery of React, Next.js, and TypeScript in high-performance environments.\n\n - Deep understanding of front-end architecture, rendering behavior, and performance optimization.\n\n - Proven experience with real-time data systems (WebSockets, streaming updates, event-driven UI).\n\n - Strong instincts around state management, data consistency, and UI correctness under load.\n\n - Comfort reasoning about backend systems (Node.js, databases, cloud infrastructure); hands-on experience is a plus.\n\n - Track record of shipping and maintaining features that operate at scale.\n\n - Ability to make high-leverage technical decisions independently.\n\n\nNON-NEGOTIABLE\n\n - Speed \u2014 in execution, iteration, and UI responsiveness.\n\n - Obsession with performance, not just aesthetics.\n\n - High ownership, low ego, zero tolerance for sloppy systems.\n\n\nPREFERRED\n\n - Prior experience in fintech, trading platforms, or other latency-sensitive products.\n\n - Open-source contributions or technically substantial side projects.\n\n - Comfort operating in fast-moving, high-accountability startup environments.",
+      "location": "",
+      "first_published": "2026-01-16T23:30:50.229000+00:00",
+      "url": "https://jobs.ashbyhq.com/shuttlelabs/a9860024-b498-4888-b564-66c24c952286"
+    },
+    {
+      "title": "Front-end Engineer",
+      "description": "OVERVIEW\n\nTradeGenius is building a next-generation crypto terminal and exchange, with the deepest network coverage of any terminal and the most liquid backers in the industry (details on request). Front-end is not decorative here: it is the conversion engine, the retention loop, and the brand differentiator. While this role is front-end focused, we value engineers who can contribute across the stack. We\u2019ve processed over $1.5B in volume and serve 1.5M+ users.\n\n\nRESPONSIBILITIES\n\n - Architect, build, and maintain high-performance front-end applications using Next.js and TypeScript.\n\n - Implement pixel-perfect, responsive, and accessible UI components.\n\n - Collaborate with product and design to deliver seamless user experiences for advanced trading workflows.\n\n - Optimize performance across devices and browsers with attention to rendering speed, bundle size, and load time.\n\n - Integrate front-end with APIs and occasionally contribute to back-end development when needed.\n\n - Uphold best practices in code quality, testing, and documentation.\n\n - Mentor junior developers and influence engineering culture and standards.\n\n\nREQUIREMENTS\n\n - 4+ years of professional front-end development experience.\n\n - Expert-level proficiency with Next.js, React, and TypeScript.\n\n - Strong grasp of modern front-end architecture, performance optimization, and state management.\n\n - Experience integrating with REST and WebSocket APIs.\n\n - Familiarity with back-end concepts (Node.js, databases, cloud services, Postgres) is a plus.\n\n - Demonstrated ability to own features end-to-end in production systems.\n\n - Ability to operate independently in a distributed or remote-first environment.\n\n - Speed. Speed. Speed. Execution and iteration velocity matter.\n\n\nPREFERRED\n\n - Prior experience in fintech, trading platforms, or real-time applications.\n\n - Contributions to open-source or technically substantial side projects.\n\n - Comfort with rapid iteration and startup velocity.",
+      "location": "",
+      "first_published": "2026-01-16T23:34:14.516000+00:00",
+      "url": "https://jobs.ashbyhq.com/shuttlelabs/65ef52ce-5e25-4a84-a038-c5d140a58dbd"
+    },
+    {
+      "title": "Senior QA Engineer",
+      "description": "ROLE SUMMARY\n\nGenius is building a professional, high-velocity on-chain trading terminal where correctness, determinism, and execution integrity are non-negotiable. This role owns automated testing across both the frontend interface and the on-chain execution layer.\n\nThe Senior QA Engineer is responsible for designing, implementing, and maintaining automated test coverage that continuously validates UI behavior, backend coordination, and on-chain state transitions.\n\nThis is an automation-first role with real ownership over quality infrastructure.\n\n\nCORE RESPONSIBILITIES\n\n - Design and maintain automated test suites covering:\n   \n   - Frontend user flows (wallet connection, balances, trading, error states)\n   \n   - Backend coordination and API contracts\n   \n   - On-chain execution flows and state transitions\n\n - Build deterministic tests for:\n   \n   - Order submission and cancellation\n   \n   - Slippage enforcement and fee calculation\n   \n   - Transaction lifecycle (submitted, pending, confirmed, reverted)\n   \n   - Balance and position reconciliation between UI and chain\n\n - Automate regression coverage for critical trading paths\n\n - Validate frontend state against on-chain truth\n\n - Create mocks, fixtures, and local chain environments where appropriate\n\n - Integrate automated tests into CI/CD pipelines\n\n - Triage failures and distinguish product bugs from test instability\n\n - Work closely with engineers to enforce testability at the architecture level\n\n\nREQUIRED QUALIFICATIONS\n\n - 5+ years experience in QA engineering with a strong automation focus\n\n - Proven experience testing complex, stateful systems\n\n - Strong proficiency with modern test frameworks for:\n   \n   - Frontend automation (e.g. Playwright, Cypress, Selenium)\n   \n   - API and integration testing\n\n - Ability to design deterministic, non-flaky tests\n\n - Strong debugging skills across frontend, backend, and execution layers\n\n - Clear written communication and disciplined documentation\n\n\nPREFERRED QUALIFICATIONS\n\n - Experience testing trading systems, financial platforms, or real-time systems\n\n - Familiarity with blockchain execution models and on-chain state\n\n - Working knowledge (or fast ramp-up ability) on concepts such as:\n   \n   - Wallets and signing flows\n   \n   - Gas estimation and failures\n   \n   - Slippage, MEV, and partial execution scenarios\n\n - Experience running tests against:\n   \n   - Local chains or forks\n   \n   - Testnets and simulated mainnet conditions\n\n\nEXPLICITLY NOT PART OF THIS ROLE\n\n - Manual-only testing without automation ownership\n\n - Writing superficial UI tests that do not validate execution correctness\n\n - Treating QA as a downstream or passive function\n\n\nSUCCESS CRITERIA\n\n - High-confidence releases backed by automated coverage\n\n - Early detection of execution-breaking regressions\n\n - Low test flakiness and fast CI signal\n\n - Clear ownership of quality across frontend and on-chain execution",
+      "location": "",
+      "first_published": "2026-01-16T23:37:54.665000+00:00",
+      "url": "https://jobs.ashbyhq.com/shuttlelabs/40615fe4-f6f8-42dc-a944-a0f76bee3231"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 1.0,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Highly technical job postings with focus on front-end engineering and QA.",
+  "overall_confidence": 0.9,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

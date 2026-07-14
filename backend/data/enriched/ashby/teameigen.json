@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "slug": "teameigen",
+  "board": "ashby",
+  "enriched_at": "2026-07-13T17:45:58.007791+00:00",
+  "source_jobs_count": 3,
+  "source_last_published": "2026-05-28T23:59:00.797000+00:00",
+  "source_jobs": [
+    {
+      "title": "Business Operations",
+      "description": "One of the most underrated roles in ambitious early-stage companies is the utility player. Matt Cohler at theFacebook, Shakil Kahn at Spotify, Akshay Kothari at Notion. Every legendary company had an early operator who became mission critical by making problems disappear and getting things done. We are looking for that person at Eigen.\n\n\n\nThink of the smartest, most resourceful, high-energy person you have ever met. Someone who routinely runs through walls. Someone who takes impossible as an invitation to prove everyone wrong. Over the next 12 months this operator will set the cultural, operational, and administrative foundations of a generational product and institution owning mission critical projects and getting exposure to our board, shareholders, and incredible partners. Those profiles are particularly characterized by:\n\n - Managing dozens of priorities simultaneously without dropping any of them\n\n - Closing the loop on everything - nothing falls through the cracks, no one has to follow up twice\n\n - Learning new domains rapidly and operating in them without needing to be taught\n\n - Holding an unreasonably high bar for the quality of everything they touch\n\n - Being someone people genuinely want to be around - personable, interesting, magnetic",
+      "location": "",
+      "first_published": "2025-12-05T17:18:32.070000+00:00",
+      "url": "https://jobs.ashbyhq.com/teameigen/264ba3bc-6c8f-44d9-aacd-706d12c8361a"
+    },
+    {
+      "title": "Member of Technical Staff - AI Product",
+      "description": "Eigen is looking for outlier AI Product Engineers to help build the future of human connection. You must have experience designing large yet maintainable AI systems, and be excited to do so about 3 times faster than most people think is possible.\n\n\n\nWe are well-capitalized and backed by Peter Fenton (Benchmark), David Singleton (ex CTO, Stripe), Gustav S\u00f6derstr\u00f6m (CEO, Spotify), and only hire the best. Expect talented, thoughtful colleagues and a work environment that\u2019ll expect you to do your best work every day.\n\n\n\n\nWHAT YOU'LL DO\n\n - Invent the technological paradigms that\u2019ll govern the next generation of products in the age of consumer AI\n\n - Advance the next big frontier of AI: emotional intelligence and relational reasoning\n\n - Own the product experience end-to-end working across the stack from context engineering, agent harness, memory system, tooling, etc. while considering impact on user experience\n\n\n\n\nWHAT WE LIKE TO SEE\n\n - Excited to solve difficult and ambiguous product problems with a high degree of autonomy\n\n - Strong confidence in your intuition, product sense, and judgement\n\n - Thinks in terms of product experience and can figure out how to build it\n\n - Can scale across the entire stack\n\n - Loves learning and reading about psychology, sociology, and similar\n\n - Founder mentality with attention to detail that care about the backside of the fence\n\n - Strong communicator with high confidence and low ego\n\n - P99 consumer of claude code and codex tokens\n\n - Experience with Typescript, Python, and building agentic systems",
+      "location": "",
+      "first_published": "2026-05-28T23:59:00.797000+00:00",
+      "url": "https://jobs.ashbyhq.com/teameigen/38706c55-d162-41e8-b401-b004cf65ab70"
+    },
+    {
+      "title": "Member of Technical Staff - AI Platform",
+      "description": "Eigen is looking for outlier AI Platform Engineers to help build the future of human connection. You must have experience designing large yet maintainable AI systems, and be excited to do so about 3 times faster than most people think is possible.\n\n\n\nWe are well-capitalized and backed by Peter Fenton (Benchmark), David Singleton (ex CTO, Stripe), Gustav S\u00f6derstr\u00f6m (CEO, Spotify), and only hire the best. Expect talented, thoughtful colleagues and a work environment that\u2019ll expect you to do your best work every day.\n\n\n\n\nWHAT YOU'LL DO\n\n - Invent the technological paradigms that\u2019ll govern the next generation of products in the age of consumer AI\n\n - Advance the next big frontier of AI: emotional intelligence and relational reasoning\n\n - Contribute to our agent harness, high velocity data pipelines, simulations and evals suite, and foundational platform engineering\n\n\n\n\nWHAT WE LIKE TO SEE\n\n - Excited to solve difficult and ambiguous technical problems with a high degree of autonomy\n\n - Exceptional systems designers that think in terms of architecture, not syntax\n\n - Founder mentality with attention to detail that care about the backside of the fence\n\n - Strong communicator with high confidence and low ego\n\n - P99 consumer of claude code and codex tokens\n\n - Experience with Typescript, Python, and building agentic systems",
+      "location": "",
+      "first_published": "2026-05-28T23:58:39.682000+00:00",
+      "url": "https://jobs.ashbyhq.com/teameigen/7e194be3-07c7-4df9-922b-c582775b4947"
+    }
+  ],
+  "primary_function": "engineering_heavy",
+  "estimated_stage": "series_a",
+  "hiring_volume_estimate": "lt_10",
+  "posting_cadence": "rare",
+  "sponsorship_open": null,
+  "clearance_required": null,
+  "remote_friendly": true,
+  "is_likely_startup": true,
+  "tech_role_ratio": 0.6666666666666666,
+  "sponsorship_likelihood": 0.4,
+  "clearance_likelihood": 0.0,
+  "startup_likelihood": 0.9,
+  "volatility_signal": 0.0,
+  "notes": "Highly technical AI-focused startup with strong backing",
+  "overall_confidence": 0.8,
+  "model_used": "meta/llama-3.1-70b-instruct",
+  "status": "ok"
+}

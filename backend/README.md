@@ -2,7 +2,7 @@
 
 FastAPI service + LangGraph-backed domain scrapers the React/Vite frontend hits.
 
-## Quickstart (standalone, no Docker)
+## Quickstart
 
 ```bash
 # 1. Install deps (pyproject.toml is the source of truth; .venv is ignored)

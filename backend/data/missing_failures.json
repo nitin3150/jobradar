@@ -1,8 +1,15 @@
 {
   "greenhouse": {
     "bonfirestudios": 1,
-    "selkirksport": 1
+    "selkirksport": 1,
+    "abdielcapital": 3
   },
-  "ashby": {},
-  "lever": {}
+  "ashby": {
+    "accelevents": 3,
+    "attentivemobile": 3
+  },
+  "lever": {
+    "agilesearch": 3,
+    "battlecreekchurch": 3
+  }
 }
